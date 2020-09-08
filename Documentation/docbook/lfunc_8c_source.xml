@@ -1,0 +1,304 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lfunc_8c_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/lfunc.c</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;lfunc.c&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Auxiliary&#32;functions&#32;to&#32;manipulate&#32;prototypes&#32;and&#32;closures</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+<anchor xml:id="_lfunc_8c_source_1l00007"/><link linkend="_lfunc_8c_1a8ee1ddf17394c8befb4092208004036c">00007</link> <emphasis role="preprocessor">#define&#32;lfunc_c</emphasis>
+<anchor xml:id="_lfunc_8c_source_1l00008"/><link linkend="_lfunc_8c_1abf0b3947b59218777a8e928a10be205b">00008</link> <emphasis role="preprocessor">#define&#32;LUA_CORE</emphasis>
+00009 
+00010 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lprefix_8h">lprefix.h</link>&quot;</emphasis>
+00011 
+00012 
+00013 <emphasis role="preprocessor">#include&#32;&lt;stddef.h&gt;</emphasis>
+00014 
+00015 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lua_8h">lua.h</link>&quot;</emphasis>
+00016 
+00017 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ldebug_8h">ldebug.h</link>&quot;</emphasis>
+00018 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ldo_8h">ldo.h</link>&quot;</emphasis>
+00019 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lfunc_8h">lfunc.h</link>&quot;</emphasis>
+00020 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lgc_8h">lgc.h</link>&quot;</emphasis>
+00021 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lmem_8h">lmem.h</link>&quot;</emphasis>
+00022 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lobject_8h">lobject.h</link>&quot;</emphasis>
+00023 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lstate_8h">lstate.h</link>&quot;</emphasis>
+00024 
+00025 
+00026 
+<anchor xml:id="_lfunc_8c_source_1l00027"/><link linkend="_lfunc_8h_1a2264994c1f8c6a33705c9dd615271e11">00027</link> <link linkend="_struct_c_closure">CClosure</link>&#32;*<link linkend="_lfunc_8c_1a13a7dac7822f88b00c962b57e97cc0ef">luaF_newCclosure</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nupvals)&#32;{
+00028 &#32;&#32;<link linkend="_struct_g_c_object">GCObject</link>&#32;*o&#32;=&#32;<link linkend="_lgc_8c_1abfc8404c5fbd2a1770202fa0b087d451">luaC_newobj</link>(L,&#32;<link linkend="_lobject_8h_1a2361d923ddb7fc1468b978fe043e35c2">LUA_VCCL</link>,&#32;<link linkend="_lfunc_8h_1ae0283669f47da8432046d0a24c1db93e">sizeCclosure</link>(nupvals));
+00029 &#32;&#32;<link linkend="_struct_c_closure">CClosure</link>&#32;*c&#32;=&#32;<link linkend="_lstate_8h_1a1dcf2ea170c68fe70adb5af7ae04c71e">gco2ccl</link>(o);
+00030 &#32;&#32;c-&gt;nupvalues&#32;=&#32;<link linkend="_llimits_8h_1a596f5b6e992f53a5a4e5732083448dd4">cast_byte</link>(nupvals);
+00031 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;c;
+00032 }
+00033 
+00034 
+<anchor xml:id="_lfunc_8c_source_1l00035"/><link linkend="_lfunc_8h_1a71df2d2b65009262960562c5b0703b92">00035</link> <link linkend="_struct_l_closure">LClosure</link>&#32;*<link linkend="_lfunc_8c_1a9fb730389493e9e60bbf0b6809061af5">luaF_newLclosure</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nupvals)&#32;{
+00036 &#32;&#32;<link linkend="_struct_g_c_object">GCObject</link>&#32;*o&#32;=&#32;<link linkend="_lgc_8c_1abfc8404c5fbd2a1770202fa0b087d451">luaC_newobj</link>(L,&#32;<link linkend="_lobject_8h_1a5d0e6e41ea93960667095501aa5745c1">LUA_VLCL</link>,&#32;<link linkend="_lfunc_8h_1ab5551e284145e5258a8032a97806cfe1">sizeLclosure</link>(nupvals));
+00037 &#32;&#32;<link linkend="_struct_l_closure">LClosure</link>&#32;*c&#32;=&#32;<link linkend="_lstate_8h_1adaac0379079b200986d6ae72b65aefaf">gco2lcl</link>(o);
+00038 &#32;&#32;c-&gt;<link linkend="_struct_l_closure_1aed1f50b9bdc5ce4c7cfa49529472b42c">p</link>&#32;=&#32;NULL;
+00039 &#32;&#32;c-&gt;nupvalues&#32;=&#32;<link linkend="_llimits_8h_1a596f5b6e992f53a5a4e5732083448dd4">cast_byte</link>(nupvals);
+00040 &#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;(nupvals--)&#32;c-&gt;<link linkend="_struct_l_closure_1aa4734795813776a46167fe712dfd9506">upvals</link>[nupvals]&#32;=&#32;NULL;
+00041 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;c;
+00042 }
+00043 
+00044 
+00045 <emphasis role="comment">/*</emphasis>
+00046 <emphasis role="comment">**&#32;fill&#32;a&#32;closure&#32;with&#32;new&#32;closed&#32;upvalues</emphasis>
+00047 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lfunc_8c_source_1l00048"/><link linkend="_lfunc_8h_1a7f4b654cb9bf35af338f3ae1b287bc39">00048</link> <emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lfunc_8c_1a8d0e32d70d1bddfe4311a219927c769c">luaF_initupvals</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_l_closure">LClosure</link>&#32;*cl)&#32;{
+00049 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i;
+00050 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;0;&#32;i&#32;&lt;&#32;cl-&gt;nupvalues;&#32;i++)&#32;{
+00051 &#32;&#32;&#32;&#32;<link linkend="_struct_g_c_object">GCObject</link>&#32;*o&#32;=&#32;<link linkend="_lgc_8c_1abfc8404c5fbd2a1770202fa0b087d451">luaC_newobj</link>(L,&#32;<link linkend="_lobject_8h_1ae982db94518ed52587579ed70d822ad5">LUA_VUPVAL</link>,&#32;<emphasis role="keyword">sizeof</emphasis>(<link linkend="_struct_up_val">UpVal</link>));
+00052 &#32;&#32;&#32;&#32;<link linkend="_struct_up_val">UpVal</link>&#32;*uv&#32;=&#32;<link linkend="_lstate_8h_1a1633a3ec133e64956014aafd04e31cce">gco2upv</link>(o);
+00053 &#32;&#32;&#32;&#32;uv-&gt;<link linkend="_struct_up_val_1a507ba5be7778a879769a2718d6e4afa3">v</link>&#32;=&#32;&amp;uv-&gt;<link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">u</link>.<link linkend="_struct_up_val_1a6de2e81caeee4d42bad2e5f30b0a73f2">value</link>;&#32;&#32;<emphasis role="comment">/*&#32;make&#32;it&#32;closed&#32;*/</emphasis>
+00054 &#32;&#32;&#32;&#32;<link linkend="_lobject_8h_1ad9034def7bbc1965ec3d714d84620b07">setnilvalue</link>(uv-&gt;<link linkend="_struct_up_val_1a507ba5be7778a879769a2718d6e4afa3">v</link>);
+00055 &#32;&#32;&#32;&#32;cl-&gt;<link linkend="_struct_l_closure_1aa4734795813776a46167fe712dfd9506">upvals</link>[i]&#32;=&#32;uv;
+00056 &#32;&#32;&#32;&#32;<link linkend="_lgc_8h_1a90ac4f3c7085a418025edcc7215e8983">luaC_objbarrier</link>(L,&#32;cl,&#32;o);
+00057 &#32;&#32;}
+00058 }
+00059 
+00060 
+00061 <emphasis role="comment">/*</emphasis>
+00062 <emphasis role="comment">**&#32;Create&#32;a&#32;new&#32;upvalue&#32;at&#32;the&#32;given&#32;level,&#32;and&#32;link&#32;it&#32;to&#32;the&#32;list&#32;of</emphasis>
+00063 <emphasis role="comment">**&#32;open&#32;upvalues&#32;of&#32;&apos;L&apos;&#32;after&#32;entry&#32;&apos;prev&apos;.</emphasis>
+00064 <emphasis role="comment">**/</emphasis>
+<anchor xml:id="_lfunc_8c_source_1l00065"/><link linkend="_lfunc_8c_1a9d404aec43305854ac0eb64b56e98558">00065</link> <emphasis role="keyword">static</emphasis>&#32;<link linkend="_struct_up_val">UpVal</link>&#32;*<link linkend="_lfunc_8c_1a9d404aec43305854ac0eb64b56e98558">newupval</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;tbc,&#32;<link linkend="_union_stack_value">StkId</link>&#32;level,&#32;<link linkend="_struct_up_val">UpVal</link>&#32;**prev)&#32;{
+00066 &#32;&#32;<link linkend="_struct_g_c_object">GCObject</link>&#32;*o&#32;=&#32;<link linkend="_lgc_8c_1abfc8404c5fbd2a1770202fa0b087d451">luaC_newobj</link>(L,&#32;<link linkend="_lobject_8h_1ae982db94518ed52587579ed70d822ad5">LUA_VUPVAL</link>,&#32;<emphasis role="keyword">sizeof</emphasis>(<link linkend="_struct_up_val">UpVal</link>));
+00067 &#32;&#32;<link linkend="_struct_up_val">UpVal</link>&#32;*uv&#32;=&#32;<link linkend="_lstate_8h_1a1633a3ec133e64956014aafd04e31cce">gco2upv</link>(o);
+00068 &#32;&#32;<link linkend="_struct_up_val">UpVal</link>&#32;*<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>&#32;=&#32;*prev;
+00069 &#32;&#32;uv-&gt;<link linkend="_struct_up_val_1a507ba5be7778a879769a2718d6e4afa3">v</link>&#32;=&#32;<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(level);&#32;&#32;<emphasis role="comment">/*&#32;current&#32;value&#32;lives&#32;in&#32;the&#32;stack&#32;*/</emphasis>
+00070 &#32;&#32;uv-&gt;<link linkend="_struct_up_val_1a51fb44f615a78d6dd56024623a392ad6">tbc</link>&#32;=&#32;tbc;
+00071 &#32;&#32;uv-&gt;<link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">u</link>.<link linkend="_struct_up_val_1a70efd6629df78085a967d85ee0a8e673">open</link>.next&#32;=&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>;&#32;&#32;<emphasis role="comment">/*&#32;link&#32;it&#32;to&#32;list&#32;of&#32;open&#32;upvalues&#32;*/</emphasis>
+00072 &#32;&#32;uv-&gt;<link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">u</link>.<link linkend="_struct_up_val_1a70efd6629df78085a967d85ee0a8e673">open</link>.previous&#32;=&#32;prev;
+00073 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>)
+00074 &#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>-&gt;u.open.previous&#32;=&#32;&amp;uv-&gt;<link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">u</link>.<link linkend="_struct_up_val_1a70efd6629df78085a967d85ee0a8e673">open</link>.next;
+00075 &#32;&#32;*prev&#32;=&#32;uv;
+00076 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_lfunc_8h_1a3e7e5157cf6e329e4a5609e70b65101f">isintwups</link>(L))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;thread&#32;not&#32;in&#32;list&#32;of&#32;threads&#32;with&#32;upvalues?&#32;*/</emphasis>
+00077 &#32;&#32;&#32;&#32;L-&gt;<link linkend="_structlua___state_1a3c31ce83747be5e373872d7742afc3d1">twups</link>&#32;=&#32;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L)-&gt;twups;&#32;&#32;<emphasis role="comment">/*&#32;link&#32;it&#32;to&#32;the&#32;list&#32;*/</emphasis>
+00078 &#32;&#32;&#32;&#32;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L)-&gt;twups&#32;=&#32;L;
+00079 &#32;&#32;}
+00080 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;uv;
+00081 }
+00082 
+00083 
+00084 <emphasis role="comment">/*</emphasis>
+00085 <emphasis role="comment">**&#32;Find&#32;and&#32;reuse,&#32;or&#32;create&#32;if&#32;it&#32;does&#32;not&#32;exist,&#32;an&#32;upvalue</emphasis>
+00086 <emphasis role="comment">**&#32;at&#32;the&#32;given&#32;level.</emphasis>
+00087 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lfunc_8c_source_1l00088"/><link linkend="_lfunc_8h_1ab4901d5786cbea213d8e200500999a76">00088</link> <link linkend="_struct_up_val">UpVal</link>&#32;*<link linkend="_lfunc_8c_1a20f971bc630264489ebc4deea02be13a">luaF_findupval</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_union_stack_value">StkId</link>&#32;level)&#32;{
+00089 &#32;&#32;<link linkend="_struct_up_val">UpVal</link>&#32;**pp&#32;=&#32;&amp;L-&gt;<link linkend="_structlua___state_1a762ab4537c3697fa94e74b3c0dffd297">openupval</link>;
+00090 &#32;&#32;<link linkend="_struct_up_val">UpVal</link>&#32;*p;
+00091 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(<link linkend="_lfunc_8h_1a3e7e5157cf6e329e4a5609e70b65101f">isintwups</link>(L)&#32;||&#32;L-&gt;<link linkend="_structlua___state_1a762ab4537c3697fa94e74b3c0dffd297">openupval</link>&#32;==&#32;NULL);
+00092 &#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;((p&#32;=&#32;*pp)&#32;!=&#32;NULL&#32;&amp;&amp;&#32;<link linkend="_lfunc_8h_1a9c84a07f72721f9536fc43e26ae84c8b">uplevel</link>(p)&#32;&gt;=&#32;level)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;search&#32;for&#32;it&#32;*/</emphasis>
+00093 &#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(!<link linkend="_lgc_8h_1acc409eb45f598d23d8388fc9e96189ea">isdead</link>(<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L),&#32;p));
+00094 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lfunc_8h_1a9c84a07f72721f9536fc43e26ae84c8b">uplevel</link>(p)&#32;==&#32;level)&#32;&#32;<emphasis role="comment">/*&#32;corresponding&#32;upvalue?&#32;*/</emphasis>
+00095 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;p;&#32;&#32;<emphasis role="comment">/*&#32;return&#32;it&#32;*/</emphasis>
+00096 &#32;&#32;&#32;&#32;pp&#32;=&#32;&amp;p-&gt;<link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">u</link>.<link linkend="_struct_up_val_1a70efd6629df78085a967d85ee0a8e673">open</link>.next;
+00097 &#32;&#32;}
+00098 &#32;&#32;<emphasis role="comment">/*&#32;not&#32;found:&#32;create&#32;a&#32;new&#32;upvalue&#32;after&#32;&apos;pp&apos;&#32;*/</emphasis>
+00099 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lfunc_8c_1a9d404aec43305854ac0eb64b56e98558">newupval</link>(L,&#32;0,&#32;level,&#32;pp);
+00100 }
+00101 
+00102 
+<anchor xml:id="_lfunc_8c_source_1l00103"/><link linkend="_lfunc_8c_1ad6f77f3a49d8b6199525c7edac6fd0a6">00103</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lfunc_8c_1ad6f77f3a49d8b6199525c7edac6fd0a6">callclose</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*ud)&#32;{
+00104 &#32;&#32;<link linkend="_llimits_8h_1a86d500a34c624c2cae56bc25a31b12f3">UNUSED</link>(ud);
+00105 &#32;&#32;<link linkend="_ldo_8c_1a61c0a0185ef5ae1493dad10027f4db7e">luaD_callnoyield</link>(L,&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;-&#32;3,&#32;0);
+00106 }
+00107 
+00108 
+00109 <emphasis role="comment">/*</emphasis>
+00110 <emphasis role="comment">**&#32;Prepare&#32;closing&#32;method&#32;plus&#32;its&#32;arguments&#32;for&#32;object&#32;&apos;obj&apos;&#32;with</emphasis>
+00111 <emphasis role="comment">**&#32;error&#32;message&#32;&apos;err&apos;.&#32;(This&#32;function&#32;assumes&#32;EXTRA_STACK.)</emphasis>
+00112 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lfunc_8c_source_1l00113"/><link linkend="_lfunc_8c_1a523bc674df9f893ade61463c4ba5f09a">00113</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lfunc_8c_1a523bc674df9f893ade61463c4ba5f09a">prepclosingmethod</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_t_value">TValue</link>&#32;*obj,&#32;<link linkend="_struct_t_value">TValue</link>&#32;*err)&#32;{
+00114 &#32;&#32;<link linkend="_union_stack_value">StkId</link>&#32;top&#32;=&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>;
+00115 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*tm&#32;=&#32;<link linkend="_ltm_8c_1a0a3a3df9d6e7f17d806f74d411e59b2d">luaT_gettmbyobj</link>(L,&#32;obj,&#32;<link linkend="_ltm_8h_1a69e345ae253d250b61a03f1d6871c8d1ae986ac24deb0443eb62f40fb5d895edd">TM_CLOSE</link>);
+00116 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lobject_8h_1a39af019fafa202841da3bf7c427bf090">ttisnil</link>(tm))&#32;&#32;<emphasis role="comment">/*&#32;no&#32;metamethod?&#32;*/</emphasis>
+00117 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;nothing&#32;to&#32;call&#32;*/</emphasis>
+00118 &#32;&#32;<link linkend="_lobject_8h_1add70d29b431f66a1dee29a0cb286de6e">setobj2s</link>(L,&#32;top,&#32;tm);&#32;&#32;<emphasis role="comment">/*&#32;will&#32;call&#32;metamethod...&#32;*/</emphasis>
+00119 &#32;&#32;<link linkend="_lobject_8h_1add70d29b431f66a1dee29a0cb286de6e">setobj2s</link>(L,&#32;top&#32;+&#32;1,&#32;obj);&#32;&#32;<emphasis role="comment">/*&#32;with&#32;&apos;self&apos;&#32;as&#32;the&#32;1st&#32;argument&#32;*/</emphasis>
+00120 &#32;&#32;<link linkend="_lobject_8h_1add70d29b431f66a1dee29a0cb286de6e">setobj2s</link>(L,&#32;top&#32;+&#32;2,&#32;err);&#32;&#32;<emphasis role="comment">/*&#32;and&#32;error&#32;msg.&#32;as&#32;2nd&#32;argument&#32;*/</emphasis>
+00121 &#32;&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;=&#32;top&#32;+&#32;3;&#32;&#32;<emphasis role="comment">/*&#32;add&#32;function&#32;and&#32;arguments&#32;*/</emphasis>
+00122 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00123 }
+00124 
+00125 
+00126 <emphasis role="comment">/*</emphasis>
+00127 <emphasis role="comment">**&#32;Raise&#32;an&#32;error&#32;with&#32;message&#32;&apos;msg&apos;,&#32;inserting&#32;the&#32;name&#32;of&#32;the</emphasis>
+00128 <emphasis role="comment">**&#32;local&#32;variable&#32;at&#32;position&#32;&apos;level&apos;&#32;in&#32;the&#32;stack.</emphasis>
+00129 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lfunc_8c_source_1l00130"/><link linkend="_lfunc_8c_1a865c4fcb22304c78c59721af224c34b6">00130</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lfunc_8c_1a865c4fcb22304c78c59721af224c34b6">varerror</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_union_stack_value">StkId</link>&#32;level,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg)&#32;{
+00131 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx&#32;=&#32;<link linkend="_llimits_8h_1a37a9e2c4b53433d34bad0f12a1500c08">cast_int</link>(level&#32;-&#32;L-&gt;<link linkend="_structlua___state_1a8764223139091552413c85d3fc0bb1eb">ci</link>-&gt;<link linkend="_struct_call_info_1a9d82a8ad04b0dd8837e621047972260a">func</link>);
+00132 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*vname&#32;=&#32;<link linkend="_ldebug_8c_1acf87581237e7d0072502ffc5092e8329">luaG_findlocal</link>(L,&#32;L-&gt;<link linkend="_structlua___state_1a8764223139091552413c85d3fc0bb1eb">ci</link>,&#32;idx,&#32;NULL);
+00133 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(vname&#32;==&#32;NULL)&#32;vname&#32;=&#32;<emphasis role="stringliteral">&quot;?&quot;</emphasis>;
+00134 &#32;&#32;<link linkend="_ldebug_8c_1a88d38ca5da2e7a1492fc9d5ad70c32c5">luaG_runerror</link>(L,&#32;msg,&#32;vname);
+00135 }
+00136 
+00137 
+00138 <emphasis role="comment">/*</emphasis>
+00139 <emphasis role="comment">**&#32;Prepare&#32;and&#32;call&#32;a&#32;closing&#32;method.&#32;If&#32;status&#32;is&#32;OK,&#32;code&#32;is&#32;still</emphasis>
+00140 <emphasis role="comment">**&#32;inside&#32;the&#32;original&#32;protected&#32;call,&#32;and&#32;so&#32;any&#32;error&#32;will&#32;be&#32;handled</emphasis>
+00141 <emphasis role="comment">**&#32;there.&#32;Otherwise,&#32;a&#32;previous&#32;error&#32;already&#32;activated&#32;the&#32;original</emphasis>
+00142 <emphasis role="comment">**&#32;protected&#32;call,&#32;and&#32;so&#32;the&#32;call&#32;to&#32;the&#32;closing&#32;method&#32;must&#32;be</emphasis>
+00143 <emphasis role="comment">**&#32;protected&#32;here.&#32;(A&#32;status&#32;==&#32;CLOSEPROTECT&#32;behaves&#32;like&#32;a&#32;previous</emphasis>
+00144 <emphasis role="comment">**&#32;error,&#32;to&#32;also&#32;run&#32;the&#32;closing&#32;method&#32;in&#32;protected&#32;mode).</emphasis>
+00145 <emphasis role="comment">**&#32;If&#32;status&#32;is&#32;OK,&#32;the&#32;call&#32;to&#32;the&#32;closing&#32;method&#32;will&#32;be&#32;pushed</emphasis>
+00146 <emphasis role="comment">**&#32;at&#32;the&#32;top&#32;of&#32;the&#32;stack.&#32;Otherwise,&#32;values&#32;are&#32;pushed&#32;after</emphasis>
+00147 <emphasis role="comment">**&#32;the&#32;&apos;level&apos;&#32;of&#32;the&#32;upvalue&#32;being&#32;closed,&#32;as&#32;everything&#32;after</emphasis>
+00148 <emphasis role="comment">**&#32;that&#32;won&apos;t&#32;be&#32;used&#32;again.</emphasis>
+00149 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lfunc_8c_source_1l00150"/><link linkend="_lfunc_8c_1a4105c820bb9b1b4b4b3bd6613b0ccb05">00150</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lfunc_8c_1a4105c820bb9b1b4b4b3bd6613b0ccb05">callclosemth</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_union_stack_value">StkId</link>&#32;level,&#32;<emphasis role="keywordtype">int</emphasis>&#32;status)&#32;{
+00151 &#32;&#32;<link linkend="_struct_t_value">TValue</link>&#32;*uv&#32;=&#32;<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(level);&#32;&#32;<emphasis role="comment">/*&#32;value&#32;being&#32;closed&#32;*/</emphasis>
+00152 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llimits_8h_1a217a0bd562b98ae8c2ffce44935351e1">likely</link>(status&#32;==&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>))&#32;{
+00153 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lfunc_8c_1a523bc674df9f893ade61463c4ba5f09a">prepclosingmethod</link>(L,&#32;uv,&#32;&amp;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L)-&gt;nilvalue))&#32;&#32;<emphasis role="comment">/*&#32;something&#32;to&#32;call?&#32;*/</emphasis>
+00154 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lfunc_8c_1ad6f77f3a49d8b6199525c7edac6fd0a6">callclose</link>(L,&#32;NULL);&#32;&#32;<emphasis role="comment">/*&#32;call&#32;closing&#32;method&#32;*/</emphasis>
+00155 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_lobject_8h_1a188e1a95c8c6d547a13431a6e1edd5b3">l_isfalse</link>(uv))&#32;&#32;<emphasis role="comment">/*&#32;non-closable&#32;non-false&#32;value?&#32;*/</emphasis>
+00156 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lfunc_8c_1a865c4fcb22304c78c59721af224c34b6">varerror</link>(L,&#32;level,&#32;<emphasis role="stringliteral">&quot;attempt&#32;to&#32;close&#32;non-closable&#32;variable&#32;&apos;%s&apos;&quot;</emphasis>);
+00157 &#32;&#32;}
+00158 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;must&#32;close&#32;the&#32;object&#32;in&#32;protected&#32;mode&#32;*/</emphasis>
+00159 &#32;&#32;&#32;&#32;ptrdiff_t&#32;oldtop;
+00160 &#32;&#32;&#32;&#32;level++;&#32;&#32;<emphasis role="comment">/*&#32;space&#32;for&#32;error&#32;message&#32;*/</emphasis>
+00161 &#32;&#32;&#32;&#32;oldtop&#32;=&#32;<link linkend="_ldo_8h_1a3534573bbeec89c6dbdb3eae5a54f9b9">savestack</link>(L,&#32;level&#32;+&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;top&#32;will&#32;be&#32;after&#32;that&#32;*/</emphasis>
+00162 &#32;&#32;&#32;&#32;<link linkend="_ldo_8c_1a2a5656cf723dffe2e9b5314260bd8896">luaD_seterrorobj</link>(L,&#32;status,&#32;level);&#32;&#32;<emphasis role="comment">/*&#32;set&#32;error&#32;message&#32;*/</emphasis>
+00163 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lfunc_8c_1a523bc674df9f893ade61463c4ba5f09a">prepclosingmethod</link>(L,&#32;uv,&#32;<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(level)))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;something&#32;to&#32;call?&#32;*/</emphasis>
+00164 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;newstatus&#32;=&#32;<link linkend="_ldo_8c_1a1ad7f845cc62b110e3fcc0ae187d7c85">luaD_pcall</link>(L,&#32;<link linkend="_lfunc_8c_1ad6f77f3a49d8b6199525c7edac6fd0a6">callclose</link>,&#32;NULL,&#32;oldtop,&#32;0);
+00165 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(newstatus&#32;!=&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>&#32;&amp;&amp;&#32;status&#32;==&#32;<link linkend="_lfunc_8h_1af4ee877475e5e9b0496b1c6b0bd36192">CLOSEPROTECT</link>)&#32;&#32;<emphasis role="comment">/*&#32;first&#32;error?&#32;*/</emphasis>
+00166 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;status&#32;=&#32;newstatus;&#32;&#32;<emphasis role="comment">/*&#32;this&#32;will&#32;be&#32;the&#32;new&#32;error&#32;*/</emphasis>
+00167 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00168 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(newstatus&#32;!=&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>)&#32;&#32;<emphasis role="comment">/*&#32;suppressed&#32;error?&#32;*/</emphasis>
+00169 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lstate_8c_1a242ebb018d637c41f24b84a2bbc78f34">luaE_warnerror</link>(L,&#32;<emphasis role="stringliteral">&quot;__close&#32;metamethod&quot;</emphasis>);
+00170 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;leave&#32;original&#32;error&#32;(or&#32;nil)&#32;on&#32;top&#32;*/</emphasis>
+00171 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;=&#32;<link linkend="_ldo_8h_1a3fbde7f289e6bf661575e9b802da9e78">restorestack</link>(L,&#32;oldtop);
+00172 &#32;&#32;&#32;&#32;&#32;&#32;}
+00173 &#32;&#32;&#32;&#32;}
+00174 &#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;else&#32;no&#32;metamethod;&#32;ignore&#32;this&#32;case&#32;and&#32;keep&#32;original&#32;error&#32;*/</emphasis>
+00175 &#32;&#32;}
+00176 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;status;
+00177 }
+00178 
+00179 
+00180 <emphasis role="comment">/*</emphasis>
+00181 <emphasis role="comment">**&#32;Try&#32;to&#32;create&#32;a&#32;to-be-closed&#32;upvalue</emphasis>
+00182 <emphasis role="comment">**&#32;(can&#32;raise&#32;a&#32;memory-allocation&#32;error)</emphasis>
+00183 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lfunc_8c_source_1l00184"/><link linkend="_lfunc_8c_1a8e7a4b82fd2a62ae4de628e38742839b">00184</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lfunc_8c_1a8e7a4b82fd2a62ae4de628e38742839b">trynewtbcupval</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*ud)&#32;{
+00185 &#32;&#32;<link linkend="_lfunc_8c_1a9d404aec43305854ac0eb64b56e98558">newupval</link>(L,&#32;1,&#32;<link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(<link linkend="_union_stack_value">StkId</link>,&#32;ud),&#32;&amp;L-&gt;<link linkend="_structlua___state_1a762ab4537c3697fa94e74b3c0dffd297">openupval</link>);
+00186 }
+00187 
+00188 
+00189 <emphasis role="comment">/*</emphasis>
+00190 <emphasis role="comment">**&#32;Create&#32;a&#32;to-be-closed&#32;upvalue.&#32;If&#32;there&#32;is&#32;a&#32;memory&#32;error</emphasis>
+00191 <emphasis role="comment">**&#32;when&#32;creating&#32;the&#32;upvalue,&#32;the&#32;closing&#32;method&#32;must&#32;be&#32;called&#32;here,</emphasis>
+00192 <emphasis role="comment">**&#32;as&#32;there&#32;is&#32;no&#32;upvalue&#32;to&#32;call&#32;it&#32;later.</emphasis>
+00193 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lfunc_8c_source_1l00194"/><link linkend="_lfunc_8h_1a17478c6ccda97c8d77b4be5488c78c08">00194</link> <emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lfunc_8c_1a0f1719e232a25ecfcafed14f8b39ad31">luaF_newtbcupval</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_union_stack_value">StkId</link>&#32;level)&#32;{
+00195 &#32;&#32;<link linkend="_struct_t_value">TValue</link>&#32;*obj&#32;=&#32;<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(level);
+00196 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(L-&gt;<link linkend="_structlua___state_1a762ab4537c3697fa94e74b3c0dffd297">openupval</link>&#32;==&#32;NULL&#32;||&#32;<link linkend="_lfunc_8h_1a9c84a07f72721f9536fc43e26ae84c8b">uplevel</link>(L-&gt;<link linkend="_structlua___state_1a762ab4537c3697fa94e74b3c0dffd297">openupval</link>)&#32;&lt;&#32;level);
+00197 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_lobject_8h_1a188e1a95c8c6d547a13431a6e1edd5b3">l_isfalse</link>(obj))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;false&#32;doesn&apos;t&#32;need&#32;to&#32;be&#32;closed&#32;*/</emphasis>
+00198 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;status;
+00199 &#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*tm&#32;=&#32;<link linkend="_ltm_8c_1a0a3a3df9d6e7f17d806f74d411e59b2d">luaT_gettmbyobj</link>(L,&#32;obj,&#32;<link linkend="_ltm_8h_1a69e345ae253d250b61a03f1d6871c8d1ae986ac24deb0443eb62f40fb5d895edd">TM_CLOSE</link>);
+00200 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lobject_8h_1a39af019fafa202841da3bf7c427bf090">ttisnil</link>(tm))&#32;&#32;<emphasis role="comment">/*&#32;no&#32;metamethod?&#32;*/</emphasis>
+00201 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lfunc_8c_1a865c4fcb22304c78c59721af224c34b6">varerror</link>(L,&#32;level,&#32;<emphasis role="stringliteral">&quot;variable&#32;&apos;%s&apos;&#32;got&#32;a&#32;non-closable&#32;value&quot;</emphasis>);
+00202 &#32;&#32;&#32;&#32;status&#32;=&#32;<link linkend="_ldo_8c_1ab0872b1738a995ecbf1cdc8a9bc0fdf6">luaD_rawrunprotected</link>(L,&#32;<link linkend="_lfunc_8c_1a8e7a4b82fd2a62ae4de628e38742839b">trynewtbcupval</link>,&#32;level);
+00203 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llimits_8h_1ac6c45889010c1bd68631771b64f18101">unlikely</link>(status&#32;!=&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;memory&#32;error&#32;creating&#32;upvalue?&#32;*/</emphasis>
+00204 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(status&#32;==&#32;<link linkend="_lua_8h_1ac28ced8d63f58b5164a298d7d254f658">LUA_ERRMEM</link>);
+00205 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_ldo_8c_1a2a5656cf723dffe2e9b5314260bd8896">luaD_seterrorobj</link>(L,&#32;<link linkend="_lua_8h_1ac28ced8d63f58b5164a298d7d254f658">LUA_ERRMEM</link>,&#32;level&#32;+&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;save&#32;error&#32;message&#32;*/</emphasis>
+00206 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;next&#32;call&#32;must&#32;succeed,&#32;as&#32;object&#32;is&#32;closable&#32;*/</emphasis>
+00207 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lfunc_8c_1a523bc674df9f893ade61463c4ba5f09a">prepclosingmethod</link>(L,&#32;<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(level),&#32;<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(level&#32;+&#32;1));
+00208 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lfunc_8c_1ad6f77f3a49d8b6199525c7edac6fd0a6">callclose</link>(L,&#32;NULL);&#32;&#32;<emphasis role="comment">/*&#32;call&#32;closing&#32;method&#32;*/</emphasis>
+00209 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_ldo_8c_1a2b46d9db5b9ca3d5402a0c2ac640a6b0">luaD_throw</link>(L,&#32;<link linkend="_lua_8h_1ac28ced8d63f58b5164a298d7d254f658">LUA_ERRMEM</link>);&#32;&#32;<emphasis role="comment">/*&#32;throw&#32;memory&#32;error&#32;*/</emphasis>
+00210 &#32;&#32;&#32;&#32;}
+00211 &#32;&#32;}
+00212 }
+00213 
+00214 
+<anchor xml:id="_lfunc_8c_source_1l00215"/><link linkend="_lfunc_8h_1a560691ba7dbb73952d36e6e4a87cb224">00215</link> <emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lfunc_8c_1a3b5a5ae122e85af5c941e9b4ffff53bd">luaF_unlinkupval</link>&#32;(<link linkend="_struct_up_val">UpVal</link>&#32;*uv)&#32;{
+00216 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(<link linkend="_lfunc_8h_1a26a8ecd7d58d326f7f6f20bc8bc8bb55">upisopen</link>(uv));
+00217 &#32;&#32;*uv-&gt;<link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">u</link>.<link linkend="_struct_up_val_1a70efd6629df78085a967d85ee0a8e673">open</link>.previous&#32;=&#32;uv-&gt;<link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">u</link>.<link linkend="_struct_up_val_1a70efd6629df78085a967d85ee0a8e673">open</link>.next;
+00218 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(uv-&gt;<link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">u</link>.<link linkend="_struct_up_val_1a70efd6629df78085a967d85ee0a8e673">open</link>.next)
+00219 &#32;&#32;&#32;&#32;uv-&gt;<link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">u</link>.<link linkend="_struct_up_val_1a70efd6629df78085a967d85ee0a8e673">open</link>.next-&gt;u.open.previous&#32;=&#32;uv-&gt;<link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">u</link>.<link linkend="_struct_up_val_1a70efd6629df78085a967d85ee0a8e673">open</link>.previous;
+00220 }
+00221 
+00222 
+<anchor xml:id="_lfunc_8c_source_1l00223"/><link linkend="_lfunc_8h_1add62dd4cd3a4c06e0cc322915196c5f3">00223</link> <emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lfunc_8c_1ae9fcbf80b5969afd9412b9aed102f94e">luaF_close</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_union_stack_value">StkId</link>&#32;level,&#32;<emphasis role="keywordtype">int</emphasis>&#32;status)&#32;{
+00224 &#32;&#32;<link linkend="_struct_up_val">UpVal</link>&#32;*uv;
+00225 &#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;((uv&#32;=&#32;L-&gt;<link linkend="_structlua___state_1a762ab4537c3697fa94e74b3c0dffd297">openupval</link>)&#32;!=&#32;NULL&#32;&amp;&amp;&#32;<link linkend="_lfunc_8h_1a9c84a07f72721f9536fc43e26ae84c8b">uplevel</link>(uv)&#32;&gt;=&#32;level)&#32;{
+00226 &#32;&#32;&#32;&#32;<link linkend="_struct_t_value">TValue</link>&#32;*slot&#32;=&#32;&amp;uv-&gt;<link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">u</link>.<link linkend="_struct_up_val_1a6de2e81caeee4d42bad2e5f30b0a73f2">value</link>;&#32;&#32;<emphasis role="comment">/*&#32;new&#32;position&#32;for&#32;value&#32;*/</emphasis>
+00227 &#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(<link linkend="_lfunc_8h_1a9c84a07f72721f9536fc43e26ae84c8b">uplevel</link>(uv)&#32;&lt;&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>);
+00228 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(uv-&gt;<link linkend="_struct_up_val_1a51fb44f615a78d6dd56024623a392ad6">tbc</link>&#32;&amp;&amp;&#32;status&#32;!=&#32;<link linkend="_lfunc_8h_1a361b650db587d8b527a90301a7d7a0d8">NOCLOSINGMETH</link>)&#32;{
+00229 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;must&#32;run&#32;closing&#32;method,&#32;which&#32;may&#32;change&#32;the&#32;stack&#32;*/</emphasis>
+00230 &#32;&#32;&#32;&#32;&#32;&#32;ptrdiff_t&#32;levelrel&#32;=&#32;<link linkend="_ldo_8h_1a3534573bbeec89c6dbdb3eae5a54f9b9">savestack</link>(L,&#32;level);
+00231 &#32;&#32;&#32;&#32;&#32;&#32;status&#32;=&#32;<link linkend="_lfunc_8c_1a4105c820bb9b1b4b4b3bd6613b0ccb05">callclosemth</link>(L,&#32;<link linkend="_lfunc_8h_1a9c84a07f72721f9536fc43e26ae84c8b">uplevel</link>(uv),&#32;status);
+00232 &#32;&#32;&#32;&#32;&#32;&#32;level&#32;=&#32;<link linkend="_ldo_8h_1a3fbde7f289e6bf661575e9b802da9e78">restorestack</link>(L,&#32;levelrel);
+00233 &#32;&#32;&#32;&#32;}
+00234 &#32;&#32;&#32;&#32;<link linkend="_lfunc_8c_1a3b5a5ae122e85af5c941e9b4ffff53bd">luaF_unlinkupval</link>(uv);
+00235 &#32;&#32;&#32;&#32;<link linkend="_lobject_8h_1acf2af15f3d5cceca8e8870f96634bc2d">setobj</link>(L,&#32;slot,&#32;uv-&gt;<link linkend="_struct_up_val_1a507ba5be7778a879769a2718d6e4afa3">v</link>);&#32;&#32;<emphasis role="comment">/*&#32;move&#32;value&#32;to&#32;upvalue&#32;slot&#32;*/</emphasis>
+00236 &#32;&#32;&#32;&#32;uv-&gt;<link linkend="_struct_up_val_1a507ba5be7778a879769a2718d6e4afa3">v</link>&#32;=&#32;slot;&#32;&#32;<emphasis role="comment">/*&#32;now&#32;current&#32;value&#32;lives&#32;here&#32;*/</emphasis>
+00237 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_lgc_8h_1a4c0ce78d476460d2e54914301f4a4bf7">iswhite</link>(uv))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;neither&#32;white&#32;nor&#32;dead?&#32;*/</emphasis>
+00238 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lgc_8h_1a990de0d171d8b5425a5515d0bff78789">nw2black</link>(uv);&#32;&#32;<emphasis role="comment">/*&#32;closed&#32;upvalues&#32;cannot&#32;be&#32;gray&#32;*/</emphasis>
+00239 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lgc_8h_1a21660a316c42bc1aad10f115e2261bca">luaC_barrier</link>(L,&#32;uv,&#32;slot);
+00240 &#32;&#32;&#32;&#32;}
+00241 &#32;&#32;}
+00242 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;status;
+00243 }
+00244 
+00245 
+<anchor xml:id="_lfunc_8c_source_1l00246"/><link linkend="_lfunc_8h_1a3afa5dbaef50a7e84627e779d27c5720">00246</link> <link linkend="_struct_proto">Proto</link>&#32;*<link linkend="_lfunc_8c_1a4ffd9d8ef515a7f785d007de7ceb9e4f">luaF_newproto</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00247 &#32;&#32;<link linkend="_struct_g_c_object">GCObject</link>&#32;*o&#32;=&#32;<link linkend="_lgc_8c_1abfc8404c5fbd2a1770202fa0b087d451">luaC_newobj</link>(L,&#32;<link linkend="_lobject_8h_1a1c6c32cba3e6d0c897f68ceb273dd757">LUA_VPROTO</link>,&#32;<emphasis role="keyword">sizeof</emphasis>(<link linkend="_struct_proto">Proto</link>));
+00248 &#32;&#32;<link linkend="_struct_proto">Proto</link>&#32;*f&#32;=&#32;<link linkend="_lstate_8h_1a8792af5dd4539a71f6ed8ddb31d079c3">gco2p</link>(o);
+00249 &#32;&#32;f-&gt;<link linkend="_struct_proto_1a5287370e219b50fe677549b4aafdc81d">k</link>&#32;=&#32;NULL;
+00250 &#32;&#32;f-&gt;<link linkend="_struct_proto_1a207b8b69ed4d393dd3c20925febd29e4">sizek</link>&#32;=&#32;0;
+00251 &#32;&#32;f-&gt;<link linkend="_struct_proto_1ab7af98f98f5cf674f6be5e3fc855af43">p</link>&#32;=&#32;NULL;
+00252 &#32;&#32;f-&gt;<link linkend="_struct_proto_1aea0f5dcb02517aa08aa2ffa58c396260">sizep</link>&#32;=&#32;0;
+00253 &#32;&#32;f-&gt;<link linkend="_struct_proto_1a744e03861a6c76b7eeef213b73419ec7">code</link>&#32;=&#32;NULL;
+00254 &#32;&#32;f-&gt;<link linkend="_struct_proto_1aa3cefdf204c272e3a1a3aa8bc12f4e3e">sizecode</link>&#32;=&#32;0;
+00255 &#32;&#32;f-&gt;<link linkend="_struct_proto_1a0d5af822069e8cdb2bd7f17f3cdcf575">lineinfo</link>&#32;=&#32;NULL;
+00256 &#32;&#32;f-&gt;<link linkend="_struct_proto_1a53f346647cd2060380dad39c9d5caebe">sizelineinfo</link>&#32;=&#32;0;
+00257 &#32;&#32;f-&gt;<link linkend="_struct_proto_1a731ed18a38cc12a903582b927104c883">abslineinfo</link>&#32;=&#32;NULL;
+00258 &#32;&#32;f-&gt;<link linkend="_struct_proto_1ab443243fa7dd09b9c08117626c3f8a61">sizeabslineinfo</link>&#32;=&#32;0;
+00259 &#32;&#32;f-&gt;<link linkend="_struct_proto_1ac3b891662880254a7e0a3dc0afa86254">upvalues</link>&#32;=&#32;NULL;
+00260 &#32;&#32;f-&gt;<link linkend="_struct_proto_1a2e13a98343ef0d1233bb3e62ae519c5f">sizeupvalues</link>&#32;=&#32;0;
+00261 &#32;&#32;f-&gt;<link linkend="_struct_proto_1a2c5c3bfc47c6c4b7b9f4eef47d7167e9">numparams</link>&#32;=&#32;0;
+00262 &#32;&#32;f-&gt;<link linkend="_struct_proto_1a75232df840e02cfa8134903745579657">is_vararg</link>&#32;=&#32;0;
+00263 &#32;&#32;f-&gt;<link linkend="_struct_proto_1ad11e004e7f14af7e281b6da69d08ad7a">maxstacksize</link>&#32;=&#32;0;
+00264 &#32;&#32;f-&gt;<link linkend="_struct_proto_1a7a727780b57a02cd42e7ef902f6e7f90">locvars</link>&#32;=&#32;NULL;
+00265 &#32;&#32;f-&gt;<link linkend="_struct_proto_1af9147ae18b522811714aeb19036f639d">sizelocvars</link>&#32;=&#32;0;
+00266 &#32;&#32;f-&gt;<link linkend="_struct_proto_1a4dfda1a3839aa77fb8fc7626075151dd">linedefined</link>&#32;=&#32;0;
+00267 &#32;&#32;f-&gt;<link linkend="_struct_proto_1a0129a289db231fbe2c6c3b3d6062979e">lastlinedefined</link>&#32;=&#32;0;
+00268 &#32;&#32;f-&gt;<link linkend="_struct_proto_1a47b5f25d6c53f3892e43702659c6de69">source</link>&#32;=&#32;NULL;
+00269 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;f;
+00270 }
+00271 
+00272 
+<anchor xml:id="_lfunc_8c_source_1l00273"/><link linkend="_lfunc_8h_1a0cc4051310ee836ef266607da3a58499">00273</link> <emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lfunc_8c_1a117c26fb473f6165ee84d70d49a741b7">luaF_freeproto</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_proto">Proto</link>&#32;*f)&#32;{
+00274 &#32;&#32;<link linkend="_lmem_8h_1a574612879aa6814c76b8b57c41e4af5a">luaM_freearray</link>(L,&#32;f-&gt;<link linkend="_struct_proto_1a744e03861a6c76b7eeef213b73419ec7">code</link>,&#32;f-&gt;<link linkend="_struct_proto_1aa3cefdf204c272e3a1a3aa8bc12f4e3e">sizecode</link>);
+00275 &#32;&#32;<link linkend="_lmem_8h_1a574612879aa6814c76b8b57c41e4af5a">luaM_freearray</link>(L,&#32;f-&gt;<link linkend="_struct_proto_1ab7af98f98f5cf674f6be5e3fc855af43">p</link>,&#32;f-&gt;<link linkend="_struct_proto_1aea0f5dcb02517aa08aa2ffa58c396260">sizep</link>);
+00276 &#32;&#32;<link linkend="_lmem_8h_1a574612879aa6814c76b8b57c41e4af5a">luaM_freearray</link>(L,&#32;f-&gt;<link linkend="_struct_proto_1a5287370e219b50fe677549b4aafdc81d">k</link>,&#32;f-&gt;<link linkend="_struct_proto_1a207b8b69ed4d393dd3c20925febd29e4">sizek</link>);
+00277 &#32;&#32;<link linkend="_lmem_8h_1a574612879aa6814c76b8b57c41e4af5a">luaM_freearray</link>(L,&#32;f-&gt;<link linkend="_struct_proto_1a0d5af822069e8cdb2bd7f17f3cdcf575">lineinfo</link>,&#32;f-&gt;<link linkend="_struct_proto_1a53f346647cd2060380dad39c9d5caebe">sizelineinfo</link>);
+00278 &#32;&#32;<link linkend="_lmem_8h_1a574612879aa6814c76b8b57c41e4af5a">luaM_freearray</link>(L,&#32;f-&gt;<link linkend="_struct_proto_1a731ed18a38cc12a903582b927104c883">abslineinfo</link>,&#32;f-&gt;<link linkend="_struct_proto_1ab443243fa7dd09b9c08117626c3f8a61">sizeabslineinfo</link>);
+00279 &#32;&#32;<link linkend="_lmem_8h_1a574612879aa6814c76b8b57c41e4af5a">luaM_freearray</link>(L,&#32;f-&gt;<link linkend="_struct_proto_1a7a727780b57a02cd42e7ef902f6e7f90">locvars</link>,&#32;f-&gt;<link linkend="_struct_proto_1af9147ae18b522811714aeb19036f639d">sizelocvars</link>);
+00280 &#32;&#32;<link linkend="_lmem_8h_1a574612879aa6814c76b8b57c41e4af5a">luaM_freearray</link>(L,&#32;f-&gt;<link linkend="_struct_proto_1ac3b891662880254a7e0a3dc0afa86254">upvalues</link>,&#32;f-&gt;<link linkend="_struct_proto_1a2e13a98343ef0d1233bb3e62ae519c5f">sizeupvalues</link>);
+00281 &#32;&#32;<link linkend="_lmem_8h_1ad927ceb6a17a9e89a00b83dcc4482988">luaM_free</link>(L,&#32;f);
+00282 }
+00283 
+00284 
+00285 <emphasis role="comment">/*</emphasis>
+00286 <emphasis role="comment">**&#32;Look&#32;for&#32;n-th&#32;local&#32;variable&#32;at&#32;line&#32;&apos;line&apos;&#32;in&#32;function&#32;&apos;func&apos;.</emphasis>
+00287 <emphasis role="comment">**&#32;Returns&#32;NULL&#32;if&#32;not&#32;found.</emphasis>
+00288 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lfunc_8c_source_1l00289"/><link linkend="_lfunc_8h_1a397e1a43935e0aebf20ae6e12d52befd">00289</link> <emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_lfunc_8c_1aaa3cd5bc3901e7edf1ac428151cdfe8c">luaF_getlocalname</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_proto">Proto</link>&#32;*f,&#32;<emphasis role="keywordtype">int</emphasis>&#32;local_number,&#32;<emphasis role="keywordtype">int</emphasis>&#32;pc)&#32;{
+00290 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i;
+00291 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;0;&#32;i&lt;f-&gt;<link linkend="_struct_proto_1af9147ae18b522811714aeb19036f639d">sizelocvars</link>&#32;&amp;&amp;&#32;f-&gt;<link linkend="_struct_proto_1a7a727780b57a02cd42e7ef902f6e7f90">locvars</link>[i].<link linkend="_struct_loc_var_1aede5156df384666bb10ffffe4e8c2d8f">startpc</link>&#32;&lt;=&#32;pc;&#32;i++)&#32;{
+00292 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(pc&#32;&lt;&#32;f-&gt;locvars[i].endpc)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;is&#32;variable&#32;active?&#32;*/</emphasis>
+00293 &#32;&#32;&#32;&#32;&#32;&#32;local_number--;
+00294 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(local_number&#32;==&#32;0)
+00295 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lobject_8h_1acb05d3ab238923581a9c629b8e11a6ac">getstr</link>(f-&gt;<link linkend="_struct_proto_1a7a727780b57a02cd42e7ef902f6e7f90">locvars</link>[i].<link linkend="_struct_loc_var_1ac2450e0899ac889b040f20956221cd83">varname</link>);
+00296 &#32;&#32;&#32;&#32;}
+00297 &#32;&#32;}
+00298 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;NULL;&#32;&#32;<emphasis role="comment">/*&#32;not&#32;found&#32;*/</emphasis>
+00299 }
+00300 
+</programlisting></section>

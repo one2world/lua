@@ -1,0 +1,116 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_ljumptab_8h_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/ljumptab.h</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;ljumptab.h&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Jump&#32;Table&#32;for&#32;the&#32;Lua&#32;interpreter</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+00007 
+00008 <emphasis role="preprocessor">#undef&#32;vmdispatch</emphasis>
+00009 <emphasis role="preprocessor">#undef&#32;vmcase</emphasis>
+00010 <emphasis role="preprocessor">#undef&#32;vmbreak</emphasis>
+00011 
+<anchor xml:id="_ljumptab_8h_source_1l00012"/><link linkend="_ljumptab_8h_1ae2328a135b54b42ce9ea3d808f6d7834">00012</link> <emphasis role="preprocessor">#define&#32;vmdispatch(x)&#32;&#32;&#32;&#32;&#32;goto&#32;*disptab[x];</emphasis>
+00013 
+<anchor xml:id="_ljumptab_8h_source_1l00014"/><link linkend="_ljumptab_8h_1a64ed762fd3da016b8792d4ac0d0cf17f">00014</link> <emphasis role="preprocessor">#define&#32;vmcase(l)&#32;&#32;&#32;&#32;&#32;L_##l:</emphasis>
+00015 
+<anchor xml:id="_ljumptab_8h_source_1l00016"/><link linkend="_ljumptab_8h_1a362451cac7ed1e9ebf8978cd761a01fb">00016</link> <emphasis role="preprocessor">#define&#32;vmbreak&#32;&#32;&#32;&#32;&#32;vmfetch();&#32;vmdispatch(GET_OPCODE(i));</emphasis>
+00017 
+00018 
+<anchor xml:id="_ljumptab_8h_source_1l00019"/><link linkend="_ljumptab_8h_1a702a7a7ef2c839cf996469121c2086b0">00019</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<emphasis role="keyword">const</emphasis>&#32;<link linkend="_ljumptab_8h_1a702a7a7ef2c839cf996469121c2086b0">disptab</link>[<link linkend="_lopcodes_8h_1a1fb469ba81540d3314cfbe37c675ba20">NUM_OPCODES</link>]&#32;=&#32;{
+00020 
+00021 <emphasis role="preprocessor">#if&#32;0</emphasis>
+00022 **&#32;you&#32;can&#32;update&#32;the&#32;following&#32;list&#32;with&#32;<emphasis role="keyword">this</emphasis>&#32;command:
+00023 **
+00024 **&#32;&#32;sed&#32;-n&#32;<emphasis role="stringliteral">&apos;/^OP_/\!d;&#32;s/OP_/\&amp;\&amp;L_OP_/&#32;;&#32;s/,.*/,/&#32;;&#32;s/\/.*//&#32;;&#32;p&apos;</emphasis>&#32;&#32;lopcodes.h
+00025 **
+00026 <emphasis role="preprocessor">#endif</emphasis>
+00027 
+00028 &amp;&amp;L_OP_MOVE,
+00029 &amp;&amp;L_OP_LOADI,
+00030 &amp;&amp;L_OP_LOADF,
+00031 &amp;&amp;L_OP_LOADK,
+00032 &amp;&amp;L_OP_LOADKX,
+00033 &amp;&amp;L_OP_LOADFALSE,
+00034 &amp;&amp;L_OP_LFALSESKIP,
+00035 &amp;&amp;L_OP_LOADTRUE,
+00036 &amp;&amp;L_OP_LOADNIL,
+00037 &amp;&amp;L_OP_GETUPVAL,
+00038 &amp;&amp;L_OP_SETUPVAL,
+00039 &amp;&amp;L_OP_GETTABUP,
+00040 &amp;&amp;L_OP_GETTABLE,
+00041 &amp;&amp;L_OP_GETI,
+00042 &amp;&amp;L_OP_GETFIELD,
+00043 &amp;&amp;L_OP_SETTABUP,
+00044 &amp;&amp;L_OP_SETTABLE,
+00045 &amp;&amp;L_OP_SETI,
+00046 &amp;&amp;L_OP_SETFIELD,
+00047 &amp;&amp;L_OP_NEWTABLE,
+00048 &amp;&amp;L_OP_SELF,
+00049 &amp;&amp;L_OP_ADDI,
+00050 &amp;&amp;L_OP_ADDK,
+00051 &amp;&amp;L_OP_SUBK,
+00052 &amp;&amp;L_OP_MULK,
+00053 &amp;&amp;L_OP_MODK,
+00054 &amp;&amp;L_OP_POWK,
+00055 &amp;&amp;L_OP_DIVK,
+00056 &amp;&amp;L_OP_IDIVK,
+00057 &amp;&amp;L_OP_BANDK,
+00058 &amp;&amp;L_OP_BORK,
+00059 &amp;&amp;L_OP_BXORK,
+00060 &amp;&amp;L_OP_SHRI,
+00061 &amp;&amp;L_OP_SHLI,
+00062 &amp;&amp;L_OP_ADD,
+00063 &amp;&amp;L_OP_SUB,
+00064 &amp;&amp;L_OP_MUL,
+00065 &amp;&amp;L_OP_MOD,
+00066 &amp;&amp;L_OP_POW,
+00067 &amp;&amp;L_OP_DIV,
+00068 &amp;&amp;L_OP_IDIV,
+00069 &amp;&amp;L_OP_BAND,
+00070 &amp;&amp;L_OP_BOR,
+00071 &amp;&amp;L_OP_BXOR,
+00072 &amp;&amp;L_OP_SHL,
+00073 &amp;&amp;L_OP_SHR,
+00074 &amp;&amp;L_OP_MMBIN,
+00075 &amp;&amp;L_OP_MMBINI,
+00076 &amp;&amp;L_OP_MMBINK,
+00077 &amp;&amp;L_OP_UNM,
+00078 &amp;&amp;L_OP_BNOT,
+00079 &amp;&amp;L_OP_NOT,
+00080 &amp;&amp;L_OP_LEN,
+00081 &amp;&amp;L_OP_CONCAT,
+00082 &amp;&amp;L_OP_CLOSE,
+00083 &amp;&amp;L_OP_TBC,
+00084 &amp;&amp;L_OP_JMP,
+00085 &amp;&amp;L_OP_EQ,
+00086 &amp;&amp;L_OP_LT,
+00087 &amp;&amp;L_OP_LE,
+00088 &amp;&amp;L_OP_EQK,
+00089 &amp;&amp;L_OP_EQI,
+00090 &amp;&amp;L_OP_LTI,
+00091 &amp;&amp;L_OP_LEI,
+00092 &amp;&amp;L_OP_GTI,
+00093 &amp;&amp;L_OP_GEI,
+00094 &amp;&amp;L_OP_TEST,
+00095 &amp;&amp;L_OP_TESTSET,
+00096 &amp;&amp;L_OP_CALL,
+00097 &amp;&amp;L_OP_TAILCALL,
+00098 &amp;&amp;L_OP_RETURN,
+00099 &amp;&amp;L_OP_RETURN0,
+00100 &amp;&amp;L_OP_RETURN1,
+00101 &amp;&amp;L_OP_FORLOOP,
+00102 &amp;&amp;L_OP_FORPREP,
+00103 &amp;&amp;L_OP_TFORPREP,
+00104 &amp;&amp;L_OP_TFORCALL,
+00105 &amp;&amp;L_OP_TFORLOOP,
+00106 &amp;&amp;L_OP_SETLIST,
+00107 &amp;&amp;L_OP_CLOSURE,
+00108 &amp;&amp;L_OP_VARARG,
+00109 &amp;&amp;L_OP_VARARGPREP,
+00110 &amp;&amp;L_OP_EXTRAARG
+00111 
+00112 };
+</programlisting></section>

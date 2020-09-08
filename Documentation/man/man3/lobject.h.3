@@ -1,0 +1,1346 @@
+.TH "D:/gitworkspace/lua/src/lobject.h" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lobject.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <stdarg\&.h>\fP
+.br
+\fC#include 'llimits\&.h'\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+
+.SS "结构体"
+
+.in +1c
+.ti -1c
+.RI "union \fBValue\fP"
+.br
+.ti -1c
+.RI "struct \fBTValue\fP"
+.br
+.ti -1c
+.RI "union \fBStackValue\fP"
+.br
+.ti -1c
+.RI "struct \fBGCObject\fP"
+.br
+.ti -1c
+.RI "struct \fBTString\fP"
+.br
+.ti -1c
+.RI "union \fBUValue\fP"
+.br
+.ti -1c
+.RI "struct \fBUdata\fP"
+.br
+.ti -1c
+.RI "struct \fBUdata0\fP"
+.br
+.ti -1c
+.RI "struct \fBUpvaldesc\fP"
+.br
+.ti -1c
+.RI "struct \fBLocVar\fP"
+.br
+.ti -1c
+.RI "struct \fBAbsLineInfo\fP"
+.br
+.ti -1c
+.RI "struct \fBProto\fP"
+.br
+.ti -1c
+.RI "struct \fBUpVal\fP"
+.br
+.ti -1c
+.RI "struct \fBCClosure\fP"
+.br
+.ti -1c
+.RI "struct \fBLClosure\fP"
+.br
+.ti -1c
+.RI "union \fBClosure\fP"
+.br
+.ti -1c
+.RI "union \fBNode\fP"
+.br
+.ti -1c
+.RI "struct \fBNode::NodeKey\fP"
+.br
+.ti -1c
+.RI "struct \fBTable\fP"
+.br
+.in -1c
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBLUA_TUPVAL\fP   \fBLUA_NUMTYPES\fP  /* upvalues */"
+.br
+.ti -1c
+.RI "#define \fBLUA_TPROTO\fP   (\fBLUA_NUMTYPES\fP+1)  /* function prototypes */"
+.br
+.ti -1c
+.RI "#define \fBLUA_TOTALTYPES\fP   (\fBLUA_TPROTO\fP + 2)"
+.br
+.ti -1c
+.RI "#define \fBmakevariant\fP(t,  v)   ((t) | ((v) << 4))"
+.br
+.ti -1c
+.RI "#define \fBTValuefields\fP   \fBValue\fP value_; \fBlu_byte\fP tt_"
+.br
+.ti -1c
+.RI "#define \fBval_\fP(o)   ((o)\->value_)"
+.br
+.ti -1c
+.RI "#define \fBvalraw\fP(o)   (&\fBval_\fP(o))"
+.br
+.ti -1c
+.RI "#define \fBrawtt\fP(o)   ((o)\->tt_)"
+.br
+.ti -1c
+.RI "#define \fBnovariant\fP(t)   ((t) & 0x0F)"
+.br
+.ti -1c
+.RI "#define \fBwithvariant\fP(t)   ((t) & 0x3F)"
+.br
+.ti -1c
+.RI "#define \fBttypetag\fP(o)   \fBwithvariant\fP(\fBrawtt\fP(o))"
+.br
+.ti -1c
+.RI "#define \fBttype\fP(o)   (\fBnovariant\fP(\fBrawtt\fP(o)))"
+.br
+.ti -1c
+.RI "#define \fBchecktag\fP(o,  t)   (\fBrawtt\fP(o) == (t))"
+.br
+.ti -1c
+.RI "#define \fBchecktype\fP(o,  t)   (\fBttype\fP(o) == (t))"
+.br
+.ti -1c
+.RI "#define \fBrighttt\fP(obj)   (\fBttypetag\fP(obj) == \fBgcvalue\fP(obj)\->tt)"
+.br
+.ti -1c
+.RI "#define \fBcheckliveness\fP(L,  obj)"
+.br
+.ti -1c
+.RI "#define \fBsettt_\fP(o,  t)   ((o)\->tt_=(t))"
+.br
+.ti -1c
+.RI "#define \fBsetobj\fP(L,  obj1,  obj2)"
+.br
+.ti -1c
+.RI "#define \fBsetobjs2s\fP(L,  o1,  o2)   \fBsetobj\fP(L,\fBs2v\fP(o1),\fBs2v\fP(o2))"
+.br
+.ti -1c
+.RI "#define \fBsetobj2s\fP(L,  o1,  o2)   \fBsetobj\fP(L,\fBs2v\fP(o1),o2)"
+.br
+.ti -1c
+.RI "#define \fBsetobjt2t\fP   \fBsetobj\fP"
+.br
+.ti -1c
+.RI "#define \fBsetobj2n\fP   \fBsetobj\fP"
+.br
+.ti -1c
+.RI "#define \fBsetobj2t\fP   \fBsetobj\fP"
+.br
+.ti -1c
+.RI "#define \fBs2v\fP(o)   (&(o)\->val)"
+.br
+.ti -1c
+.RI "#define \fBLUA_VNIL\fP   \fBmakevariant\fP(\fBLUA_TNIL\fP, 0)"
+.br
+.ti -1c
+.RI "#define \fBLUA_VEMPTY\fP   \fBmakevariant\fP(\fBLUA_TNIL\fP, 1)"
+.br
+.ti -1c
+.RI "#define \fBLUA_VABSTKEY\fP   \fBmakevariant\fP(\fBLUA_TNIL\fP, 2)"
+.br
+.ti -1c
+.RI "#define \fBttisnil\fP(v)   \fBchecktype\fP((v), \fBLUA_TNIL\fP)"
+.br
+.ti -1c
+.RI "#define \fBttisstrictnil\fP(o)   \fBchecktag\fP((o), \fBLUA_VNIL\fP)"
+.br
+.ti -1c
+.RI "#define \fBsetnilvalue\fP(obj)   \fBsettt_\fP(obj, \fBLUA_VNIL\fP)"
+.br
+.ti -1c
+.RI "#define \fBisabstkey\fP(v)   \fBchecktag\fP((v), \fBLUA_VABSTKEY\fP)"
+.br
+.ti -1c
+.RI "#define \fBisnonstrictnil\fP(v)   (\fBttisnil\fP(v) && !\fBttisstrictnil\fP(v))"
+.br
+.ti -1c
+.RI "#define \fBisempty\fP(v)   \fBttisnil\fP(v)"
+.br
+.ti -1c
+.RI "#define \fBABSTKEYCONSTANT\fP   {NULL}, \fBLUA_VABSTKEY\fP"
+.br
+.ti -1c
+.RI "#define \fBsetempty\fP(v)   \fBsettt_\fP(v, \fBLUA_VEMPTY\fP)"
+.br
+.ti -1c
+.RI "#define \fBLUA_VFALSE\fP   \fBmakevariant\fP(\fBLUA_TBOOLEAN\fP, 0)"
+.br
+.ti -1c
+.RI "#define \fBLUA_VTRUE\fP   \fBmakevariant\fP(\fBLUA_TBOOLEAN\fP, 1)"
+.br
+.ti -1c
+.RI "#define \fBttisboolean\fP(o)   \fBchecktype\fP((o), \fBLUA_TBOOLEAN\fP)"
+.br
+.ti -1c
+.RI "#define \fBttisfalse\fP(o)   \fBchecktag\fP((o), \fBLUA_VFALSE\fP)"
+.br
+.ti -1c
+.RI "#define \fBttistrue\fP(o)   \fBchecktag\fP((o), \fBLUA_VTRUE\fP)"
+.br
+.ti -1c
+.RI "#define \fBl_isfalse\fP(o)   (\fBttisfalse\fP(o) || \fBttisnil\fP(o))"
+.br
+.ti -1c
+.RI "#define \fBsetbfvalue\fP(obj)   \fBsettt_\fP(obj, \fBLUA_VFALSE\fP)"
+.br
+.ti -1c
+.RI "#define \fBsetbtvalue\fP(obj)   \fBsettt_\fP(obj, \fBLUA_VTRUE\fP)"
+.br
+.ti -1c
+.RI "#define \fBLUA_VTHREAD\fP   \fBmakevariant\fP(\fBLUA_TTHREAD\fP, 0)"
+.br
+.ti -1c
+.RI "#define \fBttisthread\fP(o)   \fBchecktag\fP((o), \fBctb\fP(\fBLUA_VTHREAD\fP))"
+.br
+.ti -1c
+.RI "#define \fBthvalue\fP(o)   \fBcheck_exp\fP(\fBttisthread\fP(o), \fBgco2th\fP(\fBval_\fP(o)\&.gc))"
+.br
+.ti -1c
+.RI "#define \fBsetthvalue\fP(L,  obj,  x)"
+.br
+.ti -1c
+.RI "#define \fBsetthvalue2s\fP(L,  o,  t)   \fBsetthvalue\fP(L,\fBs2v\fP(o),t)"
+.br
+.ti -1c
+.RI "#define \fBCommonHeader\fP   struct \fBGCObject\fP *\fBnext\fP; \fBlu_byte\fP tt; \fBlu_byte\fP marked"
+.br
+.ti -1c
+.RI "#define \fBBIT_ISCOLLECTABLE\fP   (1 << 6)"
+.br
+.ti -1c
+.RI "#define \fBiscollectable\fP(o)   (\fBrawtt\fP(o) & \fBBIT_ISCOLLECTABLE\fP)"
+.br
+.ti -1c
+.RI "#define \fBctb\fP(t)   ((t) | \fBBIT_ISCOLLECTABLE\fP)"
+.br
+.ti -1c
+.RI "#define \fBgcvalue\fP(o)   \fBcheck_exp\fP(\fBiscollectable\fP(o), \fBval_\fP(o)\&.gc)"
+.br
+.ti -1c
+.RI "#define \fBgcvalueraw\fP(v)   ((v)\&.gc)"
+.br
+.ti -1c
+.RI "#define \fBsetgcovalue\fP(L,  obj,  x)"
+.br
+.ti -1c
+.RI "#define \fBLUA_VNUMINT\fP   \fBmakevariant\fP(\fBLUA_TNUMBER\fP, 0)  /* integer numbers */"
+.br
+.ti -1c
+.RI "#define \fBLUA_VNUMFLT\fP   \fBmakevariant\fP(\fBLUA_TNUMBER\fP, 1)  /* float numbers */"
+.br
+.ti -1c
+.RI "#define \fBttisnumber\fP(o)   \fBchecktype\fP((o), \fBLUA_TNUMBER\fP)"
+.br
+.ti -1c
+.RI "#define \fBttisfloat\fP(o)   \fBchecktag\fP((o), \fBLUA_VNUMFLT\fP)"
+.br
+.ti -1c
+.RI "#define \fBttisinteger\fP(o)   \fBchecktag\fP((o), \fBLUA_VNUMINT\fP)"
+.br
+.ti -1c
+.RI "#define \fBnvalue\fP(o)"
+.br
+.ti -1c
+.RI "#define \fBfltvalue\fP(o)   \fBcheck_exp\fP(\fBttisfloat\fP(o), \fBval_\fP(o)\&.n)"
+.br
+.ti -1c
+.RI "#define \fBivalue\fP(o)   \fBcheck_exp\fP(\fBttisinteger\fP(o), \fBval_\fP(o)\&.i)"
+.br
+.ti -1c
+.RI "#define \fBfltvalueraw\fP(v)   ((v)\&.n)"
+.br
+.ti -1c
+.RI "#define \fBivalueraw\fP(v)   ((v)\&.i)"
+.br
+.ti -1c
+.RI "#define \fBsetfltvalue\fP(obj,  x)     { \fBTValue\fP *io=(obj); \fBval_\fP(io)\&.n=(x); \fBsettt_\fP(io, \fBLUA_VNUMFLT\fP); }"
+.br
+.ti -1c
+.RI "#define \fBchgfltvalue\fP(obj,  x)     { \fBTValue\fP *io=(obj); \fBlua_assert\fP(\fBttisfloat\fP(io)); \fBval_\fP(io)\&.n=(x); }"
+.br
+.ti -1c
+.RI "#define \fBsetivalue\fP(obj,  x)     { \fBTValue\fP *io=(obj); \fBval_\fP(io)\&.i=(x); \fBsettt_\fP(io, \fBLUA_VNUMINT\fP); }"
+.br
+.ti -1c
+.RI "#define \fBchgivalue\fP(obj,  x)     { \fBTValue\fP *io=(obj); \fBlua_assert\fP(\fBttisinteger\fP(io)); \fBval_\fP(io)\&.i=(x); }"
+.br
+.ti -1c
+.RI "#define \fBLUA_VSHRSTR\fP   \fBmakevariant\fP(\fBLUA_TSTRING\fP, 0)  /* short strings */"
+.br
+.ti -1c
+.RI "#define \fBLUA_VLNGSTR\fP   \fBmakevariant\fP(\fBLUA_TSTRING\fP, 1)  /* long strings */"
+.br
+.ti -1c
+.RI "#define \fBttisstring\fP(o)   \fBchecktype\fP((o), \fBLUA_TSTRING\fP)"
+.br
+.ti -1c
+.RI "#define \fBttisshrstring\fP(o)   \fBchecktag\fP((o), \fBctb\fP(\fBLUA_VSHRSTR\fP))"
+.br
+.ti -1c
+.RI "#define \fBttislngstring\fP(o)   \fBchecktag\fP((o), \fBctb\fP(\fBLUA_VLNGSTR\fP))"
+.br
+.ti -1c
+.RI "#define \fBtsvalueraw\fP(v)   (\fBgco2ts\fP((v)\&.gc))"
+.br
+.ti -1c
+.RI "#define \fBtsvalue\fP(o)   \fBcheck_exp\fP(\fBttisstring\fP(o), \fBgco2ts\fP(\fBval_\fP(o)\&.gc))"
+.br
+.ti -1c
+.RI "#define \fBsetsvalue\fP(L,  obj,  x)"
+.br
+.ti -1c
+.RI "#define \fBsetsvalue2s\fP(L,  o,  s)   \fBsetsvalue\fP(L,\fBs2v\fP(o),s)"
+.br
+.ti -1c
+.RI "#define \fBsetsvalue2n\fP   \fBsetsvalue\fP"
+.br
+.ti -1c
+.RI "#define \fBgetstr\fP(ts)   ((ts)\->contents)"
+.br
+.ti -1c
+.RI "#define \fBsvalue\fP(o)   \fBgetstr\fP(\fBtsvalue\fP(o))"
+.br
+.ti -1c
+.RI "#define \fBtsslen\fP(s)   ((s)\->tt == \fBLUA_VSHRSTR\fP ? (s)\->shrlen : (s)\->u\&.lnglen)"
+.br
+.ti -1c
+.RI "#define \fBvslen\fP(o)   \fBtsslen\fP(\fBtsvalue\fP(o))"
+.br
+.ti -1c
+.RI "#define \fBLUA_VLIGHTUSERDATA\fP   \fBmakevariant\fP(\fBLUA_TLIGHTUSERDATA\fP, 0)"
+.br
+.ti -1c
+.RI "#define \fBLUA_VUSERDATA\fP   \fBmakevariant\fP(\fBLUA_TUSERDATA\fP, 0)"
+.br
+.ti -1c
+.RI "#define \fBttislightuserdata\fP(o)   \fBchecktag\fP((o), \fBLUA_VLIGHTUSERDATA\fP)"
+.br
+.ti -1c
+.RI "#define \fBttisfulluserdata\fP(o)   \fBchecktag\fP((o), \fBctb\fP(\fBLUA_VUSERDATA\fP))"
+.br
+.ti -1c
+.RI "#define \fBpvalue\fP(o)   \fBcheck_exp\fP(\fBttislightuserdata\fP(o), \fBval_\fP(o)\&.p)"
+.br
+.ti -1c
+.RI "#define \fBuvalue\fP(o)   \fBcheck_exp\fP(\fBttisfulluserdata\fP(o), \fBgco2u\fP(\fBval_\fP(o)\&.gc))"
+.br
+.ti -1c
+.RI "#define \fBpvalueraw\fP(v)   ((v)\&.p)"
+.br
+.ti -1c
+.RI "#define \fBsetpvalue\fP(obj,  x)     { \fBTValue\fP *io=(obj); \fBval_\fP(io)\&.p=(x); \fBsettt_\fP(io, \fBLUA_VLIGHTUSERDATA\fP); }"
+.br
+.ti -1c
+.RI "#define \fBsetuvalue\fP(L,  obj,  x)"
+.br
+.ti -1c
+.RI "#define \fBudatamemoffset\fP(nuv)"
+.br
+.ti -1c
+.RI "#define \fBgetudatamem\fP(u)   (\fBcast_charp\fP(u) + \fBudatamemoffset\fP((u)\->nuvalue))"
+.br
+.ti -1c
+.RI "#define \fBsizeudata\fP(nuv,  nb)   (\fBudatamemoffset\fP(nuv) + (nb))"
+.br
+.ti -1c
+.RI "#define \fBLUA_VPROTO\fP   \fBmakevariant\fP(\fBLUA_TPROTO\fP, 0)"
+.br
+.ti -1c
+.RI "#define \fBLUA_VUPVAL\fP   \fBmakevariant\fP(\fBLUA_TUPVAL\fP, 0)"
+.br
+.ti -1c
+.RI "#define \fBLUA_VLCL\fP   \fBmakevariant\fP(\fBLUA_TFUNCTION\fP, 0)  /* Lua closure */"
+.br
+.ti -1c
+.RI "#define \fBLUA_VLCF\fP   \fBmakevariant\fP(\fBLUA_TFUNCTION\fP, 1)  /* light C function */"
+.br
+.ti -1c
+.RI "#define \fBLUA_VCCL\fP   \fBmakevariant\fP(\fBLUA_TFUNCTION\fP, 2)  /* C closure */"
+.br
+.ti -1c
+.RI "#define \fBttisfunction\fP(o)   \fBchecktype\fP(o, \fBLUA_TFUNCTION\fP)"
+.br
+.ti -1c
+.RI "#define \fBttisclosure\fP(o)   ((\fBrawtt\fP(o) & 0x1F) == \fBLUA_VLCL\fP)"
+.br
+.ti -1c
+.RI "#define \fBttisLclosure\fP(o)   \fBchecktag\fP((o), \fBctb\fP(\fBLUA_VLCL\fP))"
+.br
+.ti -1c
+.RI "#define \fBttislcf\fP(o)   \fBchecktag\fP((o), \fBLUA_VLCF\fP)"
+.br
+.ti -1c
+.RI "#define \fBttisCclosure\fP(o)   \fBchecktag\fP((o), \fBctb\fP(\fBLUA_VCCL\fP))"
+.br
+.ti -1c
+.RI "#define \fBisLfunction\fP(o)   \fBttisLclosure\fP(o)"
+.br
+.ti -1c
+.RI "#define \fBclvalue\fP(o)   \fBcheck_exp\fP(\fBttisclosure\fP(o), \fBgco2cl\fP(\fBval_\fP(o)\&.gc))"
+.br
+.ti -1c
+.RI "#define \fBclLvalue\fP(o)   \fBcheck_exp\fP(\fBttisLclosure\fP(o), \fBgco2lcl\fP(\fBval_\fP(o)\&.gc))"
+.br
+.ti -1c
+.RI "#define \fBfvalue\fP(o)   \fBcheck_exp\fP(\fBttislcf\fP(o), \fBval_\fP(o)\&.f)"
+.br
+.ti -1c
+.RI "#define \fBclCvalue\fP(o)   \fBcheck_exp\fP(\fBttisCclosure\fP(o), \fBgco2ccl\fP(\fBval_\fP(o)\&.gc))"
+.br
+.ti -1c
+.RI "#define \fBfvalueraw\fP(v)   ((v)\&.f)"
+.br
+.ti -1c
+.RI "#define \fBsetclLvalue\fP(L,  obj,  x)"
+.br
+.ti -1c
+.RI "#define \fBsetclLvalue2s\fP(L,  o,  cl)   \fBsetclLvalue\fP(L,\fBs2v\fP(o),cl)"
+.br
+.ti -1c
+.RI "#define \fBsetfvalue\fP(obj,  x)     { \fBTValue\fP *io=(obj); \fBval_\fP(io)\&.f=(x); \fBsettt_\fP(io, \fBLUA_VLCF\fP); }"
+.br
+.ti -1c
+.RI "#define \fBsetclCvalue\fP(L,  obj,  x)"
+.br
+.ti -1c
+.RI "#define \fBClosureHeader\fP   	\fBCommonHeader\fP; \fBlu_byte\fP nupvalues; \fBGCObject\fP *gclist"
+.br
+.ti -1c
+.RI "#define \fBgetproto\fP(o)   (\fBclLvalue\fP(o)\->p)"
+.br
+.ti -1c
+.RI "#define \fBLUA_VTABLE\fP   \fBmakevariant\fP(\fBLUA_TTABLE\fP, 0)"
+.br
+.ti -1c
+.RI "#define \fBttistable\fP(o)   \fBchecktag\fP((o), \fBctb\fP(\fBLUA_VTABLE\fP))"
+.br
+.ti -1c
+.RI "#define \fBhvalue\fP(o)   \fBcheck_exp\fP(\fBttistable\fP(o), \fBgco2t\fP(\fBval_\fP(o)\&.gc))"
+.br
+.ti -1c
+.RI "#define \fBsethvalue\fP(L,  obj,  x)"
+.br
+.ti -1c
+.RI "#define \fBsethvalue2s\fP(L,  o,  h)   \fBsethvalue\fP(L,\fBs2v\fP(o),h)"
+.br
+.ti -1c
+.RI "#define \fBsetnodekey\fP(L,  node,  obj)"
+.br
+.ti -1c
+.RI "#define \fBgetnodekey\fP(L,  obj,  node)"
+.br
+.ti -1c
+.RI "#define \fBBITRAS\fP   (1 << 7)"
+.br
+.ti -1c
+.RI "#define \fBisrealasize\fP(t)   (!((t)\->marked & \fBBITRAS\fP))"
+.br
+.ti -1c
+.RI "#define \fBsetrealasize\fP(t)   ((t)\->marked &= \fBcast_byte\fP(~\fBBITRAS\fP))"
+.br
+.ti -1c
+.RI "#define \fBsetnorealasize\fP(t)   ((t)\->marked |= \fBBITRAS\fP)"
+.br
+.ti -1c
+.RI "#define \fBkeytt\fP(node)   ((node)\->u\&.key_tt)"
+.br
+.ti -1c
+.RI "#define \fBkeyval\fP(node)   ((node)\->u\&.key_val)"
+.br
+.ti -1c
+.RI "#define \fBkeyisnil\fP(node)   (\fBkeytt\fP(node) == \fBLUA_TNIL\fP)"
+.br
+.ti -1c
+.RI "#define \fBkeyisinteger\fP(node)   (\fBkeytt\fP(node) == \fBLUA_VNUMINT\fP)"
+.br
+.ti -1c
+.RI "#define \fBkeyival\fP(node)   (\fBkeyval\fP(node)\&.i)"
+.br
+.ti -1c
+.RI "#define \fBkeyisshrstr\fP(node)   (\fBkeytt\fP(node) == \fBctb\fP(\fBLUA_VSHRSTR\fP))"
+.br
+.ti -1c
+.RI "#define \fBkeystrval\fP(node)   (\fBgco2ts\fP(\fBkeyval\fP(node)\&.gc))"
+.br
+.ti -1c
+.RI "#define \fBsetnilkey\fP(node)   (\fBkeytt\fP(node) = \fBLUA_TNIL\fP)"
+.br
+.ti -1c
+.RI "#define \fBkeyiscollectable\fP(n)   (\fBkeytt\fP(n) & \fBBIT_ISCOLLECTABLE\fP)"
+.br
+.ti -1c
+.RI "#define \fBgckey\fP(n)   (\fBkeyval\fP(n)\&.gc)"
+.br
+.ti -1c
+.RI "#define \fBgckeyN\fP(n)   (\fBkeyiscollectable\fP(n) ? \fBgckey\fP(n) : NULL)"
+.br
+.ti -1c
+.RI "#define \fBsetdeadkey\fP(n)   (\fBkeytt\fP(n) = \fBLUA_TTABLE\fP, \fBgckey\fP(n) = NULL)"
+.br
+.ti -1c
+.RI "#define \fBlmod\fP(s,  size)   	(\fBcheck_exp\fP((size&(size\-1))==0, (\fBcast_int\fP((s) & ((size)\-1)))))"
+.br
+.ti -1c
+.RI "#define \fBtwoto\fP(x)   (1<<(x))"
+.br
+.ti -1c
+.RI "#define \fBsizenode\fP(t)   (\fBtwoto\fP((t)\->lsizenode))"
+.br
+.ti -1c
+.RI "#define \fBUTF8BUFFSZ\fP   8"
+.br
+.in -1c
+.SS "类型定义"
+
+.in +1c
+.ti -1c
+.RI "typedef union \fBValue\fP \fBValue\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBTValue\fP \fBTValue\fP"
+.br
+.ti -1c
+.RI "typedef union \fBStackValue\fP \fBStackValue\fP"
+.br
+.ti -1c
+.RI "typedef \fBStackValue\fP * \fBStkId\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBGCObject\fP \fBGCObject\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBTString\fP \fBTString\fP"
+.br
+.ti -1c
+.RI "typedef union \fBUValue\fP \fBUValue\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBUdata\fP \fBUdata\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBUdata0\fP \fBUdata0\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBUpvaldesc\fP \fBUpvaldesc\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBLocVar\fP \fBLocVar\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBAbsLineInfo\fP \fBAbsLineInfo\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBProto\fP \fBProto\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBUpVal\fP \fBUpVal\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBCClosure\fP \fBCClosure\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBLClosure\fP \fBLClosure\fP"
+.br
+.ti -1c
+.RI "typedef union \fBClosure\fP \fBClosure\fP"
+.br
+.ti -1c
+.RI "typedef union \fBNode\fP \fBNode\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBTable\fP \fBTable\fP"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaO_utf8esc\fP (char *buff, unsigned long x)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaO_ceillog2\fP (unsigned int x)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaO_rawarith\fP (\fBlua_State\fP *L, int op, const \fBTValue\fP *p1, const \fBTValue\fP *p2, \fBTValue\fP *res)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaO_arith\fP (\fBlua_State\fP *L, int op, const \fBTValue\fP *p1, const \fBTValue\fP *p2, \fBStkId\fP res)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP size_t \fBluaO_str2num\fP (const char *s, \fBTValue\fP *o)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaO_hexavalue\fP (int c)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaO_tostring\fP (\fBlua_State\fP *L, \fBTValue\fP *obj)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP const char * \fBluaO_pushvfstring\fP (\fBlua_State\fP *L, const char *fmt, va_list argp)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP const char * \fBluaO_pushfstring\fP (\fBlua_State\fP *L, const char *fmt,\&.\&.\&.)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaO_chunkid\fP (char *out, const char *source, size_t srclen)"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define ABSTKEYCONSTANT   {NULL}, \fBLUA_VABSTKEY\fP"
+
+.PP
+在文件 lobject\&.h 第 196 行定义\&.
+.SS "#define BIT_ISCOLLECTABLE   (1 << 6)"
+
+.PP
+在文件 lobject\&.h 第 273 行定义\&.
+.SS "#define BITRAS   (1 << 7)"
+
+.PP
+在文件 lobject\&.h 第 705 行定义\&.
+.SS "#define checkliveness(L, obj)"
+\fB值:\fP
+.PP
+.nf
+    ((void)L, lua_longassert(!iscollectable(obj) || \
+        (righttt(obj) && (L == NULL || !isdead(G(L),gcvalue(obj))))))
+.fi
+.PP
+在文件 lobject\&.h 第 101 行定义\&.
+.SS "#define checktag(o, t)   (\fBrawtt\fP(o) == (t))"
+
+.PP
+在文件 lobject\&.h 第 87 行定义\&.
+.SS "#define checktype(o, t)   (\fBttype\fP(o) == (t))"
+
+.PP
+在文件 lobject\&.h 第 88 行定义\&.
+.SS "#define chgfltvalue(obj, x)     { \fBTValue\fP *io=(obj); \fBlua_assert\fP(\fBttisfloat\fP(io)); \fBval_\fP(io)\&.n=(x); }"
+
+.PP
+在文件 lobject\&.h 第 316 行定义\&.
+.SS "#define chgivalue(obj, x)     { \fBTValue\fP *io=(obj); \fBlua_assert\fP(\fBttisinteger\fP(io)); \fBval_\fP(io)\&.i=(x); }"
+
+.PP
+在文件 lobject\&.h 第 322 行定义\&.
+.SS "#define clCvalue(o)   \fBcheck_exp\fP(\fBttisCclosure\fP(o), \fBgco2ccl\fP(\fBval_\fP(o)\&.gc))"
+
+.PP
+在文件 lobject\&.h 第 580 行定义\&.
+.SS "#define clLvalue(o)   \fBcheck_exp\fP(\fBttisLclosure\fP(o), \fBgco2lcl\fP(\fBval_\fP(o)\&.gc))"
+
+.PP
+在文件 lobject\&.h 第 578 行定义\&.
+.SS "#define ClosureHeader   	\fBCommonHeader\fP; \fBlu_byte\fP nupvalues; \fBGCObject\fP *gclist"
+
+.PP
+在文件 lobject\&.h 第 618 行定义\&.
+.SS "#define clvalue(o)   \fBcheck_exp\fP(\fBttisclosure\fP(o), \fBgco2cl\fP(\fBval_\fP(o)\&.gc))"
+
+.PP
+在文件 lobject\&.h 第 577 行定义\&.
+.SS "#define CommonHeader   struct \fBGCObject\fP *\fBnext\fP; \fBlu_byte\fP tt; \fBlu_byte\fP marked"
+
+.PP
+在文件 lobject\&.h 第 263 行定义\&.
+.SS "#define ctb(t)   ((t) | \fBBIT_ISCOLLECTABLE\fP)"
+
+.PP
+在文件 lobject\&.h 第 278 行定义\&.
+.SS "#define fltvalue(o)   \fBcheck_exp\fP(\fBttisfloat\fP(o), \fBval_\fP(o)\&.n)"
+
+.PP
+在文件 lobject\&.h 第 307 行定义\&.
+.SS "#define fltvalueraw(v)   ((v)\&.n)"
+
+.PP
+在文件 lobject\&.h 第 310 行定义\&.
+.SS "#define fvalue(o)   \fBcheck_exp\fP(\fBttislcf\fP(o), \fBval_\fP(o)\&.f)"
+
+.PP
+在文件 lobject\&.h 第 579 行定义\&.
+.SS "#define fvalueraw(v)   ((v)\&.f)"
+
+.PP
+在文件 lobject\&.h 第 582 行定义\&.
+.SS "#define gckey(n)   (\fBkeyval\fP(n)\&.gc)"
+
+.PP
+在文件 lobject\&.h 第 740 行定义\&.
+.SS "#define gckeyN(n)   (\fBkeyiscollectable\fP(n) ? \fBgckey\fP(n) : NULL)"
+
+.PP
+在文件 lobject\&.h 第 741 行定义\&.
+.SS "#define gcvalue(o)   \fBcheck_exp\fP(\fBiscollectable\fP(o), \fBval_\fP(o)\&.gc)"
+
+.PP
+在文件 lobject\&.h 第 280 行定义\&.
+.SS "#define gcvalueraw(v)   ((v)\&.gc)"
+
+.PP
+在文件 lobject\&.h 第 282 行定义\&.
+.SS "#define getnodekey(L, obj, node)"
+\fB值:\fP
+.PP
+.nf
+    { TValue *io_=(obj); const Node *n_=(node); \
+      io_->value_ = n_->u\&.key_val; io_->tt_ = n_->u\&.key_tt; \
+      checkliveness(L,io_); }
+.fi
+.PP
+在文件 lobject\&.h 第 692 行定义\&.
+.SS "#define getproto(o)   (\fBclLvalue\fP(o)\->p)"
+
+.PP
+在文件 lobject\&.h 第 641 行定义\&.
+.SS "#define getstr(ts)   ((ts)\->contents)"
+
+.PP
+在文件 lobject\&.h 第 378 行定义\&.
+.SS "#define getudatamem(u)   (\fBcast_charp\fP(u) + \fBudatamemoffset\fP((u)\->nuvalue))"
+
+.PP
+在文件 lobject\&.h 第 470 行定义\&.
+.SS "#define hvalue(o)   \fBcheck_exp\fP(\fBttistable\fP(o), \fBgco2t\fP(\fBval_\fP(o)\&.gc))"
+
+.PP
+在文件 lobject\&.h 第 656 行定义\&.
+.SS "#define isabstkey(v)   \fBchecktag\fP((v), \fBLUA_VABSTKEY\fP)"
+
+.PP
+在文件 lobject\&.h 第 178 行定义\&.
+.SS "#define iscollectable(o)   (\fBrawtt\fP(o) & \fBBIT_ISCOLLECTABLE\fP)"
+
+.PP
+在文件 lobject\&.h 第 275 行定义\&.
+.SS "#define isempty(v)   \fBttisnil\fP(v)"
+
+.PP
+在文件 lobject\&.h 第 192 行定义\&.
+.SS "#define isLfunction(o)   \fBttisLclosure\fP(o)"
+
+.PP
+在文件 lobject\&.h 第 575 行定义\&.
+.SS "#define isnonstrictnil(v)   (\fBttisnil\fP(v) && !\fBttisstrictnil\fP(v))"
+
+.PP
+在文件 lobject\&.h 第 184 行定义\&.
+.SS "#define isrealasize(t)   (!((t)\->marked & \fBBITRAS\fP))"
+
+.PP
+在文件 lobject\&.h 第 706 行定义\&.
+.SS "#define ivalue(o)   \fBcheck_exp\fP(\fBttisinteger\fP(o), \fBval_\fP(o)\&.i)"
+
+.PP
+在文件 lobject\&.h 第 308 行定义\&.
+.SS "#define ivalueraw(v)   ((v)\&.i)"
+
+.PP
+在文件 lobject\&.h 第 311 行定义\&.
+.SS "#define keyiscollectable(n)   (\fBkeytt\fP(n) & \fBBIT_ISCOLLECTABLE\fP)"
+
+.PP
+在文件 lobject\&.h 第 738 行定义\&.
+.SS "#define keyisinteger(node)   (\fBkeytt\fP(node) == \fBLUA_VNUMINT\fP)"
+
+.PP
+在文件 lobject\&.h 第 731 行定义\&.
+.SS "#define keyisnil(node)   (\fBkeytt\fP(node) == \fBLUA_TNIL\fP)"
+
+.PP
+在文件 lobject\&.h 第 730 行定义\&.
+.SS "#define keyisshrstr(node)   (\fBkeytt\fP(node) == \fBctb\fP(\fBLUA_VSHRSTR\fP))"
+
+.PP
+在文件 lobject\&.h 第 733 行定义\&.
+.SS "#define keyival(node)   (\fBkeyval\fP(node)\&.i)"
+
+.PP
+在文件 lobject\&.h 第 732 行定义\&.
+.SS "#define keystrval(node)   (\fBgco2ts\fP(\fBkeyval\fP(node)\&.gc))"
+
+.PP
+在文件 lobject\&.h 第 734 行定义\&.
+.SS "#define keytt(node)   ((node)\->u\&.key_tt)"
+
+.PP
+在文件 lobject\&.h 第 727 行定义\&.
+.SS "#define keyval(node)   ((node)\->u\&.key_val)"
+
+.PP
+在文件 lobject\&.h 第 728 行定义\&.
+.SS "#define l_isfalse(o)   (\fBttisfalse\fP(o) || \fBttisnil\fP(o))"
+
+.PP
+在文件 lobject\&.h 第 222 行定义\&.
+.SS "#define lmod(s, size)   	(\fBcheck_exp\fP((size&(size\-1))==0, (\fBcast_int\fP((s) & ((size)\-1)))))"
+
+.PP
+在文件 lobject\&.h 第 760 行定义\&.
+.SS "#define LUA_TOTALTYPES   (\fBLUA_TPROTO\fP + 2)"
+
+.PP
+在文件 lobject\&.h 第 29 行定义\&.
+.SS "#define LUA_TPROTO   (\fBLUA_NUMTYPES\fP+1)  /* function prototypes */"
+
+.PP
+在文件 lobject\&.h 第 23 行定义\&.
+.SS "#define LUA_TUPVAL   \fBLUA_NUMTYPES\fP  /* upvalues */"
+
+.PP
+在文件 lobject\&.h 第 22 行定义\&.
+.SS "#define LUA_VABSTKEY   \fBmakevariant\fP(\fBLUA_TNIL\fP, 2)"
+
+.PP
+在文件 lobject\&.h 第 164 行定义\&.
+.SS "#define LUA_VCCL   \fBmakevariant\fP(\fBLUA_TFUNCTION\fP, 2)  /* C closure */"
+
+.PP
+在文件 lobject\&.h 第 567 行定义\&.
+.SS "#define LUA_VEMPTY   \fBmakevariant\fP(\fBLUA_TNIL\fP, 1)"
+
+.PP
+在文件 lobject\&.h 第 161 行定义\&.
+.SS "#define LUA_VFALSE   \fBmakevariant\fP(\fBLUA_TBOOLEAN\fP, 0)"
+
+.PP
+在文件 lobject\&.h 第 214 行定义\&.
+.SS "#define LUA_VLCF   \fBmakevariant\fP(\fBLUA_TFUNCTION\fP, 1)  /* light C function */"
+
+.PP
+在文件 lobject\&.h 第 566 行定义\&.
+.SS "#define LUA_VLCL   \fBmakevariant\fP(\fBLUA_TFUNCTION\fP, 0)  /* Lua closure */"
+
+.PP
+在文件 lobject\&.h 第 565 行定义\&.
+.SS "#define LUA_VLIGHTUSERDATA   \fBmakevariant\fP(\fBLUA_TLIGHTUSERDATA\fP, 0)"
+
+.PP
+在文件 lobject\&.h 第 404 行定义\&.
+.SS "#define LUA_VLNGSTR   \fBmakevariant\fP(\fBLUA_TSTRING\fP, 1)  /* long strings */"
+
+.PP
+在文件 lobject\&.h 第 336 行定义\&.
+.SS "#define LUA_VNIL   \fBmakevariant\fP(\fBLUA_TNIL\fP, 0)"
+
+.PP
+在文件 lobject\&.h 第 158 行定义\&.
+.SS "#define LUA_VNUMFLT   \fBmakevariant\fP(\fBLUA_TNUMBER\fP, 1)  /* float numbers */"
+
+.PP
+在文件 lobject\&.h 第 299 行定义\&.
+.SS "#define LUA_VNUMINT   \fBmakevariant\fP(\fBLUA_TNUMBER\fP, 0)  /* integer numbers */"
+
+.PP
+在文件 lobject\&.h 第 298 行定义\&.
+.SS "#define LUA_VPROTO   \fBmakevariant\fP(\fBLUA_TPROTO\fP, 0)"
+
+.PP
+在文件 lobject\&.h 第 484 行定义\&.
+.SS "#define LUA_VSHRSTR   \fBmakevariant\fP(\fBLUA_TSTRING\fP, 0)  /* short strings */"
+
+.PP
+在文件 lobject\&.h 第 335 行定义\&.
+.SS "#define LUA_VTABLE   \fBmakevariant\fP(\fBLUA_TTABLE\fP, 0)"
+
+.PP
+在文件 lobject\&.h 第 652 行定义\&.
+.SS "#define LUA_VTHREAD   \fBmakevariant\fP(\fBLUA_TTHREAD\fP, 0)"
+
+.PP
+在文件 lobject\&.h 第 237 行定义\&.
+.SS "#define LUA_VTRUE   \fBmakevariant\fP(\fBLUA_TBOOLEAN\fP, 1)"
+
+.PP
+在文件 lobject\&.h 第 215 行定义\&.
+.SS "#define LUA_VUPVAL   \fBmakevariant\fP(\fBLUA_TUPVAL\fP, 0)"
+
+.PP
+在文件 lobject\&.h 第 561 行定义\&.
+.SS "#define LUA_VUSERDATA   \fBmakevariant\fP(\fBLUA_TUSERDATA\fP, 0)"
+
+.PP
+在文件 lobject\&.h 第 406 行定义\&.
+.SS "#define makevariant(t, v)   ((t) | ((v) << 4))"
+
+.PP
+在文件 lobject\&.h 第 40 行定义\&.
+.SS "#define novariant(t)   ((t) & 0x0F)"
+
+.PP
+在文件 lobject\&.h 第 76 行定义\&.
+.SS "#define nvalue(o)"
+\fB值:\fP
+.PP
+.nf
+ check_exp(ttisnumber(o), \
+    (ttisinteger(o) ? cast_num(ivalue(o)) : fltvalue(o)))
+.fi
+.PP
+在文件 lobject\&.h 第 305 行定义\&.
+.SS "#define pvalue(o)   \fBcheck_exp\fP(\fBttislightuserdata\fP(o), \fBval_\fP(o)\&.p)"
+
+.PP
+在文件 lobject\&.h 第 411 行定义\&.
+.SS "#define pvalueraw(v)   ((v)\&.p)"
+
+.PP
+在文件 lobject\&.h 第 414 行定义\&.
+.SS "#define rawtt(o)   ((o)\->tt_)"
+
+.PP
+在文件 lobject\&.h 第 73 行定义\&.
+.SS "#define righttt(obj)   (\fBttypetag\fP(obj) == \fBgcvalue\fP(obj)\->tt)"
+
+.PP
+在文件 lobject\&.h 第 94 行定义\&.
+.SS "#define s2v(o)   (&(o)\->val)"
+
+.PP
+在文件 lobject\&.h 第 147 行定义\&.
+.SS "#define setbfvalue(obj)   \fBsettt_\fP(obj, \fBLUA_VFALSE\fP)"
+
+.PP
+在文件 lobject\&.h 第 225 行定义\&.
+.SS "#define setbtvalue(obj)   \fBsettt_\fP(obj, \fBLUA_VTRUE\fP)"
+
+.PP
+在文件 lobject\&.h 第 226 行定义\&.
+.SS "#define setclCvalue(L, obj, x)"
+\fB值:\fP
+.PP
+.nf
+  { TValue *io = (obj); CClosure *x_ = (x); \
+    val_(io)\&.gc = obj2gco(x_); settt_(io, ctb(LUA_VCCL)); \
+    checkliveness(L,io); }
+.fi
+.PP
+在文件 lobject\&.h 第 594 行定义\&.
+.SS "#define setclLvalue(L, obj, x)"
+\fB值:\fP
+.PP
+.nf
+  { TValue *io = (obj); LClosure *x_ = (x); \
+    val_(io)\&.gc = obj2gco(x_); settt_(io, ctb(LUA_VLCL)); \
+    checkliveness(L,io); }
+.fi
+.PP
+在文件 lobject\&.h 第 584 行定义\&.
+.SS "#define setclLvalue2s(L, o, cl)   \fBsetclLvalue\fP(L,\fBs2v\fP(o),cl)"
+
+.PP
+在文件 lobject\&.h 第 589 行定义\&.
+.SS "#define setdeadkey(n)   (\fBkeytt\fP(n) = \fBLUA_TTABLE\fP, \fBgckey\fP(n) = NULL)"
+
+.PP
+在文件 lobject\&.h 第 751 行定义\&.
+.SS "#define setempty(v)   \fBsettt_\fP(v, \fBLUA_VEMPTY\fP)"
+
+.PP
+在文件 lobject\&.h 第 200 行定义\&.
+.SS "#define setfltvalue(obj, x)     { \fBTValue\fP *io=(obj); \fBval_\fP(io)\&.n=(x); \fBsettt_\fP(io, \fBLUA_VNUMFLT\fP); }"
+
+.PP
+在文件 lobject\&.h 第 313 行定义\&.
+.SS "#define setfvalue(obj, x)     { \fBTValue\fP *io=(obj); \fBval_\fP(io)\&.f=(x); \fBsettt_\fP(io, \fBLUA_VLCF\fP); }"
+
+.PP
+在文件 lobject\&.h 第 591 行定义\&.
+.SS "#define setgcovalue(L, obj, x)"
+\fB值:\fP
+.PP
+.nf
+  { TValue *io = (obj); GCObject *i_g=(x); \
+    val_(io)\&.gc = i_g; settt_(io, ctb(i_g->tt)); }
+.fi
+.PP
+在文件 lobject\&.h 第 284 行定义\&.
+.SS "#define sethvalue(L, obj, x)"
+\fB值:\fP
+.PP
+.nf
+  { TValue *io = (obj); Table *x_ = (x); \
+    val_(io)\&.gc = obj2gco(x_); settt_(io, ctb(LUA_VTABLE)); \
+    checkliveness(L,io); }
+.fi
+.PP
+在文件 lobject\&.h 第 658 行定义\&.
+.SS "#define sethvalue2s(L, o, h)   \fBsethvalue\fP(L,\fBs2v\fP(o),h)"
+
+.PP
+在文件 lobject\&.h 第 663 行定义\&.
+.SS "#define setivalue(obj, x)     { \fBTValue\fP *io=(obj); \fBval_\fP(io)\&.i=(x); \fBsettt_\fP(io, \fBLUA_VNUMINT\fP); }"
+
+.PP
+在文件 lobject\&.h 第 319 行定义\&.
+.SS "#define setnilkey(node)   (\fBkeytt\fP(node) = \fBLUA_TNIL\fP)"
+
+.PP
+在文件 lobject\&.h 第 736 行定义\&.
+.SS "#define setnilvalue(obj)   \fBsettt_\fP(obj, \fBLUA_VNIL\fP)"
+
+.PP
+在文件 lobject\&.h 第 175 行定义\&.
+.SS "#define setnodekey(L, node, obj)"
+\fB值:\fP
+.PP
+.nf
+    { Node *n_=(node); const TValue *io_=(obj); \
+      n_->u\&.key_val = io_->value_; n_->u\&.key_tt = io_->tt_; \
+      checkliveness(L,io_); }
+.fi
+.PP
+在文件 lobject\&.h 第 685 行定义\&.
+.SS "#define setnorealasize(t)   ((t)\->marked |= \fBBITRAS\fP)"
+
+.PP
+在文件 lobject\&.h 第 708 行定义\&.
+.SS "#define setobj(L, obj1, obj2)"
+\fB值:\fP
+.PP
+.nf
+  { TValue *io1=(obj1); const TValue *io2=(obj2); \
+          io1->value_ = io2->value_; settt_(io1, io2->tt_); \
+      checkliveness(L,io1); lua_assert(!isnonstrictnil(io1)); }
+.fi
+.PP
+在文件 lobject\&.h 第 113 行定义\&.
+.SS "#define setobj2n   \fBsetobj\fP"
+
+.PP
+在文件 lobject\&.h 第 130 行定义\&.
+.SS "#define setobj2s(L, o1, o2)   \fBsetobj\fP(L,\fBs2v\fP(o1),o2)"
+
+.PP
+在文件 lobject\&.h 第 126 行定义\&.
+.SS "#define setobj2t   \fBsetobj\fP"
+
+.PP
+在文件 lobject\&.h 第 132 行定义\&.
+.SS "#define setobjs2s(L, o1, o2)   \fBsetobj\fP(L,\fBs2v\fP(o1),\fBs2v\fP(o2))"
+
+.PP
+在文件 lobject\&.h 第 124 行定义\&.
+.SS "#define setobjt2t   \fBsetobj\fP"
+
+.PP
+在文件 lobject\&.h 第 128 行定义\&.
+.SS "#define setpvalue(obj, x)     { \fBTValue\fP *io=(obj); \fBval_\fP(io)\&.p=(x); \fBsettt_\fP(io, \fBLUA_VLIGHTUSERDATA\fP); }"
+
+.PP
+在文件 lobject\&.h 第 416 行定义\&.
+.SS "#define setrealasize(t)   ((t)\->marked &= \fBcast_byte\fP(~\fBBITRAS\fP))"
+
+.PP
+在文件 lobject\&.h 第 707 行定义\&.
+.SS "#define setsvalue(L, obj, x)"
+\fB值:\fP
+.PP
+.nf
+  { TValue *io = (obj); TString *x_ = (x); \
+    val_(io)\&.gc = obj2gco(x_); settt_(io, ctb(x_->tt)); \
+    checkliveness(L,io); }
+.fi
+.PP
+在文件 lobject\&.h 第 346 行定义\&.
+.SS "#define setsvalue2n   \fBsetsvalue\fP"
+
+.PP
+在文件 lobject\&.h 第 355 行定义\&.
+.SS "#define setsvalue2s(L, o, s)   \fBsetsvalue\fP(L,\fBs2v\fP(o),s)"
+
+.PP
+在文件 lobject\&.h 第 352 行定义\&.
+.SS "#define setthvalue(L, obj, x)"
+\fB值:\fP
+.PP
+.nf
+  { TValue *io = (obj); lua_State *x_ = (x); \
+    val_(io)\&.gc = obj2gco(x_); settt_(io, ctb(LUA_VTHREAD)); \
+    checkliveness(L,io); }
+.fi
+.PP
+在文件 lobject\&.h 第 243 行定义\&.
+.SS "#define setthvalue2s(L, o, t)   \fBsetthvalue\fP(L,\fBs2v\fP(o),t)"
+
+.PP
+在文件 lobject\&.h 第 248 行定义\&.
+.SS "#define settt_(o, t)   ((o)\->tt_=(t))"
+
+.PP
+在文件 lobject\&.h 第 109 行定义\&.
+.SS "#define setuvalue(L, obj, x)"
+\fB值:\fP
+.PP
+.nf
+  { TValue *io = (obj); Udata *x_ = (x); \
+    val_(io)\&.gc = obj2gco(x_); settt_(io, ctb(LUA_VUSERDATA)); \
+    checkliveness(L,io); }
+.fi
+.PP
+在文件 lobject\&.h 第 419 行定义\&.
+.SS "#define sizenode(t)   (\fBtwoto\fP((t)\->lsizenode))"
+
+.PP
+在文件 lobject\&.h 第 765 行定义\&.
+.SS "#define sizeudata(nuv, nb)   (\fBudatamemoffset\fP(nuv) + (nb))"
+
+.PP
+在文件 lobject\&.h 第 473 行定义\&.
+.SS "#define svalue(o)   \fBgetstr\fP(\fBtsvalue\fP(o))"
+
+.PP
+在文件 lobject\&.h 第 382 行定义\&.
+.SS "#define thvalue(o)   \fBcheck_exp\fP(\fBttisthread\fP(o), \fBgco2th\fP(\fBval_\fP(o)\&.gc))"
+
+.PP
+在文件 lobject\&.h 第 241 行定义\&.
+.SS "#define tsslen(s)   ((s)\->tt == \fBLUA_VSHRSTR\fP ? (s)\->shrlen : (s)\->u\&.lnglen)"
+
+.PP
+在文件 lobject\&.h 第 385 行定义\&.
+.SS "#define tsvalue(o)   \fBcheck_exp\fP(\fBttisstring\fP(o), \fBgco2ts\fP(\fBval_\fP(o)\&.gc))"
+
+.PP
+在文件 lobject\&.h 第 344 行定义\&.
+.SS "#define tsvalueraw(v)   (\fBgco2ts\fP((v)\&.gc))"
+
+.PP
+在文件 lobject\&.h 第 342 行定义\&.
+.SS "#define ttisboolean(o)   \fBchecktype\fP((o), \fBLUA_TBOOLEAN\fP)"
+
+.PP
+在文件 lobject\&.h 第 217 行定义\&.
+.SS "#define ttisCclosure(o)   \fBchecktag\fP((o), \fBctb\fP(\fBLUA_VCCL\fP))"
+
+.PP
+在文件 lobject\&.h 第 573 行定义\&.
+.SS "#define ttisclosure(o)   ((\fBrawtt\fP(o) & 0x1F) == \fBLUA_VLCL\fP)"
+
+.PP
+在文件 lobject\&.h 第 570 行定义\&.
+.SS "#define ttisfalse(o)   \fBchecktag\fP((o), \fBLUA_VFALSE\fP)"
+
+.PP
+在文件 lobject\&.h 第 218 行定义\&.
+.SS "#define ttisfloat(o)   \fBchecktag\fP((o), \fBLUA_VNUMFLT\fP)"
+
+.PP
+在文件 lobject\&.h 第 302 行定义\&.
+.SS "#define ttisfulluserdata(o)   \fBchecktag\fP((o), \fBctb\fP(\fBLUA_VUSERDATA\fP))"
+
+.PP
+在文件 lobject\&.h 第 409 行定义\&.
+.SS "#define ttisfunction(o)   \fBchecktype\fP(o, \fBLUA_TFUNCTION\fP)"
+
+.PP
+在文件 lobject\&.h 第 569 行定义\&.
+.SS "#define ttisinteger(o)   \fBchecktag\fP((o), \fBLUA_VNUMINT\fP)"
+
+.PP
+在文件 lobject\&.h 第 303 行定义\&.
+.SS "#define ttislcf(o)   \fBchecktag\fP((o), \fBLUA_VLCF\fP)"
+
+.PP
+在文件 lobject\&.h 第 572 行定义\&.
+.SS "#define ttisLclosure(o)   \fBchecktag\fP((o), \fBctb\fP(\fBLUA_VLCL\fP))"
+
+.PP
+在文件 lobject\&.h 第 571 行定义\&.
+.SS "#define ttislightuserdata(o)   \fBchecktag\fP((o), \fBLUA_VLIGHTUSERDATA\fP)"
+
+.PP
+在文件 lobject\&.h 第 408 行定义\&.
+.SS "#define ttislngstring(o)   \fBchecktag\fP((o), \fBctb\fP(\fBLUA_VLNGSTR\fP))"
+
+.PP
+在文件 lobject\&.h 第 340 行定义\&.
+.SS "#define ttisnil(v)   \fBchecktype\fP((v), \fBLUA_TNIL\fP)"
+
+.PP
+在文件 lobject\&.h 第 168 行定义\&.
+.SS "#define ttisnumber(o)   \fBchecktype\fP((o), \fBLUA_TNUMBER\fP)"
+
+.PP
+在文件 lobject\&.h 第 301 行定义\&.
+.SS "#define ttisshrstring(o)   \fBchecktag\fP((o), \fBctb\fP(\fBLUA_VSHRSTR\fP))"
+
+.PP
+在文件 lobject\&.h 第 339 行定义\&.
+.SS "#define ttisstrictnil(o)   \fBchecktag\fP((o), \fBLUA_VNIL\fP)"
+
+.PP
+在文件 lobject\&.h 第 172 行定义\&.
+.SS "#define ttisstring(o)   \fBchecktype\fP((o), \fBLUA_TSTRING\fP)"
+
+.PP
+在文件 lobject\&.h 第 338 行定义\&.
+.SS "#define ttistable(o)   \fBchecktag\fP((o), \fBctb\fP(\fBLUA_VTABLE\fP))"
+
+.PP
+在文件 lobject\&.h 第 654 行定义\&.
+.SS "#define ttisthread(o)   \fBchecktag\fP((o), \fBctb\fP(\fBLUA_VTHREAD\fP))"
+
+.PP
+在文件 lobject\&.h 第 239 行定义\&.
+.SS "#define ttistrue(o)   \fBchecktag\fP((o), \fBLUA_VTRUE\fP)"
+
+.PP
+在文件 lobject\&.h 第 219 行定义\&.
+.SS "#define ttype(o)   (\fBnovariant\fP(\fBrawtt\fP(o)))"
+
+.PP
+在文件 lobject\&.h 第 83 行定义\&.
+.SS "#define ttypetag(o)   \fBwithvariant\fP(\fBrawtt\fP(o))"
+
+.PP
+在文件 lobject\&.h 第 80 行定义\&.
+.SS "#define TValuefields   \fBValue\fP value_; \fBlu_byte\fP tt_"
+
+.PP
+在文件 lobject\&.h 第 61 行定义\&.
+.SS "#define twoto(x)   (1<<(x))"
+
+.PP
+在文件 lobject\&.h 第 764 行定义\&.
+.SS "#define udatamemoffset(nuv)"
+\fB值:\fP
+.PP
+.nf
+   ((nuv) == 0 ? offsetof(Udata0, bindata)  \
+                    : offsetof(Udata, uv) + (sizeof(UValue) * (nuv)))
+.fi
+.PP
+在文件 lobject\&.h 第 465 行定义\&.
+.SS "#define UTF8BUFFSZ   8"
+
+.PP
+在文件 lobject\&.h 第 769 行定义\&.
+.SS "#define uvalue(o)   \fBcheck_exp\fP(\fBttisfulluserdata\fP(o), \fBgco2u\fP(\fBval_\fP(o)\&.gc))"
+
+.PP
+在文件 lobject\&.h 第 412 行定义\&.
+.SS "#define val_(o)   ((o)\->value_)"
+
+.PP
+在文件 lobject\&.h 第 68 行定义\&.
+.SS "#define valraw(o)   (&\fBval_\fP(o))"
+
+.PP
+在文件 lobject\&.h 第 69 行定义\&.
+.SS "#define vslen(o)   \fBtsslen\fP(\fBtsvalue\fP(o))"
+
+.PP
+在文件 lobject\&.h 第 388 行定义\&.
+.SS "#define withvariant(t)   ((t) & 0x3F)"
+
+.PP
+在文件 lobject\&.h 第 79 行定义\&.
+.SH "类型定义说明"
+.PP 
+.SS "typedef struct \fBAbsLineInfo\fP \fBAbsLineInfo\fP"
+
+.SS "typedef struct \fBCClosure\fP \fBCClosure\fP"
+
+.SS "typedef union \fBClosure\fP \fBClosure\fP"
+
+.SS "typedef struct \fBGCObject\fP \fBGCObject\fP"
+
+.SS "typedef struct \fBLClosure\fP \fBLClosure\fP"
+
+.SS "typedef struct \fBLocVar\fP \fBLocVar\fP"
+
+.SS "typedef union \fBNode\fP \fBNode\fP"
+
+.SS "typedef struct \fBProto\fP \fBProto\fP"
+
+.SS "typedef union \fBStackValue\fP \fBStackValue\fP"
+
+.SS "typedef \fBStackValue\fP* \fBStkId\fP"
+
+.PP
+在文件 lobject\&.h 第 144 行定义\&.
+.SS "typedef struct \fBTable\fP \fBTable\fP"
+
+.SS "typedef struct \fBTString\fP \fBTString\fP"
+
+.SS "typedef struct \fBTValue\fP \fBTValue\fP"
+
+.SS "typedef struct \fBUdata\fP \fBUdata\fP"
+
+.SS "typedef struct \fBUdata0\fP \fBUdata0\fP"
+
+.SS "typedef struct \fBUpVal\fP \fBUpVal\fP"
+
+.SS "typedef struct \fBUpvaldesc\fP \fBUpvaldesc\fP"
+
+.SS "typedef union \fBUValue\fP \fBUValue\fP"
+
+.SS "typedef union \fBValue\fP \fBValue\fP"
+
+.SH "函数说明"
+.PP 
+.SS "\fBLUAI_FUNC\fP void luaO_arith (\fBlua_State\fP * L, int op, const \fBTValue\fP * p1, const \fBTValue\fP * p2, \fBStkId\fP res)"
+
+.PP
+在文件 lobject\&.c 第 126 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaO_ceillog2 (unsigned int x)"
+
+.PP
+在文件 lobject\&.c 第 35 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaO_chunkid (char * out, const char * source, size_t srclen)"
+
+.PP
+在文件 lobject\&.c 第 548 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaO_hexavalue (int c)"
+
+.PP
+在文件 lobject\&.c 第 135 行定义\&.
+.SS "\fBLUAI_FUNC\fP const char* luaO_pushfstring (\fBlua_State\fP * L, const char * fmt,  \&.\&.\&.)"
+
+.PP
+在文件 lobject\&.c 第 530 行定义\&.
+.SS "\fBLUAI_FUNC\fP const char* luaO_pushvfstring (\fBlua_State\fP * L, const char * fmt, va_list argp)"
+
+.PP
+在文件 lobject\&.c 第 460 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaO_rawarith (\fBlua_State\fP * L, int op, const \fBTValue\fP * p1, const \fBTValue\fP * p2, \fBTValue\fP * res)"
+
+.PP
+在文件 lobject\&.c 第 89 行定义\&.
+.SS "\fBLUAI_FUNC\fP size_t luaO_str2num (const char * s, \fBTValue\fP * o)"
+
+.PP
+在文件 lobject\&.c 第 303 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaO_tostring (\fBlua_State\fP * L, \fBTValue\fP * obj)"
+
+.PP
+在文件 lobject\&.c 第 362 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaO_utf8esc (char * buff, unsigned long x)"
+
+.PP
+在文件 lobject\&.c 第 318 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

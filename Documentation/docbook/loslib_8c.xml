@@ -1,0 +1,565 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_loslib_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/loslib.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/loslib.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;errno.h&gt;
+#include &lt;locale.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;time.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;lauxlib.h&quot;
+#include &quot;lualib.h&quot;
+</programlisting>loslib.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_loslib_8c_1a3ec58cf7ef7bd5214b2688f74dcefb73">loslib_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_loslib_8c_1a884b19ad6094d6238c4072a8064aeb12">LUA_LIB</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_loslib_8c_1ab0982d89a6abf79e4249c2daa582522c">L_STRFTIMEC89</link>   &quot;aAbBcdHIjmMpSUwWxXyYZ%&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_loslib_8c_1a5f204f2c170011c7fd83337315b12e47">L_STRFTIMEC99</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_loslib_8c_1a8c61c03437bf447fe9b7dc054acd2217">L_STRFTIMEWIN</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_loslib_8c_1ab7df836620acf65cb1f91c2e45ed1e31">LUA_STRFTIMEOPTIONS</link>   <link linkend="_loslib_8c_1a5f204f2c170011c7fd83337315b12e47">L_STRFTIMEC99</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_loslib_8c_1a7d2cb05e3c27f9dfa513dcb325e1b140">l_timet</link>   <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_loslib_8c_1ac63906583780389e3d016c9034a5fe9e">l_pushtime</link>(L,  t)   <link linkend="_lua_8h_1aea46fa9bf358947f5c0a1bf266b26154">lua_pushinteger</link>(L,(<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>)(t))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_loslib_8c_1a2c49dbe9467c4507fe4cd12be63eb93f">l_gettime</link>(L,  arg)   <link linkend="_lauxlib_8h_1a4fab48acb62fbf5344ff26e482afaab2">luaL_checkinteger</link>(L, arg)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_loslib_8c_1a9192df83917f8155b1cfdbebf4c5eb8e">l_gmtime</link>(t,  r)   ((void)(r)-&gt;tm_sec, gmtime(t))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_loslib_8c_1a733d73698128700785bb69ebed050054">l_localtime</link>(t,  r)   ((void)(r)-&gt;tm_sec, localtime(t))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_loslib_8c_1a10daafc0532e819b74f297666fcc2d5f">LUA_TMPNAMBUFSIZE</link>   L_tmpnam</para>
+</listitem>
+            <listitem><para>#define <link linkend="_loslib_8c_1aff3a671e45c29852d5964e9cfa7b2319">lua_tmpnam</link>(b,  e)   { e = (tmpnam(b) == NULL); }</para>
+</listitem>
+            <listitem><para>#define <link linkend="_loslib_8c_1a0c2f8d354bc43a99aaff9ba46dcf5258">SIZETIMEFMT</link>   250</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static int <link linkend="_loslib_8c_1a2da7b72413e7abbb84043eeb7988ba36">os_execute</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loslib_8c_1aff1386a6722ad488ced309e2fcdebe13">os_remove</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loslib_8c_1a9e0e5e5a06a8a1aa797e15034070b405">os_rename</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loslib_8c_1a89a90062784a8adc223ff4cbe576321d">os_tmpname</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loslib_8c_1a32640cd81f9679e9539fa18a4083a4ec">os_getenv</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loslib_8c_1ac8ac40c239a4c86ee937b34663bffe80">os_clock</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_loslib_8c_1aa9bc89c1972a22cc25fb7bce8584f89a">setfield</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *key, int value, int delta)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_loslib_8c_1a66ff5b88f96a4df4a360cf6928636860">setboolfield</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *key, int value)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_loslib_8c_1ae4eca277a29a763a64ef611692c4b894">setallfields</link> (<link linkend="_structlua___state">lua_State</link> *L, struct tm *stm)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loslib_8c_1a5dbd1fc25ad13c0f325d09f811bb6172">getboolfield</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *key)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loslib_8c_1aa0a7f676dc564dbc1a3c16c917b933c9">getfield</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *key, int d, int delta)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_loslib_8c_1aaa168f0d57d7a806d86b6b8b20eb51c7">checkoption</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *conv, ptrdiff_t convlen, char *buff)</para>
+</listitem>
+            <listitem><para>static time_t <link linkend="_loslib_8c_1afa432e42a4acd4aa3a30eb02b3beab70">l_checktime</link> (<link linkend="_structlua___state">lua_State</link> *L, int arg)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loslib_8c_1a6520f2562b500aee87a6a475995adefb">os_date</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loslib_8c_1ae32288bc9696b48450146e11c241f943">os_time</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loslib_8c_1ab2027c89bfc0320114b3cce3d77a01ed">os_difftime</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loslib_8c_1a148e76ec4bfa32f07c0bd8c802960113">os_setlocale</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loslib_8c_1a905e81425fe3d6d0b363c10162a2a37b">os_exit</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link> int <link linkend="_loslib_8c_1a03d1c1c58e52032aee542b65a2b1c3ca">luaopen_os</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>变量    </title>
+        <itemizedlist>
+            <listitem><para>static const <link linkend="_structlua_l___reg">luaL_Reg</link> <link linkend="_loslib_8c_1a6860192a4da9966ab5be22f3cfa624a2">syslib</link> []</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_loslib_8c_1a2c49dbe9467c4507fe4cd12be63eb93f"/>    <section>
+    <title>l_gettime</title>
+<indexterm><primary>l_gettime</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>l_gettime</secondary></indexterm>
+<para><computeroutput>#define l_gettime( L,  arg)   <link linkend="_lauxlib_8h_1a4fab48acb62fbf5344ff26e482afaab2">luaL_checkinteger</link>(L, arg)</computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00069">69</link> 行定义.</para>
+    </section><anchor xml:id="_loslib_8c_1a9192df83917f8155b1cfdbebf4c5eb8e"/>    <section>
+    <title>l_gmtime</title>
+<indexterm><primary>l_gmtime</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>l_gmtime</secondary></indexterm>
+<para><computeroutput>#define l_gmtime( t,  r)   ((void)(r)-&gt;tm_sec, gmtime(t))</computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00094">94</link> 行定义.</para>
+    </section><anchor xml:id="_loslib_8c_1a733d73698128700785bb69ebed050054"/>    <section>
+    <title>l_localtime</title>
+<indexterm><primary>l_localtime</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>l_localtime</secondary></indexterm>
+<para><computeroutput>#define l_localtime( t,  r)   ((void)(r)-&gt;tm_sec, localtime(t))</computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00095">95</link> 行定义.</para>
+    </section><anchor xml:id="_loslib_8c_1ac63906583780389e3d016c9034a5fe9e"/>    <section>
+    <title>l_pushtime</title>
+<indexterm><primary>l_pushtime</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>l_pushtime</secondary></indexterm>
+<para><computeroutput>#define l_pushtime( L,  t)   <link linkend="_lua_8h_1aea46fa9bf358947f5c0a1bf266b26154">lua_pushinteger</link>(L,(<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>)(t))</computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00068">68</link> 行定义.</para>
+    </section><anchor xml:id="_loslib_8c_1ab0982d89a6abf79e4249c2daa582522c"/>    <section>
+    <title>L_STRFTIMEC89</title>
+<indexterm><primary>L_STRFTIMEC89</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>L_STRFTIMEC89</secondary></indexterm>
+<para><computeroutput>#define L_STRFTIMEC89   &quot;aAbBcdHIjmMpSUwWxXyYZ%&quot;</computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00034">34</link> 行定义.</para>
+    </section><anchor xml:id="_loslib_8c_1a5f204f2c170011c7fd83337315b12e47"/>    <section>
+    <title>L_STRFTIMEC99</title>
+<indexterm><primary>L_STRFTIMEC99</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>L_STRFTIMEC99</secondary></indexterm>
+<para><computeroutput>#define L_STRFTIMEC99</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;aAbBcCdDeFgGhHIjmMnprRStTuUVwWxXyYzZ%&quot;</emphasis>&#32;\
+&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;||&quot;</emphasis>&#32;<emphasis role="stringliteral">&quot;EcECExEXEyEY&quot;</emphasis>&#32;<emphasis role="stringliteral">&quot;OdOeOHOIOmOMOSOuOUOVOwOWOy&quot;</emphasis>&#32;&#32;<emphasis role="comment">/*&#32;two-char&#32;options&#32;*/</emphasis>
+</programlisting><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00037">37</link> 行定义.</para>
+    </section><anchor xml:id="_loslib_8c_1a8c61c03437bf447fe9b7dc054acd2217"/>    <section>
+    <title>L_STRFTIMEWIN</title>
+<indexterm><primary>L_STRFTIMEWIN</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>L_STRFTIMEWIN</secondary></indexterm>
+<para><computeroutput>#define L_STRFTIMEWIN</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;aAbBcdHIjmMpSUwWxXyYzZ%&quot;</emphasis>&#32;\
+&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;||&quot;</emphasis>&#32;<emphasis role="stringliteral">&quot;#c#x#d#H#I#j#m#M#S#U#w#W#y#Y&quot;</emphasis>&#32;&#32;<emphasis role="comment">/*&#32;two-char&#32;options&#32;*/</emphasis>
+</programlisting><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00041">41</link> 行定义.</para>
+    </section><anchor xml:id="_loslib_8c_1a7d2cb05e3c27f9dfa513dcb325e1b140"/>    <section>
+    <title>l_timet</title>
+<indexterm><primary>l_timet</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>l_timet</secondary></indexterm>
+<para><computeroutput>#define l_timet   <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00067">67</link> 行定义.</para>
+    </section><anchor xml:id="_loslib_8c_1a3ec58cf7ef7bd5214b2688f74dcefb73"/>    <section>
+    <title>loslib_c</title>
+<indexterm><primary>loslib_c</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>loslib_c</secondary></indexterm>
+<para><computeroutput>#define loslib_c</computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_loslib_8c_1a884b19ad6094d6238c4072a8064aeb12"/>    <section>
+    <title>LUA_LIB</title>
+<indexterm><primary>LUA_LIB</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>LUA_LIB</secondary></indexterm>
+<para><computeroutput>#define LUA_LIB</computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00008">8</link> 行定义.</para>
+    </section><anchor xml:id="_loslib_8c_1ab7df836620acf65cb1f91c2e45ed1e31"/>    <section>
+    <title>LUA_STRFTIMEOPTIONS</title>
+<indexterm><primary>LUA_STRFTIMEOPTIONS</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>LUA_STRFTIMEOPTIONS</secondary></indexterm>
+<para><computeroutput>#define LUA_STRFTIMEOPTIONS   <link linkend="_loslib_8c_1a5f204f2c170011c7fd83337315b12e47">L_STRFTIMEC99</link></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00049">49</link> 行定义.</para>
+    </section><anchor xml:id="_loslib_8c_1aff3a671e45c29852d5964e9cfa7b2319"/>    <section>
+    <title>lua_tmpnam</title>
+<indexterm><primary>lua_tmpnam</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>lua_tmpnam</secondary></indexterm>
+<para><computeroutput>#define lua_tmpnam( b,  e)   { e = (tmpnam(b) == NULL); }</computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00133">133</link> 行定义.</para>
+    </section><anchor xml:id="_loslib_8c_1a10daafc0532e819b74f297666fcc2d5f"/>    <section>
+    <title>LUA_TMPNAMBUFSIZE</title>
+<indexterm><primary>LUA_TMPNAMBUFSIZE</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>LUA_TMPNAMBUFSIZE</secondary></indexterm>
+<para><computeroutput>#define LUA_TMPNAMBUFSIZE   L_tmpnam</computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00132">132</link> 行定义.</para>
+    </section><anchor xml:id="_loslib_8c_1a0c2f8d354bc43a99aaff9ba46dcf5258"/>    <section>
+    <title>SIZETIMEFMT</title>
+<indexterm><primary>SIZETIMEFMT</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>SIZETIMEFMT</secondary></indexterm>
+<para><computeroutput>#define SIZETIMEFMT   250</computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00301">301</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_loslib_8c_1aaa168f0d57d7a806d86b6b8b20eb51c7"/>    <section>
+    <title>checkoption()</title>
+<indexterm><primary>checkoption</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>checkoption</secondary></indexterm>
+<para><computeroutput>static const char* checkoption (<link linkend="_structlua___state">lua_State</link> * L, const char * conv, ptrdiff_t convlen, char * buff)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00274">274</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_aaa168f0d57d7a806d86b6b8b20eb51c7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_aaa168f0d57d7a806d86b6b8b20eb51c7_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loslib_8c_1a5dbd1fc25ad13c0f325d09f811bb6172"/>    <section>
+    <title>getboolfield()</title>
+<indexterm><primary>getboolfield</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>getboolfield</secondary></indexterm>
+<para><computeroutput>static int getboolfield (<link linkend="_structlua___state">lua_State</link> * L, const char * key)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00243">243</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_a5dbd1fc25ad13c0f325d09f811bb6172_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_a5dbd1fc25ad13c0f325d09f811bb6172_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loslib_8c_1aa0a7f676dc564dbc1a3c16c917b933c9"/>    <section>
+    <title>getfield()</title>
+<indexterm><primary>getfield</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>getfield</secondary></indexterm>
+<para><computeroutput>static int getfield (<link linkend="_structlua___state">lua_State</link> * L, const char * key, int d, int delta)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00251">251</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_aa0a7f676dc564dbc1a3c16c917b933c9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_aa0a7f676dc564dbc1a3c16c917b933c9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loslib_8c_1afa432e42a4acd4aa3a30eb02b3beab70"/>    <section>
+    <title>l_checktime()</title>
+<indexterm><primary>l_checktime</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>l_checktime</secondary></indexterm>
+<para><computeroutput>static time_t l_checktime (<link linkend="_structlua___state">lua_State</link> * L, int arg)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00293">293</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_afa432e42a4acd4aa3a30eb02b3beab70_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loslib_8c_1a03d1c1c58e52032aee542b65a2b1c3ca"/>    <section>
+    <title>luaopen_os()</title>
+<indexterm><primary>luaopen_os</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>luaopen_os</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link> int luaopen_os (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00426">426</link> 行定义.</para>
+    </section><anchor xml:id="_loslib_8c_1ac8ac40c239a4c86ee937b34663bffe80"/>    <section>
+    <title>os_clock()</title>
+<indexterm><primary>os_clock</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>os_clock</secondary></indexterm>
+<para><computeroutput>static int os_clock (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00186">186</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_ac8ac40c239a4c86ee937b34663bffe80_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loslib_8c_1a6520f2562b500aee87a6a475995adefb"/>    <section>
+    <title>os_date()</title>
+<indexterm><primary>os_date</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>os_date</secondary></indexterm>
+<para><computeroutput>static int os_date (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00304">304</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_a6520f2562b500aee87a6a475995adefb_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loslib_8c_1ab2027c89bfc0320114b3cce3d77a01ed"/>    <section>
+    <title>os_difftime()</title>
+<indexterm><primary>os_difftime</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>os_difftime</secondary></indexterm>
+<para><computeroutput>static int os_difftime (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00372">372</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_ab2027c89bfc0320114b3cce3d77a01ed_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loslib_8c_1a2da7b72413e7abbb84043eeb7988ba36"/>    <section>
+    <title>os_execute()</title>
+<indexterm><primary>os_execute</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>os_execute</secondary></indexterm>
+<para><computeroutput>static int os_execute (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00142">142</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_a2da7b72413e7abbb84043eeb7988ba36_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loslib_8c_1a905e81425fe3d6d0b363c10162a2a37b"/>    <section>
+    <title>os_exit()</title>
+<indexterm><primary>os_exit</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>os_exit</secondary></indexterm>
+<para><computeroutput>static int os_exit (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00394">394</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_a905e81425fe3d6d0b363c10162a2a37b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loslib_8c_1a32640cd81f9679e9539fa18a4083a4ec"/>    <section>
+    <title>os_getenv()</title>
+<indexterm><primary>os_getenv</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>os_getenv</secondary></indexterm>
+<para><computeroutput>static int os_getenv (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00180">180</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_a32640cd81f9679e9539fa18a4083a4ec_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loslib_8c_1aff1386a6722ad488ced309e2fcdebe13"/>    <section>
+    <title>os_remove()</title>
+<indexterm><primary>os_remove</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>os_remove</secondary></indexterm>
+<para><computeroutput>static int os_remove (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00156">156</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_aff1386a6722ad488ced309e2fcdebe13_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loslib_8c_1a9e0e5e5a06a8a1aa797e15034070b405"/>    <section>
+    <title>os_rename()</title>
+<indexterm><primary>os_rename</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>os_rename</secondary></indexterm>
+<para><computeroutput>static int os_rename (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00162">162</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_a9e0e5e5a06a8a1aa797e15034070b405_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loslib_8c_1a148e76ec4bfa32f07c0bd8c802960113"/>    <section>
+    <title>os_setlocale()</title>
+<indexterm><primary>os_setlocale</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>os_setlocale</secondary></indexterm>
+<para><computeroutput>static int os_setlocale (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00382">382</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_a148e76ec4bfa32f07c0bd8c802960113_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loslib_8c_1ae32288bc9696b48450146e11c241f943"/>    <section>
+    <title>os_time()</title>
+<indexterm><primary>os_time</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>os_time</secondary></indexterm>
+<para><computeroutput>static int os_time (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00346">346</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_ae32288bc9696b48450146e11c241f943_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loslib_8c_1a89a90062784a8adc223ff4cbe576321d"/>    <section>
+    <title>os_tmpname()</title>
+<indexterm><primary>os_tmpname</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>os_tmpname</secondary></indexterm>
+<para><computeroutput>static int os_tmpname (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00169">169</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_a89a90062784a8adc223ff4cbe576321d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loslib_8c_1ae4eca277a29a763a64ef611692c4b894"/>    <section>
+    <title>setallfields()</title>
+<indexterm><primary>setallfields</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>setallfields</secondary></indexterm>
+<para><computeroutput>static void setallfields (<link linkend="_structlua___state">lua_State</link> * L, struct tm * stm)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00230">230</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_ae4eca277a29a763a64ef611692c4b894_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_ae4eca277a29a763a64ef611692c4b894_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loslib_8c_1a66ff5b88f96a4df4a360cf6928636860"/>    <section>
+    <title>setboolfield()</title>
+<indexterm><primary>setboolfield</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>setboolfield</secondary></indexterm>
+<para><computeroutput>static void setboolfield (<link linkend="_structlua___state">lua_State</link> * L, const char * key, int value)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00219">219</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_a66ff5b88f96a4df4a360cf6928636860_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_a66ff5b88f96a4df4a360cf6928636860_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loslib_8c_1aa9bc89c1972a22cc25fb7bce8584f89a"/>    <section>
+    <title>setfield()</title>
+<indexterm><primary>setfield</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>setfield</secondary></indexterm>
+<para><computeroutput>static void setfield (<link linkend="_structlua___state">lua_State</link> * L, const char * key, int value, int delta)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00209">209</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_aa9bc89c1972a22cc25fb7bce8584f89a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loslib_8c_aa9bc89c1972a22cc25fb7bce8584f89a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+<section>
+<title>变量说明</title>
+<anchor xml:id="_loslib_8c_1a6860192a4da9966ab5be22f3cfa624a2"/>    <section>
+    <title>syslib</title>
+<indexterm><primary>syslib</primary><secondary>loslib.c</secondary></indexterm>
+<indexterm><primary>loslib.c</primary><secondary>syslib</secondary></indexterm>
+<para><computeroutput>const <link linkend="_structlua_l___reg">luaL_Reg</link> syslib[]<computeroutput>[static]</computeroutput></computeroutput></para><emphasis role="strong">初始值:</emphasis><programlisting>=&#32;{
+&#32;&#32;{<emphasis role="stringliteral">&quot;clock&quot;</emphasis>,&#32;&#32;&#32;&#32;&#32;<link linkend="_loslib_8c_1ac8ac40c239a4c86ee937b34663bffe80">os_clock</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;date&quot;</emphasis>,&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_loslib_8c_1a6520f2562b500aee87a6a475995adefb">os_date</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;difftime&quot;</emphasis>,&#32;&#32;<link linkend="_loslib_8c_1ab2027c89bfc0320114b3cce3d77a01ed">os_difftime</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;execute&quot;</emphasis>,&#32;&#32;&#32;<link linkend="_loslib_8c_1a2da7b72413e7abbb84043eeb7988ba36">os_execute</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;exit&quot;</emphasis>,&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_loslib_8c_1a905e81425fe3d6d0b363c10162a2a37b">os_exit</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;getenv&quot;</emphasis>,&#32;&#32;&#32;&#32;<link linkend="_loslib_8c_1a32640cd81f9679e9539fa18a4083a4ec">os_getenv</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;remove&quot;</emphasis>,&#32;&#32;&#32;&#32;<link linkend="_loslib_8c_1aff1386a6722ad488ced309e2fcdebe13">os_remove</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;rename&quot;</emphasis>,&#32;&#32;&#32;&#32;<link linkend="_loslib_8c_1a9e0e5e5a06a8a1aa797e15034070b405">os_rename</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;setlocale&quot;</emphasis>,&#32;<link linkend="_loslib_8c_1a148e76ec4bfa32f07c0bd8c802960113">os_setlocale</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;time&quot;</emphasis>,&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_loslib_8c_1ae32288bc9696b48450146e11c241f943">os_time</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;tmpname&quot;</emphasis>,&#32;&#32;&#32;<link linkend="_loslib_8c_1a89a90062784a8adc223ff4cbe576321d">os_tmpname</link>},
+&#32;&#32;{NULL,&#32;NULL}
+}
+</programlisting><para>
+在文件 <link linkend="_loslib_8c_source">loslib.c</link> 第 <link linkend="_loslib_8c_source_1l00407">407</link> 行定义.</para>
+</section>
+</section>
+</section>

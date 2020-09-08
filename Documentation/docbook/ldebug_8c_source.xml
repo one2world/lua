@@ -1,0 +1,856 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_ldebug_8c_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/ldebug.c</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;ldebug.c&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Debug&#32;Interface</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+<anchor xml:id="_ldebug_8c_source_1l00007"/><link linkend="_ldebug_8c_1a2b6bdddfcfeef5c88fe82ef48697a640">00007</link> <emphasis role="preprocessor">#define&#32;ldebug_c</emphasis>
+<anchor xml:id="_ldebug_8c_source_1l00008"/><link linkend="_ldebug_8c_1abf0b3947b59218777a8e928a10be205b">00008</link> <emphasis role="preprocessor">#define&#32;LUA_CORE</emphasis>
+00009 
+00010 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lprefix_8h">lprefix.h</link>&quot;</emphasis>
+00011 
+00012 
+00013 <emphasis role="preprocessor">#include&#32;&lt;stdarg.h&gt;</emphasis>
+00014 <emphasis role="preprocessor">#include&#32;&lt;stddef.h&gt;</emphasis>
+00015 <emphasis role="preprocessor">#include&#32;&lt;string.h&gt;</emphasis>
+00016 
+00017 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lua_8h">lua.h</link>&quot;</emphasis>
+00018 
+00019 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lapi_8h">lapi.h</link>&quot;</emphasis>
+00020 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lcode_8h">lcode.h</link>&quot;</emphasis>
+00021 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ldebug_8h">ldebug.h</link>&quot;</emphasis>
+00022 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ldo_8h">ldo.h</link>&quot;</emphasis>
+00023 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lfunc_8h">lfunc.h</link>&quot;</emphasis>
+00024 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lobject_8h">lobject.h</link>&quot;</emphasis>
+00025 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lopcodes_8h">lopcodes.h</link>&quot;</emphasis>
+00026 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lstate_8h">lstate.h</link>&quot;</emphasis>
+00027 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lstring_8h">lstring.h</link>&quot;</emphasis>
+00028 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ltable_8h">ltable.h</link>&quot;</emphasis>
+00029 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ltm_8h">ltm.h</link>&quot;</emphasis>
+00030 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lvm_8h">lvm.h</link>&quot;</emphasis>
+00031 
+00032 
+00033 
+<anchor xml:id="_ldebug_8c_source_1l00034"/><link linkend="_ldebug_8c_1a6fc57844a33412d711bca098b2135f41">00034</link> <emphasis role="preprocessor">#define&#32;noLuaClosure(f)&#32;&#32;&#32;&#32;&#32;((f)&#32;==&#32;NULL&#32;||&#32;(f)-&gt;c.tt&#32;==&#32;LUA_VCCL)</emphasis>
+00035 
+00036 <emphasis role="comment">/*&#32;inverse&#32;of&#32;&apos;pcRel&apos;&#32;*/</emphasis>
+<anchor xml:id="_ldebug_8c_source_1l00037"/><link linkend="_ldebug_8c_1a82b7da36a8466fd9e16477d35f13f75a">00037</link> <emphasis role="preprocessor">#define&#32;invpcRel(pc,&#32;p)&#32;&#32;&#32;&#32;&#32;((p)-&gt;code&#32;+&#32;(pc)&#32;+&#32;1)</emphasis>
+00038 
+00039 <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_ldebug_8c_1aa4c19bd41574279b6de1a01e01186f14">funcnamefromcode</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*ci,
+00040 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;**name);
+00041 
+00042 
+<anchor xml:id="_ldebug_8c_source_1l00043"/><link linkend="_ldebug_8c_1a7db2a3f5cbcf0ac3ef6d4cfa15ab4dbc">00043</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldebug_8c_1a7db2a3f5cbcf0ac3ef6d4cfa15ab4dbc">currentpc</link>&#32;(<link linkend="_struct_call_info">CallInfo</link>&#32;*ci)&#32;{
+00044 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(<link linkend="_lstate_8h_1a489eab424b094f54dd7f6b35e2cf68a2">isLua</link>(ci));
+00045 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_ldebug_8h_1a90cad524ed41d15bada161ecd74037ad">pcRel</link>(ci-&gt;<link linkend="_struct_call_info_1af8751782b1a040b075c25cef0acb484a">u</link>.<link linkend="_struct_call_info_1a1abd0b31f495fcbdfaa1bb8ac5546d6d">l</link>.savedpc,&#32;<link linkend="_ldebug_8h_1a12b504eee786ce8f2c703a22c03d477e">ci_func</link>(ci)-&gt;p);
+00046 }
+00047 
+00048 
+00049 <emphasis role="comment">/*</emphasis>
+00050 <emphasis role="comment">**&#32;Get&#32;a&#32;&quot;base&#32;line&quot;&#32;to&#32;find&#32;the&#32;line&#32;corresponding&#32;to&#32;an&#32;instruction.</emphasis>
+00051 <emphasis role="comment">**&#32;For&#32;that,&#32;search&#32;the&#32;array&#32;of&#32;absolute&#32;line&#32;info&#32;for&#32;the&#32;largest&#32;saved</emphasis>
+00052 <emphasis role="comment">**&#32;instruction&#32;smaller&#32;or&#32;equal&#32;to&#32;the&#32;wanted&#32;instruction.&#32;A&#32;special</emphasis>
+00053 <emphasis role="comment">**&#32;case&#32;is&#32;when&#32;there&#32;is&#32;no&#32;absolute&#32;info&#32;or&#32;the&#32;instruction&#32;is&#32;before</emphasis>
+00054 <emphasis role="comment">**&#32;the&#32;first&#32;absolute&#32;one.</emphasis>
+00055 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldebug_8c_source_1l00056"/><link linkend="_ldebug_8c_1a355ee1f29ee39ff665aa01ef4493f453">00056</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldebug_8c_1a355ee1f29ee39ff665aa01ef4493f453">getbaseline</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_proto">Proto</link>&#32;*f,&#32;<emphasis role="keywordtype">int</emphasis>&#32;pc,&#32;<emphasis role="keywordtype">int</emphasis>&#32;*basepc)&#32;{
+00057 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(f-&gt;<link linkend="_struct_proto_1ab443243fa7dd09b9c08117626c3f8a61">sizeabslineinfo</link>&#32;==&#32;0&#32;||&#32;pc&#32;&lt;&#32;f-&gt;abslineinfo[0].pc)&#32;{
+00058 &#32;&#32;&#32;&#32;*basepc&#32;=&#32;-1;&#32;&#32;<emphasis role="comment">/*&#32;start&#32;from&#32;the&#32;beginning&#32;*/</emphasis>
+00059 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;f-&gt;<link linkend="_struct_proto_1a4dfda1a3839aa77fb8fc7626075151dd">linedefined</link>;
+00060 &#32;&#32;}
+00061 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00062 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;i;
+00063 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(pc&#32;&gt;=&#32;f-&gt;<link linkend="_struct_proto_1a731ed18a38cc12a903582b927104c883">abslineinfo</link>[f-&gt;<link linkend="_struct_proto_1ab443243fa7dd09b9c08117626c3f8a61">sizeabslineinfo</link>&#32;-&#32;1].<link linkend="_struct_abs_line_info_1ac8c81e61335635fa4709d82412b31f06">pc</link>)
+00064 &#32;&#32;&#32;&#32;&#32;&#32;i&#32;=&#32;f-&gt;<link linkend="_struct_proto_1ab443243fa7dd09b9c08117626c3f8a61">sizeabslineinfo</link>&#32;-&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;instruction&#32;is&#32;after&#32;last&#32;saved&#32;one&#32;*/</emphasis>
+00065 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;binary&#32;search&#32;*/</emphasis>
+00066 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;j&#32;=&#32;f-&gt;<link linkend="_struct_proto_1ab443243fa7dd09b9c08117626c3f8a61">sizeabslineinfo</link>&#32;-&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;pc&#32;&lt;&#32;anchorlines[j]&#32;*/</emphasis>
+00067 &#32;&#32;&#32;&#32;&#32;&#32;i&#32;=&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;abslineinfo[i]&#32;&lt;=&#32;pc&#32;*/</emphasis>
+00068 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;(i&#32;&lt;&#32;j&#32;-&#32;1)&#32;{
+00069 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;m&#32;=&#32;(j&#32;+&#32;i)&#32;/&#32;2;
+00070 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(pc&#32;&gt;=&#32;f-&gt;<link linkend="_struct_proto_1a731ed18a38cc12a903582b927104c883">abslineinfo</link>[m].<link linkend="_struct_abs_line_info_1ac8c81e61335635fa4709d82412b31f06">pc</link>)
+00071 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;i&#32;=&#32;m;
+00072 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00073 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;j&#32;=&#32;m;
+00074 &#32;&#32;&#32;&#32;&#32;&#32;}
+00075 &#32;&#32;&#32;&#32;}
+00076 &#32;&#32;&#32;&#32;*basepc&#32;=&#32;f-&gt;<link linkend="_struct_proto_1a731ed18a38cc12a903582b927104c883">abslineinfo</link>[i].<link linkend="_struct_abs_line_info_1ac8c81e61335635fa4709d82412b31f06">pc</link>;
+00077 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;f-&gt;<link linkend="_struct_proto_1a731ed18a38cc12a903582b927104c883">abslineinfo</link>[i].<link linkend="_struct_abs_line_info_1a41ebd28ef1d7c6ade45642cb6acc1039">line</link>;
+00078 &#32;&#32;}
+00079 }
+00080 
+00081 
+00082 <emphasis role="comment">/*</emphasis>
+00083 <emphasis role="comment">**&#32;Get&#32;the&#32;line&#32;corresponding&#32;to&#32;instruction&#32;&apos;pc&apos;&#32;in&#32;function&#32;&apos;f&apos;;</emphasis>
+00084 <emphasis role="comment">**&#32;first&#32;gets&#32;a&#32;base&#32;line&#32;and&#32;from&#32;there&#32;does&#32;the&#32;increments&#32;until</emphasis>
+00085 <emphasis role="comment">**&#32;the&#32;desired&#32;instruction.</emphasis>
+00086 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldebug_8c_source_1l00087"/><link linkend="_ldebug_8h_1a5cdc0fc8aceee489738c9a474c5e6211">00087</link> <emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldebug_8c_1ae7a6d2f88b11cc05758e44acd433ee2f">luaG_getfuncline</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_proto">Proto</link>&#32;*f,&#32;<emphasis role="keywordtype">int</emphasis>&#32;pc)&#32;{
+00088 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(f-&gt;<link linkend="_struct_proto_1a0d5af822069e8cdb2bd7f17f3cdcf575">lineinfo</link>&#32;==&#32;NULL)&#32;&#32;<emphasis role="comment">/*&#32;no&#32;debug&#32;information?&#32;*/</emphasis>
+00089 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;-1;
+00090 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00091 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;basepc;
+00092 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;baseline&#32;=&#32;<link linkend="_ldebug_8c_1a355ee1f29ee39ff665aa01ef4493f453">getbaseline</link>(f,&#32;pc,&#32;&amp;basepc);
+00093 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;(basepc++&#32;&lt;&#32;pc)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;walk&#32;until&#32;given&#32;instruction&#32;*/</emphasis>
+00094 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(f-&gt;<link linkend="_struct_proto_1a0d5af822069e8cdb2bd7f17f3cdcf575">lineinfo</link>[basepc]&#32;!=&#32;<link linkend="_ldebug_8h_1a62320b24b15c9fc1185526504649633f">ABSLINEINFO</link>);
+00095 &#32;&#32;&#32;&#32;&#32;&#32;baseline&#32;+=&#32;f-&gt;<link linkend="_struct_proto_1a0d5af822069e8cdb2bd7f17f3cdcf575">lineinfo</link>[basepc];&#32;&#32;<emphasis role="comment">/*&#32;correct&#32;line&#32;*/</emphasis>
+00096 &#32;&#32;&#32;&#32;}
+00097 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;baseline;
+00098 &#32;&#32;}
+00099 }
+00100 
+00101 
+<anchor xml:id="_ldebug_8c_source_1l00102"/><link linkend="_ldebug_8c_1ad6bc24d619df8e849e2ae8b00455d86f">00102</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldebug_8c_1ad6bc24d619df8e849e2ae8b00455d86f">getcurrentline</link>&#32;(<link linkend="_struct_call_info">CallInfo</link>&#32;*ci)&#32;{
+00103 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_ldebug_8c_1ae7a6d2f88b11cc05758e44acd433ee2f">luaG_getfuncline</link>(<link linkend="_ldebug_8h_1a12b504eee786ce8f2c703a22c03d477e">ci_func</link>(ci)-&gt;p,&#32;<link linkend="_ldebug_8c_1a7db2a3f5cbcf0ac3ef6d4cfa15ab4dbc">currentpc</link>(ci));
+00104 }
+00105 
+00106 
+00107 <emphasis role="comment">/*</emphasis>
+00108 <emphasis role="comment">**&#32;Set&#32;&apos;trap&apos;&#32;for&#32;all&#32;active&#32;Lua&#32;frames.</emphasis>
+00109 <emphasis role="comment">**&#32;This&#32;function&#32;can&#32;be&#32;called&#32;during&#32;a&#32;signal,&#32;under&#32;&quot;reasonable&quot;</emphasis>
+00110 <emphasis role="comment">**&#32;assumptions.&#32;A&#32;new&#32;&apos;ci&apos;&#32;is&#32;completely&#32;linked&#32;in&#32;the&#32;list&#32;before&#32;it</emphasis>
+00111 <emphasis role="comment">**&#32;becomes&#32;part&#32;of&#32;the&#32;&quot;active&quot;&#32;list,&#32;and&#32;we&#32;assume&#32;that&#32;pointers&#32;are</emphasis>
+00112 <emphasis role="comment">**&#32;atomic;&#32;see&#32;comment&#32;in&#32;next&#32;function.</emphasis>
+00113 <emphasis role="comment">**&#32;(A&#32;compiler&#32;doing&#32;interprocedural&#32;optimizations&#32;could,&#32;theoretically,</emphasis>
+00114 <emphasis role="comment">**&#32;reorder&#32;memory&#32;writes&#32;in&#32;such&#32;a&#32;way&#32;that&#32;the&#32;list&#32;could&#32;be</emphasis>
+00115 <emphasis role="comment">**&#32;temporarily&#32;broken&#32;while&#32;inserting&#32;a&#32;new&#32;element.&#32;We&#32;simply&#32;assume&#32;it</emphasis>
+00116 <emphasis role="comment">**&#32;has&#32;no&#32;good&#32;reasons&#32;to&#32;do&#32;that.)</emphasis>
+00117 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldebug_8c_source_1l00118"/><link linkend="_ldebug_8c_1ac6e4d5f88c90151adb37f89be98c0309">00118</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldebug_8c_1ac6e4d5f88c90151adb37f89be98c0309">settraps</link>&#32;(<link linkend="_struct_call_info">CallInfo</link>&#32;*ci)&#32;{
+00119 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(;&#32;ci&#32;!=&#32;NULL;&#32;ci&#32;=&#32;ci-&gt;<link linkend="_struct_call_info_1acd0df27f40f3c6f546e29401fecaddb4">previous</link>)
+00120 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lstate_8h_1a489eab424b094f54dd7f6b35e2cf68a2">isLua</link>(ci))
+00121 &#32;&#32;&#32;&#32;&#32;&#32;ci-&gt;<link linkend="_struct_call_info_1af8751782b1a040b075c25cef0acb484a">u</link>.<link linkend="_struct_call_info_1a1abd0b31f495fcbdfaa1bb8ac5546d6d">l</link>.trap&#32;=&#32;1;
+00122 }
+00123 
+00124 
+00125 <emphasis role="comment">/*</emphasis>
+00126 <emphasis role="comment">**&#32;This&#32;function&#32;can&#32;be&#32;called&#32;during&#32;a&#32;signal,&#32;under&#32;&quot;reasonable&quot;</emphasis>
+00127 <emphasis role="comment">**&#32;assumptions.</emphasis>
+00128 <emphasis role="comment">**&#32;Fields&#32;&apos;basehookcount&apos;&#32;and&#32;&apos;hookcount&apos;&#32;(set&#32;by&#32;&apos;resethookcount&apos;)</emphasis>
+00129 <emphasis role="comment">**&#32;are&#32;for&#32;debug&#32;only,&#32;and&#32;it&#32;is&#32;no&#32;problem&#32;if&#32;they&#32;get&#32;arbitrary</emphasis>
+00130 <emphasis role="comment">**&#32;values&#32;(causes&#32;at&#32;most&#32;one&#32;wrong&#32;hook&#32;call).&#32;&apos;hookmask&apos;&#32;is&#32;an&#32;atomic</emphasis>
+00131 <emphasis role="comment">**&#32;value.&#32;We&#32;assume&#32;that&#32;pointers&#32;are&#32;atomic&#32;too&#32;(e.g.,&#32;gcc&#32;ensures&#32;that</emphasis>
+00132 <emphasis role="comment">**&#32;for&#32;all&#32;platforms&#32;where&#32;it&#32;runs).&#32;Moreover,&#32;&apos;hook&apos;&#32;is&#32;always&#32;checked</emphasis>
+00133 <emphasis role="comment">**&#32;before&#32;being&#32;called&#32;(see&#32;&apos;luaD_hook&apos;).</emphasis>
+00134 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldebug_8c_source_1l00135"/><link linkend="_lua_8h_1aed21cb21ee0b784d2b0aff1f7b3806c1">00135</link> <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldebug_8c_1ac9d3d168561f5c1a747a3ab198f0f092">lua_sethook</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_lua_8h_1aa00de66eff087aef1fdd44f5b3bb9a0b">lua_Hook</link>&#32;func,&#32;<emphasis role="keywordtype">int</emphasis>&#32;mask,&#32;<emphasis role="keywordtype">int</emphasis>&#32;count)&#32;{
+00136 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(func&#32;==&#32;NULL&#32;||&#32;mask&#32;==&#32;0)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;turn&#32;off&#32;hooks?&#32;*/</emphasis>
+00137 &#32;&#32;&#32;&#32;mask&#32;=&#32;0;
+00138 &#32;&#32;&#32;&#32;func&#32;=&#32;NULL;
+00139 &#32;&#32;}
+00140 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a0f562869c88d56ceb0ee15048df46470">hook</link>&#32;=&#32;func;
+00141 &#32;&#32;L-&gt;<link linkend="_structlua___state_1ac18d0304dcc378978714fe1d446fda26">basehookcount</link>&#32;=&#32;count;
+00142 &#32;&#32;<link linkend="_ldebug_8h_1ac42e5618900e7522d70474fcfbddab58">resethookcount</link>(L);
+00143 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a081110fd5f9c1292f56fb2ef36e35c1a">hookmask</link>&#32;=&#32;<link linkend="_llimits_8h_1a596f5b6e992f53a5a4e5732083448dd4">cast_byte</link>(mask);
+00144 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(mask)
+00145 &#32;&#32;&#32;&#32;<link linkend="_ldebug_8c_1ac6e4d5f88c90151adb37f89be98c0309">settraps</link>(L-&gt;<link linkend="_structlua___state_1a8764223139091552413c85d3fc0bb1eb">ci</link>);&#32;&#32;<emphasis role="comment">/*&#32;to&#32;trace&#32;inside&#32;&apos;luaV_execute&apos;&#32;*/</emphasis>
+00146 }
+00147 
+00148 
+<anchor xml:id="_ldebug_8c_source_1l00149"/><link linkend="_lua_8h_1a2bd2c84200d910a5eb375b24ec4b34b6">00149</link> <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<link linkend="_lua_8h_1aa00de66eff087aef1fdd44f5b3bb9a0b">lua_Hook</link>&#32;<link linkend="_ldebug_8c_1a44b9923035977dcfa57279761f7379b4">lua_gethook</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00150 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;L-&gt;<link linkend="_structlua___state_1a0f562869c88d56ceb0ee15048df46470">hook</link>;
+00151 }
+00152 
+00153 
+<anchor xml:id="_ldebug_8c_source_1l00154"/><link linkend="_lua_8h_1adb80071bb21edac0ca5bd9608b78c8b4">00154</link> <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldebug_8c_1a0b41dd9ab46652c8433b861f679fadb8">lua_gethookmask</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00155 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;L-&gt;<link linkend="_structlua___state_1a081110fd5f9c1292f56fb2ef36e35c1a">hookmask</link>;
+00156 }
+00157 
+00158 
+<anchor xml:id="_ldebug_8c_source_1l00159"/><link linkend="_lua_8h_1a7c56ea7a2c0c7320c26abe013ebd9bf3">00159</link> <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldebug_8c_1a18f065f752cfa08eefd338b4cbd7254b">lua_gethookcount</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00160 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;L-&gt;<link linkend="_structlua___state_1ac18d0304dcc378978714fe1d446fda26">basehookcount</link>;
+00161 }
+00162 
+00163 
+<anchor xml:id="_ldebug_8c_source_1l00164"/><link linkend="_lua_8h_1a8b921d13d8b79983b19e1a7964219bc6">00164</link> <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldebug_8c_1ac1fc03c27ee46caa4037df2d70f22110">lua_getstack</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;level,&#32;<link linkend="_structlua___debug">lua_Debug</link>&#32;*ar)&#32;{
+00165 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;status;
+00166 &#32;&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*ci;
+00167 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(level&#32;&lt;&#32;0)&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;invalid&#32;(negative)&#32;level&#32;*/</emphasis>
+00168 &#32;&#32;<link linkend="_llimits_8h_1aa68a48b9104aeadf4842c25c12a9b8c9">lua_lock</link>(L);
+00169 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(ci&#32;=&#32;L-&gt;<link linkend="_structlua___state_1a8764223139091552413c85d3fc0bb1eb">ci</link>;&#32;level&#32;&gt;&#32;0&#32;&amp;&amp;&#32;ci&#32;!=&#32;&amp;L-&gt;<link linkend="_structlua___state_1a4c48e90d3a9e48ab21d0623c1f46174e">base_ci</link>;&#32;ci&#32;=&#32;ci-&gt;<link linkend="_struct_call_info_1acd0df27f40f3c6f546e29401fecaddb4">previous</link>)
+00170 &#32;&#32;&#32;&#32;level--;
+00171 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(level&#32;==&#32;0&#32;&amp;&amp;&#32;ci&#32;!=&#32;&amp;L-&gt;<link linkend="_structlua___state_1a4c48e90d3a9e48ab21d0623c1f46174e">base_ci</link>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;level&#32;found?&#32;*/</emphasis>
+00172 &#32;&#32;&#32;&#32;status&#32;=&#32;1;
+00173 &#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a057e0b4acf19b9c7c3cb42ae5704371f">i_ci</link>&#32;=&#32;ci;
+00174 &#32;&#32;}
+00175 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;status&#32;=&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;such&#32;level&#32;*/</emphasis>
+00176 &#32;&#32;<link linkend="_llimits_8h_1a1781f2a7d9161848a246d475a9171875">lua_unlock</link>(L);
+00177 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;status;
+00178 }
+00179 
+00180 
+<anchor xml:id="_ldebug_8c_source_1l00181"/><link linkend="_ldebug_8c_1ac1d00bafd9dbc2ea15b7b374a760a8fc">00181</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_ldebug_8c_1ac1d00bafd9dbc2ea15b7b374a760a8fc">upvalname</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_proto">Proto</link>&#32;*p,&#32;<emphasis role="keywordtype">int</emphasis>&#32;uv)&#32;{
+00182 &#32;&#32;<link linkend="_struct_t_string">TString</link>&#32;*s&#32;=&#32;<link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(uv&#32;&lt;&#32;p-&gt;sizeupvalues,&#32;p-&gt;<link linkend="_struct_proto_1ac3b891662880254a7e0a3dc0afa86254">upvalues</link>[uv].<link linkend="_struct_upvaldesc_1aa249fce0e5297641aa43f45e48bb1548">name</link>);
+00183 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(s&#32;==&#32;NULL)&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="stringliteral">&quot;?&quot;</emphasis>;
+00184 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lobject_8h_1acb05d3ab238923581a9c629b8e11a6ac">getstr</link>(s);
+00185 }
+00186 
+00187 
+<anchor xml:id="_ldebug_8c_source_1l00188"/><link linkend="_ldebug_8c_1adde29da645f7256cd7b78dafeec64cc1">00188</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_ldebug_8c_1adde29da645f7256cd7b78dafeec64cc1">findvararg</link>&#32;(<link linkend="_struct_call_info">CallInfo</link>&#32;*ci,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n,&#32;<link linkend="_union_stack_value">StkId</link>&#32;*pos)&#32;{
+00189 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lobject_8h_1afb9e65b01574a1135c582cf28883062e">clLvalue</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(ci-&gt;<link linkend="_struct_call_info_1a9d82a8ad04b0dd8837e621047972260a">func</link>))-&gt;p-&gt;is_vararg)&#32;{
+00190 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;nextra&#32;=&#32;ci-&gt;<link linkend="_struct_call_info_1af8751782b1a040b075c25cef0acb484a">u</link>.<link linkend="_struct_call_info_1a1abd0b31f495fcbdfaa1bb8ac5546d6d">l</link>.nextraargs;
+00191 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(n&#32;&gt;=&#32;-nextra)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;&apos;n&apos;&#32;is&#32;negative&#32;*/</emphasis>
+00192 &#32;&#32;&#32;&#32;&#32;&#32;*pos&#32;=&#32;ci-&gt;<link linkend="_struct_call_info_1a9d82a8ad04b0dd8837e621047972260a">func</link>&#32;-&#32;nextra&#32;-&#32;(n&#32;+&#32;1);
+00193 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="stringliteral">&quot;(vararg)&quot;</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;generic&#32;name&#32;for&#32;any&#32;vararg&#32;*/</emphasis>
+00194 &#32;&#32;&#32;&#32;}
+00195 &#32;&#32;}
+00196 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;NULL;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;such&#32;vararg&#32;*/</emphasis>
+00197 }
+00198 
+00199 
+<anchor xml:id="_ldebug_8c_source_1l00200"/><link linkend="_ldebug_8h_1a80c1d8a3c6dea62d717ad25d2b018c4d">00200</link> <emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_ldebug_8c_1acf87581237e7d0072502ffc5092e8329">luaG_findlocal</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*ci,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n,&#32;<link linkend="_union_stack_value">StkId</link>&#32;*pos)&#32;{
+00201 &#32;&#32;<link linkend="_union_stack_value">StkId</link>&#32;base&#32;=&#32;ci-&gt;<link linkend="_struct_call_info_1a9d82a8ad04b0dd8837e621047972260a">func</link>&#32;+&#32;1;
+00202 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name&#32;=&#32;NULL;
+00203 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lstate_8h_1a489eab424b094f54dd7f6b35e2cf68a2">isLua</link>(ci))&#32;{
+00204 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(n&#32;&lt;&#32;0)&#32;&#32;<emphasis role="comment">/*&#32;access&#32;to&#32;vararg&#32;values?&#32;*/</emphasis>
+00205 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_ldebug_8c_1adde29da645f7256cd7b78dafeec64cc1">findvararg</link>(ci,&#32;n,&#32;pos);
+00206 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00207 &#32;&#32;&#32;&#32;&#32;&#32;name&#32;=&#32;<link linkend="_lfunc_8c_1aaa3cd5bc3901e7edf1ac428151cdfe8c">luaF_getlocalname</link>(<link linkend="_ldebug_8h_1a12b504eee786ce8f2c703a22c03d477e">ci_func</link>(ci)-&gt;p,&#32;n,&#32;<link linkend="_ldebug_8c_1a7db2a3f5cbcf0ac3ef6d4cfa15ab4dbc">currentpc</link>(ci));
+00208 &#32;&#32;}
+00209 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(name&#32;==&#32;NULL)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;no&#32;&apos;standard&apos;&#32;name?&#32;*/</emphasis>
+00210 &#32;&#32;&#32;&#32;<link linkend="_union_stack_value">StkId</link>&#32;limit&#32;=&#32;(ci&#32;==&#32;L-&gt;<link linkend="_structlua___state_1a8764223139091552413c85d3fc0bb1eb">ci</link>)&#32;?&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;:&#32;ci-&gt;<link linkend="_struct_call_info_1a78db3e2e6cc56856680d3c01ad82f958">next</link>-&gt;<link linkend="_struct_call_info_1a9d82a8ad04b0dd8837e621047972260a">func</link>;
+00211 &#32;&#32;&#32;&#32;if&#32;(limit&#32;-&#32;base&#32;&gt;=&#32;n&#32;&amp;&amp;&#32;n&#32;&gt;&#32;0)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;is&#32;&apos;n&apos;&#32;inside&#32;&apos;ci&apos;&#32;stack?&#32;*/</emphasis>
+00212 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;generic&#32;name&#32;for&#32;any&#32;valid&#32;slot&#32;*/</emphasis>
+00213 &#32;&#32;&#32;&#32;&#32;&#32;name&#32;=&#32;<link linkend="_lstate_8h_1a489eab424b094f54dd7f6b35e2cf68a2">isLua</link>(ci)&#32;?&#32;<emphasis role="stringliteral">&quot;(temporary)&quot;</emphasis>&#32;:&#32;<emphasis role="stringliteral">&quot;(C&#32;temporary)&quot;</emphasis>;
+00214 &#32;&#32;&#32;&#32;}
+00215 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00216 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;NULL;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;name&#32;*/</emphasis>
+00217 &#32;&#32;}
+00218 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(pos)
+00219 &#32;&#32;&#32;&#32;*pos&#32;=&#32;base&#32;+&#32;(n&#32;-&#32;1);
+00220 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;name;
+00221 }
+00222 
+00223 
+<anchor xml:id="_ldebug_8c_source_1l00224"/><link linkend="_lua_8h_1afab4c753a151dd222a3de6ca5daf4ce2">00224</link> <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_ldebug_8c_1aaaf420ee0b0e79a45b823d9da4905667">lua_getlocal</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_structlua___debug">lua_Debug</link>&#32;*ar,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n)&#32;{
+00225 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name;
+00226 &#32;&#32;<link linkend="_llimits_8h_1aa68a48b9104aeadf4842c25c12a9b8c9">lua_lock</link>(L);
+00227 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ar&#32;==&#32;NULL)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;information&#32;about&#32;non-active&#32;function?&#32;*/</emphasis>
+00228 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_lobject_8h_1a6e8ea4626fad5e23912d4e26d0b09200">isLfunction</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;-&#32;1)))&#32;&#32;<emphasis role="comment">/*&#32;not&#32;a&#32;Lua&#32;function?&#32;*/</emphasis>
+00229 &#32;&#32;&#32;&#32;&#32;&#32;name&#32;=&#32;NULL;
+00230 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;&#32;<emphasis role="comment">/*&#32;consider&#32;live&#32;variables&#32;at&#32;function&#32;start&#32;(parameters)&#32;*/</emphasis>
+00231 &#32;&#32;&#32;&#32;&#32;&#32;name&#32;=&#32;<link linkend="_lfunc_8c_1aaa3cd5bc3901e7edf1ac428151cdfe8c">luaF_getlocalname</link>(<link linkend="_lobject_8h_1afb9e65b01574a1135c582cf28883062e">clLvalue</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;-&#32;1))-&gt;p,&#32;n,&#32;0);
+00232 &#32;&#32;}
+00233 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;active&#32;function;&#32;get&#32;information&#32;through&#32;&apos;ar&apos;&#32;*/</emphasis>
+00234 &#32;&#32;&#32;&#32;<link linkend="_union_stack_value">StkId</link>&#32;pos&#32;=&#32;NULL;&#32;&#32;<emphasis role="comment">/*&#32;to&#32;avoid&#32;warnings&#32;*/</emphasis>
+00235 &#32;&#32;&#32;&#32;name&#32;=&#32;<link linkend="_ldebug_8c_1acf87581237e7d0072502ffc5092e8329">luaG_findlocal</link>(L,&#32;ar-&gt;<link linkend="_structlua___debug_1a057e0b4acf19b9c7c3cb42ae5704371f">i_ci</link>,&#32;n,&#32;&amp;pos);
+00236 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(name)&#32;{
+00237 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lobject_8h_1af9258d87e8f082be8a2adb731d90f1a5">setobjs2s</link>(L,&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>,&#32;pos);
+00238 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lapi_8h_1afe4a5994dd3704ec53de77f9fd121915">api_incr_top</link>(L);
+00239 &#32;&#32;&#32;&#32;}
+00240 &#32;&#32;}
+00241 &#32;&#32;<link linkend="_llimits_8h_1a1781f2a7d9161848a246d475a9171875">lua_unlock</link>(L);
+00242 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;name;
+00243 }
+00244 
+00245 
+<anchor xml:id="_ldebug_8c_source_1l00246"/><link linkend="_lua_8h_1a009cbda7b68bd7047677d280db4ea064">00246</link> <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_ldebug_8c_1a425c37b17caf76545f1541a5bb81dfc6">lua_setlocal</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_structlua___debug">lua_Debug</link>&#32;*ar,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n)&#32;{
+00247 &#32;&#32;<link linkend="_union_stack_value">StkId</link>&#32;pos&#32;=&#32;NULL;&#32;&#32;<emphasis role="comment">/*&#32;to&#32;avoid&#32;warnings&#32;*/</emphasis>
+00248 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name;
+00249 &#32;&#32;<link linkend="_llimits_8h_1aa68a48b9104aeadf4842c25c12a9b8c9">lua_lock</link>(L);
+00250 &#32;&#32;name&#32;=&#32;<link linkend="_ldebug_8c_1acf87581237e7d0072502ffc5092e8329">luaG_findlocal</link>(L,&#32;ar-&gt;<link linkend="_structlua___debug_1a057e0b4acf19b9c7c3cb42ae5704371f">i_ci</link>,&#32;n,&#32;&amp;pos);
+00251 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(name)&#32;{
+00252 &#32;&#32;&#32;&#32;<link linkend="_lobject_8h_1af9258d87e8f082be8a2adb731d90f1a5">setobjs2s</link>(L,&#32;pos,&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;-&#32;1);
+00253 &#32;&#32;&#32;&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>--;&#32;&#32;<emphasis role="comment">/*&#32;pop&#32;value&#32;*/</emphasis>
+00254 &#32;&#32;}
+00255 &#32;&#32;<link linkend="_llimits_8h_1a1781f2a7d9161848a246d475a9171875">lua_unlock</link>(L);
+00256 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;name;
+00257 }
+00258 
+00259 
+<anchor xml:id="_ldebug_8c_source_1l00260"/><link linkend="_ldebug_8c_1a84af60873d130ffee87eb1721f3231e4">00260</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldebug_8c_1a84af60873d130ffee87eb1721f3231e4">funcinfo</link>&#32;(<link linkend="_structlua___debug">lua_Debug</link>&#32;*ar,&#32;<link linkend="_union_closure">Closure</link>&#32;*cl)&#32;{
+00261 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_ldebug_8c_1a6fc57844a33412d711bca098b2135f41">noLuaClosure</link>(cl))&#32;{
+00262 &#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1af2ed45b90afa2ef4ec6e09625335a082">source</link>&#32;=&#32;<emphasis role="stringliteral">&quot;=[C]&quot;</emphasis>;
+00263 &#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a3272ffa9b40871a9265ac4d0570206b3">srclen</link>&#32;=&#32;<link linkend="_llimits_8h_1a6185afb135442b229d91201b1a3c6eb2">LL</link>(<emphasis role="stringliteral">&quot;=[C]&quot;</emphasis>);
+00264 &#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a4dfda1a3839aa77fb8fc7626075151dd">linedefined</link>&#32;=&#32;-1;
+00265 &#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a0129a289db231fbe2c6c3b3d6062979e">lastlinedefined</link>&#32;=&#32;-1;
+00266 &#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a951a98f1e2d69ca61adcd53c0f8faca3">what</link>&#32;=&#32;<emphasis role="stringliteral">&quot;C&quot;</emphasis>;
+00267 &#32;&#32;}
+00268 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00269 &#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_proto">Proto</link>&#32;*p&#32;=&#32;cl-&gt;<link linkend="_union_closure_1a66c5272074637c1b1e85d1c4c1a77d8c">l</link>.<link linkend="_struct_l_closure_1aed1f50b9bdc5ce4c7cfa49529472b42c">p</link>;
+00270 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(p-&gt;<link linkend="_struct_proto_1a47b5f25d6c53f3892e43702659c6de69">source</link>)&#32;{
+00271 &#32;&#32;&#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1af2ed45b90afa2ef4ec6e09625335a082">source</link>&#32;=&#32;<link linkend="_lobject_8h_1acb05d3ab238923581a9c629b8e11a6ac">getstr</link>(p-&gt;<link linkend="_struct_proto_1a47b5f25d6c53f3892e43702659c6de69">source</link>);
+00272 &#32;&#32;&#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a3272ffa9b40871a9265ac4d0570206b3">srclen</link>&#32;=&#32;<link linkend="_lobject_8h_1a3a62185cfa9345aedfc3a581dfdbb4f3">tsslen</link>(p-&gt;<link linkend="_struct_proto_1a47b5f25d6c53f3892e43702659c6de69">source</link>);
+00273 &#32;&#32;&#32;&#32;}
+00274 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00275 &#32;&#32;&#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1af2ed45b90afa2ef4ec6e09625335a082">source</link>&#32;=&#32;<emphasis role="stringliteral">&quot;=?&quot;</emphasis>;
+00276 &#32;&#32;&#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a3272ffa9b40871a9265ac4d0570206b3">srclen</link>&#32;=&#32;<link linkend="_llimits_8h_1a6185afb135442b229d91201b1a3c6eb2">LL</link>(<emphasis role="stringliteral">&quot;=?&quot;</emphasis>);
+00277 &#32;&#32;&#32;&#32;}
+00278 &#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a4dfda1a3839aa77fb8fc7626075151dd">linedefined</link>&#32;=&#32;p-&gt;<link linkend="_struct_proto_1a4dfda1a3839aa77fb8fc7626075151dd">linedefined</link>;
+00279 &#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a0129a289db231fbe2c6c3b3d6062979e">lastlinedefined</link>&#32;=&#32;p-&gt;<link linkend="_struct_proto_1a0129a289db231fbe2c6c3b3d6062979e">lastlinedefined</link>;
+00280 &#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a951a98f1e2d69ca61adcd53c0f8faca3">what</link>&#32;=&#32;(ar-&gt;<link linkend="_structlua___debug_1a4dfda1a3839aa77fb8fc7626075151dd">linedefined</link>&#32;==&#32;0)&#32;?&#32;<emphasis role="stringliteral">&quot;main&quot;</emphasis>&#32;:&#32;<emphasis role="stringliteral">&quot;Lua&quot;</emphasis>;
+00281 &#32;&#32;}
+00282 &#32;&#32;<link linkend="_lobject_8c_1ac331b4119bbeb45a8a7e5a1afe553b2e">luaO_chunkid</link>(ar-&gt;<link linkend="_structlua___debug_1af9d2e23fe50a49dc12c41f7276c2143d">short_src</link>,&#32;ar-&gt;<link linkend="_structlua___debug_1af2ed45b90afa2ef4ec6e09625335a082">source</link>,&#32;ar-&gt;<link linkend="_structlua___debug_1a3272ffa9b40871a9265ac4d0570206b3">srclen</link>);
+00283 }
+00284 
+00285 
+<anchor xml:id="_ldebug_8c_source_1l00286"/><link linkend="_ldebug_8c_1a34dcc3fce752d518b34773a35b3763ad">00286</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldebug_8c_1a34dcc3fce752d518b34773a35b3763ad">nextline</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_proto">Proto</link>&#32;*p,&#32;<emphasis role="keywordtype">int</emphasis>&#32;currentline,&#32;<emphasis role="keywordtype">int</emphasis>&#32;pc)&#32;{
+00287 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(p-&gt;<link linkend="_struct_proto_1a0d5af822069e8cdb2bd7f17f3cdcf575">lineinfo</link>[pc]&#32;!=&#32;<link linkend="_ldebug_8h_1a62320b24b15c9fc1185526504649633f">ABSLINEINFO</link>)
+00288 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;currentline&#32;+&#32;p-&gt;<link linkend="_struct_proto_1a0d5af822069e8cdb2bd7f17f3cdcf575">lineinfo</link>[pc];
+00289 &#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00290 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_ldebug_8c_1ae7a6d2f88b11cc05758e44acd433ee2f">luaG_getfuncline</link>(p,&#32;pc);
+00291 }
+00292 
+00293 
+<anchor xml:id="_ldebug_8c_source_1l00294"/><link linkend="_ldebug_8c_1a6e3195fc94af1f75142c2801ca8cf058">00294</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldebug_8c_1a6e3195fc94af1f75142c2801ca8cf058">collectvalidlines</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_union_closure">Closure</link>&#32;*f)&#32;{
+00295 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_ldebug_8c_1a6fc57844a33412d711bca098b2135f41">noLuaClosure</link>(f))&#32;{
+00296 &#32;&#32;&#32;&#32;<link linkend="_lobject_8h_1ad9034def7bbc1965ec3d714d84620b07">setnilvalue</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>));
+00297 &#32;&#32;&#32;&#32;<link linkend="_lapi_8h_1afe4a5994dd3704ec53de77f9fd121915">api_incr_top</link>(L);
+00298 &#32;&#32;}
+00299 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00300 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i;
+00301 &#32;&#32;&#32;&#32;<link linkend="_struct_t_value">TValue</link>&#32;v;
+00302 &#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_proto">Proto</link>&#32;*p&#32;=&#32;f-&gt;<link linkend="_union_closure_1a66c5272074637c1b1e85d1c4c1a77d8c">l</link>.<link linkend="_struct_l_closure_1aed1f50b9bdc5ce4c7cfa49529472b42c">p</link>;
+00303 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;currentline&#32;=&#32;p-&gt;<link linkend="_struct_proto_1a4dfda1a3839aa77fb8fc7626075151dd">linedefined</link>;
+00304 &#32;&#32;&#32;&#32;<link linkend="_struct_table">Table</link>&#32;*t&#32;=&#32;<link linkend="_ltable_8c_1a6c97fb2d6a020b0a6f852562fef93d97">luaH_new</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;new&#32;table&#32;to&#32;store&#32;active&#32;lines&#32;*/</emphasis>
+00305 &#32;&#32;&#32;&#32;<link linkend="_lobject_8h_1aea789832f6c549f64cb3903216a7aeac">sethvalue2s</link>(L,&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>,&#32;t);&#32;&#32;<emphasis role="comment">/*&#32;push&#32;it&#32;on&#32;stack&#32;*/</emphasis>
+00306 &#32;&#32;&#32;&#32;<link linkend="_lapi_8h_1afe4a5994dd3704ec53de77f9fd121915">api_incr_top</link>(L);
+00307 &#32;&#32;&#32;&#32;<link linkend="_lobject_8h_1a1b86e0dccf6b92c4c89d47af26e3a8e3">setbtvalue</link>(&amp;v);&#32;&#32;<emphasis role="comment">/*&#32;boolean&#32;&apos;true&apos;&#32;to&#32;be&#32;the&#32;value&#32;of&#32;all&#32;indices&#32;*/</emphasis>
+00308 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;0;&#32;i&#32;&lt;&#32;p-&gt;<link linkend="_struct_proto_1a53f346647cd2060380dad39c9d5caebe">sizelineinfo</link>;&#32;i++)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;for&#32;all&#32;lines&#32;with&#32;code&#32;*/</emphasis>
+00309 &#32;&#32;&#32;&#32;&#32;&#32;currentline&#32;=&#32;<link linkend="_ldebug_8c_1a34dcc3fce752d518b34773a35b3763ad">nextline</link>(p,&#32;currentline,&#32;i);
+00310 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_ltable_8c_1a9eefa8191c63f55cffb6b7b58217467c">luaH_setint</link>(L,&#32;t,&#32;currentline,&#32;&amp;v);&#32;&#32;<emphasis role="comment">/*&#32;table[line]&#32;=&#32;true&#32;*/</emphasis>
+00311 &#32;&#32;&#32;&#32;}
+00312 &#32;&#32;}
+00313 }
+00314 
+00315 
+<anchor xml:id="_ldebug_8c_source_1l00316"/><link linkend="_ldebug_8c_1a118ab79b6b538a857353e4b9259667e1">00316</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_ldebug_8c_1a118ab79b6b538a857353e4b9259667e1">getfuncname</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*ci,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;**name)&#32;{
+00317 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ci&#32;==&#32;NULL)&#32;&#32;<emphasis role="comment">/*&#32;no&#32;&apos;ci&apos;?&#32;*/</emphasis>
+00318 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;NULL;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;info&#32;*/</emphasis>
+00319 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ci-&gt;<link linkend="_struct_call_info_1a1551d635e86dcf5c62f9bc718512d89b">callstatus</link>&#32;&amp;&#32;<link linkend="_lstate_8h_1a6238abb19ba287875358e796aacb9473">CIST_FIN</link>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;is&#32;this&#32;a&#32;finalizer?&#32;*/</emphasis>
+00320 &#32;&#32;&#32;&#32;*name&#32;=&#32;<emphasis role="stringliteral">&quot;__gc&quot;</emphasis>;
+00321 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="stringliteral">&quot;metamethod&quot;</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;report&#32;it&#32;as&#32;such&#32;*/</emphasis>
+00322 &#32;&#32;}
+00323 &#32;&#32;<emphasis role="comment">/*&#32;calling&#32;function&#32;is&#32;a&#32;known&#32;Lua&#32;function?&#32;*/</emphasis>
+00324 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!(ci-&gt;<link linkend="_struct_call_info_1a1551d635e86dcf5c62f9bc718512d89b">callstatus</link>&#32;&amp;&#32;<link linkend="_lstate_8h_1a0b8ca2af9b603d2807b3377f97038e8f">CIST_TAIL</link>)&#32;&amp;&amp;&#32;<link linkend="_lstate_8h_1a489eab424b094f54dd7f6b35e2cf68a2">isLua</link>(ci-&gt;<link linkend="_struct_call_info_1acd0df27f40f3c6f546e29401fecaddb4">previous</link>))
+00325 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_ldebug_8c_1aa4c19bd41574279b6de1a01e01186f14">funcnamefromcode</link>(L,&#32;ci-&gt;<link linkend="_struct_call_info_1acd0df27f40f3c6f546e29401fecaddb4">previous</link>,&#32;name);
+00326 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">return</emphasis>&#32;NULL;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;way&#32;to&#32;find&#32;a&#32;name&#32;*/</emphasis>
+00327 }
+00328 
+00329 
+<anchor xml:id="_ldebug_8c_source_1l00330"/><link linkend="_ldebug_8c_1ad72fa774194e83872bac4e5bf6ec1160">00330</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldebug_8c_1ad72fa774194e83872bac4e5bf6ec1160">auxgetinfo</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*what,&#32;<link linkend="_structlua___debug">lua_Debug</link>&#32;*ar,
+00331 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_union_closure">Closure</link>&#32;*f,&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*ci)&#32;{
+00332 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;status&#32;=&#32;1;
+00333 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(;&#32;*what;&#32;what++)&#32;{
+00334 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">switch</emphasis>&#32;(*what)&#32;{
+00335 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;S&apos;</emphasis>:&#32;{
+00336 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_ldebug_8c_1a84af60873d130ffee87eb1721f3231e4">funcinfo</link>(ar,&#32;f);
+00337 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00338 &#32;&#32;&#32;&#32;&#32;&#32;}
+00339 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;l&apos;</emphasis>:&#32;{
+00340 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a1be7dfac6c204d2592700475b5d73fd2">currentline</link>&#32;=&#32;(ci&#32;&amp;&amp;&#32;<link linkend="_lstate_8h_1a489eab424b094f54dd7f6b35e2cf68a2">isLua</link>(ci))&#32;?&#32;<link linkend="_ldebug_8c_1ad6bc24d619df8e849e2ae8b00455d86f">getcurrentline</link>(ci)&#32;:&#32;-1;
+00341 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00342 &#32;&#32;&#32;&#32;&#32;&#32;}
+00343 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;u&apos;</emphasis>:&#32;{
+00344 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a752e0c1314877c70a6fdebe1616bd63c">nups</link>&#32;=&#32;(f&#32;==&#32;NULL)&#32;?&#32;0&#32;:&#32;f-&gt;<link linkend="_union_closure_1a4e830499e83f3966125d06d75a66a684">c</link>.nupvalues;
+00345 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(<link linkend="_ldebug_8c_1a6fc57844a33412d711bca098b2135f41">noLuaClosure</link>(f))&#32;{
+00346 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a6e37131e4962b40bdbab3540cd5f306e">isvararg</link>&#32;=&#32;1;
+00347 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a4f5b0b53ea9dc4548f85b28cd77d4fb3">nparams</link>&#32;=&#32;0;
+00348 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+00349 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00350 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a6e37131e4962b40bdbab3540cd5f306e">isvararg</link>&#32;=&#32;f-&gt;<link linkend="_union_closure_1a66c5272074637c1b1e85d1c4c1a77d8c">l</link>.<link linkend="_struct_l_closure_1aed1f50b9bdc5ce4c7cfa49529472b42c">p</link>-&gt;<link linkend="_struct_proto_1a75232df840e02cfa8134903745579657">is_vararg</link>;
+00351 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a4f5b0b53ea9dc4548f85b28cd77d4fb3">nparams</link>&#32;=&#32;f-&gt;<link linkend="_union_closure_1a66c5272074637c1b1e85d1c4c1a77d8c">l</link>.<link linkend="_struct_l_closure_1aed1f50b9bdc5ce4c7cfa49529472b42c">p</link>-&gt;<link linkend="_struct_proto_1a2c5c3bfc47c6c4b7b9f4eef47d7167e9">numparams</link>;
+00352 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+00353 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00354 &#32;&#32;&#32;&#32;&#32;&#32;}
+00355 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;t&apos;</emphasis>:&#32;{
+00356 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1aa30e4bb574536d40b6aaa3c24c1fa725">istailcall</link>&#32;=&#32;(ci)&#32;?&#32;ci-&gt;<link linkend="_struct_call_info_1a1551d635e86dcf5c62f9bc718512d89b">callstatus</link>&#32;&amp;&#32;<link linkend="_lstate_8h_1a0b8ca2af9b603d2807b3377f97038e8f">CIST_TAIL</link>&#32;:&#32;0;
+00357 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00358 &#32;&#32;&#32;&#32;&#32;&#32;}
+00359 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;n&apos;</emphasis>:&#32;{
+00360 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a37bd506f9c90a2199c60ed511c2c56dc">namewhat</link>&#32;=&#32;<link linkend="_ldebug_8c_1a118ab79b6b538a857353e4b9259667e1">getfuncname</link>(L,&#32;ci,&#32;&amp;ar-&gt;<link linkend="_structlua___debug_1a8f8f80d37794cde9472343e4487ba3eb">name</link>);
+00361 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ar-&gt;<link linkend="_structlua___debug_1a37bd506f9c90a2199c60ed511c2c56dc">namewhat</link>&#32;==&#32;NULL)&#32;{
+00362 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a37bd506f9c90a2199c60ed511c2c56dc">namewhat</link>&#32;=&#32;<emphasis role="stringliteral">&quot;&quot;</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;not&#32;found&#32;*/</emphasis>
+00363 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a8f8f80d37794cde9472343e4487ba3eb">name</link>&#32;=&#32;NULL;
+00364 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+00365 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00366 &#32;&#32;&#32;&#32;&#32;&#32;}
+00367 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;r&apos;</emphasis>:&#32;{
+00368 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ci&#32;==&#32;NULL&#32;||&#32;!(ci-&gt;<link linkend="_struct_call_info_1a1551d635e86dcf5c62f9bc718512d89b">callstatus</link>&#32;&amp;&#32;<link linkend="_lstate_8h_1ac659536c0c3241a9f25397491601bb41">CIST_TRAN</link>))
+00369 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a094d76a8d8b0428b743d44bdde3518ac">ftransfer</link>&#32;=&#32;ar-&gt;<link linkend="_structlua___debug_1ad200601700ff51b853a6760e5b010b91">ntransfer</link>&#32;=&#32;0;
+00370 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00371 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1a094d76a8d8b0428b743d44bdde3518ac">ftransfer</link>&#32;=&#32;ci-&gt;<link linkend="_struct_call_info_1aa37fb5c5c84e9d8c8d810a4712381dcd">u2</link>.<link linkend="_struct_call_info_1a73821a8d2f5501b0f039e404f6e577f8">transferinfo</link>.ftransfer;
+00372 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;ar-&gt;<link linkend="_structlua___debug_1ad200601700ff51b853a6760e5b010b91">ntransfer</link>&#32;=&#32;ci-&gt;<link linkend="_struct_call_info_1aa37fb5c5c84e9d8c8d810a4712381dcd">u2</link>.<link linkend="_struct_call_info_1a73821a8d2f5501b0f039e404f6e577f8">transferinfo</link>.ntransfer;
+00373 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+00374 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00375 &#32;&#32;&#32;&#32;&#32;&#32;}
+00376 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;L&apos;</emphasis>:
+00377 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;f&apos;</emphasis>:&#32;&#32;<emphasis role="comment">/*&#32;handled&#32;by&#32;lua_getinfo&#32;*/</emphasis>
+00378 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00379 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">default</emphasis>:&#32;status&#32;=&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;invalid&#32;option&#32;*/</emphasis>
+00380 &#32;&#32;&#32;&#32;}
+00381 &#32;&#32;}
+00382 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;status;
+00383 }
+00384 
+00385 
+<anchor xml:id="_ldebug_8c_source_1l00386"/><link linkend="_lua_8h_1a9cf23593facaabc7fb42e4d232a507d7">00386</link> <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldebug_8c_1acaafc35d8e385c4d167229486165df6d">lua_getinfo</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*what,&#32;<link linkend="_structlua___debug">lua_Debug</link>&#32;*ar)&#32;{
+00387 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;status;
+00388 &#32;&#32;<link linkend="_union_closure">Closure</link>&#32;*cl;
+00389 &#32;&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*ci;
+00390 &#32;&#32;<link linkend="_struct_t_value">TValue</link>&#32;*func;
+00391 &#32;&#32;<link linkend="_llimits_8h_1aa68a48b9104aeadf4842c25c12a9b8c9">lua_lock</link>(L);
+00392 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(*what&#32;==&#32;<emphasis role="charliteral">&apos;&gt;&apos;</emphasis>)&#32;{
+00393 &#32;&#32;&#32;&#32;ci&#32;=&#32;NULL;
+00394 &#32;&#32;&#32;&#32;func&#32;=&#32;<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;-&#32;1);
+00395 &#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1ad7a42e1cc11f94e1f06ed80814fcb606">api_check</link>(L,&#32;<link linkend="_lobject_8h_1a48587dcb78721d149d3184d0768f4950">ttisfunction</link>(func),&#32;<emphasis role="stringliteral">&quot;function&#32;expected&quot;</emphasis>);
+00396 &#32;&#32;&#32;&#32;what++;&#32;&#32;<emphasis role="comment">/*&#32;skip&#32;the&#32;&apos;&gt;&apos;&#32;*/</emphasis>
+00397 &#32;&#32;&#32;&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>--;&#32;&#32;<emphasis role="comment">/*&#32;pop&#32;function&#32;*/</emphasis>
+00398 &#32;&#32;}
+00399 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00400 &#32;&#32;&#32;&#32;ci&#32;=&#32;ar-&gt;<link linkend="_structlua___debug_1a057e0b4acf19b9c7c3cb42ae5704371f">i_ci</link>;
+00401 &#32;&#32;&#32;&#32;func&#32;=&#32;<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(ci-&gt;<link linkend="_struct_call_info_1a9d82a8ad04b0dd8837e621047972260a">func</link>);
+00402 &#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(<link linkend="_lobject_8h_1a48587dcb78721d149d3184d0768f4950">ttisfunction</link>(func));
+00403 &#32;&#32;}
+00404 &#32;&#32;cl&#32;=&#32;<link linkend="_lobject_8h_1a3254d5797537bb83d10a5b48dc6b4377">ttisclosure</link>(func)&#32;?&#32;<link linkend="_lobject_8h_1a4b49383d348897fe282c0d51354d8bc9">clvalue</link>(func)&#32;:&#32;NULL;
+00405 &#32;&#32;status&#32;=&#32;<link linkend="_ldebug_8c_1ad72fa774194e83872bac4e5bf6ec1160">auxgetinfo</link>(L,&#32;what,&#32;ar,&#32;cl,&#32;ci);
+00406 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(strchr(what,&#32;<emphasis role="charliteral">&apos;f&apos;</emphasis>))&#32;{
+00407 &#32;&#32;&#32;&#32;<link linkend="_lobject_8h_1add70d29b431f66a1dee29a0cb286de6e">setobj2s</link>(L,&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>,&#32;func);
+00408 &#32;&#32;&#32;&#32;<link linkend="_lapi_8h_1afe4a5994dd3704ec53de77f9fd121915">api_incr_top</link>(L);
+00409 &#32;&#32;}
+00410 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(strchr(what,&#32;<emphasis role="charliteral">&apos;L&apos;</emphasis>))
+00411 &#32;&#32;&#32;&#32;<link linkend="_ldebug_8c_1a6e3195fc94af1f75142c2801ca8cf058">collectvalidlines</link>(L,&#32;cl);
+00412 &#32;&#32;<link linkend="_llimits_8h_1a1781f2a7d9161848a246d475a9171875">lua_unlock</link>(L);
+00413 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;status;
+00414 }
+00415 
+00416 
+00417 <emphasis role="comment">/*</emphasis>
+00418 <emphasis role="comment">**&#32;{======================================================</emphasis>
+00419 <emphasis role="comment">**&#32;Symbolic&#32;Execution</emphasis>
+00420 <emphasis role="comment">**&#32;=======================================================</emphasis>
+00421 <emphasis role="comment">*/</emphasis>
+00422 
+00423 <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_ldebug_8c_1a5ccea5c2124ac2e629562b0ff7f440a6">getobjname</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_proto">Proto</link>&#32;*p,&#32;<emphasis role="keywordtype">int</emphasis>&#32;lastpc,&#32;<emphasis role="keywordtype">int</emphasis>&#32;reg,
+00424 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;**name);
+00425 
+00426 
+00427 <emphasis role="comment">/*</emphasis>
+00428 <emphasis role="comment">**&#32;Find&#32;a&#32;&quot;name&quot;&#32;for&#32;the&#32;constant&#32;&apos;c&apos;.</emphasis>
+00429 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldebug_8c_source_1l00430"/><link linkend="_ldebug_8c_1aa605689053c7501d28fbd308b73f84ae">00430</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldebug_8c_1aa605689053c7501d28fbd308b73f84ae">kname</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_proto">Proto</link>&#32;*p,&#32;<emphasis role="keywordtype">int</emphasis>&#32;c,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;**name)&#32;{
+00431 &#32;&#32;<link linkend="_struct_t_value">TValue</link>&#32;*kvalue&#32;=&#32;&amp;p-&gt;<link linkend="_struct_proto_1a5287370e219b50fe677549b4aafdc81d">k</link>[c];
+00432 &#32;&#32;*name&#32;=&#32;(<link linkend="_lobject_8h_1a9bdf057a0de8da2ffae3ac35662dd255">ttisstring</link>(kvalue))&#32;?&#32;<link linkend="_lobject_8h_1ac2c9eedf3ff2c3042445b3b534f161e1">svalue</link>(kvalue)&#32;:&#32;<emphasis role="stringliteral">&quot;?&quot;</emphasis>;
+00433 }
+00434 
+00435 
+00436 <emphasis role="comment">/*</emphasis>
+00437 <emphasis role="comment">**&#32;Find&#32;a&#32;&quot;name&quot;&#32;for&#32;the&#32;register&#32;&apos;c&apos;.</emphasis>
+00438 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldebug_8c_source_1l00439"/><link linkend="_ldebug_8c_1a3b1ec666c4618a5100fc5a6ef21ca3f6">00439</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldebug_8c_1a3b1ec666c4618a5100fc5a6ef21ca3f6">rname</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_proto">Proto</link>&#32;*p,&#32;<emphasis role="keywordtype">int</emphasis>&#32;pc,&#32;<emphasis role="keywordtype">int</emphasis>&#32;c,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;**name)&#32;{
+00440 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*what&#32;=&#32;<link linkend="_ldebug_8c_1a5ccea5c2124ac2e629562b0ff7f440a6">getobjname</link>(p,&#32;pc,&#32;c,&#32;name);&#32;<emphasis role="comment">/*&#32;search&#32;for&#32;&apos;c&apos;&#32;*/</emphasis>
+00441 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!(what&#32;&amp;&amp;&#32;*what&#32;==&#32;<emphasis role="charliteral">&apos;c&apos;</emphasis>))&#32;&#32;<emphasis role="comment">/*&#32;did&#32;not&#32;find&#32;a&#32;constant&#32;name?&#32;*/</emphasis>
+00442 &#32;&#32;&#32;&#32;*name&#32;=&#32;<emphasis role="stringliteral">&quot;?&quot;</emphasis>;
+00443 }
+00444 
+00445 
+00446 <emphasis role="comment">/*</emphasis>
+00447 <emphasis role="comment">**&#32;Find&#32;a&#32;&quot;name&quot;&#32;for&#32;a&#32;&apos;C&apos;&#32;value&#32;in&#32;an&#32;RK&#32;instruction.</emphasis>
+00448 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldebug_8c_source_1l00449"/><link linkend="_ldebug_8c_1a2513b0afdf7a69ca65cb59eea7551131">00449</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldebug_8c_1a2513b0afdf7a69ca65cb59eea7551131">rkname</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_proto">Proto</link>&#32;*p,&#32;<emphasis role="keywordtype">int</emphasis>&#32;pc,&#32;<link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link>&#32;i,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;**name)&#32;{
+00450 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;c&#32;=&#32;<link linkend="_lopcodes_8h_1af96cb84f2685fda7f36d3d099dba6a44">GETARG_C</link>(i);&#32;&#32;<emphasis role="comment">/*&#32;key&#32;index&#32;*/</emphasis>
+00451 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lopcodes_8h_1aa9ce1e6169ccc23a1e9c783f61af343f">GETARG_k</link>(i))&#32;&#32;<emphasis role="comment">/*&#32;is&#32;&apos;c&apos;&#32;a&#32;constant?&#32;*/</emphasis>
+00452 &#32;&#32;&#32;&#32;<link linkend="_ldebug_8c_1aa605689053c7501d28fbd308b73f84ae">kname</link>(p,&#32;c,&#32;name);
+00453 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;&#32;<emphasis role="comment">/*&#32;&apos;c&apos;&#32;is&#32;a&#32;register&#32;*/</emphasis>
+00454 &#32;&#32;&#32;&#32;<link linkend="_ldebug_8c_1a3b1ec666c4618a5100fc5a6ef21ca3f6">rname</link>(p,&#32;pc,&#32;c,&#32;name);
+00455 }
+00456 
+00457 
+<anchor xml:id="_ldebug_8c_source_1l00458"/><link linkend="_ldebug_8c_1a03af36ffe32a5653a0deeddc412d88f0">00458</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldebug_8c_1a03af36ffe32a5653a0deeddc412d88f0">filterpc</link>&#32;(<emphasis role="keywordtype">int</emphasis>&#32;pc,&#32;<emphasis role="keywordtype">int</emphasis>&#32;jmptarget)&#32;{
+00459 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(pc&#32;&lt;&#32;jmptarget)&#32;&#32;<emphasis role="comment">/*&#32;is&#32;code&#32;conditional&#32;(inside&#32;a&#32;jump)?&#32;*/</emphasis>
+00460 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;-1;&#32;&#32;<emphasis role="comment">/*&#32;cannot&#32;know&#32;who&#32;sets&#32;that&#32;register&#32;*/</emphasis>
+00461 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">return</emphasis>&#32;pc;&#32;&#32;<emphasis role="comment">/*&#32;current&#32;position&#32;sets&#32;that&#32;register&#32;*/</emphasis>
+00462 }
+00463 
+00464 
+00465 <emphasis role="comment">/*</emphasis>
+00466 <emphasis role="comment">**&#32;Try&#32;to&#32;find&#32;last&#32;instruction&#32;before&#32;&apos;lastpc&apos;&#32;that&#32;modified&#32;register&#32;&apos;reg&apos;.</emphasis>
+00467 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldebug_8c_source_1l00468"/><link linkend="_ldebug_8c_1a64baa2f66e5be0dad465b05a73ed7a9a">00468</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldebug_8c_1a64baa2f66e5be0dad465b05a73ed7a9a">findsetreg</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_proto">Proto</link>&#32;*p,&#32;<emphasis role="keywordtype">int</emphasis>&#32;lastpc,&#32;<emphasis role="keywordtype">int</emphasis>&#32;reg)&#32;{
+00469 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;pc;
+00470 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;setreg&#32;=&#32;-1;&#32;&#32;<emphasis role="comment">/*&#32;keep&#32;last&#32;instruction&#32;that&#32;changed&#32;&apos;reg&apos;&#32;*/</emphasis>
+00471 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;jmptarget&#32;=&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;any&#32;code&#32;before&#32;this&#32;address&#32;is&#32;conditional&#32;*/</emphasis>
+00472 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lopcodes_8h_1a128c04f70b43fb82ed2eadb2b255cc81">testMMMode</link>(<link linkend="_lopcodes_8h_1aaa146179c3677b790c5681dcd82f0acc">GET_OPCODE</link>(p-&gt;<link linkend="_struct_proto_1a744e03861a6c76b7eeef213b73419ec7">code</link>[lastpc])))
+00473 &#32;&#32;&#32;&#32;lastpc--;&#32;&#32;<emphasis role="comment">/*&#32;previous&#32;instruction&#32;was&#32;not&#32;actually&#32;executed&#32;*/</emphasis>
+00474 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(pc&#32;=&#32;0;&#32;pc&#32;&lt;&#32;lastpc;&#32;pc++)&#32;{
+00475 &#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link>&#32;i&#32;=&#32;p-&gt;<link linkend="_struct_proto_1a744e03861a6c76b7eeef213b73419ec7">code</link>[pc];
+00476 &#32;&#32;&#32;&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link>&#32;op&#32;=&#32;<link linkend="_lopcodes_8h_1aaa146179c3677b790c5681dcd82f0acc">GET_OPCODE</link>(i);
+00477 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;a&#32;=&#32;<link linkend="_lopcodes_8h_1a1d504abc1e2246548f89977210dce0b9">GETARG_A</link>(i);
+00478 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;change;&#32;&#32;<emphasis role="comment">/*&#32;true&#32;if&#32;current&#32;instruction&#32;changed&#32;&apos;reg&apos;&#32;*/</emphasis>
+00479 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">switch</emphasis>&#32;(op)&#32;{
+00480 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a5c399a98a26c923cdae3971b5e5b6432">OP_LOADNIL</link>:&#32;{&#32;&#32;<emphasis role="comment">/*&#32;set&#32;registers&#32;from&#32;&apos;a&apos;&#32;to&#32;&apos;a+b&apos;&#32;*/</emphasis>
+00481 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;b&#32;=&#32;<link linkend="_lopcodes_8h_1a7a343159ef7669a438c2097b839b2b13">GETARG_B</link>(i);
+00482 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;change&#32;=&#32;(a&#32;&lt;=&#32;reg&#32;&amp;&amp;&#32;reg&#32;&lt;=&#32;a&#32;+&#32;b);
+00483 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00484 &#32;&#32;&#32;&#32;&#32;&#32;}
+00485 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a899602d2c96443e08eec9e477071aa22">OP_TFORCALL</link>:&#32;{&#32;&#32;<emphasis role="comment">/*&#32;affect&#32;all&#32;regs&#32;above&#32;its&#32;base&#32;*/</emphasis>
+00486 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;change&#32;=&#32;(reg&#32;&gt;=&#32;a&#32;+&#32;2);
+00487 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00488 &#32;&#32;&#32;&#32;&#32;&#32;}
+00489 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a098bbeea13096667b102f7fd90cbe38f">OP_CALL</link>:
+00490 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7aff2c07ebfd82aa22cc247e9855a16069">OP_TAILCALL</link>:&#32;{&#32;&#32;<emphasis role="comment">/*&#32;affect&#32;all&#32;registers&#32;above&#32;base&#32;*/</emphasis>
+00491 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;change&#32;=&#32;(reg&#32;&gt;=&#32;a);
+00492 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00493 &#32;&#32;&#32;&#32;&#32;&#32;}
+00494 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7afd679fab86e6a91d22c91734e287639b">OP_JMP</link>:&#32;{&#32;&#32;<emphasis role="comment">/*&#32;doesn&apos;t&#32;change&#32;registers,&#32;but&#32;changes&#32;&apos;jmptarget&apos;&#32;*/</emphasis>
+00495 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;b&#32;=&#32;<link linkend="_lopcodes_8h_1a1e69b8e862462ab13df4acd8de7ef54c">GETARG_sJ</link>(i);
+00496 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;dest&#32;=&#32;pc&#32;+&#32;1&#32;+&#32;b;
+00497 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;jump&#32;does&#32;not&#32;skip&#32;&apos;lastpc&apos;&#32;and&#32;is&#32;larger&#32;than&#32;current&#32;one?&#32;*/</emphasis>
+00498 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(dest&#32;&lt;=&#32;lastpc&#32;&amp;&amp;&#32;dest&#32;&gt;&#32;jmptarget)
+00499 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;jmptarget&#32;=&#32;dest;&#32;&#32;<emphasis role="comment">/*&#32;update&#32;&apos;jmptarget&apos;&#32;*/</emphasis>
+00500 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;change&#32;=&#32;0;
+00501 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00502 &#32;&#32;&#32;&#32;&#32;&#32;}
+00503 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">default</emphasis>:&#32;&#32;<emphasis role="comment">/*&#32;any&#32;instruction&#32;that&#32;sets&#32;A&#32;*/</emphasis>
+00504 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;change&#32;=&#32;(<link linkend="_lopcodes_8h_1aaae51a1c7e304923c51509b7cd644f29">testAMode</link>(op)&#32;&amp;&amp;&#32;reg&#32;==&#32;a);
+00505 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00506 &#32;&#32;&#32;&#32;}
+00507 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(change)
+00508 &#32;&#32;&#32;&#32;&#32;&#32;setreg&#32;=&#32;<link linkend="_ldebug_8c_1a03af36ffe32a5653a0deeddc412d88f0">filterpc</link>(pc,&#32;jmptarget);
+00509 &#32;&#32;}
+00510 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;setreg;
+00511 }
+00512 
+00513 
+00514 <emphasis role="comment">/*</emphasis>
+00515 <emphasis role="comment">**&#32;Check&#32;whether&#32;table&#32;being&#32;indexed&#32;by&#32;instruction&#32;&apos;i&apos;&#32;is&#32;the</emphasis>
+00516 <emphasis role="comment">**&#32;environment&#32;&apos;_ENV&apos;</emphasis>
+00517 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldebug_8c_source_1l00518"/><link linkend="_ldebug_8c_1ab68def10378c61ee5258c00d4f779283">00518</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_ldebug_8c_1ab68def10378c61ee5258c00d4f779283">gxf</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_proto">Proto</link>&#32;*p,&#32;<emphasis role="keywordtype">int</emphasis>&#32;pc,&#32;<link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link>&#32;i,&#32;<emphasis role="keywordtype">int</emphasis>&#32;isup)&#32;{
+00519 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;t&#32;=&#32;<link linkend="_lopcodes_8h_1a7a343159ef7669a438c2097b839b2b13">GETARG_B</link>(i);&#32;&#32;<emphasis role="comment">/*&#32;table&#32;index&#32;*/</emphasis>
+00520 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name;&#32;&#32;<emphasis role="comment">/*&#32;name&#32;of&#32;indexed&#32;variable&#32;*/</emphasis>
+00521 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(isup)&#32;&#32;<emphasis role="comment">/*&#32;is&#32;an&#32;upvalue?&#32;*/</emphasis>
+00522 &#32;&#32;&#32;&#32;name&#32;=&#32;<link linkend="_ldebug_8c_1ac1d00bafd9dbc2ea15b7b374a760a8fc">upvalname</link>(p,&#32;t);
+00523 &#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00524 &#32;&#32;&#32;&#32;<link linkend="_ldebug_8c_1a5ccea5c2124ac2e629562b0ff7f440a6">getobjname</link>(p,&#32;pc,&#32;t,&#32;&amp;name);
+00525 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;(name&#32;&amp;&amp;&#32;strcmp(name,&#32;<link linkend="_llex_8h_1af868e4c2b4c8551dad769502e7c3ec32">LUA_ENV</link>)&#32;==&#32;0)&#32;?&#32;<emphasis role="stringliteral">&quot;global&quot;</emphasis>&#32;:&#32;<emphasis role="stringliteral">&quot;field&quot;</emphasis>;
+00526 }
+00527 
+00528 
+<anchor xml:id="_ldebug_8c_source_1l00529"/><link linkend="_ldebug_8c_1a5ccea5c2124ac2e629562b0ff7f440a6">00529</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_ldebug_8c_1a5ccea5c2124ac2e629562b0ff7f440a6">getobjname</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_proto">Proto</link>&#32;*p,&#32;<emphasis role="keywordtype">int</emphasis>&#32;lastpc,&#32;<emphasis role="keywordtype">int</emphasis>&#32;reg,
+00530 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;**name)&#32;{
+00531 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;pc;
+00532 &#32;&#32;*name&#32;=&#32;<link linkend="_lfunc_8c_1aaa3cd5bc3901e7edf1ac428151cdfe8c">luaF_getlocalname</link>(p,&#32;reg&#32;+&#32;1,&#32;lastpc);
+00533 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(*name)&#32;&#32;<emphasis role="comment">/*&#32;is&#32;a&#32;local?&#32;*/</emphasis>
+00534 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="stringliteral">&quot;local&quot;</emphasis>;
+00535 &#32;&#32;<emphasis role="comment">/*&#32;else&#32;try&#32;symbolic&#32;execution&#32;*/</emphasis>
+00536 &#32;&#32;pc&#32;=&#32;<link linkend="_ldebug_8c_1a64baa2f66e5be0dad465b05a73ed7a9a">findsetreg</link>(p,&#32;lastpc,&#32;reg);
+00537 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(pc&#32;!=&#32;-1)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;could&#32;find&#32;instruction?&#32;*/</emphasis>
+00538 &#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link>&#32;i&#32;=&#32;p-&gt;<link linkend="_struct_proto_1a744e03861a6c76b7eeef213b73419ec7">code</link>[pc];
+00539 &#32;&#32;&#32;&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link>&#32;op&#32;=&#32;<link linkend="_lopcodes_8h_1aaa146179c3677b790c5681dcd82f0acc">GET_OPCODE</link>(i);
+00540 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">switch</emphasis>&#32;(op)&#32;{
+00541 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7addf83bbc02b6a88d325135c880d12184">OP_MOVE</link>:&#32;{
+00542 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;b&#32;=&#32;<link linkend="_lopcodes_8h_1a7a343159ef7669a438c2097b839b2b13">GETARG_B</link>(i);&#32;&#32;<emphasis role="comment">/*&#32;move&#32;from&#32;&apos;b&apos;&#32;to&#32;&apos;a&apos;&#32;*/</emphasis>
+00543 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(b&#32;&lt;&#32;<link linkend="_lopcodes_8h_1a1d504abc1e2246548f89977210dce0b9">GETARG_A</link>(i))
+00544 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_ldebug_8c_1a5ccea5c2124ac2e629562b0ff7f440a6">getobjname</link>(p,&#32;pc,&#32;b,&#32;name);&#32;&#32;<emphasis role="comment">/*&#32;get&#32;name&#32;for&#32;&apos;b&apos;&#32;*/</emphasis>
+00545 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00546 &#32;&#32;&#32;&#32;&#32;&#32;}
+00547 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7acba90301f3ac979a3edd23f74182367b">OP_GETTABUP</link>:&#32;{
+00548 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;k&#32;=&#32;<link linkend="_lopcodes_8h_1af96cb84f2685fda7f36d3d099dba6a44">GETARG_C</link>(i);&#32;&#32;<emphasis role="comment">/*&#32;key&#32;index&#32;*/</emphasis>
+00549 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_ldebug_8c_1aa605689053c7501d28fbd308b73f84ae">kname</link>(p,&#32;k,&#32;name);
+00550 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_ldebug_8c_1ab68def10378c61ee5258c00d4f779283">gxf</link>(p,&#32;pc,&#32;i,&#32;1);
+00551 &#32;&#32;&#32;&#32;&#32;&#32;}
+00552 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ab1ec2a36c59db7612249cc31e382fdd9">OP_GETTABLE</link>:&#32;{
+00553 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;k&#32;=&#32;<link linkend="_lopcodes_8h_1af96cb84f2685fda7f36d3d099dba6a44">GETARG_C</link>(i);&#32;&#32;<emphasis role="comment">/*&#32;key&#32;index&#32;*/</emphasis>
+00554 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_ldebug_8c_1a3b1ec666c4618a5100fc5a6ef21ca3f6">rname</link>(p,&#32;pc,&#32;k,&#32;name);
+00555 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_ldebug_8c_1ab68def10378c61ee5258c00d4f779283">gxf</link>(p,&#32;pc,&#32;i,&#32;0);
+00556 &#32;&#32;&#32;&#32;&#32;&#32;}
+00557 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a965a4251f6730e9c8e5ca9e4ba4d8568">OP_GETI</link>:&#32;{
+00558 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*name&#32;=&#32;<emphasis role="stringliteral">&quot;integer&#32;index&quot;</emphasis>;
+00559 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="stringliteral">&quot;field&quot;</emphasis>;
+00560 &#32;&#32;&#32;&#32;&#32;&#32;}
+00561 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ab8cb85274c0cd7f8d8525953bd844207">OP_GETFIELD</link>:&#32;{
+00562 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;k&#32;=&#32;<link linkend="_lopcodes_8h_1af96cb84f2685fda7f36d3d099dba6a44">GETARG_C</link>(i);&#32;&#32;<emphasis role="comment">/*&#32;key&#32;index&#32;*/</emphasis>
+00563 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_ldebug_8c_1aa605689053c7501d28fbd308b73f84ae">kname</link>(p,&#32;k,&#32;name);
+00564 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_ldebug_8c_1ab68def10378c61ee5258c00d4f779283">gxf</link>(p,&#32;pc,&#32;i,&#32;0);
+00565 &#32;&#32;&#32;&#32;&#32;&#32;}
+00566 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ab48573533495922f053a7d1c9b0d00b4">OP_GETUPVAL</link>:&#32;{
+00567 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*name&#32;=&#32;<link linkend="_ldebug_8c_1ac1d00bafd9dbc2ea15b7b374a760a8fc">upvalname</link>(p,&#32;<link linkend="_lopcodes_8h_1a7a343159ef7669a438c2097b839b2b13">GETARG_B</link>(i));
+00568 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="stringliteral">&quot;upvalue&quot;</emphasis>;
+00569 &#32;&#32;&#32;&#32;&#32;&#32;}
+00570 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ab34a8eaf6d32d3c41810653d9eb99c1a">OP_LOADK</link>:
+00571 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ae95580de7b3877b66fdf87366b8e5887">OP_LOADKX</link>:&#32;{
+00572 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;b&#32;=&#32;(op&#32;==&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ab34a8eaf6d32d3c41810653d9eb99c1a">OP_LOADK</link>)&#32;?&#32;<link linkend="_lopcodes_8h_1acf8d228275fd2789dcf5f019bbabc019">GETARG_Bx</link>(i)
+00573 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;:&#32;<link linkend="_lopcodes_8h_1acfd578bba038b6682b924cf48012d80a">GETARG_Ax</link>(p-&gt;<link linkend="_struct_proto_1a744e03861a6c76b7eeef213b73419ec7">code</link>[pc&#32;+&#32;1]);
+00574 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lobject_8h_1a9bdf057a0de8da2ffae3ac35662dd255">ttisstring</link>(&amp;p-&gt;<link linkend="_struct_proto_1a5287370e219b50fe677549b4aafdc81d">k</link>[b]))&#32;{
+00575 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*name&#32;=&#32;<link linkend="_lobject_8h_1ac2c9eedf3ff2c3042445b3b534f161e1">svalue</link>(&amp;p-&gt;<link linkend="_struct_proto_1a5287370e219b50fe677549b4aafdc81d">k</link>[b]);
+00576 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="stringliteral">&quot;constant&quot;</emphasis>;
+00577 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+00578 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00579 &#32;&#32;&#32;&#32;&#32;&#32;}
+00580 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a64bea18253f9e73c4c5fcfa6b0d5abd2">OP_SELF</link>:&#32;{
+00581 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_ldebug_8c_1a2513b0afdf7a69ca65cb59eea7551131">rkname</link>(p,&#32;pc,&#32;i,&#32;name);
+00582 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="stringliteral">&quot;method&quot;</emphasis>;
+00583 &#32;&#32;&#32;&#32;&#32;&#32;}
+00584 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">default</emphasis>:&#32;<emphasis role="keywordflow">break</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;go&#32;through&#32;to&#32;return&#32;NULL&#32;*/</emphasis>
+00585 &#32;&#32;&#32;&#32;}
+00586 &#32;&#32;}
+00587 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;NULL;&#32;&#32;<emphasis role="comment">/*&#32;could&#32;not&#32;find&#32;reasonable&#32;name&#32;*/</emphasis>
+00588 }
+00589 
+00590 
+00591 <emphasis role="comment">/*</emphasis>
+00592 <emphasis role="comment">**&#32;Try&#32;to&#32;find&#32;a&#32;name&#32;for&#32;a&#32;function&#32;based&#32;on&#32;the&#32;code&#32;that&#32;called&#32;it.</emphasis>
+00593 <emphasis role="comment">**&#32;(Only&#32;works&#32;when&#32;function&#32;was&#32;called&#32;by&#32;a&#32;Lua&#32;function.)</emphasis>
+00594 <emphasis role="comment">**&#32;Returns&#32;what&#32;the&#32;name&#32;is&#32;(e.g.,&#32;&quot;for&#32;iterator&quot;,&#32;&quot;method&quot;,</emphasis>
+00595 <emphasis role="comment">**&#32;&quot;metamethod&quot;)&#32;and&#32;sets&#32;&apos;*name&apos;&#32;to&#32;point&#32;to&#32;the&#32;name.</emphasis>
+00596 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldebug_8c_source_1l00597"/><link linkend="_ldebug_8c_1aa4c19bd41574279b6de1a01e01186f14">00597</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_ldebug_8c_1aa4c19bd41574279b6de1a01e01186f14">funcnamefromcode</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*ci,
+00598 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;**name)&#32;{
+00599 &#32;&#32;<link linkend="_ltm_8h_1a69e345ae253d250b61a03f1d6871c8d1">TMS</link>&#32;tm&#32;=&#32;(<link linkend="_ltm_8h_1a69e345ae253d250b61a03f1d6871c8d1">TMS</link>)0;&#32;&#32;<emphasis role="comment">/*&#32;(initial&#32;value&#32;avoids&#32;warnings)&#32;*/</emphasis>
+00600 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_proto">Proto</link>&#32;*p&#32;=&#32;<link linkend="_ldebug_8h_1a12b504eee786ce8f2c703a22c03d477e">ci_func</link>(ci)-&gt;p;&#32;&#32;<emphasis role="comment">/*&#32;calling&#32;function&#32;*/</emphasis>
+00601 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;pc&#32;=&#32;<link linkend="_ldebug_8c_1a7db2a3f5cbcf0ac3ef6d4cfa15ab4dbc">currentpc</link>(ci);&#32;&#32;<emphasis role="comment">/*&#32;calling&#32;instruction&#32;index&#32;*/</emphasis>
+00602 &#32;&#32;<link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link>&#32;i&#32;=&#32;p-&gt;<link linkend="_struct_proto_1a744e03861a6c76b7eeef213b73419ec7">code</link>[pc];&#32;&#32;<emphasis role="comment">/*&#32;calling&#32;instruction&#32;*/</emphasis>
+00603 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ci-&gt;<link linkend="_struct_call_info_1a1551d635e86dcf5c62f9bc718512d89b">callstatus</link>&#32;&amp;&#32;<link linkend="_lstate_8h_1a800d75f1a5d7a4a9b2fc810cdeedffb1">CIST_HOOKED</link>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;was&#32;it&#32;called&#32;inside&#32;a&#32;hook?&#32;*/</emphasis>
+00604 &#32;&#32;&#32;&#32;*name&#32;=&#32;<emphasis role="stringliteral">&quot;?&quot;</emphasis>;
+00605 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="stringliteral">&quot;hook&quot;</emphasis>;
+00606 &#32;&#32;}
+00607 &#32;&#32;<emphasis role="keywordflow">switch</emphasis>&#32;(<link linkend="_lopcodes_8h_1aaa146179c3677b790c5681dcd82f0acc">GET_OPCODE</link>(i))&#32;{
+00608 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a098bbeea13096667b102f7fd90cbe38f">OP_CALL</link>:
+00609 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7aff2c07ebfd82aa22cc247e9855a16069">OP_TAILCALL</link>:
+00610 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_ldebug_8c_1a5ccea5c2124ac2e629562b0ff7f440a6">getobjname</link>(p,&#32;pc,&#32;<link linkend="_lopcodes_8h_1a1d504abc1e2246548f89977210dce0b9">GETARG_A</link>(i),&#32;name);&#32;&#32;<emphasis role="comment">/*&#32;get&#32;function&#32;name&#32;*/</emphasis>
+00611 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a899602d2c96443e08eec9e477071aa22">OP_TFORCALL</link>:&#32;{&#32;&#32;<emphasis role="comment">/*&#32;for&#32;iterator&#32;*/</emphasis>
+00612 &#32;&#32;&#32;&#32;&#32;&#32;*name&#32;=&#32;<emphasis role="stringliteral">&quot;for&#32;iterator&quot;</emphasis>;
+00613 &#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="stringliteral">&quot;for&#32;iterator&quot;</emphasis>;
+00614 &#32;&#32;&#32;&#32;}
+00615 &#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;other&#32;instructions&#32;can&#32;do&#32;calls&#32;through&#32;metamethods&#32;*/</emphasis>
+00616 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a64bea18253f9e73c4c5fcfa6b0d5abd2">OP_SELF</link>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7acba90301f3ac979a3edd23f74182367b">OP_GETTABUP</link>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ab1ec2a36c59db7612249cc31e382fdd9">OP_GETTABLE</link>:
+00617 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a965a4251f6730e9c8e5ca9e4ba4d8568">OP_GETI</link>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ab8cb85274c0cd7f8d8525953bd844207">OP_GETFIELD</link>:
+00618 &#32;&#32;&#32;&#32;&#32;&#32;tm&#32;=&#32;<link linkend="_ltm_8h_1a69e345ae253d250b61a03f1d6871c8d1a9adb5d2c8bad970dff73ee1b9df1242e">TM_INDEX</link>;
+00619 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00620 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ac486cd83792b58a638e37cb249d54a7e">OP_SETTABUP</link>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a34315d7408f31b006bf41c9e9c2d736e">OP_SETTABLE</link>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a51eb594f07db275f5c6a77621b2de777">OP_SETI</link>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a342ca5ec1477419948043acb24ef3032">OP_SETFIELD</link>:
+00621 &#32;&#32;&#32;&#32;&#32;&#32;tm&#32;=&#32;<link linkend="_ltm_8h_1a69e345ae253d250b61a03f1d6871c8d1a256e00a44fb438064c2eb7a8b7df206d">TM_NEWINDEX</link>;
+00622 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00623 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a25acd5dff5083adb067889345ae100d6">OP_MMBIN</link>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a2068a8603e2904d2abd826877ab9e516">OP_MMBINI</link>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a023d51bef94e0b9450cce3b76788a229">OP_MMBINK</link>:&#32;{
+00624 &#32;&#32;&#32;&#32;&#32;&#32;tm&#32;=&#32;<link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(<link linkend="_ltm_8h_1a69e345ae253d250b61a03f1d6871c8d1">TMS</link>,&#32;<link linkend="_lopcodes_8h_1af96cb84f2685fda7f36d3d099dba6a44">GETARG_C</link>(i));
+00625 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00626 &#32;&#32;&#32;&#32;}
+00627 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ae3fd0932f8be8e5e810d731fd60ab8ef">OP_UNM</link>:&#32;tm&#32;=&#32;<link linkend="_ltm_8h_1a69e345ae253d250b61a03f1d6871c8d1a9ba35e1d71b4d8aca322d84a070528dd">TM_UNM</link>;&#32;<emphasis role="keywordflow">break</emphasis>;
+00628 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ada36dd48f6870a79b5998262341c57d6">OP_BNOT</link>:&#32;tm&#32;=&#32;<link linkend="_ltm_8h_1a69e345ae253d250b61a03f1d6871c8d1a695b7da29958a1275089c619b5139091">TM_BNOT</link>;&#32;<emphasis role="keywordflow">break</emphasis>;
+00629 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a55406931f4958f887e6d966d154a1931">OP_LEN</link>:&#32;tm&#32;=&#32;<link linkend="_ltm_8h_1a69e345ae253d250b61a03f1d6871c8d1aadbac1e8e363dc76eb94aac5c8e7a7a4">TM_LEN</link>;&#32;<emphasis role="keywordflow">break</emphasis>;
+00630 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a28a7da14b1413b441cf2a5d433b43a51">OP_CONCAT</link>:&#32;tm&#32;=&#32;<link linkend="_ltm_8h_1a69e345ae253d250b61a03f1d6871c8d1aef8c5f56efb01cf7a514270559237343">TM_CONCAT</link>;&#32;<emphasis role="keywordflow">break</emphasis>;
+00631 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a1634898deb6e4d1bcb15416034c641c5">OP_EQ</link>:&#32;tm&#32;=&#32;<link linkend="_ltm_8h_1a69e345ae253d250b61a03f1d6871c8d1aa0074eac874e7e19d5e7c0c8a22ea592">TM_EQ</link>;&#32;<emphasis role="keywordflow">break</emphasis>;
+00632 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a7d5ed006824d331041dad8486e52df50">OP_LT</link>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7acef6e71b662db063ff532d89500bb0c0">OP_LE</link>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a7355d162e8b15877fe33c54e3b755746">OP_LTI</link>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7aec7e53f36f35ef810ecff8a7eb274877">OP_LEI</link>:
+00633 &#32;&#32;&#32;&#32;&#32;&#32;*name&#32;=&#32;<emphasis role="stringliteral">&quot;order&quot;</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;&apos;&lt;=&apos;&#32;can&#32;call&#32;&apos;__lt&apos;,&#32;etc.&#32;*/</emphasis>
+00634 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="stringliteral">&quot;metamethod&quot;</emphasis>;
+00635 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a9e771dc35104ec1246adba881d27e372">OP_CLOSE</link>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ad436c18b194473f5ec64c28b774e41b3">OP_RETURN</link>:
+00636 &#32;&#32;&#32;&#32;&#32;&#32;*name&#32;=&#32;<emphasis role="stringliteral">&quot;close&quot;</emphasis>;
+00637 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="stringliteral">&quot;metamethod&quot;</emphasis>;
+00638 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">default</emphasis>:
+00639 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;NULL;&#32;&#32;<emphasis role="comment">/*&#32;cannot&#32;find&#32;a&#32;reasonable&#32;name&#32;*/</emphasis>
+00640 &#32;&#32;}
+00641 &#32;&#32;*name&#32;=&#32;<link linkend="_lobject_8h_1acb05d3ab238923581a9c629b8e11a6ac">getstr</link>(<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L)-&gt;tmname[tm])&#32;+&#32;2;
+00642 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="stringliteral">&quot;metamethod&quot;</emphasis>;
+00643 }
+00644 
+00645 <emphasis role="comment">/*&#32;}======================================================&#32;*/</emphasis>
+00646 
+00647 
+00648 
+00649 <emphasis role="comment">/*</emphasis>
+00650 <emphasis role="comment">**&#32;The&#32;subtraction&#32;of&#32;two&#32;potentially&#32;unrelated&#32;pointers&#32;is</emphasis>
+00651 <emphasis role="comment">**&#32;not&#32;ISO&#32;C,&#32;but&#32;it&#32;should&#32;not&#32;crash&#32;a&#32;program;&#32;the&#32;subsequent</emphasis>
+00652 <emphasis role="comment">**&#32;checks&#32;are&#32;ISO&#32;C&#32;and&#32;ensure&#32;a&#32;correct&#32;result.</emphasis>
+00653 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldebug_8c_source_1l00654"/><link linkend="_ldebug_8c_1a9f58a8099ec72d2ec0e0937b868fccdb">00654</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldebug_8c_1a9f58a8099ec72d2ec0e0937b868fccdb">isinstack</link>&#32;(<link linkend="_struct_call_info">CallInfo</link>&#32;*ci,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*o)&#32;{
+00655 &#32;&#32;<link linkend="_union_stack_value">StkId</link>&#32;base&#32;=&#32;ci-&gt;<link linkend="_struct_call_info_1a9d82a8ad04b0dd8837e621047972260a">func</link>&#32;+&#32;1;
+00656 &#32;&#32;ptrdiff_t&#32;i&#32;=&#32;<link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(<link linkend="_union_stack_value">StkId</link>,&#32;o)&#32;-&#32;base;
+00657 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;(0&#32;&lt;=&#32;i&#32;&amp;&amp;&#32;i&#32;&lt;&#32;(ci-&gt;<link linkend="_struct_call_info_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;-&#32;base)&#32;&amp;&amp;&#32;<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(base&#32;+&#32;i)&#32;==&#32;o);
+00658 }
+00659 
+00660 
+00661 <emphasis role="comment">/*</emphasis>
+00662 <emphasis role="comment">**&#32;Checks&#32;whether&#32;value&#32;&apos;o&apos;&#32;came&#32;from&#32;an&#32;upvalue.&#32;(That&#32;can&#32;only&#32;happen</emphasis>
+00663 <emphasis role="comment">**&#32;with&#32;instructions&#32;OP_GETTABUP/OP_SETTABUP,&#32;which&#32;operate&#32;directly&#32;on</emphasis>
+00664 <emphasis role="comment">**&#32;upvalues.)</emphasis>
+00665 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldebug_8c_source_1l00666"/><link linkend="_ldebug_8c_1aa34de8e3a8dd64cda6ce15e2296dff9b">00666</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_ldebug_8c_1aa34de8e3a8dd64cda6ce15e2296dff9b">getupvalname</link>&#32;(<link linkend="_struct_call_info">CallInfo</link>&#32;*ci,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*o,
+00667 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;**name)&#32;{
+00668 &#32;&#32;<link linkend="_struct_l_closure">LClosure</link>&#32;*c&#32;=&#32;<link linkend="_ldebug_8h_1a12b504eee786ce8f2c703a22c03d477e">ci_func</link>(ci);
+00669 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i;
+00670 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;0;&#32;i&#32;&lt;&#32;c-&gt;nupvalues;&#32;i++)&#32;{
+00671 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(c-&gt;<link linkend="_struct_l_closure_1aa4734795813776a46167fe712dfd9506">upvals</link>[i]-&gt;<link linkend="_struct_up_val_1a507ba5be7778a879769a2718d6e4afa3">v</link>&#32;==&#32;o)&#32;{
+00672 &#32;&#32;&#32;&#32;&#32;&#32;*name&#32;=&#32;<link linkend="_ldebug_8c_1ac1d00bafd9dbc2ea15b7b374a760a8fc">upvalname</link>(c-&gt;<link linkend="_struct_l_closure_1aed1f50b9bdc5ce4c7cfa49529472b42c">p</link>,&#32;i);
+00673 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="stringliteral">&quot;upvalue&quot;</emphasis>;
+00674 &#32;&#32;&#32;&#32;}
+00675 &#32;&#32;}
+00676 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;NULL;
+00677 }
+00678 
+00679 
+<anchor xml:id="_ldebug_8c_source_1l00680"/><link linkend="_ldebug_8c_1a86692faa1669d631d38c24993d511dd5">00680</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_ldebug_8c_1a86692faa1669d631d38c24993d511dd5">varinfo</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*o)&#32;{
+00681 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name&#32;=&#32;NULL;&#32;&#32;<emphasis role="comment">/*&#32;to&#32;avoid&#32;warnings&#32;*/</emphasis>
+00682 &#32;&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*ci&#32;=&#32;L-&gt;<link linkend="_structlua___state_1a8764223139091552413c85d3fc0bb1eb">ci</link>;
+00683 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*kind&#32;=&#32;NULL;
+00684 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lstate_8h_1a489eab424b094f54dd7f6b35e2cf68a2">isLua</link>(ci))&#32;{
+00685 &#32;&#32;&#32;&#32;kind&#32;=&#32;<link linkend="_ldebug_8c_1aa34de8e3a8dd64cda6ce15e2296dff9b">getupvalname</link>(ci,&#32;o,&#32;&amp;name);&#32;&#32;<emphasis role="comment">/*&#32;check&#32;whether&#32;&apos;o&apos;&#32;is&#32;an&#32;upvalue&#32;*/</emphasis>
+00686 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!kind&#32;&amp;&amp;&#32;<link linkend="_ldebug_8c_1a9f58a8099ec72d2ec0e0937b868fccdb">isinstack</link>(ci,&#32;o))&#32;&#32;<emphasis role="comment">/*&#32;no?&#32;try&#32;a&#32;register&#32;*/</emphasis>
+00687 &#32;&#32;&#32;&#32;&#32;&#32;kind&#32;=&#32;<link linkend="_ldebug_8c_1a5ccea5c2124ac2e629562b0ff7f440a6">getobjname</link>(<link linkend="_ldebug_8h_1a12b504eee786ce8f2c703a22c03d477e">ci_func</link>(ci)-&gt;p,&#32;<link linkend="_ldebug_8c_1a7db2a3f5cbcf0ac3ef6d4cfa15ab4dbc">currentpc</link>(ci),
+00688 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1a37a9e2c4b53433d34bad0f12a1500c08">cast_int</link>(<link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(<link linkend="_union_stack_value">StkId</link>,&#32;o)&#32;-&#32;(ci-&gt;<link linkend="_struct_call_info_1a9d82a8ad04b0dd8837e621047972260a">func</link>&#32;+&#32;1)),&#32;&amp;name);
+00689 &#32;&#32;}
+00690 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;(kind)&#32;?&#32;<link linkend="_lobject_8c_1a8e224db7123c74d695076a96d1bfda61">luaO_pushfstring</link>(L,&#32;<emphasis role="stringliteral">&quot;&#32;(%s&#32;&apos;%s&apos;)&quot;</emphasis>,&#32;kind,&#32;name)&#32;:&#32;<emphasis role="stringliteral">&quot;&quot;</emphasis>;
+00691 }
+00692 
+00693 
+<anchor xml:id="_ldebug_8c_source_1l00694"/><link linkend="_ldebug_8h_1a375161dd1513420561f20f0b4c7b7e66">00694</link> <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_ldebug_8c_1a60bf9ce85441bd5065f2b73640163711">luaG_typeerror</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*o,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*op)&#32;{
+00695 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*t&#32;=&#32;<link linkend="_ltm_8c_1a6774390baf68edcb78194d0e0f8546ab">luaT_objtypename</link>(L,&#32;o);
+00696 &#32;&#32;<link linkend="_ldebug_8c_1a88d38ca5da2e7a1492fc9d5ad70c32c5">luaG_runerror</link>(L,&#32;<emphasis role="stringliteral">&quot;attempt&#32;to&#32;%s&#32;a&#32;%s&#32;value%s&quot;</emphasis>,&#32;op,&#32;t,&#32;<link linkend="_ldebug_8c_1a86692faa1669d631d38c24993d511dd5">varinfo</link>(L,&#32;o));
+00697 }
+00698 
+00699 
+<anchor xml:id="_ldebug_8c_source_1l00700"/><link linkend="_ldebug_8h_1a85c3a2c2c78c0e6d60a9b90ecf42252d">00700</link> <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_ldebug_8c_1a2d4bfa8b9ba02f149e1d2819b8e98c53">luaG_forerror</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*o,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*what)&#32;{
+00701 &#32;&#32;<link linkend="_ldebug_8c_1a88d38ca5da2e7a1492fc9d5ad70c32c5">luaG_runerror</link>(L,&#32;<emphasis role="stringliteral">&quot;bad&#32;&apos;for&apos;&#32;%s&#32;(number&#32;expected,&#32;got&#32;%s)&quot;</emphasis>,
+00702 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;what,&#32;<link linkend="_ltm_8c_1a6774390baf68edcb78194d0e0f8546ab">luaT_objtypename</link>(L,&#32;o));
+00703 }
+00704 
+00705 
+<anchor xml:id="_ldebug_8c_source_1l00706"/><link linkend="_ldebug_8h_1af54afa3e0397d5d99cb1b47bf0314b34">00706</link> <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_ldebug_8c_1a04641ef359f3943a2ca88f52c3fe283c">luaG_concaterror</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p1,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p2)&#32;{
+00707 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lobject_8h_1a9bdf057a0de8da2ffae3ac35662dd255">ttisstring</link>(p1)&#32;||&#32;<link linkend="_lvm_8h_1aa6af30bdcb0dce1826c81061cec16d81">cvt2str</link>(p1))&#32;p1&#32;=&#32;p2;
+00708 &#32;&#32;<link linkend="_ldebug_8c_1a60bf9ce85441bd5065f2b73640163711">luaG_typeerror</link>(L,&#32;p1,&#32;<emphasis role="stringliteral">&quot;concatenate&quot;</emphasis>);
+00709 }
+00710 
+00711 
+<anchor xml:id="_ldebug_8c_source_1l00712"/><link linkend="_ldebug_8h_1a2cd0d4056a77c01bf1bc52a2054570d1">00712</link> <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_ldebug_8c_1a5a3d4fd14bbb9329188c53a9548b7402">luaG_opinterror</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p1,
+00713 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p2,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg)&#32;{
+00714 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_lobject_8h_1a7a1392f89b1f29ed3b1afa37a22d0be2">ttisnumber</link>(p1))&#32;&#32;<emphasis role="comment">/*&#32;first&#32;operand&#32;is&#32;wrong?&#32;*/</emphasis>
+00715 &#32;&#32;&#32;&#32;p2&#32;=&#32;p1;&#32;&#32;<emphasis role="comment">/*&#32;now&#32;second&#32;is&#32;wrong&#32;*/</emphasis>
+00716 &#32;&#32;<link linkend="_ldebug_8c_1a60bf9ce85441bd5065f2b73640163711">luaG_typeerror</link>(L,&#32;p2,&#32;msg);
+00717 }
+00718 
+00719 
+00720 <emphasis role="comment">/*</emphasis>
+00721 <emphasis role="comment">**&#32;Error&#32;when&#32;both&#32;values&#32;are&#32;convertible&#32;to&#32;numbers,&#32;but&#32;not&#32;to&#32;integers</emphasis>
+00722 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldebug_8c_source_1l00723"/><link linkend="_ldebug_8h_1a74cd5eddc3de05ee203215f97aeacdfa">00723</link> <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_ldebug_8c_1ada97dce3c670f83e257a5b27299bf09b">luaG_tointerror</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p1,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p2)&#32;{
+00724 &#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;temp;
+00725 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_lvm_8h_1a0b3a6eff12747eacea6551dbc2d42707">tointegerns</link>(p1,&#32;&amp;temp))
+00726 &#32;&#32;&#32;&#32;p2&#32;=&#32;p1;
+00727 &#32;&#32;<link linkend="_ldebug_8c_1a88d38ca5da2e7a1492fc9d5ad70c32c5">luaG_runerror</link>(L,&#32;<emphasis role="stringliteral">&quot;number%s&#32;has&#32;no&#32;integer&#32;representation&quot;</emphasis>,&#32;<link linkend="_ldebug_8c_1a86692faa1669d631d38c24993d511dd5">varinfo</link>(L,&#32;p2));
+00728 }
+00729 
+00730 
+<anchor xml:id="_ldebug_8c_source_1l00731"/><link linkend="_ldebug_8h_1a7ae9c3f6343c93b4a8bb80e68706a6a3">00731</link> <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_ldebug_8c_1ad0c51ce500c5a0a448f62bc680d80926">luaG_ordererror</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p1,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p2)&#32;{
+00732 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*t1&#32;=&#32;<link linkend="_ltm_8c_1a6774390baf68edcb78194d0e0f8546ab">luaT_objtypename</link>(L,&#32;p1);
+00733 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*t2&#32;=&#32;<link linkend="_ltm_8c_1a6774390baf68edcb78194d0e0f8546ab">luaT_objtypename</link>(L,&#32;p2);
+00734 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(strcmp(t1,&#32;t2)&#32;==&#32;0)
+00735 &#32;&#32;&#32;&#32;<link linkend="_ldebug_8c_1a88d38ca5da2e7a1492fc9d5ad70c32c5">luaG_runerror</link>(L,&#32;<emphasis role="stringliteral">&quot;attempt&#32;to&#32;compare&#32;two&#32;%s&#32;values&quot;</emphasis>,&#32;t1);
+00736 &#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00737 &#32;&#32;&#32;&#32;<link linkend="_ldebug_8c_1a88d38ca5da2e7a1492fc9d5ad70c32c5">luaG_runerror</link>(L,&#32;<emphasis role="stringliteral">&quot;attempt&#32;to&#32;compare&#32;%s&#32;with&#32;%s&quot;</emphasis>,&#32;t1,&#32;t2);
+00738 }
+00739 
+00740 
+00741 <emphasis role="comment">/*&#32;add&#32;src:line&#32;information&#32;to&#32;&apos;msg&apos;&#32;*/</emphasis>
+<anchor xml:id="_ldebug_8c_source_1l00742"/><link linkend="_ldebug_8h_1af411ad9b6b5018b481308c6ca6895411">00742</link> <emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_ldebug_8c_1a7e1dc7518150bf19bd9aa5dda166a2eb">luaG_addinfo</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg,&#32;<link linkend="_struct_t_string">TString</link>&#32;*src,
+00743 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;line)&#32;{
+00744 &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;buff[<link linkend="_luaconf_8h_1a49c31c00aa2852af25a2c43046a21aeb">LUA_IDSIZE</link>];
+00745 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(src)
+00746 &#32;&#32;&#32;&#32;<link linkend="_lobject_8c_1ac331b4119bbeb45a8a7e5a1afe553b2e">luaO_chunkid</link>(buff,&#32;<link linkend="_lobject_8h_1acb05d3ab238923581a9c629b8e11a6ac">getstr</link>(src),&#32;<link linkend="_lobject_8h_1a3a62185cfa9345aedfc3a581dfdbb4f3">tsslen</link>(src));
+00747 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;no&#32;source&#32;available;&#32;use&#32;&quot;?&quot;&#32;instead&#32;*/</emphasis>
+00748 &#32;&#32;&#32;&#32;buff[0]&#32;=&#32;<emphasis role="charliteral">&apos;?&apos;</emphasis>;&#32;buff[1]&#32;=&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>;
+00749 &#32;&#32;}
+00750 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lobject_8c_1a8e224db7123c74d695076a96d1bfda61">luaO_pushfstring</link>(L,&#32;<emphasis role="stringliteral">&quot;%s:%d:&#32;%s&quot;</emphasis>,&#32;buff,&#32;line,&#32;msg);
+00751 }
+00752 
+00753 
+<anchor xml:id="_ldebug_8c_source_1l00754"/><link linkend="_ldebug_8h_1acd5ef9f67a8e9d08f6540636fdbeafe6">00754</link> <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_ldebug_8c_1af7366920f8408bb33ed01b1d6c0e1238">luaG_errormsg</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00755 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(L-&gt;<link linkend="_structlua___state_1acd673156213ded9f5159d761e9db2bc3">errfunc</link>&#32;!=&#32;0)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;is&#32;there&#32;an&#32;error&#32;handling&#32;function?&#32;*/</emphasis>
+00756 &#32;&#32;&#32;&#32;<link linkend="_union_stack_value">StkId</link>&#32;errfunc&#32;=&#32;<link linkend="_ldo_8h_1a3fbde7f289e6bf661575e9b802da9e78">restorestack</link>(L,&#32;L-&gt;<link linkend="_structlua___state_1acd673156213ded9f5159d761e9db2bc3">errfunc</link>);
+00757 &#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(<link linkend="_lobject_8h_1a48587dcb78721d149d3184d0768f4950">ttisfunction</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(errfunc)));
+00758 &#32;&#32;&#32;&#32;<link linkend="_lobject_8h_1af9258d87e8f082be8a2adb731d90f1a5">setobjs2s</link>(L,&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>,&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;-&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;move&#32;argument&#32;*/</emphasis>
+00759 &#32;&#32;&#32;&#32;<link linkend="_lobject_8h_1af9258d87e8f082be8a2adb731d90f1a5">setobjs2s</link>(L,&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;-&#32;1,&#32;errfunc);&#32;&#32;<emphasis role="comment">/*&#32;push&#32;function&#32;*/</emphasis>
+00760 &#32;&#32;&#32;&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>++;&#32;&#32;<emphasis role="comment">/*&#32;assume&#32;EXTRA_STACK&#32;*/</emphasis>
+00761 &#32;&#32;&#32;&#32;<link linkend="_ldo_8c_1a61c0a0185ef5ae1493dad10027f4db7e">luaD_callnoyield</link>(L,&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;-&#32;2,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;call&#32;it&#32;*/</emphasis>
+00762 &#32;&#32;}
+00763 &#32;&#32;<link linkend="_ldo_8c_1a2b46d9db5b9ca3d5402a0c2ac640a6b0">luaD_throw</link>(L,&#32;<link linkend="_lua_8h_1af4bd6d4de5f10de738f81d007982abed">LUA_ERRRUN</link>);
+00764 }
+00765 
+00766 
+<anchor xml:id="_ldebug_8c_source_1l00767"/><link linkend="_ldebug_8h_1a6f27f64630215e18a11be9ba21d3c4bf">00767</link> <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_ldebug_8c_1a88d38ca5da2e7a1492fc9d5ad70c32c5">luaG_runerror</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*fmt,&#32;...)&#32;{
+00768 &#32;&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*ci&#32;=&#32;L-&gt;<link linkend="_structlua___state_1a8764223139091552413c85d3fc0bb1eb">ci</link>;
+00769 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg;
+00770 &#32;&#32;va_list&#32;argp;
+00771 &#32;&#32;<link linkend="_lgc_8h_1ad013db5004ccc5fbe8a6450caa1f1ad9">luaC_checkGC</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;error&#32;message&#32;uses&#32;memory&#32;*/</emphasis>
+00772 &#32;&#32;va_start(argp,&#32;fmt);
+00773 &#32;&#32;msg&#32;=&#32;<link linkend="_lobject_8c_1aa83fa444a36d79521e846a766fa083d5">luaO_pushvfstring</link>(L,&#32;fmt,&#32;argp);&#32;&#32;<emphasis role="comment">/*&#32;format&#32;message&#32;*/</emphasis>
+00774 &#32;&#32;va_end(argp);
+00775 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lstate_8h_1a489eab424b094f54dd7f6b35e2cf68a2">isLua</link>(ci))&#32;&#32;<emphasis role="comment">/*&#32;if&#32;Lua&#32;function,&#32;add&#32;source:line&#32;information&#32;*/</emphasis>
+00776 &#32;&#32;&#32;&#32;<link linkend="_ldebug_8c_1a7e1dc7518150bf19bd9aa5dda166a2eb">luaG_addinfo</link>(L,&#32;msg,&#32;<link linkend="_ldebug_8h_1a12b504eee786ce8f2c703a22c03d477e">ci_func</link>(ci)-&gt;p-&gt;source,&#32;<link linkend="_ldebug_8c_1ad6bc24d619df8e849e2ae8b00455d86f">getcurrentline</link>(ci));
+00777 &#32;&#32;<link linkend="_ldebug_8c_1af7366920f8408bb33ed01b1d6c0e1238">luaG_errormsg</link>(L);
+00778 }
+00779 
+00780 
+00781 <emphasis role="comment">/*</emphasis>
+00782 <emphasis role="comment">**&#32;Check&#32;whether&#32;new&#32;instruction&#32;&apos;newpc&apos;&#32;is&#32;in&#32;a&#32;different&#32;line&#32;from</emphasis>
+00783 <emphasis role="comment">**&#32;previous&#32;instruction&#32;&apos;oldpc&apos;.</emphasis>
+00784 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldebug_8c_source_1l00785"/><link linkend="_ldebug_8c_1addb19a674a7acc4b075f36e9c91457ce">00785</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldebug_8c_1addb19a674a7acc4b075f36e9c91457ce">changedline</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_proto">Proto</link>&#32;*p,&#32;<emphasis role="keywordtype">int</emphasis>&#32;oldpc,&#32;<emphasis role="keywordtype">int</emphasis>&#32;newpc)&#32;{
+00786 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(p-&gt;<link linkend="_struct_proto_1a0d5af822069e8cdb2bd7f17f3cdcf575">lineinfo</link>&#32;==&#32;NULL)&#32;&#32;<emphasis role="comment">/*&#32;no&#32;debug&#32;information?&#32;*/</emphasis>
+00787 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;
+00788 &#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;(oldpc++&#32;&lt;&#32;newpc)&#32;{
+00789 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(p-&gt;<link linkend="_struct_proto_1a0d5af822069e8cdb2bd7f17f3cdcf575">lineinfo</link>[oldpc]&#32;!=&#32;0)
+00790 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;(<link linkend="_ldebug_8c_1ae7a6d2f88b11cc05758e44acd433ee2f">luaG_getfuncline</link>(p,&#32;oldpc&#32;-&#32;1)&#32;!=&#32;<link linkend="_ldebug_8c_1ae7a6d2f88b11cc05758e44acd433ee2f">luaG_getfuncline</link>(p,&#32;newpc));
+00791 &#32;&#32;}
+00792 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;line&#32;changes&#32;between&#32;positions&#32;*/</emphasis>
+00793 }
+00794 
+00795 
+00796 <emphasis role="comment">/*</emphasis>
+00797 <emphasis role="comment">**&#32;Traces&#32;the&#32;execution&#32;of&#32;a&#32;Lua&#32;function.&#32;Called&#32;before&#32;the&#32;execution</emphasis>
+00798 <emphasis role="comment">**&#32;of&#32;each&#32;opcode,&#32;when&#32;debug&#32;is&#32;on.&#32;&apos;L-&gt;oldpc&apos;&#32;stores&#32;the&#32;last</emphasis>
+00799 <emphasis role="comment">**&#32;instruction&#32;traced,&#32;to&#32;detect&#32;line&#32;changes.&#32;When&#32;entering&#32;a&#32;new</emphasis>
+00800 <emphasis role="comment">**&#32;function,&#32;&apos;npci&apos;&#32;will&#32;be&#32;zero&#32;and&#32;will&#32;test&#32;as&#32;a&#32;new&#32;line&#32;without</emphasis>
+00801 <emphasis role="comment">**&#32;the&#32;need&#32;for&#32;&apos;oldpc&apos;;&#32;so,&#32;&apos;oldpc&apos;&#32;does&#32;not&#32;need&#32;to&#32;be&#32;initialized</emphasis>
+00802 <emphasis role="comment">**&#32;before.&#32;Some&#32;exceptional&#32;conditions&#32;may&#32;return&#32;to&#32;a&#32;function&#32;without</emphasis>
+00803 <emphasis role="comment">**&#32;updating&#32;&apos;oldpc&apos;.&#32;In&#32;that&#32;case,&#32;&apos;oldpc&apos;&#32;may&#32;be&#32;invalid;&#32;if&#32;so,&#32;it&#32;is</emphasis>
+00804 <emphasis role="comment">**&#32;reset&#32;to&#32;zero.&#32;&#32;(A&#32;wrong&#32;but&#32;valid&#32;&apos;oldpc&apos;&#32;at&#32;most&#32;causes&#32;an&#32;extra</emphasis>
+00805 <emphasis role="comment">**&#32;call&#32;to&#32;a&#32;line&#32;hook.)</emphasis>
+00806 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldebug_8c_source_1l00807"/><link linkend="_ldebug_8h_1a28dc49658eeb012ee095c580e7064d64">00807</link> <emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldebug_8c_1aa85fcb28f50397f11ac54ed47be24f8b">luaG_traceexec</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link>&#32;*pc)&#32;{
+00808 &#32;&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*ci&#32;=&#32;L-&gt;<link linkend="_structlua___state_1a8764223139091552413c85d3fc0bb1eb">ci</link>;
+00809 &#32;&#32;<link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link>&#32;mask&#32;=&#32;L-&gt;<link linkend="_structlua___state_1a081110fd5f9c1292f56fb2ef36e35c1a">hookmask</link>;
+00810 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_proto">Proto</link>&#32;*p&#32;=&#32;<link linkend="_ldebug_8h_1a12b504eee786ce8f2c703a22c03d477e">ci_func</link>(ci)-&gt;p;
+00811 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;counthook;
+00812 &#32;&#32;<emphasis role="comment">/*&#32;&apos;L-&gt;oldpc&apos;&#32;may&#32;be&#32;invalid;&#32;reset&#32;it&#32;in&#32;this&#32;case&#32;*/</emphasis>
+00813 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;oldpc&#32;=&#32;(L-&gt;<link linkend="_structlua___state_1af1ac56c8c869bc5401c5de137f643033">oldpc</link>&#32;&lt;&#32;p-&gt;<link linkend="_struct_proto_1aa3cefdf204c272e3a1a3aa8bc12f4e3e">sizecode</link>)&#32;?&#32;L-&gt;<link linkend="_structlua___state_1af1ac56c8c869bc5401c5de137f643033">oldpc</link>&#32;:&#32;0;
+00814 &#32;&#32;if&#32;(!(mask&#32;&amp;&#32;(<link linkend="_lua_8h_1a671bc8ae0eddd679411c7f2401a594cf">LUA_MASKLINE</link>&#32;|&#32;<link linkend="_lua_8h_1a29927bc26e642df4f842e0235d290c56">LUA_MASKCOUNT</link>)))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;no&#32;hooks?&#32;*/</emphasis>
+00815 &#32;&#32;&#32;&#32;ci-&gt;<link linkend="_struct_call_info_1af8751782b1a040b075c25cef0acb484a">u</link>.<link linkend="_struct_call_info_1a1abd0b31f495fcbdfaa1bb8ac5546d6d">l</link>.trap&#32;=&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;don&apos;t&#32;need&#32;to&#32;stop&#32;again&#32;*/</emphasis>
+00816 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;turn&#32;off&#32;&apos;trap&apos;&#32;*/</emphasis>
+00817 &#32;&#32;}
+00818 &#32;&#32;pc++;&#32;&#32;<emphasis role="comment">/*&#32;reference&#32;is&#32;always&#32;next&#32;instruction&#32;*/</emphasis>
+00819 &#32;&#32;ci-&gt;<link linkend="_struct_call_info_1af8751782b1a040b075c25cef0acb484a">u</link>.<link linkend="_struct_call_info_1a1abd0b31f495fcbdfaa1bb8ac5546d6d">l</link>.savedpc&#32;=&#32;pc;&#32;&#32;<emphasis role="comment">/*&#32;save&#32;&apos;pc&apos;&#32;*/</emphasis>
+00820 &#32;&#32;counthook&#32;=&#32;(--L-&gt;<link linkend="_structlua___state_1a4780d6bad4b699b908c598b96ca233c5">hookcount</link>&#32;==&#32;0&#32;&amp;&amp;&#32;(mask&#32;&amp;&#32;<link linkend="_lua_8h_1a29927bc26e642df4f842e0235d290c56">LUA_MASKCOUNT</link>));
+00821 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(counthook)
+00822 &#32;&#32;&#32;&#32;<link linkend="_ldebug_8h_1ac42e5618900e7522d70474fcfbddab58">resethookcount</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;reset&#32;count&#32;*/</emphasis>
+00823 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!(mask&#32;&amp;&#32;<link linkend="_lua_8h_1a671bc8ae0eddd679411c7f2401a594cf">LUA_MASKLINE</link>))
+00824 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;line&#32;hook&#32;and&#32;count&#32;!=&#32;0;&#32;nothing&#32;to&#32;be&#32;done&#32;now&#32;*/</emphasis>
+00825 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ci-&gt;<link linkend="_struct_call_info_1a1551d635e86dcf5c62f9bc718512d89b">callstatus</link>&#32;&amp;&#32;<link linkend="_lstate_8h_1a2ee8b2631d186257649cce9f39e17aae">CIST_HOOKYIELD</link>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;called&#32;hook&#32;last&#32;time?&#32;*/</emphasis>
+00826 &#32;&#32;&#32;&#32;ci-&gt;<link linkend="_struct_call_info_1a1551d635e86dcf5c62f9bc718512d89b">callstatus</link>&#32;&amp;=&#32;~<link linkend="_lstate_8h_1a2ee8b2631d186257649cce9f39e17aae">CIST_HOOKYIELD</link>;&#32;&#32;<emphasis role="comment">/*&#32;erase&#32;mark&#32;*/</emphasis>
+00827 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;do&#32;not&#32;call&#32;hook&#32;again&#32;(VM&#32;yielded,&#32;so&#32;it&#32;did&#32;not&#32;move)&#32;*/</emphasis>
+00828 &#32;&#32;}
+00829 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_lopcodes_8h_1ad8d4fbc03d23ff580e821c7fb6f07e3a">isIT</link>(*(ci-&gt;<link linkend="_struct_call_info_1af8751782b1a040b075c25cef0acb484a">u</link>.<link linkend="_struct_call_info_1a1abd0b31f495fcbdfaa1bb8ac5546d6d">l</link>.savedpc&#32;-&#32;1)))
+00830 &#32;&#32;&#32;&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;=&#32;ci-&gt;<link linkend="_struct_call_info_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>;&#32;&#32;<emphasis role="comment">/*&#32;prepare&#32;top&#32;*/</emphasis>
+00831 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(counthook)
+00832 &#32;&#32;&#32;&#32;<link linkend="_ldo_8c_1aa74dd2ed1bf68092213c0cd69d3a8aab">luaD_hook</link>(L,&#32;<link linkend="_lua_8h_1a6c7cb905c4d6a2d21e6261b6ccec7298">LUA_HOOKCOUNT</link>,&#32;-1,&#32;0,&#32;0);&#32;&#32;<emphasis role="comment">/*&#32;call&#32;count&#32;hook&#32;*/</emphasis>
+00833 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(mask&#32;&amp;&#32;<link linkend="_lua_8h_1a671bc8ae0eddd679411c7f2401a594cf">LUA_MASKLINE</link>)&#32;{
+00834 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;npci&#32;=&#32;<link linkend="_ldebug_8h_1a90cad524ed41d15bada161ecd74037ad">pcRel</link>(pc,&#32;p);
+00835 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(npci&#32;==&#32;0&#32;||&#32;&#32;<emphasis role="comment">/*&#32;call&#32;linehook&#32;when&#32;enter&#32;a&#32;new&#32;function,&#32;*/</emphasis>
+00836 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;pc&#32;&lt;=&#32;<link linkend="_ldebug_8c_1a82b7da36a8466fd9e16477d35f13f75a">invpcRel</link>(oldpc,&#32;p)&#32;||&#32;&#32;<emphasis role="comment">/*&#32;when&#32;jump&#32;back&#32;(loop),&#32;or&#32;when&#32;*/</emphasis>
+00837 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_ldebug_8c_1addb19a674a7acc4b075f36e9c91457ce">changedline</link>(p,&#32;oldpc,&#32;npci))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;enter&#32;new&#32;line&#32;*/</emphasis>
+00838 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;newline&#32;=&#32;<link linkend="_ldebug_8c_1ae7a6d2f88b11cc05758e44acd433ee2f">luaG_getfuncline</link>(p,&#32;npci);
+00839 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_ldo_8c_1aa74dd2ed1bf68092213c0cd69d3a8aab">luaD_hook</link>(L,&#32;<link linkend="_lua_8h_1af2e15cf6167fde2aab753f2a8228de06">LUA_HOOKLINE</link>,&#32;newline,&#32;0,&#32;0);&#32;&#32;<emphasis role="comment">/*&#32;call&#32;line&#32;hook&#32;*/</emphasis>
+00840 &#32;&#32;&#32;&#32;}
+00841 &#32;&#32;&#32;&#32;L-&gt;<link linkend="_structlua___state_1af1ac56c8c869bc5401c5de137f643033">oldpc</link>&#32;=&#32;npci;&#32;&#32;<emphasis role="comment">/*&#32;&apos;pc&apos;&#32;of&#32;last&#32;call&#32;to&#32;line&#32;hook&#32;*/</emphasis>
+00842 &#32;&#32;}
+00843 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(L-&gt;<link linkend="_structlua___state_1ab7ebe75445d38e722cbc077aec768b14">status</link>&#32;==&#32;<link linkend="_lua_8h_1ab69f4bd0c0693d4c8fcfc0ebaeb2806b">LUA_YIELD</link>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;did&#32;hook&#32;yield?&#32;*/</emphasis>
+00844 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(counthook)
+00845 &#32;&#32;&#32;&#32;&#32;&#32;L-&gt;<link linkend="_structlua___state_1a4780d6bad4b699b908c598b96ca233c5">hookcount</link>&#32;=&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;undo&#32;decrement&#32;to&#32;zero&#32;*/</emphasis>
+00846 &#32;&#32;&#32;&#32;ci-&gt;<link linkend="_struct_call_info_1af8751782b1a040b075c25cef0acb484a">u</link>.<link linkend="_struct_call_info_1a1abd0b31f495fcbdfaa1bb8ac5546d6d">l</link>.savedpc--;&#32;&#32;<emphasis role="comment">/*&#32;undo&#32;increment&#32;(resume&#32;will&#32;increment&#32;it&#32;again)&#32;*/</emphasis>
+00847 &#32;&#32;&#32;&#32;ci-&gt;<link linkend="_struct_call_info_1a1551d635e86dcf5c62f9bc718512d89b">callstatus</link>&#32;|=&#32;<link linkend="_lstate_8h_1a2ee8b2631d186257649cce9f39e17aae">CIST_HOOKYIELD</link>;&#32;&#32;<emphasis role="comment">/*&#32;mark&#32;that&#32;it&#32;yielded&#32;*/</emphasis>
+00848 &#32;&#32;&#32;&#32;<link linkend="_ldo_8c_1a2b46d9db5b9ca3d5402a0c2ac640a6b0">luaD_throw</link>(L,&#32;<link linkend="_lua_8h_1ab69f4bd0c0693d4c8fcfc0ebaeb2806b">LUA_YIELD</link>);
+00849 &#32;&#32;}
+00850 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;keep&#32;&apos;trap&apos;&#32;on&#32;*/</emphasis>
+00851 }
+00852 
+</programlisting></section>

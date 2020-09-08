@@ -1,0 +1,456 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lfunc_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/lfunc.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lfunc.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;stddef.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;ldebug.h&quot;
+#include &quot;ldo.h&quot;
+#include &quot;lfunc.h&quot;
+#include &quot;lgc.h&quot;
+#include &quot;lmem.h&quot;
+#include &quot;lobject.h&quot;
+#include &quot;lstate.h&quot;
+</programlisting>lfunc.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lfunc_8c_1a8ee1ddf17394c8befb4092208004036c">lfunc_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lfunc_8c_1abf0b3947b59218777a8e928a10be205b">LUA_CORE</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para><link linkend="_struct_c_closure">CClosure</link> * <link linkend="_lfunc_8c_1a13a7dac7822f88b00c962b57e97cc0ef">luaF_newCclosure</link> (<link linkend="_structlua___state">lua_State</link> *L, int nupvals)</para>
+</listitem>
+            <listitem><para><link linkend="_struct_l_closure">LClosure</link> * <link linkend="_lfunc_8c_1a9fb730389493e9e60bbf0b6809061af5">luaF_newLclosure</link> (<link linkend="_structlua___state">lua_State</link> *L, int nupvals)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lfunc_8c_1a8d0e32d70d1bddfe4311a219927c769c">luaF_initupvals</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_l_closure">LClosure</link> *cl)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_up_val">UpVal</link> * <link linkend="_lfunc_8c_1a9d404aec43305854ac0eb64b56e98558">newupval</link> (<link linkend="_structlua___state">lua_State</link> *L, int tbc, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> level, <link linkend="_struct_up_val">UpVal</link> **prev)</para>
+</listitem>
+            <listitem><para><link linkend="_struct_up_val">UpVal</link> * <link linkend="_lfunc_8c_1a20f971bc630264489ebc4deea02be13a">luaF_findupval</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> level)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lfunc_8c_1ad6f77f3a49d8b6199525c7edac6fd0a6">callclose</link> (<link linkend="_structlua___state">lua_State</link> *L, void *ud)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lfunc_8c_1a523bc674df9f893ade61463c4ba5f09a">prepclosingmethod</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_t_value">TValue</link> *obj, <link linkend="_struct_t_value">TValue</link> *err)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lfunc_8c_1a865c4fcb22304c78c59721af224c34b6">varerror</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> level, const char *msg)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lfunc_8c_1a4105c820bb9b1b4b4b3bd6613b0ccb05">callclosemth</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> level, int status)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lfunc_8c_1a8e7a4b82fd2a62ae4de628e38742839b">trynewtbcupval</link> (<link linkend="_structlua___state">lua_State</link> *L, void *ud)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lfunc_8c_1a0f1719e232a25ecfcafed14f8b39ad31">luaF_newtbcupval</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> level)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lfunc_8c_1a3b5a5ae122e85af5c941e9b4ffff53bd">luaF_unlinkupval</link> (<link linkend="_struct_up_val">UpVal</link> *uv)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lfunc_8c_1ae9fcbf80b5969afd9412b9aed102f94e">luaF_close</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> level, int status)</para>
+</listitem>
+            <listitem><para><link linkend="_struct_proto">Proto</link> * <link linkend="_lfunc_8c_1a4ffd9d8ef515a7f785d007de7ceb9e4f">luaF_newproto</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lfunc_8c_1a117c26fb473f6165ee84d70d49a741b7">luaF_freeproto</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_proto">Proto</link> *f)</para>
+</listitem>
+            <listitem><para>const char * <link linkend="_lfunc_8c_1aaa3cd5bc3901e7edf1ac428151cdfe8c">luaF_getlocalname</link> (const <link linkend="_struct_proto">Proto</link> *f, int local_number, int pc)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lfunc_8c_1a8ee1ddf17394c8befb4092208004036c"/>    <section>
+    <title>lfunc_c</title>
+<indexterm><primary>lfunc_c</primary><secondary>lfunc.c</secondary></indexterm>
+<indexterm><primary>lfunc.c</primary><secondary>lfunc_c</secondary></indexterm>
+<para><computeroutput>#define lfunc_c</computeroutput></para><para>
+在文件 <link linkend="_lfunc_8c_source">lfunc.c</link> 第 <link linkend="_lfunc_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_lfunc_8c_1abf0b3947b59218777a8e928a10be205b"/>    <section>
+    <title>LUA_CORE</title>
+<indexterm><primary>LUA_CORE</primary><secondary>lfunc.c</secondary></indexterm>
+<indexterm><primary>lfunc.c</primary><secondary>LUA_CORE</secondary></indexterm>
+<para><computeroutput>#define LUA_CORE</computeroutput></para><para>
+在文件 <link linkend="_lfunc_8c_source">lfunc.c</link> 第 <link linkend="_lfunc_8c_source_1l00008">8</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lfunc_8c_1ad6f77f3a49d8b6199525c7edac6fd0a6"/>    <section>
+    <title>callclose()</title>
+<indexterm><primary>callclose</primary><secondary>lfunc.c</secondary></indexterm>
+<indexterm><primary>lfunc.c</primary><secondary>callclose</secondary></indexterm>
+<para><computeroutput>static void callclose (<link linkend="_structlua___state">lua_State</link> * L, void * ud)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lfunc_8c_source">lfunc.c</link> 第 <link linkend="_lfunc_8c_source_1l00103">103</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_ad6f77f3a49d8b6199525c7edac6fd0a6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_ad6f77f3a49d8b6199525c7edac6fd0a6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lfunc_8c_1a4105c820bb9b1b4b4b3bd6613b0ccb05"/>    <section>
+    <title>callclosemth()</title>
+<indexterm><primary>callclosemth</primary><secondary>lfunc.c</secondary></indexterm>
+<indexterm><primary>lfunc.c</primary><secondary>callclosemth</secondary></indexterm>
+<para><computeroutput>static int callclosemth (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> level, int status)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lfunc_8c_source">lfunc.c</link> 第 <link linkend="_lfunc_8c_source_1l00150">150</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a4105c820bb9b1b4b4b3bd6613b0ccb05_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a4105c820bb9b1b4b4b3bd6613b0ccb05_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lfunc_8c_1ae9fcbf80b5969afd9412b9aed102f94e"/>    <section>
+    <title>luaF_close()</title>
+<indexterm><primary>luaF_close</primary><secondary>lfunc.c</secondary></indexterm>
+<indexterm><primary>lfunc.c</primary><secondary>luaF_close</secondary></indexterm>
+<para><computeroutput>int luaF_close (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> level, int status)</computeroutput></para><para>
+在文件 <link linkend="_lfunc_8c_source">lfunc.c</link> 第 <link linkend="_lfunc_8c_source_1l00223">223</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_ae9fcbf80b5969afd9412b9aed102f94e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_ae9fcbf80b5969afd9412b9aed102f94e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lfunc_8c_1a20f971bc630264489ebc4deea02be13a"/>    <section>
+    <title>luaF_findupval()</title>
+<indexterm><primary>luaF_findupval</primary><secondary>lfunc.c</secondary></indexterm>
+<indexterm><primary>lfunc.c</primary><secondary>luaF_findupval</secondary></indexterm>
+<para><computeroutput><link linkend="_struct_up_val">UpVal</link>* luaF_findupval (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> level)</computeroutput></para><para>
+在文件 <link linkend="_lfunc_8c_source">lfunc.c</link> 第 <link linkend="_lfunc_8c_source_1l00088">88</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a20f971bc630264489ebc4deea02be13a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a20f971bc630264489ebc4deea02be13a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lfunc_8c_1a117c26fb473f6165ee84d70d49a741b7"/>    <section>
+    <title>luaF_freeproto()</title>
+<indexterm><primary>luaF_freeproto</primary><secondary>lfunc.c</secondary></indexterm>
+<indexterm><primary>lfunc.c</primary><secondary>luaF_freeproto</secondary></indexterm>
+<para><computeroutput>void luaF_freeproto (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_proto">Proto</link> * f)</computeroutput></para><para>
+在文件 <link linkend="_lfunc_8c_source">lfunc.c</link> 第 <link linkend="_lfunc_8c_source_1l00273">273</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a117c26fb473f6165ee84d70d49a741b7_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lfunc_8c_1aaa3cd5bc3901e7edf1ac428151cdfe8c"/>    <section>
+    <title>luaF_getlocalname()</title>
+<indexterm><primary>luaF_getlocalname</primary><secondary>lfunc.c</secondary></indexterm>
+<indexterm><primary>lfunc.c</primary><secondary>luaF_getlocalname</secondary></indexterm>
+<para><computeroutput>const char* luaF_getlocalname (const <link linkend="_struct_proto">Proto</link> * f, int local_number, int pc)</computeroutput></para><para>
+在文件 <link linkend="_lfunc_8c_source">lfunc.c</link> 第 <link linkend="_lfunc_8c_source_1l00289">289</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_aaa3cd5bc3901e7edf1ac428151cdfe8c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lfunc_8c_1a8d0e32d70d1bddfe4311a219927c769c"/>    <section>
+    <title>luaF_initupvals()</title>
+<indexterm><primary>luaF_initupvals</primary><secondary>lfunc.c</secondary></indexterm>
+<indexterm><primary>lfunc.c</primary><secondary>luaF_initupvals</secondary></indexterm>
+<para><computeroutput>void luaF_initupvals (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_l_closure">LClosure</link> * cl)</computeroutput></para><para>
+在文件 <link linkend="_lfunc_8c_source">lfunc.c</link> 第 <link linkend="_lfunc_8c_source_1l00048">48</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a8d0e32d70d1bddfe4311a219927c769c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a8d0e32d70d1bddfe4311a219927c769c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lfunc_8c_1a13a7dac7822f88b00c962b57e97cc0ef"/>    <section>
+    <title>luaF_newCclosure()</title>
+<indexterm><primary>luaF_newCclosure</primary><secondary>lfunc.c</secondary></indexterm>
+<indexterm><primary>lfunc.c</primary><secondary>luaF_newCclosure</secondary></indexterm>
+<para><computeroutput><link linkend="_struct_c_closure">CClosure</link>* luaF_newCclosure (<link linkend="_structlua___state">lua_State</link> * L, int nupvals)</computeroutput></para><para>
+在文件 <link linkend="_lfunc_8c_source">lfunc.c</link> 第 <link linkend="_lfunc_8c_source_1l00027">27</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a13a7dac7822f88b00c962b57e97cc0ef_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a13a7dac7822f88b00c962b57e97cc0ef_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lfunc_8c_1a9fb730389493e9e60bbf0b6809061af5"/>    <section>
+    <title>luaF_newLclosure()</title>
+<indexterm><primary>luaF_newLclosure</primary><secondary>lfunc.c</secondary></indexterm>
+<indexterm><primary>lfunc.c</primary><secondary>luaF_newLclosure</secondary></indexterm>
+<para><computeroutput><link linkend="_struct_l_closure">LClosure</link>* luaF_newLclosure (<link linkend="_structlua___state">lua_State</link> * L, int nupvals)</computeroutput></para><para>
+在文件 <link linkend="_lfunc_8c_source">lfunc.c</link> 第 <link linkend="_lfunc_8c_source_1l00035">35</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a9fb730389493e9e60bbf0b6809061af5_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a9fb730389493e9e60bbf0b6809061af5_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lfunc_8c_1a4ffd9d8ef515a7f785d007de7ceb9e4f"/>    <section>
+    <title>luaF_newproto()</title>
+<indexterm><primary>luaF_newproto</primary><secondary>lfunc.c</secondary></indexterm>
+<indexterm><primary>lfunc.c</primary><secondary>luaF_newproto</secondary></indexterm>
+<para><computeroutput><link linkend="_struct_proto">Proto</link>* luaF_newproto (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lfunc_8c_source">lfunc.c</link> 第 <link linkend="_lfunc_8c_source_1l00246">246</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a4ffd9d8ef515a7f785d007de7ceb9e4f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a4ffd9d8ef515a7f785d007de7ceb9e4f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lfunc_8c_1a0f1719e232a25ecfcafed14f8b39ad31"/>    <section>
+    <title>luaF_newtbcupval()</title>
+<indexterm><primary>luaF_newtbcupval</primary><secondary>lfunc.c</secondary></indexterm>
+<indexterm><primary>lfunc.c</primary><secondary>luaF_newtbcupval</secondary></indexterm>
+<para><computeroutput>void luaF_newtbcupval (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> level)</computeroutput></para><para>
+在文件 <link linkend="_lfunc_8c_source">lfunc.c</link> 第 <link linkend="_lfunc_8c_source_1l00194">194</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a0f1719e232a25ecfcafed14f8b39ad31_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a0f1719e232a25ecfcafed14f8b39ad31_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lfunc_8c_1a3b5a5ae122e85af5c941e9b4ffff53bd"/>    <section>
+    <title>luaF_unlinkupval()</title>
+<indexterm><primary>luaF_unlinkupval</primary><secondary>lfunc.c</secondary></indexterm>
+<indexterm><primary>lfunc.c</primary><secondary>luaF_unlinkupval</secondary></indexterm>
+<para><computeroutput>void luaF_unlinkupval (<link linkend="_struct_up_val">UpVal</link> * uv)</computeroutput></para><para>
+在文件 <link linkend="_lfunc_8c_source">lfunc.c</link> 第 <link linkend="_lfunc_8c_source_1l00215">215</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a3b5a5ae122e85af5c941e9b4ffff53bd_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lfunc_8c_1a9d404aec43305854ac0eb64b56e98558"/>    <section>
+    <title>newupval()</title>
+<indexterm><primary>newupval</primary><secondary>lfunc.c</secondary></indexterm>
+<indexterm><primary>lfunc.c</primary><secondary>newupval</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_up_val">UpVal</link>* newupval (<link linkend="_structlua___state">lua_State</link> * L, int tbc, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> level, <link linkend="_struct_up_val">UpVal</link> ** prev)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lfunc_8c_source">lfunc.c</link> 第 <link linkend="_lfunc_8c_source_1l00065">65</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a9d404aec43305854ac0eb64b56e98558_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a9d404aec43305854ac0eb64b56e98558_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lfunc_8c_1a523bc674df9f893ade61463c4ba5f09a"/>    <section>
+    <title>prepclosingmethod()</title>
+<indexterm><primary>prepclosingmethod</primary><secondary>lfunc.c</secondary></indexterm>
+<indexterm><primary>lfunc.c</primary><secondary>prepclosingmethod</secondary></indexterm>
+<para><computeroutput>static int prepclosingmethod (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_t_value">TValue</link> * obj, <link linkend="_struct_t_value">TValue</link> * err)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lfunc_8c_source">lfunc.c</link> 第 <link linkend="_lfunc_8c_source_1l00113">113</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a523bc674df9f893ade61463c4ba5f09a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a523bc674df9f893ade61463c4ba5f09a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lfunc_8c_1a8e7a4b82fd2a62ae4de628e38742839b"/>    <section>
+    <title>trynewtbcupval()</title>
+<indexterm><primary>trynewtbcupval</primary><secondary>lfunc.c</secondary></indexterm>
+<indexterm><primary>lfunc.c</primary><secondary>trynewtbcupval</secondary></indexterm>
+<para><computeroutput>static void trynewtbcupval (<link linkend="_structlua___state">lua_State</link> * L, void * ud)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lfunc_8c_source">lfunc.c</link> 第 <link linkend="_lfunc_8c_source_1l00184">184</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a8e7a4b82fd2a62ae4de628e38742839b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a8e7a4b82fd2a62ae4de628e38742839b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lfunc_8c_1a865c4fcb22304c78c59721af224c34b6"/>    <section>
+    <title>varerror()</title>
+<indexterm><primary>varerror</primary><secondary>lfunc.c</secondary></indexterm>
+<indexterm><primary>lfunc.c</primary><secondary>varerror</secondary></indexterm>
+<para><computeroutput>static void varerror (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> level, const char * msg)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lfunc_8c_source">lfunc.c</link> 第 <link linkend="_lfunc_8c_source_1l00130">130</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a865c4fcb22304c78c59721af224c34b6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lfunc_8c_a865c4fcb22304c78c59721af224c34b6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+</section>

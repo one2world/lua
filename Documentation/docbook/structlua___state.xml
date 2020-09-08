@@ -1,0 +1,209 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_structlua___state" xml:lang="zh">
+<title>lua_State结构体 参考</title>
+<indexterm><primary>lua_State</primary></indexterm>
+<para>
+<computeroutput>#include &lt;lstate.h&gt;</computeroutput>
+</para>
+lua_State 的协作图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="structlua___state__coll__graph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>成员变量    </title>
+        <itemizedlist>
+            <listitem><para><link linkend="_structlua___state_1a3a6acff95c929eae043282cbb48cc7e4">CommonHeader</link></para>
+</listitem>
+            <listitem><para><link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> <link linkend="_structlua___state_1ab7ebe75445d38e722cbc077aec768b14">status</link></para>
+</listitem>
+            <listitem><para><link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> <link linkend="_structlua___state_1ae027b098c1d274d696f69fdac344e236">allowhook</link></para>
+</listitem>
+            <listitem><para>unsigned short <link linkend="_structlua___state_1a34c037820afad85fbce2db21b699f4d5">nci</link></para>
+</listitem>
+            <listitem><para><link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> <link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link></para>
+</listitem>
+            <listitem><para><link linkend="_structglobal___state">global_State</link> * <link linkend="_structlua___state_1a31a44b2a93de0aeef8f1d8be26df8a9a">l_G</link></para>
+</listitem>
+            <listitem><para><link linkend="_struct_call_info">CallInfo</link> * <link linkend="_structlua___state_1a8764223139091552413c85d3fc0bb1eb">ci</link></para>
+</listitem>
+            <listitem><para><link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> <link linkend="_structlua___state_1a21d8865731396f21a8b5bfd449c2354a">stack_last</link></para>
+</listitem>
+            <listitem><para><link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> <link linkend="_structlua___state_1a8d64aaa9257b553aae2e3e193c80a83f">stack</link></para>
+</listitem>
+            <listitem><para><link linkend="_struct_up_val">UpVal</link> * <link linkend="_structlua___state_1a762ab4537c3697fa94e74b3c0dffd297">openupval</link></para>
+</listitem>
+            <listitem><para><link linkend="_struct_g_c_object">GCObject</link> * <link linkend="_structlua___state_1a9e83d376257d9d775ce3e9c6f40ef0f1">gclist</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_structlua___state">lua_State</link> * <link linkend="_structlua___state_1a3c31ce83747be5e373872d7742afc3d1">twups</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_structlua__longjmp">lua_longjmp</link> * <link linkend="_structlua___state_1a12563a504bbf3fe62aacb90c3b440ac4">errorJmp</link></para>
+</listitem>
+            <listitem><para><link linkend="_struct_call_info">CallInfo</link> <link linkend="_structlua___state_1a4c48e90d3a9e48ab21d0623c1f46174e">base_ci</link></para>
+</listitem>
+            <listitem><para>volatile <link linkend="_lua_8h_1aa00de66eff087aef1fdd44f5b3bb9a0b">lua_Hook</link> <link linkend="_structlua___state_1a0f562869c88d56ceb0ee15048df46470">hook</link></para>
+</listitem>
+            <listitem><para>ptrdiff_t <link linkend="_structlua___state_1acd673156213ded9f5159d761e9db2bc3">errfunc</link></para>
+</listitem>
+            <listitem><para><link linkend="_llimits_8h_1abeb00a444eb1dc99a4a2baee15bd898a">l_uint32</link> <link linkend="_structlua___state_1a5429936a93186096703265975ddd31b3">nCcalls</link></para>
+</listitem>
+            <listitem><para>int <link linkend="_structlua___state_1af1ac56c8c869bc5401c5de137f643033">oldpc</link></para>
+</listitem>
+            <listitem><para>int <link linkend="_structlua___state_1a7fe5de65ffba2cb8917943b5811ae1cf">stacksize</link></para>
+</listitem>
+            <listitem><para>int <link linkend="_structlua___state_1ac18d0304dcc378978714fe1d446fda26">basehookcount</link></para>
+</listitem>
+            <listitem><para>int <link linkend="_structlua___state_1a4780d6bad4b699b908c598b96ca233c5">hookcount</link></para>
+</listitem>
+            <listitem><para>volatile <link linkend="_lstate_8h_1a671695c87339f30600d0f0f27a2cd2f0">l_signalT</link> <link linkend="_structlua___state_1a081110fd5f9c1292f56fb2ef36e35c1a">hookmask</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>详细描述</title>
+<para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00306">306</link> 行定义.</para>
+</section>
+<section>
+<title>结构体成员变量说明</title>
+<anchor xml:id="_structlua___state_1ae027b098c1d274d696f69fdac344e236"/>    <section>
+    <title>allowhook</title>
+<indexterm><primary>allowhook</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>allowhook</secondary></indexterm>
+<para><computeroutput><link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> allowhook</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00309">309</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1a4c48e90d3a9e48ab21d0623c1f46174e"/>    <section>
+    <title>base_ci</title>
+<indexterm><primary>base_ci</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>base_ci</secondary></indexterm>
+<para><computeroutput><link linkend="_struct_call_info">CallInfo</link> base_ci</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00320">320</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1ac18d0304dcc378978714fe1d446fda26"/>    <section>
+    <title>basehookcount</title>
+<indexterm><primary>basehookcount</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>basehookcount</secondary></indexterm>
+<para><computeroutput>int basehookcount</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00326">326</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1a8764223139091552413c85d3fc0bb1eb"/>    <section>
+    <title>ci</title>
+<indexterm><primary>ci</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>ci</secondary></indexterm>
+<para><computeroutput><link linkend="_struct_call_info">CallInfo</link>* ci</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00313">313</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1a3a6acff95c929eae043282cbb48cc7e4"/>    <section>
+    <title>CommonHeader</title>
+<indexterm><primary>CommonHeader</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>CommonHeader</secondary></indexterm>
+<para><computeroutput>CommonHeader</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00307">307</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1acd673156213ded9f5159d761e9db2bc3"/>    <section>
+    <title>errfunc</title>
+<indexterm><primary>errfunc</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>errfunc</secondary></indexterm>
+<para><computeroutput>ptrdiff_t errfunc</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00322">322</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1a12563a504bbf3fe62aacb90c3b440ac4"/>    <section>
+    <title>errorJmp</title>
+<indexterm><primary>errorJmp</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>errorJmp</secondary></indexterm>
+<para><computeroutput>struct <link linkend="_structlua__longjmp">lua_longjmp</link>* errorJmp</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00319">319</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1a9e83d376257d9d775ce3e9c6f40ef0f1"/>    <section>
+    <title>gclist</title>
+<indexterm><primary>gclist</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>gclist</secondary></indexterm>
+<para><computeroutput><link linkend="_struct_g_c_object">GCObject</link>* gclist</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00317">317</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1a0f562869c88d56ceb0ee15048df46470"/>    <section>
+    <title>hook</title>
+<indexterm><primary>hook</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>hook</secondary></indexterm>
+<para><computeroutput>volatile <link linkend="_lua_8h_1aa00de66eff087aef1fdd44f5b3bb9a0b">lua_Hook</link> hook</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00321">321</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1a4780d6bad4b699b908c598b96ca233c5"/>    <section>
+    <title>hookcount</title>
+<indexterm><primary>hookcount</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>hookcount</secondary></indexterm>
+<para><computeroutput>int hookcount</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00327">327</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1a081110fd5f9c1292f56fb2ef36e35c1a"/>    <section>
+    <title>hookmask</title>
+<indexterm><primary>hookmask</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>hookmask</secondary></indexterm>
+<para><computeroutput>volatile <link linkend="_lstate_8h_1a671695c87339f30600d0f0f27a2cd2f0">l_signalT</link> hookmask</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00328">328</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1a31a44b2a93de0aeef8f1d8be26df8a9a"/>    <section>
+    <title>l_G</title>
+<indexterm><primary>l_G</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>l_G</secondary></indexterm>
+<para><computeroutput><link linkend="_structglobal___state">global_State</link>* l_G</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00312">312</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1a5429936a93186096703265975ddd31b3"/>    <section>
+    <title>nCcalls</title>
+<indexterm><primary>nCcalls</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>nCcalls</secondary></indexterm>
+<para><computeroutput><link linkend="_llimits_8h_1abeb00a444eb1dc99a4a2baee15bd898a">l_uint32</link> nCcalls</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00323">323</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1a34c037820afad85fbce2db21b699f4d5"/>    <section>
+    <title>nci</title>
+<indexterm><primary>nci</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>nci</secondary></indexterm>
+<para><computeroutput>unsigned short nci</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00310">310</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1af1ac56c8c869bc5401c5de137f643033"/>    <section>
+    <title>oldpc</title>
+<indexterm><primary>oldpc</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>oldpc</secondary></indexterm>
+<para><computeroutput>int oldpc</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00324">324</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1a762ab4537c3697fa94e74b3c0dffd297"/>    <section>
+    <title>openupval</title>
+<indexterm><primary>openupval</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>openupval</secondary></indexterm>
+<para><computeroutput><link linkend="_struct_up_val">UpVal</link>* openupval</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00316">316</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1a8d64aaa9257b553aae2e3e193c80a83f"/>    <section>
+    <title>stack</title>
+<indexterm><primary>stack</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>stack</secondary></indexterm>
+<para><computeroutput><link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> stack</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00315">315</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1a21d8865731396f21a8b5bfd449c2354a"/>    <section>
+    <title>stack_last</title>
+<indexterm><primary>stack_last</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>stack_last</secondary></indexterm>
+<para><computeroutput><link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> stack_last</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00314">314</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1a7fe5de65ffba2cb8917943b5811ae1cf"/>    <section>
+    <title>stacksize</title>
+<indexterm><primary>stacksize</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>stacksize</secondary></indexterm>
+<para><computeroutput>int stacksize</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00325">325</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1ab7ebe75445d38e722cbc077aec768b14"/>    <section>
+    <title>status</title>
+<indexterm><primary>status</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>status</secondary></indexterm>
+<para><computeroutput><link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> status</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00308">308</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7"/>    <section>
+    <title>top</title>
+<indexterm><primary>top</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>top</secondary></indexterm>
+<para><computeroutput><link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> top</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00311">311</link> 行定义.</para>
+    </section><anchor xml:id="_structlua___state_1a3c31ce83747be5e373872d7742afc3d1"/>    <section>
+    <title>twups</title>
+<indexterm><primary>twups</primary><secondary>lua_State</secondary></indexterm>
+<indexterm><primary>lua_State</primary><secondary>twups</secondary></indexterm>
+<para><computeroutput>struct <link linkend="_structlua___state">lua_State</link>* twups</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00318">318</link> 行定义.</para>
+</section>
+<para>
+该结构体的文档由以下文件生成:</para>
+D:/gitworkspace/lua/<link linkend="_lstate_8h">lstate.h</link></section>
+</section>

@@ -1,0 +1,2276 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lapi_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/lapi.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lapi.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;limits.h&gt;
+#include &lt;stdarg.h&gt;
+#include &lt;string.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;lapi.h&quot;
+#include &quot;ldebug.h&quot;
+#include &quot;ldo.h&quot;
+#include &quot;lfunc.h&quot;
+#include &quot;lgc.h&quot;
+#include &quot;lmem.h&quot;
+#include &quot;lobject.h&quot;
+#include &quot;lstate.h&quot;
+#include &quot;lstring.h&quot;
+#include &quot;ltable.h&quot;
+#include &quot;ltm.h&quot;
+#include &quot;lundump.h&quot;
+#include &quot;lvm.h&quot;
+</programlisting>lapi.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>结构体    </title>
+        <itemizedlist>
+            <listitem><para>struct <link linkend="_struct_call_s">CallS</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lapi_8c_1a6f4862161259fd87002d41735b0ccfa8">lapi_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lapi_8c_1abf0b3947b59218777a8e928a10be205b">LUA_CORE</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lapi_8c_1aa414c9c792a81e37b5380c323b107194">isvalid</link>(L,  o)   (!<link linkend="_lobject_8h_1a39af019fafa202841da3bf7c427bf090">ttisnil</link>(o) || o != &amp;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L)-&gt;nilvalue)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lapi_8c_1a23aaf36182310f7e0108a065732710a2">ispseudo</link>(i)   ((i) &lt;= <link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lapi_8c_1aa8693ff1ffbbabc73472cd938dbd8086">isupvalue</link>(i)   ((i) &lt; <link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lapi_8c_1a6b76ec051caca9db7e44638873044e98">checkresults</link>(L,  na,  nr)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static <link linkend="_struct_t_value">TValue</link> * <link linkend="_lapi_8c_1a7c66797ff8396fc9258bb9fc08e959d8">index2value</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para>static <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> <link linkend="_lapi_8c_1a7acfd65878b2f2c7529c788ce08d1949">index2stack</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a1d762b92d5d82d6fa9f54ccf5c89d6a2">lua_checkstack</link> (<link linkend="_structlua___state">lua_State</link> *L, int n)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1ae27bb8d0218710bbbfefc1f573839d6d">lua_xmove</link> (<link linkend="_structlua___state">lua_State</link> *from, <link linkend="_structlua___state">lua_State</link> *to, int n)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link> <link linkend="_lapi_8c_1a90bf785da77985164dbe2eb0d64bf82e">lua_atpanic</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link> panicf)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> <link linkend="_lapi_8c_1a173602b148e6a610676e866fb7874ff1">lua_version</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a32821b04960f1c1223132349d04911c1">lua_absindex</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1afbb08ecb69421875494105d4de68e5bf">lua_gettop</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1adaa30f0d34786144c94644039d1d1b6e">lua_settop</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lapi_8c_1a2c07d0a193ad3ae19b4682ed92973c70">reverse</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> from, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> to)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1af680e24129c0e021b4fbb7700cf185dc">lua_rotate</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx, int n)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1a111bd3fa34fe656f415edae5e343e13e">lua_copy</link> (<link linkend="_structlua___state">lua_State</link> *L, int fromidx, int toidx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a652b273947f0656686f998d8e90cd3ea">lua_type</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char * <link linkend="_lapi_8c_1a7d64f87addab440bbda96bb088816e17">lua_typename</link> (<link linkend="_structlua___state">lua_State</link> *L, int t)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a3b922032c9fe2930399186a3647cc3ad">lua_iscfunction</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1aba53e83eb1fff94b5ed96203bb52d8ae">lua_isinteger</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a99451f234bf085c9c46c3d17a5aef905">lua_isnumber</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a9f20233199a414b04c1c4b43f5d040f3">lua_isstring</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1aa8a1dab86cfb4e0f9a4d1f699af0041b">lua_isuserdata</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1ace66ea78ced7fda0b367f45d09d10d83">lua_rawequal</link> (<link linkend="_structlua___state">lua_State</link> *L, int index1, int index2)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1a08501a34884feca01759dec174d69c88">lua_arith</link> (<link linkend="_structlua___state">lua_State</link> *L, int op)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a5fbae51f515549d4657d0efc676defee">lua_compare</link> (<link linkend="_structlua___state">lua_State</link> *L, int index1, int index2, int op)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> size_t <link linkend="_lapi_8c_1ab9c2fb9e2b2c7dad7474dd4b6f1bbcd0">lua_stringtonumber</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *s)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> <link linkend="_lapi_8c_1a375da41304604b0cba0b8c798499e673">lua_tonumberx</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx, int *pisnum)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> <link linkend="_lapi_8c_1af81c9a68425546e1f8c6354728c95170">lua_tointegerx</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx, int *pisnum)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a444aee9aa56b0b06175ee3c7bcf7927c">lua_toboolean</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char * <link linkend="_lapi_8c_1a3fc7dbcac3f2610f3d687ec15343bd3f">lua_tolstring</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx, size_t *len)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> <link linkend="_lapi_8c_1a161e2baf3d7a6a84499f6a9010cf12c8">lua_rawlen</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link> <link linkend="_lapi_8c_1ae790897a3311d599299895612986d850">lua_tocfunction</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para>static void * <link linkend="_lapi_8c_1ae98ecd8a638f53798949d5966c0cbed4">touserdata</link> (const <link linkend="_struct_t_value">TValue</link> *o)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void * <link linkend="_lapi_8c_1a0444ddf13e5618bca969e4b3b47bc0cc">lua_touserdata</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_structlua___state">lua_State</link> * <link linkend="_lapi_8c_1ad1dcea410edb5c5595fc070f8bf2e9a0">lua_tothread</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const void * <link linkend="_lapi_8c_1a5b533fe96cb52b5415896d41daad374a">lua_topointer</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1a1b4cd0d80f51e5545a97ca6c28c03c50">lua_pushnil</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1a328625a03fbb5548f27b1af10f109f6a">lua_pushnumber</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> n)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1adcec46ff05dfee9a3c4c05828b40c213">lua_pushinteger</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> n)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char * <link linkend="_lapi_8c_1a2c325311534c23450cdf11931a8db0ae">lua_pushlstring</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *s, size_t len)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char * <link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *s)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char * <link linkend="_lapi_8c_1a426c9cb1d582be3e43060c4772854e5a">lua_pushvfstring</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *fmt, va_list argp)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char * <link linkend="_lapi_8c_1ab190c226d38b289e6ca57683a9d4e0f0">lua_pushfstring</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *fmt,...)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1a142802b91cdd22516b54599f51e101e4">lua_pushcclosure</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link> fn, int n)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1a56bbb7479265e38da2e2596e6ec25faa">lua_pushboolean</link> (<link linkend="_structlua___state">lua_State</link> *L, int b)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1a85e3e3d32b068aef62426828a104b561">lua_pushlightuserdata</link> (<link linkend="_structlua___state">lua_State</link> *L, void *p)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a4175aeea9aa6dbf096ecfca7b190fa4a">lua_pushthread</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lapi_8c_1a1b28b3a312121ffb29541632648b9f78">auxgetstr</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_struct_t_value">TValue</link> *t, const char *k)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a8185a9c46d5930205f95beee4991e9f0">lua_getglobal</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *name)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1aa572dbc6e86f796a3e82ffcae4478aeb">lua_gettable</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx, const char *k)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a631ebda324b6a0f382ab6b9314917384">lua_geti</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> n)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lapi_8c_1a33830676158a2e9fde44f07109035425">finishrawget</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_struct_t_value">TValue</link> *val)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_table">Table</link> * <link linkend="_lapi_8c_1a4ebfbcdc1a7a4f0332d4dd532a817212">gettable</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a52944e714d1c64bda7b83f511c14b2d3">lua_rawget</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1af8e4dc545cc83927d901d2f242489320">lua_rawgeti</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> n)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1acf10870c7165e0e440eb14827a52de93">lua_rawgetp</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx, const void *p)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1a7f93e3baf3101cad59ec61b7744a55d8">lua_createtable</link> (<link linkend="_structlua___state">lua_State</link> *L, int narray, int nrec)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a4caa9ca5e47a30bd45e33d83bf2d6d6e">lua_getmetatable</link> (<link linkend="_structlua___state">lua_State</link> *L, int objindex)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a57c21a629f94ee0acc21a25d83bfaeba">lua_getiuservalue</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx, int n)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lapi_8c_1a0667fbf88666853554967226d9a3df4d">auxsetstr</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_struct_t_value">TValue</link> *t, const char *k)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1aecf388efaede9d97581335998dfa243b">lua_setglobal</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *name)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1a4ca492cf3d2194aec9a6292708bf66c8">lua_settable</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx, const char *k)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1a3f995c6cbc03d4cdebb2a6fc6fa11e59">lua_seti</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> n)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lapi_8c_1af95fcf06d620f6a244caf0097e610a07">aux_rawset</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx, <link linkend="_struct_t_value">TValue</link> *key, int n)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1afb2d27f421677ef40425f9054ae216a7">lua_rawset</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1aef5ff7d32a6e275fa0b8305f013bee9d">lua_rawsetp</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx, const void *p)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1a757fd16e7e09280e2d4e4f9f77ba1099">lua_rawseti</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> n)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a15719ea4119bdf5b3f2a406534431a7e">lua_setmetatable</link> (<link linkend="_structlua___state">lua_State</link> *L, int objindex)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a7383d0f43ccf69b414217a32d3947a49">lua_setiuservalue</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx, int n)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1ac5fef99e413a94e396b70b8263704ad3">lua_callk</link> (<link linkend="_structlua___state">lua_State</link> *L, int nargs, int nresults, <link linkend="_lua_8h_1a0c565e13b66764da08aa2c68fe4365f0">lua_KContext</link> ctx, <link linkend="_lua_8h_1a4bfd58d9192edfdcb7238de00bd0202c">lua_KFunction</link> k)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lapi_8c_1ac3926c93fb08234f9f47e24653124910">f_call</link> (<link linkend="_structlua___state">lua_State</link> *L, void *ud)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a624df4cb2312b762c4fb528ecc889385">lua_pcallk</link> (<link linkend="_structlua___state">lua_State</link> *L, int nargs, int nresults, int errfunc, <link linkend="_lua_8h_1a0c565e13b66764da08aa2c68fe4365f0">lua_KContext</link> ctx, <link linkend="_lua_8h_1a4bfd58d9192edfdcb7238de00bd0202c">lua_KFunction</link> k)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1aa7a94c45f3eec251e5b258d7482ffe87">lua_load</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lua_8h_1a4081d57135fee907807ba5070d528fdf">lua_Reader</link> reader, void *data, const char *chunkname, const char *mode)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a68295f56f04fd0d5c0adfb1793a04b4c">lua_dump</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lua_8h_1a855729196d7066b2da21178284868a8d">lua_Writer</link> <link linkend="_lstrlib_8c_1a1f7ab2869b4517a93412ce096243ead0">writer</link>, void *data, int strip)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1aadea4b6f60174a1334ebde560968a615">lua_status</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1aa93573057f708d826613186a9d40c87d">lua_gc</link> (<link linkend="_structlua___state">lua_State</link> *L, int what,...)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1a6ba7b91143fe8a03910420d800de8e97">lua_error</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lapi_8c_1aa8bf464b98335a075732200ad91ce1de">lua_next</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1a5101545bcd4222abe101836b7931bdf9">lua_toclose</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1a1de3afee1daece63d455f23818c883d9">lua_concat</link> (<link linkend="_structlua___state">lua_State</link> *L, int n)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1a28bdc8c01771ec2524b329a409a08040">lua_len</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_lua_8h_1a2fee348bffcc82b15c626b27f66a748b">lua_Alloc</link> <link linkend="_lapi_8c_1a3dbff8747b32b799cf63603c46da06cc">lua_getallocf</link> (<link linkend="_structlua___state">lua_State</link> *L, void **ud)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1ac890276f9590df6a4d6aabdad9c558f0">lua_setallocf</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lua_8h_1a2fee348bffcc82b15c626b27f66a748b">lua_Alloc</link> f, void *ud)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lapi_8c_1a708d3ea569d1e7174f06281ecba5a091">lua_setwarnf</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lua_8h_1a01be53d7e053b2703a9a0ee91aff4974">lua_WarnFunction</link> f, void *ud)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lapi_8c_1a383441029934d459d9b7cd89d3c851e8">lua_warning</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *msg, int tocont)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void * <link linkend="_lapi_8c_1a9c09a58b86c71e997d7ccabb67f18c12">lua_newuserdatauv</link> (<link linkend="_structlua___state">lua_State</link> *L, size_t size, int nuvalue)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lapi_8c_1aa300a4cd32bcefdee8e1457e0e4fbacb">aux_upvalue</link> (<link linkend="_struct_t_value">TValue</link> *fi, int n, <link linkend="_struct_t_value">TValue</link> **val, <link linkend="_struct_g_c_object">GCObject</link> **owner)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char * <link linkend="_lapi_8c_1afd5e7d6995dc52a5cb9e370ee3a710e6">lua_getupvalue</link> (<link linkend="_structlua___state">lua_State</link> *L, int funcindex, int n)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char * <link linkend="_lapi_8c_1a6e2e5717e848fca56335a64739a8f2c0">lua_setupvalue</link> (<link linkend="_structlua___state">lua_State</link> *L, int funcindex, int n)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_up_val">UpVal</link> ** <link linkend="_lapi_8c_1afe9a3b06ff27bba372b28ad108c9c3e8">getupvalref</link> (<link linkend="_structlua___state">lua_State</link> *L, int fidx, int n, <link linkend="_struct_l_closure">LClosure</link> **pf)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void * <link linkend="_lapi_8c_1af20e3a68caf3e24d35318baf952c5567">lua_upvalueid</link> (<link linkend="_structlua___state">lua_State</link> *L, int fidx, int n)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lapi_8c_1a9ce27da3bd8232ac4a0d383e924a0c7a">lua_upvaluejoin</link> (<link linkend="_structlua___state">lua_State</link> *L, int fidx1, int n1, int fidx2, int n2)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>变量    </title>
+        <itemizedlist>
+            <listitem><para>const char <link linkend="_lapi_8c_1acbf4dc2e5f80547c7f54f41a179258b2">lua_ident</link> []</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lapi_8c_1a6b76ec051caca9db7e44638873044e98"/>    <section>
+    <title>checkresults</title>
+<indexterm><primary>checkresults</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>checkresults</secondary></indexterm>
+<para><computeroutput>#define checkresults( L,  na,  nr)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1ad7a42e1cc11f94e1f06ed80814fcb606">api_check</link>(L,&#32;(nr)&#32;==&#32;<link linkend="_lua_8h_1ace3545adc11664c2f2b152fbe8b6283c">LUA_MULTRET</link>&#32;||&#32;(L-&gt;ci-&gt;top&#32;-&#32;L-&gt;top&#32;&gt;=&#32;(nr)&#32;-&#32;(na)),&#32;\
+&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;results&#32;from&#32;function&#32;overflow&#32;current&#32;stack&#32;size&quot;</emphasis>)
+</programlisting><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00966">966</link> 行定义.</para>
+    </section><anchor xml:id="_lapi_8c_1a23aaf36182310f7e0108a065732710a2"/>    <section>
+    <title>ispseudo</title>
+<indexterm><primary>ispseudo</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>ispseudo</secondary></indexterm>
+<para><computeroutput>#define ispseudo( i)   ((i) &lt;= <link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00050">50</link> 行定义.</para>
+    </section><anchor xml:id="_lapi_8c_1aa8693ff1ffbbabc73472cd938dbd8086"/>    <section>
+    <title>isupvalue</title>
+<indexterm><primary>isupvalue</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>isupvalue</secondary></indexterm>
+<para><computeroutput>#define isupvalue( i)   ((i) &lt; <link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00053">53</link> 行定义.</para>
+    </section><anchor xml:id="_lapi_8c_1aa414c9c792a81e37b5380c323b107194"/>    <section>
+    <title>isvalid</title>
+<indexterm><primary>isvalid</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>isvalid</secondary></indexterm>
+<para><computeroutput>#define isvalid( L,  o)   (!<link linkend="_lobject_8h_1a39af019fafa202841da3bf7c427bf090">ttisnil</link>(o) || o != &amp;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L)-&gt;nilvalue)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00046">46</link> 行定义.</para>
+    </section><anchor xml:id="_lapi_8c_1a6f4862161259fd87002d41735b0ccfa8"/>    <section>
+    <title>lapi_c</title>
+<indexterm><primary>lapi_c</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lapi_c</secondary></indexterm>
+<para><computeroutput>#define lapi_c</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_lapi_8c_1abf0b3947b59218777a8e928a10be205b"/>    <section>
+    <title>LUA_CORE</title>
+<indexterm><primary>LUA_CORE</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>LUA_CORE</secondary></indexterm>
+<para><computeroutput>#define LUA_CORE</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00008">8</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lapi_8c_1af95fcf06d620f6a244caf0097e610a07"/>    <section>
+    <title>aux_rawset()</title>
+<indexterm><primary>aux_rawset</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>aux_rawset</secondary></indexterm>
+<para><computeroutput>static void aux_rawset (<link linkend="_structlua___state">lua_State</link> * L, int idx, <link linkend="_struct_t_value">TValue</link> * key, int n)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00862">862</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_af95fcf06d620f6a244caf0097e610a07_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_af95fcf06d620f6a244caf0097e610a07_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1aa300a4cd32bcefdee8e1457e0e4fbacb"/>    <section>
+    <title>aux_upvalue()</title>
+<indexterm><primary>aux_upvalue</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>aux_upvalue</secondary></indexterm>
+<para><computeroutput>static const char* aux_upvalue (<link linkend="_struct_t_value">TValue</link> * fi, int n, <link linkend="_struct_t_value">TValue</link> ** val, <link linkend="_struct_g_c_object">GCObject</link> ** owner)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01325">1325</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_aa300a4cd32bcefdee8e1457e0e4fbacb_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a1b28b3a312121ffb29541632648b9f78"/>    <section>
+    <title>auxgetstr()</title>
+<indexterm><primary>auxgetstr</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>auxgetstr</secondary></indexterm>
+<para><computeroutput>static int auxgetstr (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_struct_t_value">TValue</link> * t, const char * k)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00615">615</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a1b28b3a312121ffb29541632648b9f78_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a1b28b3a312121ffb29541632648b9f78_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a0667fbf88666853554967226d9a3df4d"/>    <section>
+    <title>auxsetstr()</title>
+<indexterm><primary>auxsetstr</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>auxsetstr</secondary></indexterm>
+<para><computeroutput>static void auxsetstr (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_struct_t_value">TValue</link> * t, const char * k)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00795">795</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a0667fbf88666853554967226d9a3df4d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a0667fbf88666853554967226d9a3df4d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1ac3926c93fb08234f9f47e24653124910"/>    <section>
+    <title>f_call()</title>
+<indexterm><primary>f_call</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>f_call</secondary></indexterm>
+<para><computeroutput>static void f_call (<link linkend="_structlua___state">lua_State</link> * L, void * ud)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01003">1003</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_ac3926c93fb08234f9f47e24653124910_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_ac3926c93fb08234f9f47e24653124910_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a33830676158a2e9fde44f07109035425"/>    <section>
+    <title>finishrawget()</title>
+<indexterm><primary>finishrawget</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>finishrawget</secondary></indexterm>
+<para><computeroutput>static int finishrawget (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_struct_t_value">TValue</link> * val)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00680">680</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a33830676158a2e9fde44f07109035425_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a4ebfbcdc1a7a4f0332d4dd532a817212"/>    <section>
+    <title>gettable()</title>
+<indexterm><primary>gettable</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>gettable</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_table">Table</link>* gettable (<link linkend="_structlua___state">lua_State</link> * L, int idx)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00691">691</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a4ebfbcdc1a7a4f0332d4dd532a817212_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a4ebfbcdc1a7a4f0332d4dd532a817212_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1afe9a3b06ff27bba372b28ad108c9c3e8"/>    <section>
+    <title>getupvalref()</title>
+<indexterm><primary>getupvalref</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>getupvalref</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_up_val">UpVal</link>** getupvalref (<link linkend="_structlua___state">lua_State</link> * L, int fidx, int n, <link linkend="_struct_l_closure">LClosure</link> ** pf)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01385">1385</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_afe9a3b06ff27bba372b28ad108c9c3e8_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_afe9a3b06ff27bba372b28ad108c9c3e8_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a7acfd65878b2f2c7529c788ce08d1949"/>    <section>
+    <title>index2stack()</title>
+<indexterm><primary>index2stack</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>index2stack</secondary></indexterm>
+<para><computeroutput>static <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> index2stack (<link linkend="_structlua___state">lua_State</link> * L, int idx)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00083">83</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a7acfd65878b2f2c7529c788ce08d1949_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a7c66797ff8396fc9258bb9fc08e959d8"/>    <section>
+    <title>index2value()</title>
+<indexterm><primary>index2value</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>index2value</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_t_value">TValue</link>* index2value (<link linkend="_structlua___state">lua_State</link> * L, int idx)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00056">56</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a7c66797ff8396fc9258bb9fc08e959d8_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a32821b04960f1c1223132349d04911c1"/>    <section>
+    <title>lua_absindex()</title>
+<indexterm><primary>lua_absindex</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_absindex</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_absindex (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00161">161</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a32821b04960f1c1223132349d04911c1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a08501a34884feca01759dec174d69c88"/>    <section>
+    <title>lua_arith()</title>
+<indexterm><primary>lua_arith</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_arith</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_arith (<link linkend="_structlua___state">lua_State</link> * L, int op)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00311">311</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a08501a34884feca01759dec174d69c88_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a08501a34884feca01759dec174d69c88_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a90bf785da77985164dbe2eb0d64bf82e"/>    <section>
+    <title>lua_atpanic()</title>
+<indexterm><primary>lua_atpanic</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_atpanic</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link> lua_atpanic (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link> panicf)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00136">136</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a90bf785da77985164dbe2eb0d64bf82e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1ac5fef99e413a94e396b70b8263704ad3"/>    <section>
+    <title>lua_callk()</title>
+<indexterm><primary>lua_callk</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_callk</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_callk (<link linkend="_structlua___state">lua_State</link> * L, int nargs, int nresults, <link linkend="_lua_8h_1a0c565e13b66764da08aa2c68fe4365f0">lua_KContext</link> ctx, <link linkend="_lua_8h_1a4bfd58d9192edfdcb7238de00bd0202c">lua_KFunction</link> k)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00971">971</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_ac5fef99e413a94e396b70b8263704ad3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_ac5fef99e413a94e396b70b8263704ad3_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a1d762b92d5d82d6fa9f54ccf5c89d6a2"/>    <section>
+    <title>lua_checkstack()</title>
+<indexterm><primary>lua_checkstack</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_checkstack</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_checkstack (<link linkend="_structlua___state">lua_State</link> * L, int n)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00098">98</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a1d762b92d5d82d6fa9f54ccf5c89d6a2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a1d762b92d5d82d6fa9f54ccf5c89d6a2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a5fbae51f515549d4657d0efc676defee"/>    <section>
+    <title>lua_compare()</title>
+<indexterm><primary>lua_compare</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_compare</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_compare (<link linkend="_structlua___state">lua_State</link> * L, int index1, int index2, int op)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00327">327</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a5fbae51f515549d4657d0efc676defee_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a5fbae51f515549d4657d0efc676defee_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a1de3afee1daece63d455f23818c883d9"/>    <section>
+    <title>lua_concat()</title>
+<indexterm><primary>lua_concat</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_concat</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_concat (<link linkend="_structlua___state">lua_State</link> * L, int n)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01253">1253</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a1de3afee1daece63d455f23818c883d9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a1de3afee1daece63d455f23818c883d9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a111bd3fa34fe656f415edae5e343e13e"/>    <section>
+    <title>lua_copy()</title>
+<indexterm><primary>lua_copy</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_copy</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_copy (<link linkend="_structlua___state">lua_State</link> * L, int fromidx, int toidx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00231">231</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a111bd3fa34fe656f415edae5e343e13e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a111bd3fa34fe656f415edae5e343e13e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a7f93e3baf3101cad59ec61b7744a55d8"/>    <section>
+    <title>lua_createtable()</title>
+<indexterm><primary>lua_createtable</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_createtable</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_createtable (<link linkend="_structlua___state">lua_State</link> * L, int narray, int nrec)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00728">728</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a7f93e3baf3101cad59ec61b7744a55d8_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a7f93e3baf3101cad59ec61b7744a55d8_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a68295f56f04fd0d5c0adfb1793a04b4c"/>    <section>
+    <title>lua_dump()</title>
+<indexterm><primary>lua_dump</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_dump</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_dump (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lua_8h_1a855729196d7066b2da21178284868a8d">lua_Writer</link> writer, void * data, int strip)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01078">1078</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a68295f56f04fd0d5c0adfb1793a04b4c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a68295f56f04fd0d5c0adfb1793a04b4c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a6ba7b91143fe8a03910420d800de8e97"/>    <section>
+    <title>lua_error()</title>
+<indexterm><primary>lua_error</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_error</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_error (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01205">1205</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a6ba7b91143fe8a03910420d800de8e97_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a6ba7b91143fe8a03910420d800de8e97_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1aa93573057f708d826613186a9d40c87d"/>    <section>
+    <title>lua_gc()</title>
+<indexterm><primary>lua_gc</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_gc</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_gc (<link linkend="_structlua___state">lua_State</link> * L, int what,  ...)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01101">1101</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_aa93573057f708d826613186a9d40c87d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_aa93573057f708d826613186a9d40c87d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a3dbff8747b32b799cf63603c46da06cc"/>    <section>
+    <title>lua_getallocf()</title>
+<indexterm><primary>lua_getallocf</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_getallocf</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_lua_8h_1a2fee348bffcc82b15c626b27f66a748b">lua_Alloc</link> lua_getallocf (<link linkend="_structlua___state">lua_State</link> * L, void ** ud)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01277">1277</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a3dbff8747b32b799cf63603c46da06cc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24"/>    <section>
+    <title>lua_getfield()</title>
+<indexterm><primary>lua_getfield</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_getfield</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_getfield (<link linkend="_structlua___state">lua_State</link> * L, int idx, const char * k)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00655">655</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a8b47f1b5685c3f8018ba926abb99af24_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a8b47f1b5685c3f8018ba926abb99af24_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a8185a9c46d5930205f95beee4991e9f0"/>    <section>
+    <title>lua_getglobal()</title>
+<indexterm><primary>lua_getglobal</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_getglobal</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_getglobal (<link linkend="_structlua___state">lua_State</link> * L, const char * name)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00632">632</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a8185a9c46d5930205f95beee4991e9f0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a8185a9c46d5930205f95beee4991e9f0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a631ebda324b6a0f382ab6b9314917384"/>    <section>
+    <title>lua_geti()</title>
+<indexterm><primary>lua_geti</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_geti</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_geti (<link linkend="_structlua___state">lua_State</link> * L, int idx, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> n)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00661">661</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a631ebda324b6a0f382ab6b9314917384_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a631ebda324b6a0f382ab6b9314917384_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a57c21a629f94ee0acc21a25d83bfaeba"/>    <section>
+    <title>lua_getiuservalue()</title>
+<indexterm><primary>lua_getiuservalue</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_getiuservalue</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_getiuservalue (<link linkend="_structlua___state">lua_State</link> * L, int idx, int n)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00768">768</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a57c21a629f94ee0acc21a25d83bfaeba_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a57c21a629f94ee0acc21a25d83bfaeba_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a4caa9ca5e47a30bd45e33d83bf2d6d6e"/>    <section>
+    <title>lua_getmetatable()</title>
+<indexterm><primary>lua_getmetatable</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_getmetatable</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_getmetatable (<link linkend="_structlua___state">lua_State</link> * L, int objindex)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00741">741</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a4caa9ca5e47a30bd45e33d83bf2d6d6e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a4caa9ca5e47a30bd45e33d83bf2d6d6e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1aa572dbc6e86f796a3e82ffcae4478aeb"/>    <section>
+    <title>lua_gettable()</title>
+<indexterm><primary>lua_gettable</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_gettable</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_gettable (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00640">640</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_aa572dbc6e86f796a3e82ffcae4478aeb_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_aa572dbc6e86f796a3e82ffcae4478aeb_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1afbb08ecb69421875494105d4de68e5bf"/>    <section>
+    <title>lua_gettop()</title>
+<indexterm><primary>lua_gettop</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_gettop</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_gettop (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00168">168</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_afbb08ecb69421875494105d4de68e5bf_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1afd5e7d6995dc52a5cb9e370ee3a710e6"/>    <section>
+    <title>lua_getupvalue()</title>
+<indexterm><primary>lua_getupvalue</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_getupvalue</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char* lua_getupvalue (<link linkend="_structlua___state">lua_State</link> * L, int funcindex, int n)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01352">1352</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_afd5e7d6995dc52a5cb9e370ee3a710e6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_afd5e7d6995dc52a5cb9e370ee3a710e6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a3b922032c9fe2930399186a3647cc3ad"/>    <section>
+    <title>lua_iscfunction()</title>
+<indexterm><primary>lua_iscfunction</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_iscfunction</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_iscfunction (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00273">273</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a3b922032c9fe2930399186a3647cc3ad_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a3b922032c9fe2930399186a3647cc3ad_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1aba53e83eb1fff94b5ed96203bb52d8ae"/>    <section>
+    <title>lua_isinteger()</title>
+<indexterm><primary>lua_isinteger</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_isinteger</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_isinteger (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00279">279</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_aba53e83eb1fff94b5ed96203bb52d8ae_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_aba53e83eb1fff94b5ed96203bb52d8ae_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a99451f234bf085c9c46c3d17a5aef905"/>    <section>
+    <title>lua_isnumber()</title>
+<indexterm><primary>lua_isnumber</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_isnumber</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_isnumber (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00285">285</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a99451f234bf085c9c46c3d17a5aef905_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a99451f234bf085c9c46c3d17a5aef905_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a9f20233199a414b04c1c4b43f5d040f3"/>    <section>
+    <title>lua_isstring()</title>
+<indexterm><primary>lua_isstring</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_isstring</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_isstring (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00292">292</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a9f20233199a414b04c1c4b43f5d040f3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a9f20233199a414b04c1c4b43f5d040f3_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1aa8a1dab86cfb4e0f9a4d1f699af0041b"/>    <section>
+    <title>lua_isuserdata()</title>
+<indexterm><primary>lua_isuserdata</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_isuserdata</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_isuserdata (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00298">298</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_aa8a1dab86cfb4e0f9a4d1f699af0041b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a28bdc8c01771ec2524b329a409a08040"/>    <section>
+    <title>lua_len()</title>
+<indexterm><primary>lua_len</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_len</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_len (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01267">1267</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a28bdc8c01771ec2524b329a409a08040_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a28bdc8c01771ec2524b329a409a08040_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1aa7a94c45f3eec251e5b258d7482ffe87"/>    <section>
+    <title>lua_load()</title>
+<indexterm><primary>lua_load</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_load</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_load (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lua_8h_1a4081d57135fee907807ba5070d528fdf">lua_Reader</link> reader, void * data, const char * chunkname, const char * mode)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01054">1054</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_aa7a94c45f3eec251e5b258d7482ffe87_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_aa7a94c45f3eec251e5b258d7482ffe87_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a9c09a58b86c71e997d7ccabb67f18c12"/>    <section>
+    <title>lua_newuserdatauv()</title>
+<indexterm><primary>lua_newuserdatauv</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_newuserdatauv</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void* lua_newuserdatauv (<link linkend="_structlua___state">lua_State</link> * L, size_t size, int nuvalue)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01311">1311</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a9c09a58b86c71e997d7ccabb67f18c12_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a9c09a58b86c71e997d7ccabb67f18c12_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1aa8bf464b98335a075732200ad91ce1de"/>    <section>
+    <title>lua_next()</title>
+<indexterm><primary>lua_next</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_next</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_next (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01220">1220</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_aa8bf464b98335a075732200ad91ce1de_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_aa8bf464b98335a075732200ad91ce1de_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a624df4cb2312b762c4fb528ecc889385"/>    <section>
+    <title>lua_pcallk()</title>
+<indexterm><primary>lua_pcallk</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_pcallk</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_pcallk (<link linkend="_structlua___state">lua_State</link> * L, int nargs, int nresults, int errfunc, <link linkend="_lua_8h_1a0c565e13b66764da08aa2c68fe4365f0">lua_KContext</link> ctx, <link linkend="_lua_8h_1a4bfd58d9192edfdcb7238de00bd0202c">lua_KFunction</link> k)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01010">1010</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a624df4cb2312b762c4fb528ecc889385_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a624df4cb2312b762c4fb528ecc889385_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a56bbb7479265e38da2e2596e6ec25faa"/>    <section>
+    <title>lua_pushboolean()</title>
+<indexterm><primary>lua_pushboolean</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_pushboolean</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_pushboolean (<link linkend="_structlua___state">lua_State</link> * L, int b)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00581">581</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a56bbb7479265e38da2e2596e6ec25faa_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a142802b91cdd22516b54599f51e101e4"/>    <section>
+    <title>lua_pushcclosure()</title>
+<indexterm><primary>lua_pushcclosure</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_pushcclosure</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_pushcclosure (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link> fn, int n)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00555">555</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a142802b91cdd22516b54599f51e101e4_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a142802b91cdd22516b54599f51e101e4_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1ab190c226d38b289e6ca57683a9d4e0f0"/>    <section>
+    <title>lua_pushfstring()</title>
+<indexterm><primary>lua_pushfstring</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_pushfstring</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char* lua_pushfstring (<link linkend="_structlua___state">lua_State</link> * L, const char * fmt,  ...)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00542">542</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_ab190c226d38b289e6ca57683a9d4e0f0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_ab190c226d38b289e6ca57683a9d4e0f0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1adcec46ff05dfee9a3c4c05828b40c213"/>    <section>
+    <title>lua_pushinteger()</title>
+<indexterm><primary>lua_pushinteger</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_pushinteger</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_pushinteger (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> n)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00489">489</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_adcec46ff05dfee9a3c4c05828b40c213_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a85e3e3d32b068aef62426828a104b561"/>    <section>
+    <title>lua_pushlightuserdata()</title>
+<indexterm><primary>lua_pushlightuserdata</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_pushlightuserdata</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_pushlightuserdata (<link linkend="_structlua___state">lua_State</link> * L, void * p)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00592">592</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a85e3e3d32b068aef62426828a104b561_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a2c325311534c23450cdf11931a8db0ae"/>    <section>
+    <title>lua_pushlstring()</title>
+<indexterm><primary>lua_pushlstring</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_pushlstring</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char* lua_pushlstring (<link linkend="_structlua___state">lua_State</link> * L, const char * s, size_t len)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00502">502</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a2c325311534c23450cdf11931a8db0ae_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a2c325311534c23450cdf11931a8db0ae_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a1b4cd0d80f51e5545a97ca6c28c03c50"/>    <section>
+    <title>lua_pushnil()</title>
+<indexterm><primary>lua_pushnil</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_pushnil</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_pushnil (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00473">473</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a1b4cd0d80f51e5545a97ca6c28c03c50_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a328625a03fbb5548f27b1af10f109f6a"/>    <section>
+    <title>lua_pushnumber()</title>
+<indexterm><primary>lua_pushnumber</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_pushnumber</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_pushnumber (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> n)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00481">481</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a328625a03fbb5548f27b1af10f109f6a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf"/>    <section>
+    <title>lua_pushstring()</title>
+<indexterm><primary>lua_pushstring</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_pushstring</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char* lua_pushstring (<link linkend="_structlua___state">lua_State</link> * L, const char * s)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00514">514</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a771d300f2e64b2197d1df9bf31660ebf_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a771d300f2e64b2197d1df9bf31660ebf_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a4175aeea9aa6dbf096ecfca7b190fa4a"/>    <section>
+    <title>lua_pushthread()</title>
+<indexterm><primary>lua_pushthread</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_pushthread</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_pushthread (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00600">600</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a4175aeea9aa6dbf096ecfca7b190fa4a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8"/>    <section>
+    <title>lua_pushvalue()</title>
+<indexterm><primary>lua_pushvalue</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_pushvalue</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_pushvalue (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00246">246</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a602f61a9b583d69dc1c72c8970bd65e8_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a602f61a9b583d69dc1c72c8970bd65e8_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a426c9cb1d582be3e43060c4772854e5a"/>    <section>
+    <title>lua_pushvfstring()</title>
+<indexterm><primary>lua_pushvfstring</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_pushvfstring</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char* lua_pushvfstring (<link linkend="_structlua___state">lua_State</link> * L, const char * fmt, va_list argp)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00531">531</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a426c9cb1d582be3e43060c4772854e5a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a426c9cb1d582be3e43060c4772854e5a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1ace66ea78ced7fda0b367f45d09d10d83"/>    <section>
+    <title>lua_rawequal()</title>
+<indexterm><primary>lua_rawequal</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_rawequal</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_rawequal (<link linkend="_structlua___state">lua_State</link> * L, int index1, int index2)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00304">304</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_ace66ea78ced7fda0b367f45d09d10d83_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_ace66ea78ced7fda0b367f45d09d10d83_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a52944e714d1c64bda7b83f511c14b2d3"/>    <section>
+    <title>lua_rawget()</title>
+<indexterm><primary>lua_rawget</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_rawget</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_rawget (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00698">698</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a52944e714d1c64bda7b83f511c14b2d3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a52944e714d1c64bda7b83f511c14b2d3_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1af8e4dc545cc83927d901d2f242489320"/>    <section>
+    <title>lua_rawgeti()</title>
+<indexterm><primary>lua_rawgeti</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_rawgeti</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_rawgeti (<link linkend="_structlua___state">lua_State</link> * L, int idx, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> n)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00710">710</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_af8e4dc545cc83927d901d2f242489320_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_af8e4dc545cc83927d901d2f242489320_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1acf10870c7165e0e440eb14827a52de93"/>    <section>
+    <title>lua_rawgetp()</title>
+<indexterm><primary>lua_rawgetp</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_rawgetp</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_rawgetp (<link linkend="_structlua___state">lua_State</link> * L, int idx, const void * p)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00718">718</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_acf10870c7165e0e440eb14827a52de93_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a161e2baf3d7a6a84499f6a9010cf12c8"/>    <section>
+    <title>lua_rawlen()</title>
+<indexterm><primary>lua_rawlen</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_rawlen</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> lua_rawlen (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00402">402</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a161e2baf3d7a6a84499f6a9010cf12c8_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a161e2baf3d7a6a84499f6a9010cf12c8_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1afb2d27f421677ef40425f9054ae216a7"/>    <section>
+    <title>lua_rawset()</title>
+<indexterm><primary>lua_rawset</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_rawset</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_rawset (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00877">877</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_afb2d27f421677ef40425f9054ae216a7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_afb2d27f421677ef40425f9054ae216a7_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a757fd16e7e09280e2d4e4f9f77ba1099"/>    <section>
+    <title>lua_rawseti()</title>
+<indexterm><primary>lua_rawseti</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_rawseti</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_rawseti (<link linkend="_structlua___state">lua_State</link> * L, int idx, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> n)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00889">889</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a757fd16e7e09280e2d4e4f9f77ba1099_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a757fd16e7e09280e2d4e4f9f77ba1099_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1aef5ff7d32a6e275fa0b8305f013bee9d"/>    <section>
+    <title>lua_rawsetp()</title>
+<indexterm><primary>lua_rawsetp</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_rawsetp</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_rawsetp (<link linkend="_structlua___state">lua_State</link> * L, int idx, const void * p)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00882">882</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_aef5ff7d32a6e275fa0b8305f013bee9d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1af680e24129c0e021b4fbb7700cf185dc"/>    <section>
+    <title>lua_rotate()</title>
+<indexterm><primary>lua_rotate</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_rotate</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_rotate (<link linkend="_structlua___state">lua_State</link> * L, int idx, int n)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00217">217</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_af680e24129c0e021b4fbb7700cf185dc_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_af680e24129c0e021b4fbb7700cf185dc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1ac890276f9590df6a4d6aabdad9c558f0"/>    <section>
+    <title>lua_setallocf()</title>
+<indexterm><primary>lua_setallocf</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_setallocf</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_setallocf (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lua_8h_1a2fee348bffcc82b15c626b27f66a748b">lua_Alloc</link> f, void * ud)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01287">1287</link> 行定义.</para>
+    </section><anchor xml:id="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df"/>    <section>
+    <title>lua_setfield()</title>
+<indexterm><primary>lua_setfield</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_setfield</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_setfield (<link linkend="_structlua___state">lua_State</link> * L, int idx, const char * k)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00837">837</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a3f2f542ee6728d82e51b1c302f9606df_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a3f2f542ee6728d82e51b1c302f9606df_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1aecf388efaede9d97581335998dfa243b"/>    <section>
+    <title>lua_setglobal()</title>
+<indexterm><primary>lua_setglobal</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_setglobal</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_setglobal (<link linkend="_structlua___state">lua_State</link> * L, const char * name)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00813">813</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_aecf388efaede9d97581335998dfa243b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_aecf388efaede9d97581335998dfa243b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a3f995c6cbc03d4cdebb2a6fc6fa11e59"/>    <section>
+    <title>lua_seti()</title>
+<indexterm><primary>lua_seti</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_seti</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_seti (<link linkend="_structlua___state">lua_State</link> * L, int idx, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> n)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00843">843</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a3f995c6cbc03d4cdebb2a6fc6fa11e59_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a3f995c6cbc03d4cdebb2a6fc6fa11e59_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a7383d0f43ccf69b414217a32d3947a49"/>    <section>
+    <title>lua_setiuservalue()</title>
+<indexterm><primary>lua_setiuservalue</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_setiuservalue</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_setiuservalue (<link linkend="_structlua___state">lua_State</link> * L, int idx, int n)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00941">941</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a7383d0f43ccf69b414217a32d3947a49_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a7383d0f43ccf69b414217a32d3947a49_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a15719ea4119bdf5b3f2a406534431a7e"/>    <section>
+    <title>lua_setmetatable()</title>
+<indexterm><primary>lua_setmetatable</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_setmetatable</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_setmetatable (<link linkend="_structlua___state">lua_State</link> * L, int objindex)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00901">901</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a15719ea4119bdf5b3f2a406534431a7e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a15719ea4119bdf5b3f2a406534431a7e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a4ca492cf3d2194aec9a6292708bf66c8"/>    <section>
+    <title>lua_settable()</title>
+<indexterm><primary>lua_settable</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_settable</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_settable (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00821">821</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a4ca492cf3d2194aec9a6292708bf66c8_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1adaa30f0d34786144c94644039d1d1b6e"/>    <section>
+    <title>lua_settop()</title>
+<indexterm><primary>lua_settop</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_settop</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_settop (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00173">173</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_adaa30f0d34786144c94644039d1d1b6e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_adaa30f0d34786144c94644039d1d1b6e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a6e2e5717e848fca56335a64739a8f2c0"/>    <section>
+    <title>lua_setupvalue()</title>
+<indexterm><primary>lua_setupvalue</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_setupvalue</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char* lua_setupvalue (<link linkend="_structlua___state">lua_State</link> * L, int funcindex, int n)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01366">1366</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a6e2e5717e848fca56335a64739a8f2c0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a6e2e5717e848fca56335a64739a8f2c0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a708d3ea569d1e7174f06281ecba5a091"/>    <section>
+    <title>lua_setwarnf()</title>
+<indexterm><primary>lua_setwarnf</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_setwarnf</secondary></indexterm>
+<para><computeroutput>void lua_setwarnf (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lua_8h_1a01be53d7e053b2703a9a0ee91aff4974">lua_WarnFunction</link> f, void * ud)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01295">1295</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a708d3ea569d1e7174f06281ecba5a091_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1aadea4b6f60174a1334ebde560968a615"/>    <section>
+    <title>lua_status()</title>
+<indexterm><primary>lua_status</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_status</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_status (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01093">1093</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_aadea4b6f60174a1334ebde560968a615_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1ab9c2fb9e2b2c7dad7474dd4b6f1bbcd0"/>    <section>
+    <title>lua_stringtonumber()</title>
+<indexterm><primary>lua_stringtonumber</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_stringtonumber</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> size_t lua_stringtonumber (<link linkend="_structlua___state">lua_State</link> * L, const char * s)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00347">347</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_ab9c2fb9e2b2c7dad7474dd4b6f1bbcd0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_ab9c2fb9e2b2c7dad7474dd4b6f1bbcd0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a444aee9aa56b0b06175ee3c7bcf7927c"/>    <section>
+    <title>lua_toboolean()</title>
+<indexterm><primary>lua_toboolean</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_toboolean</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_toboolean (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00375">375</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a444aee9aa56b0b06175ee3c7bcf7927c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a444aee9aa56b0b06175ee3c7bcf7927c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1ae790897a3311d599299895612986d850"/>    <section>
+    <title>lua_tocfunction()</title>
+<indexterm><primary>lua_tocfunction</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_tocfunction</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link> lua_tocfunction (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00414">414</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_ae790897a3311d599299895612986d850_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a5101545bcd4222abe101836b7931bdf9"/>    <section>
+    <title>lua_toclose()</title>
+<indexterm><primary>lua_toclose</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_toclose</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_toclose (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01237">1237</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a5101545bcd4222abe101836b7931bdf9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a5101545bcd4222abe101836b7931bdf9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1af81c9a68425546e1f8c6354728c95170"/>    <section>
+    <title>lua_tointegerx()</title>
+<indexterm><primary>lua_tointegerx</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_tointegerx</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> lua_tointegerx (<link linkend="_structlua___state">lua_State</link> * L, int idx, int * pisnum)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00365">365</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_af81c9a68425546e1f8c6354728c95170_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_af81c9a68425546e1f8c6354728c95170_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a3fc7dbcac3f2610f3d687ec15343bd3f"/>    <section>
+    <title>lua_tolstring()</title>
+<indexterm><primary>lua_tolstring</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_tolstring</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char* lua_tolstring (<link linkend="_structlua___state">lua_State</link> * L, int idx, size_t * len)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00381">381</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a3fc7dbcac3f2610f3d687ec15343bd3f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a3fc7dbcac3f2610f3d687ec15343bd3f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a375da41304604b0cba0b8c798499e673"/>    <section>
+    <title>lua_tonumberx()</title>
+<indexterm><primary>lua_tonumberx</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_tonumberx</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> lua_tonumberx (<link linkend="_structlua___state">lua_State</link> * L, int idx, int * pisnum)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00355">355</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a375da41304604b0cba0b8c798499e673_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a375da41304604b0cba0b8c798499e673_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a5b533fe96cb52b5415896d41daad374a"/>    <section>
+    <title>lua_topointer()</title>
+<indexterm><primary>lua_topointer</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_topointer</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const void* lua_topointer (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00451">451</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a5b533fe96cb52b5415896d41daad374a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a5b533fe96cb52b5415896d41daad374a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1ad1dcea410edb5c5595fc070f8bf2e9a0"/>    <section>
+    <title>lua_tothread()</title>
+<indexterm><primary>lua_tothread</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_tothread</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_structlua___state">lua_State</link>* lua_tothread (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00438">438</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_ad1dcea410edb5c5595fc070f8bf2e9a0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_ad1dcea410edb5c5595fc070f8bf2e9a0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a0444ddf13e5618bca969e4b3b47bc0cc"/>    <section>
+    <title>lua_touserdata()</title>
+<indexterm><primary>lua_touserdata</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_touserdata</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void* lua_touserdata (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00432">432</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a0444ddf13e5618bca969e4b3b47bc0cc_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a0444ddf13e5618bca969e4b3b47bc0cc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a652b273947f0656686f998d8e90cd3ea"/>    <section>
+    <title>lua_type()</title>
+<indexterm><primary>lua_type</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_type</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_type (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00260">260</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a652b273947f0656686f998d8e90cd3ea_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a652b273947f0656686f998d8e90cd3ea_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a7d64f87addab440bbda96bb088816e17"/>    <section>
+    <title>lua_typename()</title>
+<indexterm><primary>lua_typename</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_typename</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char* lua_typename (<link linkend="_structlua___state">lua_State</link> * L, int t)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00266">266</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a7d64f87addab440bbda96bb088816e17_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1af20e3a68caf3e24d35318baf952c5567"/>    <section>
+    <title>lua_upvalueid()</title>
+<indexterm><primary>lua_upvalueid</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_upvalueid</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void* lua_upvalueid (<link linkend="_structlua___state">lua_State</link> * L, int fidx, int n)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01396">1396</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_af20e3a68caf3e24d35318baf952c5567_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_af20e3a68caf3e24d35318baf952c5567_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a9ce27da3bd8232ac4a0d383e924a0c7a"/>    <section>
+    <title>lua_upvaluejoin()</title>
+<indexterm><primary>lua_upvaluejoin</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_upvaluejoin</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_upvaluejoin (<link linkend="_structlua___state">lua_State</link> * L, int fidx1, int n1, int fidx2, int n2)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01415">1415</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a9ce27da3bd8232ac4a0d383e924a0c7a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a9ce27da3bd8232ac4a0d383e924a0c7a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a173602b148e6a610676e866fb7874ff1"/>    <section>
+    <title>lua_version()</title>
+<indexterm><primary>lua_version</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_version</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> lua_version (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00146">146</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a173602b148e6a610676e866fb7874ff1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a383441029934d459d9b7cd89d3c851e8"/>    <section>
+    <title>lua_warning()</title>
+<indexterm><primary>lua_warning</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_warning</secondary></indexterm>
+<para><computeroutput>void lua_warning (<link linkend="_structlua___state">lua_State</link> * L, const char * msg, int tocont)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l01303">1303</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a383441029934d459d9b7cd89d3c851e8_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a383441029934d459d9b7cd89d3c851e8_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1ae27bb8d0218710bbbfefc1f573839d6d"/>    <section>
+    <title>lua_xmove()</title>
+<indexterm><primary>lua_xmove</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_xmove</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_xmove (<link linkend="_structlua___state">lua_State</link> * from, <link linkend="_structlua___state">lua_State</link> * to, int n)</computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00120">120</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_ae27bb8d0218710bbbfefc1f573839d6d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1a2c07d0a193ad3ae19b4682ed92973c70"/>    <section>
+    <title>reverse()</title>
+<indexterm><primary>reverse</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>reverse</secondary></indexterm>
+<para><computeroutput>static void reverse (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> from, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> to)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00203">203</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_a2c07d0a193ad3ae19b4682ed92973c70_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lapi_8c_1ae98ecd8a638f53798949d5966c0cbed4"/>    <section>
+    <title>touserdata()</title>
+<indexterm><primary>touserdata</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>touserdata</secondary></indexterm>
+<para><computeroutput>static void* touserdata (const <link linkend="_struct_t_value">TValue</link> * o)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00423">423</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lapi_8c_ae98ecd8a638f53798949d5966c0cbed4_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+<section>
+<title>变量说明</title>
+<anchor xml:id="_lapi_8c_1acbf4dc2e5f80547c7f54f41a179258b2"/>    <section>
+    <title>lua_ident</title>
+<indexterm><primary>lua_ident</primary><secondary>lapi.c</secondary></indexterm>
+<indexterm><primary>lapi.c</primary><secondary>lua_ident</secondary></indexterm>
+<para><computeroutput>const char lua_ident[]</computeroutput></para><emphasis role="strong">初始值:</emphasis><programlisting>=
+&#32;&#32;<emphasis role="stringliteral">&quot;$LuaVersion:&#32;&quot;</emphasis>&#32;<link linkend="_lua_8h_1a5126fa04dbeee0b9118c769beadcd62d">LUA_COPYRIGHT</link>&#32;<emphasis role="stringliteral">&quot;&#32;$&quot;</emphasis>
+&#32;&#32;<emphasis role="stringliteral">&quot;$LuaAuthors:&#32;&quot;</emphasis>&#32;<link linkend="_lua_8h_1ab6ff0964a416a9a7c1e90337c965f102">LUA_AUTHORS</link>&#32;<emphasis role="stringliteral">&quot;&#32;$&quot;</emphasis>
+</programlisting><para>
+在文件 <link linkend="_lapi_8c_source">lapi.c</link> 第 <link linkend="_lapi_8c_source_1l00035">35</link> 行定义.</para>
+</section>
+</section>
+</section>

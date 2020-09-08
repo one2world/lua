@@ -1,0 +1,298 @@
+.TH "D:/gitworkspace/lua/src/ldblib.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/ldblib.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lauxlib\&.h'\fP
+.br
+\fC#include 'lualib\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBldblib_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_LIB\fP"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static void \fBcheckstack\fP (\fBlua_State\fP *L, \fBlua_State\fP *L1, int n)"
+.br
+.ti -1c
+.RI "static int \fBdb_getregistry\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBdb_getmetatable\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBdb_setmetatable\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBdb_getuservalue\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBdb_setuservalue\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static \fBlua_State\fP * \fBgetthread\fP (\fBlua_State\fP *L, int *arg)"
+.br
+.ti -1c
+.RI "static void \fBsettabss\fP (\fBlua_State\fP *L, const char *k, const char *v)"
+.br
+.ti -1c
+.RI "static void \fBsettabsi\fP (\fBlua_State\fP *L, const char *k, int v)"
+.br
+.ti -1c
+.RI "static void \fBsettabsb\fP (\fBlua_State\fP *L, const char *k, int v)"
+.br
+.ti -1c
+.RI "static void \fBtreatstackoption\fP (\fBlua_State\fP *L, \fBlua_State\fP *L1, const char *fname)"
+.br
+.ti -1c
+.RI "static int \fBdb_getinfo\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBdb_getlocal\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBdb_setlocal\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBauxupvalue\fP (\fBlua_State\fP *L, int get)"
+.br
+.ti -1c
+.RI "static int \fBdb_getupvalue\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBdb_setupvalue\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBcheckupval\fP (\fBlua_State\fP *L, int argf, int argnup)"
+.br
+.ti -1c
+.RI "static int \fBdb_upvalueid\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBdb_upvaluejoin\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBhookf\fP (\fBlua_State\fP *L, \fBlua_Debug\fP *ar)"
+.br
+.ti -1c
+.RI "static int \fBmakemask\fP (const char *smask, int count)"
+.br
+.ti -1c
+.RI "static char * \fBunmakemask\fP (int mask, char *smask)"
+.br
+.ti -1c
+.RI "static int \fBdb_sethook\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBdb_gethook\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBdb_debug\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBdb_traceback\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBdb_setcstacklimit\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAMOD_API\fP int \fBluaopen_debug\fP (\fBlua_State\fP *L)"
+.br
+.in -1c
+.SS "变量"
+
+.in +1c
+.ti -1c
+.RI "static const char *const \fBHOOKKEY\fP = '_HOOKKEY'"
+.br
+.ti -1c
+.RI "static const \fBluaL_Reg\fP \fBdblib\fP []"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define ldblib_c"
+
+.PP
+在文件 ldblib\&.c 第 7 行定义\&.
+.SS "#define LUA_LIB"
+
+.PP
+在文件 ldblib\&.c 第 8 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static int auxupvalue (\fBlua_State\fP * L, int get)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 257 行定义\&.
+.SS "static void checkstack (\fBlua_State\fP * L, \fBlua_State\fP * L1, int n)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 35 行定义\&.
+.SS "static int checkupval (\fBlua_State\fP * L, int argf, int argnup)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 284 行定义\&.
+.SS "static int db_debug (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 411 行定义\&.
+.SS "static int db_gethook (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 386 行定义\&.
+.SS "static int db_getinfo (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 149 行定义\&.
+.SS "static int db_getlocal (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 202 行定义\&.
+.SS "static int db_getmetatable (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 47 行定义\&.
+.SS "static int db_getregistry (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 41 行定义\&.
+.SS "static int db_getupvalue (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 269 行定义\&.
+.SS "static int db_getuservalue (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 65 行定义\&.
+.SS "static int db_setcstacklimit (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 440 行定义\&.
+.SS "static int db_sethook (\fBlua_State\fP * L)\fC [static]\fP"
+hooktable\&.__mode = 'k'
+.PP
+在文件 ldblib\&.c 第 356 行定义\&.
+.SS "static int db_setlocal (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 233 行定义\&.
+.SS "static int db_setmetatable (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 56 行定义\&.
+.SS "static int db_setupvalue (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 274 行定义\&.
+.SS "static int db_setuservalue (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 77 行定义\&.
+.SS "static int db_traceback (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 426 行定义\&.
+.SS "static int db_upvalueid (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 293 行定义\&.
+.SS "static int db_upvaluejoin (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 300 行定义\&.
+.SS "static \fBlua_State\fP* getthread (\fBlua_State\fP * L, int * arg)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 94 行定义\&.
+.SS "static void hookf (\fBlua_State\fP * L, \fBlua_Debug\fP * ar)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 314 行定义\&.
+.SS "\fBLUAMOD_API\fP int luaopen_debug (\fBlua_State\fP * L)"
+
+.PP
+在文件 ldblib\&.c 第 473 行定义\&.
+.SS "static int makemask (const char * smask, int count)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 333 行定义\&.
+.SS "static void settabsb (\fBlua_State\fP * L, const char * k, int v)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 121 行定义\&.
+.SS "static void settabsi (\fBlua_State\fP * L, const char * k, int v)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 116 行定义\&.
+.SS "static void settabss (\fBlua_State\fP * L, const char * k, const char * v)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 111 行定义\&.
+.SS "static void treatstackoption (\fBlua_State\fP * L, \fBlua_State\fP * L1, const char * fname)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 134 行定义\&.
+.SS "static char* unmakemask (int mask, char * smask)\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 346 行定义\&.
+.SH "变量说明"
+.PP 
+.SS "const \fBluaL_Reg\fP dblib[]\fC [static]\fP"
+\fB初始值:\fP
+.PP
+.nf
+= {
+  {"debug", db_debug},
+  {"getuservalue", db_getuservalue},
+  {"gethook", db_gethook},
+  {"getinfo", db_getinfo},
+  {"getlocal", db_getlocal},
+  {"getregistry", db_getregistry},
+  {"getmetatable", db_getmetatable},
+  {"getupvalue", db_getupvalue},
+  {"upvaluejoin", db_upvaluejoin},
+  {"upvalueid", db_upvalueid},
+  {"setuservalue", db_setuservalue},
+  {"sethook", db_sethook},
+  {"setlocal", db_setlocal},
+  {"setmetatable", db_setmetatable},
+  {"setupvalue", db_setupvalue},
+  {"traceback", db_traceback},
+  {"setcstacklimit", db_setcstacklimit},
+  {NULL, NULL}
+}
+.fi
+.PP
+在文件 ldblib\&.c 第 451 行定义\&.
+.SS "const char* const HOOKKEY = '_HOOKKEY'\fC [static]\fP"
+
+.PP
+在文件 ldblib\&.c 第 27 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

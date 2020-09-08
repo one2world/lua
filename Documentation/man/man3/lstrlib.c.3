@@ -1,0 +1,867 @@
+.TH "D:/gitworkspace/lua/src/lstrlib.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lstrlib.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <ctype\&.h>\fP
+.br
+\fC#include <float\&.h>\fP
+.br
+\fC#include <limits\&.h>\fP
+.br
+\fC#include <locale\&.h>\fP
+.br
+\fC#include <math\&.h>\fP
+.br
+\fC#include <stddef\&.h>\fP
+.br
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lauxlib\&.h'\fP
+.br
+\fC#include 'lualib\&.h'\fP
+.br
+
+.SS "结构体"
+
+.in +1c
+.ti -1c
+.RI "struct \fBstr_Writer\fP"
+.br
+.ti -1c
+.RI "struct \fBMatchState\fP"
+.br
+.ti -1c
+.RI "struct \fBGMatchState\fP"
+.br
+.ti -1c
+.RI "struct \fBcD\fP"
+.br
+.ti -1c
+.RI "union \fBFtypes\fP"
+.br
+.ti -1c
+.RI "struct \fBHeader\fP"
+.br
+.in -1c
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBlstrlib_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_LIB\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_MAXCAPTURES\fP   32"
+.br
+.ti -1c
+.RI "#define \fBuchar\fP(c)   ((unsigned char)(c))"
+.br
+.ti -1c
+.RI "#define \fBMAX_SIZET\fP   ((size_t)(~(size_t)0))"
+.br
+.ti -1c
+.RI "#define \fBMAXSIZE\fP   	(sizeof(size_t) < sizeof(int) ? \fBMAX_SIZET\fP : (size_t)(INT_MAX))"
+.br
+.ti -1c
+.RI "#define \fBCAP_UNFINISHED\fP   (\-1)"
+.br
+.ti -1c
+.RI "#define \fBCAP_POSITION\fP   (\-2)"
+.br
+.ti -1c
+.RI "#define \fBMAXCCALLS\fP   200"
+.br
+.ti -1c
+.RI "#define \fBL_ESC\fP   '%'"
+.br
+.ti -1c
+.RI "#define \fBSPECIALS\fP   '^$*+?\&.([%\-'"
+.br
+.ti -1c
+.RI "#define \fBMAX_ITEMF\fP   (110 + \fBl_floatatt\fP(MAX_10_EXP))"
+.br
+.ti -1c
+.RI "#define \fBMAX_ITEM\fP   120"
+.br
+.ti -1c
+.RI "#define \fBL_FMTFLAGS\fP   '\-+ #0'"
+.br
+.ti -1c
+.RI "#define \fBMAX_FORMAT\fP   32"
+.br
+.ti -1c
+.RI "#define \fBLUAL_PACKPADBYTE\fP   0x00"
+.br
+.ti -1c
+.RI "#define \fBMAXINTSIZE\fP   16"
+.br
+.ti -1c
+.RI "#define \fBNB\fP   CHAR_BIT"
+.br
+.ti -1c
+.RI "#define \fBMC\fP   ((1 << \fBNB\fP) \- 1)"
+.br
+.ti -1c
+.RI "#define \fBSZINT\fP   ((int)sizeof(\fBlua_Integer\fP))"
+.br
+.ti -1c
+.RI "#define \fBMAXALIGN\fP   (offsetof(struct \fBcD\fP, u))"
+.br
+.in -1c
+.SS "类型定义"
+
+.in +1c
+.ti -1c
+.RI "typedef struct \fBMatchState\fP \fBMatchState\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBGMatchState\fP \fBGMatchState\fP"
+.br
+.ti -1c
+.RI "typedef union \fBFtypes\fP \fBFtypes\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBHeader\fP \fBHeader\fP"
+.br
+.ti -1c
+.RI "typedef enum \fBKOption\fP \fBKOption\fP"
+.br
+.in -1c
+.SS "枚举"
+
+.in +1c
+.ti -1c
+.RI "enum \fBKOption\fP { \fBKint\fP, \fBKuint\fP, \fBKfloat\fP, \fBKchar\fP, \fBKstring\fP, \fBKzstr\fP, \fBKpadding\fP, \fBKpaddalign\fP, \fBKnop\fP }"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static int \fBstr_len\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static size_t \fBposrelatI\fP (\fBlua_Integer\fP pos, size_t len)"
+.br
+.ti -1c
+.RI "static size_t \fBgetendpos\fP (\fBlua_State\fP *L, int arg, \fBlua_Integer\fP def, size_t len)"
+.br
+.ti -1c
+.RI "static int \fBstr_sub\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBstr_reverse\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBstr_lower\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBstr_upper\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBstr_rep\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBstr_byte\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBstr_char\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBwriter\fP (\fBlua_State\fP *L, const void *b, size_t size, void *ud)"
+.br
+.ti -1c
+.RI "static int \fBstr_dump\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBtonum\fP (\fBlua_State\fP *L, int arg)"
+.br
+.ti -1c
+.RI "static void \fBtrymt\fP (\fBlua_State\fP *L, const char *mtname)"
+.br
+.ti -1c
+.RI "static int \fBarith\fP (\fBlua_State\fP *L, int op, const char *mtname)"
+.br
+.ti -1c
+.RI "static int \fBarith_add\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBarith_sub\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBarith_mul\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBarith_mod\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBarith_pow\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBarith_div\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBarith_idiv\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBarith_unm\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static const char * \fBmatch\fP (\fBMatchState\fP *ms, const char *s, const char *p)"
+.br
+.ti -1c
+.RI "static int \fBcheck_capture\fP (\fBMatchState\fP *ms, int l)"
+.br
+.ti -1c
+.RI "static int \fBcapture_to_close\fP (\fBMatchState\fP *ms)"
+.br
+.ti -1c
+.RI "static const char * \fBclassend\fP (\fBMatchState\fP *ms, const char *p)"
+.br
+.ti -1c
+.RI "static int \fBmatch_class\fP (int c, int cl)"
+.br
+.ti -1c
+.RI "static int \fBmatchbracketclass\fP (int c, const char *p, const char *ec)"
+.br
+.ti -1c
+.RI "static int \fBsinglematch\fP (\fBMatchState\fP *ms, const char *s, const char *p, const char *ep)"
+.br
+.ti -1c
+.RI "static const char * \fBmatchbalance\fP (\fBMatchState\fP *ms, const char *s, const char *p)"
+.br
+.ti -1c
+.RI "static const char * \fBmax_expand\fP (\fBMatchState\fP *ms, const char *s, const char *p, const char *ep)"
+.br
+.ti -1c
+.RI "static const char * \fBmin_expand\fP (\fBMatchState\fP *ms, const char *s, const char *p, const char *ep)"
+.br
+.ti -1c
+.RI "static const char * \fBstart_capture\fP (\fBMatchState\fP *ms, const char *s, const char *p, int what)"
+.br
+.ti -1c
+.RI "static const char * \fBend_capture\fP (\fBMatchState\fP *ms, const char *s, const char *p)"
+.br
+.ti -1c
+.RI "static const char * \fBmatch_capture\fP (\fBMatchState\fP *ms, const char *s, int l)"
+.br
+.ti -1c
+.RI "static const char * \fBlmemfind\fP (const char *s1, size_t l1, const char *s2, size_t l2)"
+.br
+.ti -1c
+.RI "static size_t \fBget_onecapture\fP (\fBMatchState\fP *ms, int i, const char *s, const char *e, const char **cap)"
+.br
+.ti -1c
+.RI "static void \fBpush_onecapture\fP (\fBMatchState\fP *ms, int i, const char *s, const char *e)"
+.br
+.ti -1c
+.RI "static int \fBpush_captures\fP (\fBMatchState\fP *ms, const char *s, const char *e)"
+.br
+.ti -1c
+.RI "static int \fBnospecials\fP (const char *p, size_t l)"
+.br
+.ti -1c
+.RI "static void \fBprepstate\fP (\fBMatchState\fP *ms, \fBlua_State\fP *L, const char *s, size_t ls, const char *p, size_t lp)"
+.br
+.ti -1c
+.RI "static void \fBreprepstate\fP (\fBMatchState\fP *ms)"
+.br
+.ti -1c
+.RI "static int \fBstr_find_aux\fP (\fBlua_State\fP *L, int find)"
+.br
+.ti -1c
+.RI "static int \fBstr_find\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBstr_match\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBgmatch_aux\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBgmatch\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBadd_s\fP (\fBMatchState\fP *ms, \fBluaL_Buffer\fP *b, const char *s, const char *e)"
+.br
+.ti -1c
+.RI "static int \fBadd_value\fP (\fBMatchState\fP *ms, \fBluaL_Buffer\fP *b, const char *s, const char *e, int tr)"
+.br
+.ti -1c
+.RI "static int \fBstr_gsub\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBaddquoted\fP (\fBluaL_Buffer\fP *b, const char *s, size_t len)"
+.br
+.ti -1c
+.RI "static int \fBquotefloat\fP (\fBlua_State\fP *L, char *buff, \fBlua_Number\fP n)"
+.br
+.ti -1c
+.RI "static void \fBaddliteral\fP (\fBlua_State\fP *L, \fBluaL_Buffer\fP *b, int arg)"
+.br
+.ti -1c
+.RI "static const char * \fBscanformat\fP (\fBlua_State\fP *L, const char *strfrmt, char *form)"
+.br
+.ti -1c
+.RI "static void \fBaddlenmod\fP (char *form, const char *lenmod)"
+.br
+.ti -1c
+.RI "static int \fBstr_format\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBdigit\fP (int c)"
+.br
+.ti -1c
+.RI "static int \fBgetnum\fP (const char **fmt, int df)"
+.br
+.ti -1c
+.RI "static int \fBgetnumlimit\fP (\fBHeader\fP *h, const char **fmt, int df)"
+.br
+.ti -1c
+.RI "static void \fBinitheader\fP (\fBlua_State\fP *L, \fBHeader\fP *h)"
+.br
+.ti -1c
+.RI "static \fBKOption\fP \fBgetoption\fP (\fBHeader\fP *h, const char **fmt, int *size)"
+.br
+.ti -1c
+.RI "static \fBKOption\fP \fBgetdetails\fP (\fBHeader\fP *h, size_t totalsize, const char **fmt, int *psize, int *ntoalign)"
+.br
+.ti -1c
+.RI "static void \fBpackint\fP (\fBluaL_Buffer\fP *b, \fBlua_Unsigned\fP n, int islittle, int size, int neg)"
+.br
+.ti -1c
+.RI "static void \fBcopywithendian\fP (volatile char *dest, volatile const char *src, int size, int islittle)"
+.br
+.ti -1c
+.RI "static int \fBstr_pack\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBstr_packsize\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static \fBlua_Integer\fP \fBunpackint\fP (\fBlua_State\fP *L, const char *str, int islittle, int size, int issigned)"
+.br
+.ti -1c
+.RI "static int \fBstr_unpack\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBcreatemetatable\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAMOD_API\fP int \fBluaopen_string\fP (\fBlua_State\fP *L)"
+.br
+.in -1c
+.SS "变量"
+
+.in +1c
+.ti -1c
+.RI "static const \fBluaL_Reg\fP \fBstringmetamethods\fP []"
+.br
+.ti -1c
+.RI "union {"
+.br
+.ti -1c
+.RI "   \fBlu_byte\fP \fBleft\fP"
+.br
+.ti -1c
+.RI "   \fBlu_byte\fP \fBright\fP"
+.br
+.ti -1c
+.RI "   int \fBdummy\fP"
+.br
+.ti -1c
+.RI "   char \fBlittle\fP"
+.br
+.ti -1c
+.RI "} \fBnativeendian\fP = {1}"
+.br
+.ti -1c
+.RI "static const \fBluaL_Reg\fP \fBstrlib\fP []"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define CAP_POSITION   (\-2)"
+
+.PP
+在文件 lstrlib\&.c 第 353 行定义\&.
+.SS "#define CAP_UNFINISHED   (\-1)"
+
+.PP
+在文件 lstrlib\&.c 第 352 行定义\&.
+.SS "#define L_ESC   '%'"
+
+.PP
+在文件 lstrlib\&.c 第 380 行定义\&.
+.SS "#define L_FMTFLAGS   '\-+ #0'"
+
+.PP
+在文件 lstrlib\&.c 第 1091 行定义\&.
+.SS "#define lstrlib_c"
+
+.PP
+在文件 lstrlib\&.c 第 7 行定义\&.
+.SS "#define LUA_LIB"
+
+.PP
+在文件 lstrlib\&.c 第 8 行定义\&.
+.SS "#define LUA_MAXCAPTURES   32"
+
+.PP
+在文件 lstrlib\&.c 第 35 行定义\&.
+.SS "#define LUAL_PACKPADBYTE   0x00"
+
+.PP
+在文件 lstrlib\&.c 第 1329 行定义\&.
+.SS "#define MAX_FORMAT   32"
+
+.PP
+在文件 lstrlib\&.c 第 1098 行定义\&.
+.SS "#define MAX_ITEM   120"
+
+.PP
+在文件 lstrlib\&.c 第 1086 行定义\&.
+.SS "#define MAX_ITEMF   (110 + \fBl_floatatt\fP(MAX_10_EXP))"
+
+.PP
+在文件 lstrlib\&.c 第 1075 行定义\&.
+.SS "#define MAX_SIZET   ((size_t)(~(size_t)0))"
+
+.PP
+在文件 lstrlib\&.c 第 47 行定义\&.
+.SS "#define MAXALIGN   (offsetof(struct \fBcD\fP, u))"
+
+.PP
+在文件 lstrlib\&.c 第 1358 行定义\&.
+.SS "#define MAXCCALLS   200"
+
+.PP
+在文件 lstrlib\&.c 第 376 行定义\&.
+.SS "#define MAXINTSIZE   16"
+
+.PP
+在文件 lstrlib\&.c 第 1333 行定义\&.
+.SS "#define MAXSIZE   	(sizeof(size_t) < sizeof(int) ? \fBMAX_SIZET\fP : (size_t)(INT_MAX))"
+
+.PP
+在文件 lstrlib\&.c 第 49 行定义\&.
+.SS "#define MC   ((1 << \fBNB\fP) \- 1)"
+
+.PP
+在文件 lstrlib\&.c 第 1339 行定义\&.
+.SS "#define NB   CHAR_BIT"
+
+.PP
+在文件 lstrlib\&.c 第 1336 行定义\&.
+.SS "#define SPECIALS   '^$*+?\&.([%\-'"
+
+.PP
+在文件 lstrlib\&.c 第 381 行定义\&.
+.SS "#define SZINT   ((int)sizeof(\fBlua_Integer\fP))"
+
+.PP
+在文件 lstrlib\&.c 第 1342 行定义\&.
+.SS "#define uchar(c)   ((unsigned char)(c))"
+
+.PP
+在文件 lstrlib\&.c 第 40 行定义\&.
+.SH "类型定义说明"
+.PP 
+.SS "typedef union \fBFtypes\fP \fBFtypes\fP"
+
+.SS "typedef struct \fBGMatchState\fP \fBGMatchState\fP"
+
+.SS "typedef struct \fBHeader\fP \fBHeader\fP"
+
+.SS "typedef enum \fBKOption\fP \fBKOption\fP"
+
+.SS "typedef struct \fBMatchState\fP \fBMatchState\fP"
+
+.SH "枚举类型说明"
+.PP 
+.SS "enum \fBKOption\fP"
+
+.PP
+\fB枚举值\fP
+.in +1c
+.TP
+\fB\fIKint \fP\fP
+.TP
+\fB\fIKuint \fP\fP
+.TP
+\fB\fIKfloat \fP\fP
+.TP
+\fB\fIKchar \fP\fP
+.TP
+\fB\fIKstring \fP\fP
+.TP
+\fB\fIKzstr \fP\fP
+.TP
+\fB\fIKpadding \fP\fP
+.TP
+\fB\fIKpaddalign \fP\fP
+.TP
+\fB\fIKnop \fP\fP
+.PP
+在文件 lstrlib\&.c 第 1385 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static void add_s (\fBMatchState\fP * ms, \fBluaL_Buffer\fP * b, const char * s, const char * e)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 868 行定义\&.
+.SS "static int add_value (\fBMatchState\fP * ms, \fBluaL_Buffer\fP * b, const char * s, const char * e, int tr)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 903 行定义\&.
+.SS "static void addlenmod (char * form, const char * lenmod)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 1214 行定义\&.
+.SS "static void addliteral (\fBlua_State\fP * L, \fBluaL_Buffer\fP * b, int arg)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 1154 行定义\&.
+.SS "static void addquoted (\fBluaL_Buffer\fP * b, const char * s, size_t len)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 1101 行定义\&.
+.SS "static int arith (\fBlua_State\fP * L, int op, const char * mtname)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 286 行定义\&.
+.SS "static int arith_add (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 295 行定义\&.
+.SS "static int arith_div (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 315 行定义\&.
+.SS "static int arith_idiv (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 319 行定义\&.
+.SS "static int arith_mod (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 307 行定义\&.
+.SS "static int arith_mul (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 303 行定义\&.
+.SS "static int arith_pow (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 311 行定义\&.
+.SS "static int arith_sub (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 299 行定义\&.
+.SS "static int arith_unm (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 323 行定义\&.
+.SS "static int capture_to_close (\fBMatchState\fP * ms)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 392 行定义\&.
+.SS "static int check_capture (\fBMatchState\fP * ms, int l)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 384 行定义\&.
+.SS "static const char* classend (\fBMatchState\fP * ms, const char * p)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 400 行定义\&.
+.SS "static void copywithendian (volatile char * dest, volatile const char * src, int size, int islittle)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 1538 行定义\&.
+.SS "static void createmetatable (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 1783 行定义\&.
+.SS "static int digit (int c)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 1402 行定义\&.
+.SS "static const char* end_capture (\fBMatchState\fP * ms, const char * s, const char * p)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 545 行定义\&.
+.SS "static size_t get_onecapture (\fBMatchState\fP * ms, int i, const char * s, const char * e, const char ** cap)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 699 行定义\&.
+.SS "static \fBKOption\fP getdetails (\fBHeader\fP * h, size_t totalsize, const char ** fmt, int * psize, int * ntoalign)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 1490 行定义\&.
+.SS "static size_t getendpos (\fBlua_State\fP * L, int arg, \fBlua_Integer\fP def, size_t len)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 87 行定义\&.
+.SS "static int getnum (const char ** fmt, int df)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 1404 行定义\&.
+.SS "static int getnumlimit (\fBHeader\fP * h, const char ** fmt, int df)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 1421 行定义\&.
+.SS "static \fBKOption\fP getoption (\fBHeader\fP * h, const char ** fmt, int * size)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 1443 行定义\&.
+.SS "static int gmatch (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 851 行定义\&.
+.SS "static int gmatch_aux (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 835 行定义\&.
+.SS "static void initheader (\fBlua_State\fP * L, \fBHeader\fP * h)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 1433 行定义\&.
+.SS "static const char* lmemfind (const char * s1, size_t l1, const char * s2, size_t l2)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 670 行定义\&.
+.SS "\fBLUAMOD_API\fP int luaopen_string (\fBlua_State\fP * L)"
+
+.PP
+在文件 lstrlib\&.c 第 1800 行定义\&.
+.SS "static const char * match (\fBMatchState\fP * ms, const char * s, const char * p)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 567 行定义\&.
+.SS "static const char* match_capture (\fBMatchState\fP * ms, const char * s, int l)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 556 行定义\&.
+.SS "static int match_class (int c, int cl)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 424 行定义\&.
+.SS "static const char* matchbalance (\fBMatchState\fP * ms, const char * s, const char * p)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 483 行定义\&.
+.SS "static int matchbracketclass (int c, const char * p, const char * ec)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 444 行定义\&.
+.SS "static const char* max_expand (\fBMatchState\fP * ms, const char * s, const char * p, const char * ep)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 503 行定义\&.
+.SS "static const char* min_expand (\fBMatchState\fP * ms, const char * s, const char * p, const char * ep)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 518 行定义\&.
+.SS "static int nospecials (const char * p, size_t l)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 743 行定义\&.
+.SS "static void packint (\fBluaL_Buffer\fP * b, \fBlua_Unsigned\fP n, int islittle, int size, int neg)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 1517 行定义\&.
+.SS "static size_t posrelatI (\fBlua_Integer\fP pos, size_t len)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 71 行定义\&.
+.SS "static void prepstate (\fBMatchState\fP * ms, \fBlua_State\fP * L, const char * s, size_t ls, const char * p, size_t lp)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 754 行定义\&.
+.SS "static int push_captures (\fBMatchState\fP * ms, const char * s, const char * e)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 732 行定义\&.
+.SS "static void push_onecapture (\fBMatchState\fP * ms, int i, const char * s, const char * e)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 722 行定义\&.
+.SS "static int quotefloat (\fBlua_State\fP * L, char * buff, \fBlua_Number\fP n)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 1130 行定义\&.
+.SS "static void reprepstate (\fBMatchState\fP * ms)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 764 行定义\&.
+.SS "static const char* scanformat (\fBlua_State\fP * L, const char * strfrmt, char * form)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 1189 行定义\&.
+.SS "static int singlematch (\fBMatchState\fP * ms, const char * s, const char * p, const char * ep)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 467 行定义\&.
+.SS "static const char* start_capture (\fBMatchState\fP * ms, const char * s, const char * p, int what)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 531 行定义\&.
+.SS "static int str_byte (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 176 行定义\&.
+.SS "static int str_char (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 194 行定义\&.
+.SS "static int str_dump (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 232 行定义\&.
+.SS "static int str_find (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 816 行定义\&.
+.SS "static int str_find_aux (\fBlua_State\fP * L, int find)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 770 行定义\&.
+.SS "static int str_format (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 1224 行定义\&.
+.SS "static int str_gsub (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 939 行定义\&.
+.SS "static int str_len (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 55 行定义\&.
+.SS "static int str_lower (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 124 行定义\&.
+.SS "static int str_match (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 821 行定义\&.
+.SS "static int str_pack (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 1552 行定义\&.
+.SS "static int str_packsize (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 1639 行定义\&.
+.SS "static int str_rep (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 150 行定义\&.
+.SS "static int str_reverse (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 112 行定义\&.
+.SS "static int str_sub (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 100 行定义\&.
+.SS "static int str_unpack (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 1693 行定义\&.
+.SS "static int str_upper (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 137 行定义\&.
+.SS "static int tonum (\fBlua_State\fP * L, int arg)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 263 行定义\&.
+.SS "static void trymt (\fBlua_State\fP * L, const char * mtname)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 276 行定义\&.
+.SS "static \fBlua_Integer\fP unpackint (\fBlua_State\fP * L, const char * str, int islittle, int size, int issigned)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 1667 行定义\&.
+.SS "static int writer (\fBlua_State\fP * L, const void * b, size_t size, void * ud)\fC [static]\fP"
+
+.PP
+在文件 lstrlib\&.c 第 221 行定义\&.
+.SH "变量说明"
+.PP 
+.SS "int dummy"
+
+.PP
+在文件 lstrlib\&.c 第 1347 行定义\&.
+.SS "char little"
+
+.PP
+在文件 lstrlib\&.c 第 1348 行定义\&.
+.SS "const { \&.\&.\&. }  nativeendian\fC [static]\fP"
+
+.SS "const \fBluaL_Reg\fP stringmetamethods[]\fC [static]\fP"
+\fB初始值:\fP
+.PP
+.nf
+= {
+  {"__add", arith_add},
+  {"__sub", arith_sub},
+  {"__mul", arith_mul},
+  {"__mod", arith_mod},
+  {"__pow", arith_pow},
+  {"__div", arith_div},
+  {"__idiv", arith_idiv},
+  {"__unm", arith_unm},
+  {"__index", NULL},  
+  {NULL, NULL}
+}
+.fi
+.PP
+在文件 lstrlib\&.c 第 328 行定义\&.
+.SS "const \fBluaL_Reg\fP strlib[]\fC [static]\fP"
+\fB初始值:\fP
+.PP
+.nf
+= {
+  {"byte", str_byte},
+  {"char", str_char},
+  {"dump", str_dump},
+  {"find", str_find},
+  {"format", str_format},
+  {"gmatch", gmatch},
+  {"gsub", str_gsub},
+  {"len", str_len},
+  {"lower", str_lower},
+  {"match", str_match},
+  {"rep", str_rep},
+  {"reverse", str_reverse},
+  {"sub", str_sub},
+  {"upper", str_upper},
+  {"pack", str_pack},
+  {"packsize", str_packsize},
+  {"unpack", str_unpack},
+  {NULL, NULL}
+}
+.fi
+.PP
+在文件 lstrlib\&.c 第 1761 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

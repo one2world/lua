@@ -1,0 +1,982 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lmathlib_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/lmathlib.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lmathlib.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;float.h&gt;
+#include &lt;limits.h&gt;
+#include &lt;math.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;time.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;lauxlib.h&quot;
+#include &quot;lualib.h&quot;
+</programlisting>lmathlib.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>结构体    </title>
+        <itemizedlist>
+            <listitem><para>struct <link linkend="_struct_rand64">Rand64</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_ran_state">RanState</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lmathlib_8c_1a758ac163994ce1fb9a74163e4d468db3">lmathlib_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmathlib_8c_1a884b19ad6094d6238c4072a8064aeb12">LUA_LIB</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmathlib_8c_1a598a3330b3c21701223ee0ca14316eca">PI</link>   (<link linkend="_luaconf_8h_1a919f548d82dc9a0681dd0ba8996d986d">l_mathop</link>(3.141592653589793238462643383279502884))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmathlib_8c_1a0282a980b31306aa7d94e9e6ad975837">FIGS</link>   <link linkend="_luaconf_8h_1af41b220b80eae0908ca2e190ca024990">l_floatatt</link>(MANT_DIG)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmathlib_8c_1a4d4f48045002686d9d2b361148c98db5">trim32</link>(x)   ((x) &amp; 0xffffffffu)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmathlib_8c_1a37c87c7e103e67064c02ce86e5c00215">UONE</link>   ((<link linkend="_lmathlib_8c_1aa8f942b3f89c99f2fbde3c4361b7c615">lu_int32</link>)1)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmathlib_8c_1af9acb4963a9c1f6a8e60d4b1e8b76184">scaleFIG</link>   (<link linkend="_luaconf_8h_1a919f548d82dc9a0681dd0ba8996d986d">l_mathop</link>(0.5) / (<link linkend="_lmathlib_8c_1a37c87c7e103e67064c02ce86e5c00215">UONE</link> &lt;&lt; (<link linkend="_lmathlib_8c_1a0282a980b31306aa7d94e9e6ad975837">FIGS</link> - 1)))</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>类型定义    </title>
+        <itemizedlist>
+            <listitem><para>typedef unsigned long <link linkend="_lmathlib_8c_1aa8f942b3f89c99f2fbde3c4361b7c615">lu_int32</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_rand64">Rand64</link> <link linkend="_lmathlib_8c_1ac514b2d1475b8c2e91f0b3a1f46d0f34">Rand64</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1a9545dd3926974393ff34e33a108df628">math_abs</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1adb460e2b01df47afcaa823ecc1846a24">math_sin</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1a5db2cf8c6e7a331d7daf259f305e057c">math_cos</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1a06bc9b8c610e00759bb99c3db6128f18">math_tan</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1aa44ea66108bb38acbe5c8cb2ce6de33f">math_asin</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1a9f983fa3cca14d69429cebc95be4fab1">math_acos</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1a70217d6c0312477f3e257a584518424c">math_atan</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1a7604de8e5daca6d7576a9ee940a3f479">math_toint</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lmathlib_8c_1aa43eb6808ce1bad1f4f1416475e38e13">pushnumint</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> d)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1aa063dcd93e924af13c5e311f89b18d03">math_floor</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1ae4f0dc771c626a9badef237db9d433da">math_ceil</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1a25b3f7d30cf85b8248a72de20049564e">math_fmod</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1adff369706deb34be360be3103f31d4c4">math_modf</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1a8f4c386bafe8ae7269476ed3ed94d1d8">math_sqrt</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1a5d62cc09bee44198af9cb2023a50d972">math_ult</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1a7cb92978495484adbfc9d0cb0ace2cc2">math_log</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1a7c971c680cdad8e4e833f8a3db9d065d">math_exp</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1ad9bd03062009a4aba15739a1630b2a25">math_deg</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1a5d8eec19cea59d1ce1012a705f70dc8d">math_rad</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1ab0a14d784b5fe2f30062e88a635db320">math_min</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1a03e3b76e515f5535122c2026a9e8f445">math_max</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1af58a749fbaa6093fab0db96dcfd822a7">math_type</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_rand64">Rand64</link> <link linkend="_lmathlib_8c_1a43beb45c0b29c5e7a866b193d6b8c546">packI</link> (<link linkend="_lmathlib_8c_1aa8f942b3f89c99f2fbde3c4361b7c615">lu_int32</link> h, <link linkend="_lmathlib_8c_1aa8f942b3f89c99f2fbde3c4361b7c615">lu_int32</link> l)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_rand64">Rand64</link> <link linkend="_lmathlib_8c_1a5fe860c78def6ac52bd99153df082c3e">Ishl</link> (<link linkend="_struct_rand64">Rand64</link> i, int n)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lmathlib_8c_1ac269f9bd785360abe156ba7c7cc67e21">Ixor</link> (<link linkend="_struct_rand64">Rand64</link> *i1, <link linkend="_struct_rand64">Rand64</link> i2)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_rand64">Rand64</link> <link linkend="_lmathlib_8c_1a0f8118bb9ab66c0fee78e5bf183d436f">Iadd</link> (<link linkend="_struct_rand64">Rand64</link> i1, <link linkend="_struct_rand64">Rand64</link> i2)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_rand64">Rand64</link> <link linkend="_lmathlib_8c_1a4708082c07e59916317e3baf2204504a">times5</link> (<link linkend="_struct_rand64">Rand64</link> i)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_rand64">Rand64</link> <link linkend="_lmathlib_8c_1a8276cb06bf824ed1d39fa2f3f0db6968">times9</link> (<link linkend="_struct_rand64">Rand64</link> i)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_rand64">Rand64</link> <link linkend="_lmathlib_8c_1af6d2c0cbed4c44224dc80230279c1b5d">rotl</link> (<link linkend="_struct_rand64">Rand64</link> i, int n)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_rand64">Rand64</link> <link linkend="_lmathlib_8c_1a0a2a1bbd027f6e376a7043e2bdab7870">rotl1</link> (<link linkend="_struct_rand64">Rand64</link> i, int n)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_rand64">Rand64</link> <link linkend="_lmathlib_8c_1ac01956e1f85c57f7781d256db3d76886">nextrand</link> (<link linkend="_struct_rand64">Rand64</link> *state)</para>
+</listitem>
+            <listitem><para>static <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> <link linkend="_lmathlib_8c_1a1f845b41defc9503d3090923b15d79ed">I2d</link> (<link linkend="_struct_rand64">Rand64</link> x)</para>
+</listitem>
+            <listitem><para>static <link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> <link linkend="_lmathlib_8c_1a00b4573721dbfd08d584b34a7e1722db">I2UInt</link> (<link linkend="_struct_rand64">Rand64</link> x)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_rand64">Rand64</link> <link linkend="_lmathlib_8c_1aedfbc1eb34c86571439b5d3d36d9361e">Int2I</link> (<link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> n)</para>
+</listitem>
+            <listitem><para>static <link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> <link linkend="_lmathlib_8c_1a13ece5b7fa9dd48246430a48dec238b1">project</link> (<link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> ran, <link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> n, <link linkend="_struct_ran_state">RanState</link> *state)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1aa3ad02d4204d21d35a0825281915fb22">math_random</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lmathlib_8c_1a4e708776ec48b6fb6d7239a8754900e1">setseed</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_rand64">Rand64</link> *state, <link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> n1, <link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> n2)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lmathlib_8c_1aaeea41eadd14e3f30fe6814cc94891c5">randseed</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_ran_state">RanState</link> *state)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lmathlib_8c_1a55540667178ac717a1c6283b58b00ce7">math_randomseed</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lmathlib_8c_1aec3434532c7149fc0d3fff7ac86e6fbb">setrandfunc</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link> int <link linkend="_lmathlib_8c_1a78cbff06fd4d59cf3d7525fa6cc196ba">luaopen_math</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>变量    </title>
+        <itemizedlist>
+            <listitem><para>static const <link linkend="_structlua_l___reg">luaL_Reg</link> <link linkend="_lmathlib_8c_1a866900ee1a7dd674b2c58e52d18b0a4e">randfuncs</link> []</para>
+</listitem>
+            <listitem><para>static const <link linkend="_structlua_l___reg">luaL_Reg</link> <link linkend="_lmathlib_8c_1ac80ca653775abeb66123337a10874983">mathlib</link> []</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lmathlib_8c_1a0282a980b31306aa7d94e9e6ad975837"/>    <section>
+    <title>FIGS</title>
+<indexterm><primary>FIGS</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>FIGS</secondary></indexterm>
+<para><computeroutput>#define FIGS   <link linkend="_luaconf_8h_1af41b220b80eae0908ca2e190ca024990">l_floatatt</link>(MANT_DIG)</computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00252">252</link> 行定义.</para>
+    </section><anchor xml:id="_lmathlib_8c_1a758ac163994ce1fb9a74163e4d468db3"/>    <section>
+    <title>lmathlib_c</title>
+<indexterm><primary>lmathlib_c</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>lmathlib_c</secondary></indexterm>
+<para><computeroutput>#define lmathlib_c</computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_lmathlib_8c_1a884b19ad6094d6238c4072a8064aeb12"/>    <section>
+    <title>LUA_LIB</title>
+<indexterm><primary>LUA_LIB</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>LUA_LIB</secondary></indexterm>
+<para><computeroutput>#define LUA_LIB</computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00008">8</link> 行定义.</para>
+    </section><anchor xml:id="_lmathlib_8c_1a598a3330b3c21701223ee0ca14316eca"/>    <section>
+    <title>PI</title>
+<indexterm><primary>PI</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>PI</secondary></indexterm>
+<para><computeroutput>#define PI   (<link linkend="_luaconf_8h_1a919f548d82dc9a0681dd0ba8996d986d">l_mathop</link>(3.141592653589793238462643383279502884))</computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00026">26</link> 行定义.</para>
+    </section><anchor xml:id="_lmathlib_8c_1af9acb4963a9c1f6a8e60d4b1e8b76184"/>    <section>
+    <title>scaleFIG</title>
+<indexterm><primary>scaleFIG</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>scaleFIG</secondary></indexterm>
+<para><computeroutput>#define scaleFIG   (<link linkend="_luaconf_8h_1a919f548d82dc9a0681dd0ba8996d986d">l_mathop</link>(0.5) / (<link linkend="_lmathlib_8c_1a37c87c7e103e67064c02ce86e5c00215">UONE</link> &lt;&lt; (<link linkend="_lmathlib_8c_1a0282a980b31306aa7d94e9e6ad975837">FIGS</link> - 1)))</computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00460">460</link> 行定义.</para>
+    </section><anchor xml:id="_lmathlib_8c_1a4d4f48045002686d9d2b361148c98db5"/>    <section>
+    <title>trim32</title>
+<indexterm><primary>trim32</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>trim32</secondary></indexterm>
+<para><computeroutput>#define trim32( x)   ((x) &amp; 0xffffffffu)</computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00373">373</link> 行定义.</para>
+    </section><anchor xml:id="_lmathlib_8c_1a37c87c7e103e67064c02ce86e5c00215"/>    <section>
+    <title>UONE</title>
+<indexterm><primary>UONE</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>UONE</secondary></indexterm>
+<para><computeroutput>#define UONE   ((<link linkend="_lmathlib_8c_1aa8f942b3f89c99f2fbde3c4361b7c615">lu_int32</link>)1)</computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00454">454</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>类型定义说明</title>
+<anchor xml:id="_lmathlib_8c_1aa8f942b3f89c99f2fbde3c4361b7c615"/>    <section>
+    <title>lu_int32</title>
+<indexterm><primary>lu_int32</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>lu_int32</secondary></indexterm>
+<para><computeroutput>typedef unsigned long <link linkend="_lmathlib_8c_1aa8f942b3f89c99f2fbde3c4361b7c615">lu_int32</link></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00353">353</link> 行定义.</para>
+    </section><anchor xml:id="_lmathlib_8c_1ac514b2d1475b8c2e91f0b3a1f46d0f34"/>    <section>
+    <title>Rand64</title>
+<indexterm><primary>Rand64</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>Rand64</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_rand64">Rand64</link> <link linkend="_struct_rand64">Rand64</link></computeroutput></para></section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lmathlib_8c_1a1f845b41defc9503d3090923b15d79ed"/>    <section>
+    <title>I2d()</title>
+<indexterm><primary>I2d</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>I2d</secondary></indexterm>
+<para><computeroutput>static <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> I2d (<link linkend="_struct_rand64">Rand64</link> x)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00466">466</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a1f845b41defc9503d3090923b15d79ed_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a00b4573721dbfd08d584b34a7e1722db"/>    <section>
+    <title>I2UInt()</title>
+<indexterm><primary>I2UInt</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>I2UInt</secondary></indexterm>
+<para><computeroutput>static <link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> I2UInt (<link linkend="_struct_rand64">Rand64</link> x)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00501">501</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a00b4573721dbfd08d584b34a7e1722db_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a0f8118bb9ab66c0fee78e5bf183d436f"/>    <section>
+    <title>Iadd()</title>
+<indexterm><primary>Iadd</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>Iadd</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_rand64">Rand64</link> Iadd (<link linkend="_struct_rand64">Rand64</link> i1, <link linkend="_struct_rand64">Rand64</link> i2)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00401">401</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a0f8118bb9ab66c0fee78e5bf183d436f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a0f8118bb9ab66c0fee78e5bf183d436f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1aedfbc1eb34c86571439b5d3d36d9361e"/>    <section>
+    <title>Int2I()</title>
+<indexterm><primary>Int2I</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>Int2I</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_rand64">Rand64</link> Int2I (<link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> n)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00506">506</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_aedfbc1eb34c86571439b5d3d36d9361e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_aedfbc1eb34c86571439b5d3d36d9361e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a5fe860c78def6ac52bd99153df082c3e"/>    <section>
+    <title>Ishl()</title>
+<indexterm><primary>Ishl</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>Ishl</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_rand64">Rand64</link> Ishl (<link linkend="_struct_rand64">Rand64</link> i, int n)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00389">389</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a5fe860c78def6ac52bd99153df082c3e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a5fe860c78def6ac52bd99153df082c3e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1ac269f9bd785360abe156ba7c7cc67e21"/>    <section>
+    <title>Ixor()</title>
+<indexterm><primary>Ixor</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>Ixor</secondary></indexterm>
+<para><computeroutput>static void Ixor (<link linkend="_struct_rand64">Rand64</link> * i1, <link linkend="_struct_rand64">Rand64</link> i2)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00395">395</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_ac269f9bd785360abe156ba7c7cc67e21_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a78cbff06fd4d59cf3d7525fa6cc196ba"/>    <section>
+    <title>luaopen_math()</title>
+<indexterm><primary>luaopen_math</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>luaopen_math</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link> int luaopen_math (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00750">750</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a78cbff06fd4d59cf3d7525fa6cc196ba_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a9545dd3926974393ff34e33a108df628"/>    <section>
+    <title>math_abs()</title>
+<indexterm><primary>math_abs</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_abs</secondary></indexterm>
+<para><computeroutput>static int math_abs (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00029">29</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a9545dd3926974393ff34e33a108df628_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a9f983fa3cca14d69429cebc95be4fab1"/>    <section>
+    <title>math_acos()</title>
+<indexterm><primary>math_acos</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_acos</secondary></indexterm>
+<para><computeroutput>static int math_acos (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00060">60</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a9f983fa3cca14d69429cebc95be4fab1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1aa44ea66108bb38acbe5c8cb2ce6de33f"/>    <section>
+    <title>math_asin()</title>
+<indexterm><primary>math_asin</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_asin</secondary></indexterm>
+<para><computeroutput>static int math_asin (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00055">55</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_aa44ea66108bb38acbe5c8cb2ce6de33f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a70217d6c0312477f3e257a584518424c"/>    <section>
+    <title>math_atan()</title>
+<indexterm><primary>math_atan</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_atan</secondary></indexterm>
+<para><computeroutput>static int math_atan (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00065">65</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a70217d6c0312477f3e257a584518424c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1ae4f0dc771c626a9badef237db9d433da"/>    <section>
+    <title>math_ceil()</title>
+<indexterm><primary>math_ceil</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_ceil</secondary></indexterm>
+<para><computeroutput>static int math_ceil (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00106">106</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_ae4f0dc771c626a9badef237db9d433da_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a5db2cf8c6e7a331d7daf259f305e057c"/>    <section>
+    <title>math_cos()</title>
+<indexterm><primary>math_cos</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_cos</secondary></indexterm>
+<para><computeroutput>static int math_cos (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00045">45</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a5db2cf8c6e7a331d7daf259f305e057c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1ad9bd03062009a4aba15739a1630b2a25"/>    <section>
+    <title>math_deg()</title>
+<indexterm><primary>math_deg</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_deg</secondary></indexterm>
+<para><computeroutput>static int math_deg (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00194">194</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_ad9bd03062009a4aba15739a1630b2a25_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a7c971c680cdad8e4e833f8a3db9d065d"/>    <section>
+    <title>math_exp()</title>
+<indexterm><primary>math_exp</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_exp</secondary></indexterm>
+<para><computeroutput>static int math_exp (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00189">189</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a7c971c680cdad8e4e833f8a3db9d065d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1aa063dcd93e924af13c5e311f89b18d03"/>    <section>
+    <title>math_floor()</title>
+<indexterm><primary>math_floor</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_floor</secondary></indexterm>
+<para><computeroutput>static int math_floor (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00095">95</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_aa063dcd93e924af13c5e311f89b18d03_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a25b3f7d30cf85b8248a72de20049564e"/>    <section>
+    <title>math_fmod()</title>
+<indexterm><primary>math_fmod</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_fmod</secondary></indexterm>
+<para><computeroutput>static int math_fmod (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00117">117</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a25b3f7d30cf85b8248a72de20049564e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a7cb92978495484adbfc9d0cb0ace2cc2"/>    <section>
+    <title>math_log()</title>
+<indexterm><primary>math_log</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_log</secondary></indexterm>
+<para><computeroutput>static int math_log (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00169">169</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a7cb92978495484adbfc9d0cb0ace2cc2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a03e3b76e515f5535122c2026a9e8f445"/>    <section>
+    <title>math_max()</title>
+<indexterm><primary>math_max</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_max</secondary></indexterm>
+<para><computeroutput>static int math_max (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00219">219</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a03e3b76e515f5535122c2026a9e8f445_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1ab0a14d784b5fe2f30062e88a635db320"/>    <section>
+    <title>math_min()</title>
+<indexterm><primary>math_min</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_min</secondary></indexterm>
+<para><computeroutput>static int math_min (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00205">205</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_ab0a14d784b5fe2f30062e88a635db320_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1adff369706deb34be360be3103f31d4c4"/>    <section>
+    <title>math_modf()</title>
+<indexterm><primary>math_modf</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_modf</secondary></indexterm>
+<para><computeroutput>static int math_modf (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00139">139</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_adff369706deb34be360be3103f31d4c4_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a5d8eec19cea59d1ce1012a705f70dc8d"/>    <section>
+    <title>math_rad()</title>
+<indexterm><primary>math_rad</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_rad</secondary></indexterm>
+<para><computeroutput>static int math_rad (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00199">199</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a5d8eec19cea59d1ce1012a705f70dc8d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1aa3ad02d4204d21d35a0825281915fb22"/>    <section>
+    <title>math_random()</title>
+<indexterm><primary>math_random</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_random</secondary></indexterm>
+<para><computeroutput>static int math_random (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00556">556</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_aa3ad02d4204d21d35a0825281915fb22_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a55540667178ac717a1c6283b58b00ce7"/>    <section>
+    <title>math_randomseed()</title>
+<indexterm><primary>math_randomseed</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_randomseed</secondary></indexterm>
+<para><computeroutput>static int math_randomseed (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00617">617</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a55540667178ac717a1c6283b58b00ce7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1adb460e2b01df47afcaa823ecc1846a24"/>    <section>
+    <title>math_sin()</title>
+<indexterm><primary>math_sin</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_sin</secondary></indexterm>
+<para><computeroutput>static int math_sin (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00040">40</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_adb460e2b01df47afcaa823ecc1846a24_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a8f4c386bafe8ae7269476ed3ed94d1d8"/>    <section>
+    <title>math_sqrt()</title>
+<indexterm><primary>math_sqrt</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_sqrt</secondary></indexterm>
+<para><computeroutput>static int math_sqrt (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00156">156</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a8f4c386bafe8ae7269476ed3ed94d1d8_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a06bc9b8c610e00759bb99c3db6128f18"/>    <section>
+    <title>math_tan()</title>
+<indexterm><primary>math_tan</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_tan</secondary></indexterm>
+<para><computeroutput>static int math_tan (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00050">50</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a06bc9b8c610e00759bb99c3db6128f18_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a7604de8e5daca6d7576a9ee940a3f479"/>    <section>
+    <title>math_toint()</title>
+<indexterm><primary>math_toint</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_toint</secondary></indexterm>
+<para><computeroutput>static int math_toint (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00073">73</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a7604de8e5daca6d7576a9ee940a3f479_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1af58a749fbaa6093fab0db96dcfd822a7"/>    <section>
+    <title>math_type()</title>
+<indexterm><primary>math_type</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_type</secondary></indexterm>
+<para><computeroutput>static int math_type (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00233">233</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_af58a749fbaa6093fab0db96dcfd822a7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a5d62cc09bee44198af9cb2023a50d972"/>    <section>
+    <title>math_ult()</title>
+<indexterm><primary>math_ult</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>math_ult</secondary></indexterm>
+<para><computeroutput>static int math_ult (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00162">162</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a5d62cc09bee44198af9cb2023a50d972_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1ac01956e1f85c57f7781d256db3d76886"/>    <section>
+    <title>nextrand()</title>
+<indexterm><primary>nextrand</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>nextrand</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_rand64">Rand64</link> nextrand (<link linkend="_struct_rand64">Rand64</link> * state)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00436">436</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_ac01956e1f85c57f7781d256db3d76886_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_ac01956e1f85c57f7781d256db3d76886_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a43beb45c0b29c5e7a866b193d6b8c546"/>    <section>
+    <title>packI()</title>
+<indexterm><primary>packI</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>packI</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_rand64">Rand64</link> packI (<link linkend="_lmathlib_8c_1aa8f942b3f89c99f2fbde3c4361b7c615">lu_int32</link> h, <link linkend="_lmathlib_8c_1aa8f942b3f89c99f2fbde3c4361b7c615">lu_int32</link> l)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00381">381</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a43beb45c0b29c5e7a866b193d6b8c546_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a13ece5b7fa9dd48246430a48dec238b1"/>    <section>
+    <title>project()</title>
+<indexterm><primary>project</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>project</secondary></indexterm>
+<para><computeroutput>static <link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> project (<link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> ran, <link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> n, <link linkend="_struct_ran_state">RanState</link> * state)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00531">531</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a13ece5b7fa9dd48246430a48dec238b1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a13ece5b7fa9dd48246430a48dec238b1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1aa43eb6808ce1bad1f4f1416475e38e13"/>    <section>
+    <title>pushnumint()</title>
+<indexterm><primary>pushnumint</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>pushnumint</secondary></indexterm>
+<para><computeroutput>static void pushnumint (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> d)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00086">86</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_aa43eb6808ce1bad1f4f1416475e38e13_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_aa43eb6808ce1bad1f4f1416475e38e13_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1aaeea41eadd14e3f30fe6814cc94891c5"/>    <section>
+    <title>randseed()</title>
+<indexterm><primary>randseed</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>randseed</secondary></indexterm>
+<para><computeroutput>static void randseed (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_ran_state">RanState</link> * state)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00610">610</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_aaeea41eadd14e3f30fe6814cc94891c5_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_aaeea41eadd14e3f30fe6814cc94891c5_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1af6d2c0cbed4c44224dc80230279c1b5d"/>    <section>
+    <title>rotl()</title>
+<indexterm><primary>rotl</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>rotl</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_rand64">Rand64</link> rotl (<link linkend="_struct_rand64">Rand64</link> i, int n)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00419">419</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_af6d2c0cbed4c44224dc80230279c1b5d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_af6d2c0cbed4c44224dc80230279c1b5d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a0a2a1bbd027f6e376a7043e2bdab7870"/>    <section>
+    <title>rotl1()</title>
+<indexterm><primary>rotl1</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>rotl1</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_rand64">Rand64</link> rotl1 (<link linkend="_struct_rand64">Rand64</link> i, int n)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00426">426</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a0a2a1bbd027f6e376a7043e2bdab7870_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a0a2a1bbd027f6e376a7043e2bdab7870_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1aec3434532c7149fc0d3fff7ac86e6fbb"/>    <section>
+    <title>setrandfunc()</title>
+<indexterm><primary>setrandfunc</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>setrandfunc</secondary></indexterm>
+<para><computeroutput>static void setrandfunc (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00641">641</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_aec3434532c7149fc0d3fff7ac86e6fbb_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_aec3434532c7149fc0d3fff7ac86e6fbb_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a4e708776ec48b6fb6d7239a8754900e1"/>    <section>
+    <title>setseed()</title>
+<indexterm><primary>setseed</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>setseed</secondary></indexterm>
+<para><computeroutput>static void setseed (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_rand64">Rand64</link> * state, <link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> n1, <link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> n2)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00591">591</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a4e708776ec48b6fb6d7239a8754900e1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a4e708776ec48b6fb6d7239a8754900e1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a4708082c07e59916317e3baf2204504a"/>    <section>
+    <title>times5()</title>
+<indexterm><primary>times5</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>times5</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_rand64">Rand64</link> times5 (<link linkend="_struct_rand64">Rand64</link> i)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00409">409</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a4708082c07e59916317e3baf2204504a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a4708082c07e59916317e3baf2204504a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmathlib_8c_1a8276cb06bf824ed1d39fa2f3f0db6968"/>    <section>
+    <title>times9()</title>
+<indexterm><primary>times9</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>times9</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_rand64">Rand64</link> times9 (<link linkend="_struct_rand64">Rand64</link> i)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00414">414</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a8276cb06bf824ed1d39fa2f3f0db6968_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmathlib_8c_a8276cb06bf824ed1d39fa2f3f0db6968_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+<section>
+<title>变量说明</title>
+<anchor xml:id="_lmathlib_8c_1ac80ca653775abeb66123337a10874983"/>    <section>
+    <title>mathlib</title>
+<indexterm><primary>mathlib</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>mathlib</secondary></indexterm>
+<para><computeroutput>const <link linkend="_structlua_l___reg">luaL_Reg</link> mathlib[]<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00704">704</link> 行定义.</para>
+    </section><anchor xml:id="_lmathlib_8c_1a866900ee1a7dd674b2c58e52d18b0a4e"/>    <section>
+    <title>randfuncs</title>
+<indexterm><primary>randfuncs</primary><secondary>lmathlib.c</secondary></indexterm>
+<indexterm><primary>lmathlib.c</primary><secondary>randfuncs</secondary></indexterm>
+<para><computeroutput>const <link linkend="_structlua_l___reg">luaL_Reg</link> randfuncs[]<computeroutput>[static]</computeroutput></computeroutput></para><emphasis role="strong">初始值:</emphasis><programlisting>=&#32;{
+&#32;&#32;{<emphasis role="stringliteral">&quot;random&quot;</emphasis>,&#32;<link linkend="_lmathlib_8c_1aa3ad02d4204d21d35a0825281915fb22">math_random</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;randomseed&quot;</emphasis>,&#32;<link linkend="_lmathlib_8c_1a55540667178ac717a1c6283b58b00ce7">math_randomseed</link>},
+&#32;&#32;{NULL,&#32;NULL}
+}
+</programlisting><para>
+在文件 <link linkend="_lmathlib_8c_source">lmathlib.c</link> 第 <link linkend="_lmathlib_8c_source_1l00631">631</link> 行定义.</para>
+</section>
+</section>
+</section>

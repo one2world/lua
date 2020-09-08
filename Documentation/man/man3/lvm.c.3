@@ -1,0 +1,810 @@
+.TH "D:/gitworkspace/lua/src/lvm.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lvm.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <float\&.h>\fP
+.br
+\fC#include <limits\&.h>\fP
+.br
+\fC#include <math\&.h>\fP
+.br
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'ldebug\&.h'\fP
+.br
+\fC#include 'ldo\&.h'\fP
+.br
+\fC#include 'lfunc\&.h'\fP
+.br
+\fC#include 'lgc\&.h'\fP
+.br
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'lopcodes\&.h'\fP
+.br
+\fC#include 'lstate\&.h'\fP
+.br
+\fC#include 'lstring\&.h'\fP
+.br
+\fC#include 'ltable\&.h'\fP
+.br
+\fC#include 'ltm\&.h'\fP
+.br
+\fC#include 'lvm\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBlvm_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_CORE\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_USE_JUMPTABLE\fP   0"
+.br
+.ti -1c
+.RI "#define \fBMAXTAGLOOP\fP   2000"
+.br
+.ti -1c
+.RI "#define \fBNBM\fP   (\fBl_floatatt\fP(MANT_DIG))"
+.br
+.ti -1c
+.RI "#define \fBl_intfitsf\fP(i)   1"
+.br
+.ti -1c
+.RI "#define \fBtostring\fP(L,  o)   	(\fBttisstring\fP(o) || (\fBcvt2str\fP(o) && (\fBluaO_tostring\fP(L, o), 1)))"
+.br
+.ti -1c
+.RI "#define \fBisemptystr\fP(o)   (\fBttisshrstring\fP(o) && \fBtsvalue\fP(o)\->shrlen == 0)"
+.br
+.ti -1c
+.RI "#define \fBNBITS\fP   \fBcast_int\fP(sizeof(\fBlua_Integer\fP) * CHAR_BIT)"
+.br
+.ti -1c
+.RI "#define \fBluaV_shiftr\fP(x,  y)   \fBluaV_shiftl\fP(x,\-(y))"
+.br
+.ti -1c
+.RI "#define \fBl_addi\fP(L,  a,  b)   \fBintop\fP(+, a, b)"
+.br
+.ti -1c
+.RI "#define \fBl_subi\fP(L,  a,  b)   \fBintop\fP(\-, a, b)"
+.br
+.ti -1c
+.RI "#define \fBl_muli\fP(L,  a,  b)   \fBintop\fP(*, a, b)"
+.br
+.ti -1c
+.RI "#define \fBl_band\fP(a,  b)   \fBintop\fP(&, a, b)"
+.br
+.ti -1c
+.RI "#define \fBl_bor\fP(a,  b)   \fBintop\fP(|, a, b)"
+.br
+.ti -1c
+.RI "#define \fBl_bxor\fP(a,  b)   \fBintop\fP(^, a, b)"
+.br
+.ti -1c
+.RI "#define \fBl_lti\fP(a,  b)   (a < b)"
+.br
+.ti -1c
+.RI "#define \fBl_lei\fP(a,  b)   (a <= b)"
+.br
+.ti -1c
+.RI "#define \fBl_gti\fP(a,  b)   (a > b)"
+.br
+.ti -1c
+.RI "#define \fBl_gei\fP(a,  b)   (a >= b)"
+.br
+.ti -1c
+.RI "#define \fBop_arithI\fP(L,  iop,  fop)"
+.br
+.ti -1c
+.RI "#define \fBop_arithf_aux\fP(L,  v1,  v2,  fop)"
+.br
+.ti -1c
+.RI "#define \fBop_arithf\fP(L,  fop)"
+.br
+.ti -1c
+.RI "#define \fBop_arithfK\fP(L,  fop)"
+.br
+.ti -1c
+.RI "#define \fBop_arith_aux\fP(L,  v1,  v2,  iop,  fop)"
+.br
+.ti -1c
+.RI "#define \fBop_arith\fP(L,  iop,  fop)"
+.br
+.ti -1c
+.RI "#define \fBop_arithK\fP(L,  iop,  fop)"
+.br
+.ti -1c
+.RI "#define \fBop_bitwiseK\fP(L,  op)"
+.br
+.ti -1c
+.RI "#define \fBop_bitwise\fP(L,  op)"
+.br
+.ti -1c
+.RI "#define \fBop_order\fP(L,  opi,  opn,  other)"
+.br
+.ti -1c
+.RI "#define \fBop_orderI\fP(L,  opi,  opf,  inv,  tm)"
+.br
+.ti -1c
+.RI "#define \fBRA\fP(i)   (base+\fBGETARG_A\fP(i))"
+.br
+.ti -1c
+.RI "#define \fBRB\fP(i)   (base+\fBGETARG_B\fP(i))"
+.br
+.ti -1c
+.RI "#define \fBvRB\fP(i)   \fBs2v\fP(\fBRB\fP(i))"
+.br
+.ti -1c
+.RI "#define \fBKB\fP(i)   (k+\fBGETARG_B\fP(i))"
+.br
+.ti -1c
+.RI "#define \fBRC\fP(i)   (base+\fBGETARG_C\fP(i))"
+.br
+.ti -1c
+.RI "#define \fBvRC\fP(i)   \fBs2v\fP(\fBRC\fP(i))"
+.br
+.ti -1c
+.RI "#define \fBKC\fP(i)   (k+\fBGETARG_C\fP(i))"
+.br
+.ti -1c
+.RI "#define \fBRKC\fP(i)   ((\fBTESTARG_k\fP(i)) ? k + \fBGETARG_C\fP(i) : \fBs2v\fP(base + \fBGETARG_C\fP(i)))"
+.br
+.ti -1c
+.RI "#define \fBupdatetrap\fP(ci)   (trap = ci\->u\&.l\&.trap)"
+.br
+.ti -1c
+.RI "#define \fBupdatebase\fP(ci)   (base = ci\->func + 1)"
+.br
+.ti -1c
+.RI "#define \fBupdatestack\fP(ci)   { if (trap) { \fBupdatebase\fP(ci); ra = \fBRA\fP(i); } }"
+.br
+.ti -1c
+.RI "#define \fBdojump\fP(ci,  i,  e)   { pc += \fBGETARG_sJ\fP(i) + e; \fBupdatetrap\fP(ci); }"
+.br
+.ti -1c
+.RI "#define \fBdonextjump\fP(ci)   { \fBInstruction\fP ni = *pc; \fBdojump\fP(ci, ni, 1); }"
+.br
+.ti -1c
+.RI "#define \fBdocondjump\fP()   if (\fBcond\fP != \fBGETARG_k\fP(i)) pc++; else \fBdonextjump\fP(ci);"
+.br
+.ti -1c
+.RI "#define \fBsavepc\fP(L)   (ci\->u\&.l\&.savedpc = pc)"
+.br
+.ti -1c
+.RI "#define \fBsavestate\fP(L,  ci)   (\fBsavepc\fP(L), L\->top = ci\->top)"
+.br
+.ti -1c
+.RI "#define \fBProtect\fP(exp)   (\fBsavestate\fP(L,ci), (exp), \fBupdatetrap\fP(ci))"
+.br
+.ti -1c
+.RI "#define \fBProtectNT\fP(exp)   (\fBsavepc\fP(L), (exp), \fBupdatetrap\fP(ci))"
+.br
+.ti -1c
+.RI "#define \fBhalfProtect\fP(exp)   (\fBsavestate\fP(L,ci), (exp))"
+.br
+.ti -1c
+.RI "#define \fBhalfProtectNT\fP(exp)   (\fBsavepc\fP(L), (exp))"
+.br
+.ti -1c
+.RI "#define \fBcheckGC\fP(L,  c)"
+.br
+.ti -1c
+.RI "#define \fBvmfetch\fP()"
+.br
+.ti -1c
+.RI "#define \fBvmdispatch\fP(o)   switch(o)"
+.br
+.ti -1c
+.RI "#define \fBvmcase\fP(l)   case l:"
+.br
+.ti -1c
+.RI "#define \fBvmbreak\fP   break"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static int \fBl_strton\fP (const \fBTValue\fP *obj, \fBTValue\fP *result)"
+.br
+.ti -1c
+.RI "int \fBluaV_tonumber_\fP (const \fBTValue\fP *obj, \fBlua_Number\fP *n)"
+.br
+.ti -1c
+.RI "int \fBluaV_flttointeger\fP (\fBlua_Number\fP n, \fBlua_Integer\fP *p, \fBF2Imod\fP mode)"
+.br
+.ti -1c
+.RI "int \fBluaV_tointegerns\fP (const \fBTValue\fP *obj, \fBlua_Integer\fP *p, \fBF2Imod\fP mode)"
+.br
+.ti -1c
+.RI "int \fBluaV_tointeger\fP (const \fBTValue\fP *obj, \fBlua_Integer\fP *p, \fBF2Imod\fP mode)"
+.br
+.ti -1c
+.RI "static int \fBforlimit\fP (\fBlua_State\fP *L, \fBlua_Integer\fP init, const \fBTValue\fP *lim, \fBlua_Integer\fP *p, \fBlua_Integer\fP step)"
+.br
+.ti -1c
+.RI "static int \fBforprep\fP (\fBlua_State\fP *L, \fBStkId\fP ra)"
+.br
+.ti -1c
+.RI "static int \fBfloatforloop\fP (\fBStkId\fP ra)"
+.br
+.ti -1c
+.RI "void \fBluaV_finishget\fP (\fBlua_State\fP *L, const \fBTValue\fP *t, \fBTValue\fP *key, \fBStkId\fP val, const \fBTValue\fP *slot)"
+.br
+.ti -1c
+.RI "void \fBluaV_finishset\fP (\fBlua_State\fP *L, const \fBTValue\fP *t, \fBTValue\fP *key, \fBTValue\fP *val, const \fBTValue\fP *slot)"
+.br
+.ti -1c
+.RI "static int \fBl_strcmp\fP (const \fBTString\fP *ls, const \fBTString\fP *rs)"
+.br
+.ti -1c
+.RI "static int \fBLTintfloat\fP (\fBlua_Integer\fP i, \fBlua_Number\fP f)"
+.br
+.ti -1c
+.RI "static int \fBLEintfloat\fP (\fBlua_Integer\fP i, \fBlua_Number\fP f)"
+.br
+.ti -1c
+.RI "static int \fBLTfloatint\fP (\fBlua_Number\fP f, \fBlua_Integer\fP i)"
+.br
+.ti -1c
+.RI "static int \fBLEfloatint\fP (\fBlua_Number\fP f, \fBlua_Integer\fP i)"
+.br
+.ti -1c
+.RI "static int \fBLTnum\fP (const \fBTValue\fP *l, const \fBTValue\fP *r)"
+.br
+.ti -1c
+.RI "static int \fBLEnum\fP (const \fBTValue\fP *l, const \fBTValue\fP *r)"
+.br
+.ti -1c
+.RI "static int \fBlessthanothers\fP (\fBlua_State\fP *L, const \fBTValue\fP *l, const \fBTValue\fP *r)"
+.br
+.ti -1c
+.RI "int \fBluaV_lessthan\fP (\fBlua_State\fP *L, const \fBTValue\fP *l, const \fBTValue\fP *r)"
+.br
+.ti -1c
+.RI "static int \fBlessequalothers\fP (\fBlua_State\fP *L, const \fBTValue\fP *l, const \fBTValue\fP *r)"
+.br
+.ti -1c
+.RI "int \fBluaV_lessequal\fP (\fBlua_State\fP *L, const \fBTValue\fP *l, const \fBTValue\fP *r)"
+.br
+.ti -1c
+.RI "int \fBluaV_equalobj\fP (\fBlua_State\fP *L, const \fBTValue\fP *t1, const \fBTValue\fP *t2)"
+.br
+.ti -1c
+.RI "static void \fBcopy2buff\fP (\fBStkId\fP top, int n, char *buff)"
+.br
+.ti -1c
+.RI "void \fBluaV_concat\fP (\fBlua_State\fP *L, int total)"
+.br
+.ti -1c
+.RI "void \fBluaV_objlen\fP (\fBlua_State\fP *L, \fBStkId\fP ra, const \fBTValue\fP *rb)"
+.br
+.ti -1c
+.RI "\fBlua_Integer\fP \fBluaV_idiv\fP (\fBlua_State\fP *L, \fBlua_Integer\fP m, \fBlua_Integer\fP n)"
+.br
+.ti -1c
+.RI "\fBlua_Integer\fP \fBluaV_mod\fP (\fBlua_State\fP *L, \fBlua_Integer\fP m, \fBlua_Integer\fP n)"
+.br
+.ti -1c
+.RI "\fBlua_Number\fP \fBluaV_modf\fP (\fBlua_State\fP *L, \fBlua_Number\fP m, \fBlua_Number\fP n)"
+.br
+.ti -1c
+.RI "\fBlua_Integer\fP \fBluaV_shiftl\fP (\fBlua_Integer\fP x, \fBlua_Integer\fP y)"
+.br
+.ti -1c
+.RI "static void \fBpushclosure\fP (\fBlua_State\fP *L, \fBProto\fP *p, \fBUpVal\fP **encup, \fBStkId\fP base, \fBStkId\fP ra)"
+.br
+.ti -1c
+.RI "void \fBluaV_finishOp\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "void \fBluaV_execute\fP (\fBlua_State\fP *L, \fBCallInfo\fP *ci)"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define checkGC(L, c)"
+\fB值:\fP
+.PP
+.nf
+   { luaC_condGC(L, L->top = (c),  /* limit of live values */ \
+                         updatetrap(ci)); \
+           luai_threadyield(L); }
+.fi
+.PP
+在文件 lvm\&.c 第 1106 行定义\&.
+.SS "#define docondjump()   if (\fBcond\fP != \fBGETARG_k\fP(i)) pc++; else \fBdonextjump\fP(ci);"
+
+.PP
+在文件 lvm\&.c 第 1070 行定义\&.
+.SS "#define dojump(ci, i, e)   { pc += \fBGETARG_sJ\fP(i) + e; \fBupdatetrap\fP(ci); }"
+
+.PP
+在文件 lvm\&.c 第 1059 行定义\&.
+.SS "#define donextjump(ci)   { \fBInstruction\fP ni = *pc; \fBdojump\fP(ci, ni, 1); }"
+
+.PP
+在文件 lvm\&.c 第 1063 行定义\&.
+.SS "#define halfProtect(exp)   (\fBsavestate\fP(L,ci), (exp))"
+
+.PP
+在文件 lvm\&.c 第 1100 行定义\&.
+.SS "#define halfProtectNT(exp)   (\fBsavepc\fP(L), (exp))"
+
+.PP
+在文件 lvm\&.c 第 1103 行定义\&.
+.SS "#define isemptystr(o)   (\fBttisshrstring\fP(o) && \fBtsvalue\fP(o)\->shrlen == 0)"
+
+.PP
+在文件 lvm\&.c 第 619 行定义\&.
+.SS "#define KB(i)   (k+\fBGETARG_B\fP(i))"
+
+.PP
+在文件 lvm\&.c 第 1039 行定义\&.
+.SS "#define KC(i)   (k+\fBGETARG_C\fP(i))"
+
+.PP
+在文件 lvm\&.c 第 1042 行定义\&.
+.SS "#define l_addi(L, a, b)   \fBintop\fP(+, a, b)"
+
+.PP
+在文件 lvm\&.c 第 868 行定义\&.
+.SS "#define l_band(a, b)   \fBintop\fP(&, a, b)"
+
+.PP
+在文件 lvm\&.c 第 871 行定义\&.
+.SS "#define l_bor(a, b)   \fBintop\fP(|, a, b)"
+
+.PP
+在文件 lvm\&.c 第 872 行定义\&.
+.SS "#define l_bxor(a, b)   \fBintop\fP(^, a, b)"
+
+.PP
+在文件 lvm\&.c 第 873 行定义\&.
+.SS "#define l_gei(a, b)   (a >= b)"
+
+.PP
+在文件 lvm\&.c 第 878 行定义\&.
+.SS "#define l_gti(a, b)   (a > b)"
+
+.PP
+在文件 lvm\&.c 第 877 行定义\&.
+.SS "#define l_intfitsf(i)   1"
+
+.PP
+在文件 lvm\&.c 第 78 行定义\&.
+.SS "#define l_lei(a, b)   (a <= b)"
+
+.PP
+在文件 lvm\&.c 第 876 行定义\&.
+.SS "#define l_lti(a, b)   (a < b)"
+
+.PP
+在文件 lvm\&.c 第 875 行定义\&.
+.SS "#define l_muli(L, a, b)   \fBintop\fP(*, a, b)"
+
+.PP
+在文件 lvm\&.c 第 870 行定义\&.
+.SS "#define l_subi(L, a, b)   \fBintop\fP(\-, a, b)"
+
+.PP
+在文件 lvm\&.c 第 869 行定义\&.
+.SS "#define LUA_CORE"
+
+.PP
+在文件 lvm\&.c 第 8 行定义\&.
+.SS "#define LUA_USE_JUMPTABLE   0"
+
+.PP
+在文件 lvm\&.c 第 42 行定义\&.
+.SS "#define luaV_shiftr(x, y)   \fBluaV_shiftl\fP(x,\-(y))"
+
+.PP
+在文件 lvm\&.c 第 766 行定义\&.
+.SS "#define lvm_c"
+
+.PP
+在文件 lvm\&.c 第 7 行定义\&.
+.SS "#define MAXTAGLOOP   2000"
+
+.PP
+在文件 lvm\&.c 第 49 行定义\&.
+.SS "#define NBITS   \fBcast_int\fP(sizeof(\fBlua_Integer\fP) * CHAR_BIT)"
+
+.PP
+在文件 lvm\&.c 第 761 行定义\&.
+.SS "#define NBM   (\fBl_floatatt\fP(MANT_DIG))"
+
+.PP
+在文件 lvm\&.c 第 58 行定义\&.
+.SS "#define op_arith(L, iop, fop)"
+\fB值:\fP
+.PP
+.nf
+  {  \
+  TValue *v1 = vRB(i);  \
+  TValue *v2 = vRC(i);  \
+  op_arith_aux(L, v1, v2, iop, fop); }
+.fi
+.PP
+在文件 lvm\&.c 第 942 行定义\&.
+.SS "#define op_arith_aux(L, v1, v2, iop, fop)"
+\fB值:\fP
+.PP
+.nf
+  {  \
+  if (ttisinteger(v1) && ttisinteger(v2)) {  \
+    lua_Integer i1 = ivalue(v1); lua_Integer i2 = ivalue(v2);  \
+    pc++; setivalue(s2v(ra), iop(L, i1, i2));  \
+  }  \
+  else op_arithf_aux(L, v1, v2, fop); }
+.fi
+.PP
+在文件 lvm\&.c 第 931 行定义\&.
+.SS "#define op_arithf(L, fop)"
+\fB值:\fP
+.PP
+.nf
+  {  \
+  TValue *v1 = vRB(i);  \
+  TValue *v2 = vRC(i);  \
+  op_arithf_aux(L, v1, v2, fop); }
+.fi
+.PP
+在文件 lvm\&.c 第 913 行定义\&.
+.SS "#define op_arithf_aux(L, v1, v2, fop)"
+\fB值:\fP
+.PP
+.nf
+  {  \
+  lua_Number n1; lua_Number n2;  \
+  if (tonumberns(v1, n1) && tonumberns(v2, n2)) {  \
+    pc++; setfltvalue(s2v(ra), fop(L, n1, n2));  \
+  }}
+.fi
+.PP
+在文件 lvm\&.c 第 903 行定义\&.
+.SS "#define op_arithfK(L, fop)"
+\fB值:\fP
+.PP
+.nf
+  {  \
+  TValue *v1 = vRB(i);  \
+  TValue *v2 = KC(i);  \
+  op_arithf_aux(L, v1, v2, fop); }
+.fi
+.PP
+在文件 lvm\&.c 第 922 行定义\&.
+.SS "#define op_arithI(L, iop, fop)"
+\fB值:\fP
+.PP
+.nf
+  {  \
+  TValue *v1 = vRB(i);  \
+  int imm = GETARG_sC(i);  \
+  if (ttisinteger(v1)) {  \
+    lua_Integer iv1 = ivalue(v1);  \
+    pc++; setivalue(s2v(ra), iop(L, iv1, imm));  \
+  }  \
+  else if (ttisfloat(v1)) {  \
+    lua_Number nb = fltvalue(v1);  \
+    lua_Number fimm = cast_num(imm);  \
+    pc++; setfltvalue(s2v(ra), fop(L, nb, fimm)); \
+  }}
+.fi
+.PP
+在文件 lvm\&.c 第 885 行定义\&.
+.SS "#define op_arithK(L, iop, fop)"
+\fB值:\fP
+.PP
+.nf
+  {  \
+  TValue *v1 = vRB(i);  \
+  TValue *v2 = KC(i);  \
+  op_arith_aux(L, v1, v2, iop, fop); }
+.fi
+.PP
+在文件 lvm\&.c 第 951 行定义\&.
+.SS "#define op_bitwise(L, op)"
+\fB值:\fP
+.PP
+.nf
+  {  \
+  TValue *v1 = vRB(i);  \
+  TValue *v2 = vRC(i);  \
+  lua_Integer i1; lua_Integer i2;  \
+  if (tointegerns(v1, &i1) && tointegerns(v2, &i2)) {  \
+    pc++; setivalue(s2v(ra), op(i1, i2));  \
+  }}
+.fi
+.PP
+在文件 lvm\&.c 第 973 行定义\&.
+.SS "#define op_bitwiseK(L, op)"
+\fB值:\fP
+.PP
+.nf
+  {  \
+  TValue *v1 = vRB(i);  \
+  TValue *v2 = KC(i);  \
+  lua_Integer i1;  \
+  lua_Integer i2 = ivalue(v2);  \
+  if (tointegerns(v1, &i1)) {  \
+    pc++; setivalue(s2v(ra), op(i1, i2));  \
+  }}
+.fi
+.PP
+在文件 lvm\&.c 第 960 行定义\&.
+.SS "#define op_order(L, opi, opn, other)"
+\fB值:\fP
+.PP
+.nf
+        {  \
+        int cond;  \
+        TValue *rb = vRB(i);  \
+        if (ttisinteger(s2v(ra)) && ttisinteger(rb)) {  \
+          lua_Integer ia = ivalue(s2v(ra));  \
+          lua_Integer ib = ivalue(rb);  \
+          cond = opi(ia, ib);  \
+        }  \
+        else if (ttisnumber(s2v(ra)) && ttisnumber(rb))  \
+          cond = opn(s2v(ra), rb);  \\
+        else  \\
+          Protect(cond = other(L, s2v(ra), rb));  \
+        docondjump(); }
+.fi
+.PP
+在文件 lvm\&.c 第 987 行定义\&.
+.SS "#define op_orderI(L, opi, opf, inv, tm)"
+\fB值:\fP
+.PP
+.nf
+        {  \
+        int cond;  \
+        int im = GETARG_sB(i);  \
+        if (ttisinteger(s2v(ra)))  \
+          cond = opi(ivalue(s2v(ra)), im);  \
+        else if (ttisfloat(s2v(ra))) {  \
+          lua_Number fa = fltvalue(s2v(ra));  \
+          lua_Number fim = cast_num(im);  \
+          cond = opf(fa, fim);  \
+        }  \
+        else {  \
+          int isf = GETARG_C(i);  \
+          Protect(cond = luaT_callorderiTM(L, s2v(ra), im, inv, isf, tm));  \
+        }  \
+        docondjump(); }
+.fi
+.PP
+在文件 lvm\&.c 第 1006 行定义\&.
+.SS "#define Protect(exp)   (\fBsavestate\fP(L,ci), (exp), \fBupdatetrap\fP(ci))"
+
+.PP
+在文件 lvm\&.c 第 1090 行定义\&.
+.SS "#define ProtectNT(exp)   (\fBsavepc\fP(L), (exp), \fBupdatetrap\fP(ci))"
+
+.PP
+在文件 lvm\&.c 第 1093 行定义\&.
+.SS "#define RA(i)   (base+\fBGETARG_A\fP(i))"
+
+.PP
+在文件 lvm\&.c 第 1036 行定义\&.
+.SS "#define RB(i)   (base+\fBGETARG_B\fP(i))"
+
+.PP
+在文件 lvm\&.c 第 1037 行定义\&.
+.SS "#define RC(i)   (base+\fBGETARG_C\fP(i))"
+
+.PP
+在文件 lvm\&.c 第 1040 行定义\&.
+.SS "#define RKC(i)   ((\fBTESTARG_k\fP(i)) ? k + \fBGETARG_C\fP(i) : \fBs2v\fP(base + \fBGETARG_C\fP(i)))"
+
+.PP
+在文件 lvm\&.c 第 1043 行定义\&.
+.SS "#define savepc(L)   (ci\->u\&.l\&.savedpc = pc)"
+
+.PP
+在文件 lvm\&.c 第 1076 行定义\&.
+.SS "#define savestate(L, ci)   (\fBsavepc\fP(L), L\->top = ci\->top)"
+
+.PP
+在文件 lvm\&.c 第 1083 行定义\&.
+.SS "#define tostring(L, o)   	(\fBttisstring\fP(o) || (\fBcvt2str\fP(o) && (\fBluaO_tostring\fP(L, o), 1)))"
+
+.PP
+在文件 lvm\&.c 第 616 行定义\&.
+.SS "#define updatebase(ci)   (base = ci\->func + 1)"
+
+.PP
+在文件 lvm\&.c 第 1049 行定义\&.
+.SS "#define updatestack(ci)   { if (trap) { \fBupdatebase\fP(ci); ra = \fBRA\fP(i); } }"
+
+.PP
+在文件 lvm\&.c 第 1052 行定义\&.
+.SS "#define updatetrap(ci)   (trap = ci\->u\&.l\&.trap)"
+
+.PP
+在文件 lvm\&.c 第 1047 行定义\&.
+.SS "#define vmbreak   break"
+
+.PP
+在文件 lvm\&.c 第 1124 行定义\&.
+.SS "#define vmcase(l)   case l:"
+
+.PP
+在文件 lvm\&.c 第 1123 行定义\&.
+.SS "#define vmdispatch(o)   switch(o)"
+
+.PP
+在文件 lvm\&.c 第 1122 行定义\&.
+.SS "#define vmfetch()"
+\fB值:\fP
+.PP
+.nf
+  { \
+  if (trap) {  /* stack reallocation or hooks? */ \
+    trap = luaG_traceexec(L, pc);  /* handle hooks */ \
+    updatebase(ci);  /* correct stack */ \
+  } \
+  i = *(pc++); \
+  ra = RA(i); /* WARNING: any stack reallocation invalidates 'ra' */ \
+}
+.fi
+.PP
+在文件 lvm\&.c 第 1113 行定义\&.
+.SS "#define vRB(i)   \fBs2v\fP(\fBRB\fP(i))"
+
+.PP
+在文件 lvm\&.c 第 1038 行定义\&.
+.SS "#define vRC(i)   \fBs2v\fP(\fBRC\fP(i))"
+
+.PP
+在文件 lvm\&.c 第 1041 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static void copy2buff (\fBStkId\fP top, int n, char * buff)\fC [static]\fP"
+
+.PP
+在文件 lvm\&.c 第 622 行定义\&.
+.SS "static int floatforloop (\fBStkId\fP ra)\fC [static]\fP"
+
+.PP
+在文件 lvm\&.c 第 266 行定义\&.
+.SS "static int forlimit (\fBlua_State\fP * L, \fBlua_Integer\fP init, const \fBTValue\fP * lim, \fBlua_Integer\fP * p, \fBlua_Integer\fP step)\fC [static]\fP"
+
+.PP
+在文件 lvm\&.c 第 176 行定义\&.
+.SS "static int forprep (\fBlua_State\fP * L, \fBStkId\fP ra)\fC [static]\fP"
+
+.PP
+在文件 lvm\&.c 第 206 行定义\&.
+.SS "static int l_strcmp (const \fBTString\fP * ls, const \fBTString\fP * rs)\fC [static]\fP"
+
+.PP
+在文件 lvm\&.c 第 378 行定义\&.
+.SS "static int l_strton (const \fBTValue\fP * obj, \fBTValue\fP * result)\fC [static]\fP"
+
+.PP
+在文件 lvm\&.c 第 90 行定义\&.
+.SS "static int LEfloatint (\fBlua_Number\fP f, \fBlua_Integer\fP i)\fC [static]\fP"
+
+.PP
+在文件 lvm\&.c 第 463 行定义\&.
+.SS "static int LEintfloat (\fBlua_Integer\fP i, \fBlua_Number\fP f)\fC [static]\fP"
+
+.PP
+在文件 lvm\&.c 第 429 行定义\&.
+.SS "static int LEnum (const \fBTValue\fP * l, const \fBTValue\fP * r)\fC [static]\fP"
+
+.PP
+在文件 lvm\&.c 第 501 行定义\&.
+.SS "static int lessequalothers (\fBlua_State\fP * L, const \fBTValue\fP * l, const \fBTValue\fP * r)\fC [static]\fP"
+
+.PP
+在文件 lvm\&.c 第 545 行定义\&.
+.SS "static int lessthanothers (\fBlua_State\fP * L, const \fBTValue\fP * l, const \fBTValue\fP * r)\fC [static]\fP"
+
+.PP
+在文件 lvm\&.c 第 523 行定义\&.
+.SS "static int LTfloatint (\fBlua_Number\fP f, \fBlua_Integer\fP i)\fC [static]\fP"
+
+.PP
+在文件 lvm\&.c 第 446 行定义\&.
+.SS "static int LTintfloat (\fBlua_Integer\fP i, \fBlua_Number\fP f)\fC [static]\fP"
+
+.PP
+在文件 lvm\&.c 第 412 行定义\&.
+.SS "static int LTnum (const \fBTValue\fP * l, const \fBTValue\fP * r)\fC [static]\fP"
+
+.PP
+在文件 lvm\&.c 第 479 行定义\&.
+.SS "void luaV_concat (\fBlua_State\fP * L, int total)"
+
+.PP
+在文件 lvm\&.c 第 636 行定义\&.
+.SS "int luaV_equalobj (\fBlua_State\fP * L, const \fBTValue\fP * t1, const \fBTValue\fP * t2)"
+
+.PP
+在文件 lvm\&.c 第 568 行定义\&.
+.SS "void luaV_execute (\fBlua_State\fP * L, \fBCallInfo\fP * ci)"
+
+.PP
+在文件 lvm\&.c 第 1127 行定义\&.
+.SS "void luaV_finishget (\fBlua_State\fP * L, const \fBTValue\fP * t, \fBTValue\fP * key, \fBStkId\fP val, const \fBTValue\fP * slot)"
+
+.PP
+在文件 lvm\&.c 第 287 行定义\&.
+.SS "void luaV_finishOp (\fBlua_State\fP * L)"
+
+.PP
+在文件 lvm\&.c 第 805 行定义\&.
+.SS "void luaV_finishset (\fBlua_State\fP * L, const \fBTValue\fP * t, \fBTValue\fP * key, \fBTValue\fP * val, const \fBTValue\fP * slot)"
+
+.PP
+在文件 lvm\&.c 第 330 行定义\&.
+.SS "int luaV_flttointeger (\fBlua_Number\fP n, \fBlua_Integer\fP * p, \fBF2Imod\fP mode)"
+
+.PP
+在文件 lvm\&.c 第 121 行定义\&.
+.SS "\fBlua_Integer\fP luaV_idiv (\fBlua_State\fP * L, \fBlua_Integer\fP m, \fBlua_Integer\fP n)"
+
+.PP
+在文件 lvm\&.c 第 715 行定义\&.
+.SS "int luaV_lessequal (\fBlua_State\fP * L, const \fBTValue\fP * l, const \fBTValue\fP * r)"
+
+.PP
+在文件 lvm\&.c 第 557 行定义\&.
+.SS "int luaV_lessthan (\fBlua_State\fP * L, const \fBTValue\fP * l, const \fBTValue\fP * r)"
+
+.PP
+在文件 lvm\&.c 第 535 行定义\&.
+.SS "\fBlua_Integer\fP luaV_mod (\fBlua_State\fP * L, \fBlua_Integer\fP m, \fBlua_Integer\fP n)"
+
+.PP
+在文件 lvm\&.c 第 735 行定义\&.
+.SS "\fBlua_Number\fP luaV_modf (\fBlua_State\fP * L, \fBlua_Number\fP m, \fBlua_Number\fP n)"
+
+.PP
+在文件 lvm\&.c 第 753 行定义\&.
+.SS "void luaV_objlen (\fBlua_State\fP * L, \fBStkId\fP ra, const \fBTValue\fP * rb)"
+
+.PP
+在文件 lvm\&.c 第 680 行定义\&.
+.SS "\fBlua_Integer\fP luaV_shiftl (\fBlua_Integer\fP x, \fBlua_Integer\fP y)"
+
+.PP
+在文件 lvm\&.c 第 768 行定义\&.
+.SS "int luaV_tointeger (const \fBTValue\fP * obj, \fBlua_Integer\fP * p, \fBF2Imod\fP mode)"
+
+.PP
+在文件 lvm\&.c 第 152 行定义\&.
+.SS "int luaV_tointegerns (const \fBTValue\fP * obj, \fBlua_Integer\fP * p, \fBF2Imod\fP mode)"
+
+.PP
+在文件 lvm\&.c 第 137 行定义\&.
+.SS "int luaV_tonumber_ (const \fBTValue\fP * obj, \fBlua_Number\fP * n)"
+
+.PP
+在文件 lvm\&.c 第 103 行定义\&.
+.SS "static void pushclosure (\fBlua_State\fP * L, \fBProto\fP * p, \fBUpVal\fP ** encup, \fBStkId\fP base, \fBStkId\fP ra)\fC [static]\fP"
+
+.PP
+在文件 lvm\&.c 第 784 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

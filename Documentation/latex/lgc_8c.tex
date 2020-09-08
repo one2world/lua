@@ -1,0 +1,1114 @@
+\hypertarget{lgc_8c}{}\doxysection{D\+:/gitworkspace/lua/src/lgc.c 文件参考}
+\label{lgc_8c}\index{D:/gitworkspace/lua/src/lgc.c@{D:/gitworkspace/lua/src/lgc.c}}
+{\ttfamily \#include \char`\"{}lprefix.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}lua.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ldebug.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ldo.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lfunc.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lgc.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lmem.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lobject.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lstate.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lstring.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ltable.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ltm.\+h\char`\"{}}\newline
+\doxysubsection*{宏定义}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{lgc_8c_a61d084c4959fdcc23103ae67105b3472}{lgc\+\_\+c}}
+\item 
+\#define \mbox{\hyperlink{lgc_8c_abf0b3947b59218777a8e928a10be205b}{L\+U\+A\+\_\+\+C\+O\+RE}}
+\item 
+\#define \mbox{\hyperlink{lgc_8c_ac31abb557425090d41f055c797049ba8}{G\+C\+S\+W\+E\+E\+P\+M\+AX}}~100
+\item 
+\#define \mbox{\hyperlink{lgc_8c_ac3a3667112bce0a226dbef4640edee94}{G\+C\+F\+I\+N\+M\+AX}}~10
+\item 
+\#define \mbox{\hyperlink{lgc_8c_a84dfd5e385ed6792c171df6b6a972179}{G\+C\+F\+I\+N\+A\+L\+I\+Z\+E\+C\+O\+ST}}~50
+\item 
+\#define \mbox{\hyperlink{lgc_8c_a2f1af1a74ed552d994ae1a8f830bd6d2}{W\+O\+R\+K2\+M\+EM}}~sizeof(\mbox{\hyperlink{struct_t_value}{T\+Value}})
+\item 
+\#define \mbox{\hyperlink{lgc_8c_a79ef06ea1e24ee7e3d343f67e954d68c}{P\+A\+U\+S\+E\+A\+DJ}}~100
+\item 
+\#define \mbox{\hyperlink{lgc_8c_a31f875711ff997274eb999d7fe8ec639}{maskcolors}}~($\sim$(\mbox{\hyperlink{lgc_8h_af25866c39979dd1f72110cbd3a1a427d}{bitmask}}(\mbox{\hyperlink{lgc_8h_acd17af3c46cb360dc67cad2b33b6a26f}{B\+L\+A\+C\+K\+B\+IT}}) $\vert$ \mbox{\hyperlink{lgc_8h_a0acb34c1b3d1234f11ee9fdc34df3f71}{W\+H\+I\+T\+E\+B\+I\+TS}} $\vert$ \mbox{\hyperlink{lgc_8h_a3b446e7d0b31628385b7a1f444192e9a}{A\+G\+E\+B\+I\+TS}}))
+\item 
+\#define \mbox{\hyperlink{lgc_8c_ada061b1d508c516b2e53f546521b3eeb}{makewhite}}(g,  x)~ (x-\/$>$marked = \mbox{\hyperlink{llimits_8h_a596f5b6e992f53a5a4e5732083448dd4}{cast\+\_\+byte}}((x-\/$>$marked \& \mbox{\hyperlink{lgc_8c_a31f875711ff997274eb999d7fe8ec639}{maskcolors}}) $\vert$ \mbox{\hyperlink{lgc_8h_afaa8a52c4097cf3a5eacd88db94092da}{lua\+C\+\_\+white}}(g)))
+\item 
+\#define \mbox{\hyperlink{lgc_8c_aa598e08eb28253fce9f1ebec51a6a739}{white2gray}}(x)~\mbox{\hyperlink{lgc_8h_a486033531260010debe876a076dd2a41}{resetbits}}(x-\/$>$marked, \mbox{\hyperlink{lgc_8h_a0acb34c1b3d1234f11ee9fdc34df3f71}{W\+H\+I\+T\+E\+B\+I\+TS}})
+\item 
+\#define \mbox{\hyperlink{lgc_8c_a9490dca59c8a4d659ff7522257943f63}{black2gray}}(x)~\mbox{\hyperlink{lgc_8h_aca0beb244185329a1b8f0e695ef47748}{resetbit}}(x-\/$>$marked, \mbox{\hyperlink{lgc_8h_acd17af3c46cb360dc67cad2b33b6a26f}{B\+L\+A\+C\+K\+B\+IT}})
+\item 
+\#define \mbox{\hyperlink{lgc_8c_a84251731518ce7f66d49363eb9f0f594}{valiswhite}}(x)~(\mbox{\hyperlink{lobject_8h_aaabdb414706e6a904461e39967557185}{iscollectable}}(x) \&\& \mbox{\hyperlink{lgc_8h_a4c0ce78d476460d2e54914301f4a4bf7}{iswhite}}(\mbox{\hyperlink{lobject_8h_a05cdf6070135f10ad37e1048a730b634}{gcvalue}}(x)))
+\item 
+\#define \mbox{\hyperlink{lgc_8c_a4e2cb724f6d35593354bd90084b87d49}{keyiswhite}}(n)~(\mbox{\hyperlink{lobject_8h_ad5d0afe3e47112e0136e0d6afb6c4536}{keyiscollectable}}(n) \&\& \mbox{\hyperlink{lgc_8h_a4c0ce78d476460d2e54914301f4a4bf7}{iswhite}}(\mbox{\hyperlink{lobject_8h_ac3dbc3b85a58d872c002e6cbea675bac}{gckey}}(n)))
+\item 
+\#define \mbox{\hyperlink{lgc_8c_ad950fe2837e04aa03e52239d78ddf427}{checkconsistency}}(obj)~  \mbox{\hyperlink{llimits_8h_a825f22ba1e16fd60e3aae8fe8efc1c4d}{lua\+\_\+longassert}}(!\mbox{\hyperlink{lobject_8h_aaabdb414706e6a904461e39967557185}{iscollectable}}(obj) $\vert$$\vert$ \mbox{\hyperlink{lobject_8h_a08f554017b8314e2dfc0dfd05b1d8167}{righttt}}(obj))
+\item 
+\#define \mbox{\hyperlink{lgc_8c_a7c7f051ea3f0945577e90c480ebeee88}{gcvalueN}}(o)~(\mbox{\hyperlink{lobject_8h_aaabdb414706e6a904461e39967557185}{iscollectable}}(o) ? \mbox{\hyperlink{lobject_8h_a05cdf6070135f10ad37e1048a730b634}{gcvalue}}(o) \+: N\+U\+LL)
+\item 
+\#define \mbox{\hyperlink{lgc_8c_a2dd4136ac29665568973c074bc450849}{markvalue}}(g,  o)
+\item 
+\#define \mbox{\hyperlink{lgc_8c_a177a5a645b1409b4f1c20e3c84018d40}{markkey}}(g,  n)~\{ if \mbox{\hyperlink{lgc_8c_a4e2cb724f6d35593354bd90084b87d49}{keyiswhite}}(n) \mbox{\hyperlink{lgc_8c_aacf3c8ee0eebd5d5b1cd09da000ad53c}{reallymarkobject}}(g,\mbox{\hyperlink{lobject_8h_ac3dbc3b85a58d872c002e6cbea675bac}{gckey}}(n)); \}
+\item 
+\#define \mbox{\hyperlink{lgc_8c_a6ae72c43e48b29944e55933df7f15482}{markobject}}(g,  t)~\{ if (\mbox{\hyperlink{lgc_8h_a4c0ce78d476460d2e54914301f4a4bf7}{iswhite}}(t)) \mbox{\hyperlink{lgc_8c_aacf3c8ee0eebd5d5b1cd09da000ad53c}{reallymarkobject}}(g, \mbox{\hyperlink{lstate_8h_a254ca29aba03e47440082d4591a9734e}{obj2gco}}(t)); \}
+\item 
+\#define \mbox{\hyperlink{lgc_8c_af9d4ee7e422989e2c45413745252211b}{markobjectN}}(g,  t)~\{ if (t) \mbox{\hyperlink{lgc_8c_a6ae72c43e48b29944e55933df7f15482}{markobject}}(g,t); \}
+\item 
+\#define \mbox{\hyperlink{lgc_8c_a43ef7b8388b613e737dd3ec7eb493f47}{gnodelast}}(h)~\mbox{\hyperlink{ltable_8h_a644cfa3b6d4be1782e818a8340b5f78b}{gnode}}(h, \mbox{\hyperlink{llimits_8h_a025d385a5ce274fa6eade82b6e1458d1}{cast\+\_\+sizet}}(\mbox{\hyperlink{lobject_8h_a2fbf715e78eaa889ed0fb9d4514e736a}{sizenode}}(h)))
+\item 
+\#define \mbox{\hyperlink{lgc_8c_ad63f9d59a67a756d3c3540d9795cdcbe}{linkgclist}}(o,  p)~((o)-\/$>$gclist = (p), (p) = \mbox{\hyperlink{lstate_8h_a254ca29aba03e47440082d4591a9734e}{obj2gco}}(o))
+\item 
+\#define \mbox{\hyperlink{lgc_8c_a69a219e9e1a524d24173ef477419f87c}{linkobjgclist}}(o,  p)~($\ast$\mbox{\hyperlink{lgc_8c_a10a95d9a52dbdb6f36c090f5e2870007}{getgclist}}(o) = (p), (p) = \mbox{\hyperlink{lstate_8h_a254ca29aba03e47440082d4591a9734e}{obj2gco}}(o))
+\item 
+\#define \mbox{\hyperlink{lgc_8c_a923d3d00710d5bb817131c7ab853024b}{maskgencolors}}~($\sim$(\mbox{\hyperlink{lgc_8h_af25866c39979dd1f72110cbd3a1a427d}{bitmask}}(\mbox{\hyperlink{lgc_8h_acd17af3c46cb360dc67cad2b33b6a26f}{B\+L\+A\+C\+K\+B\+IT}}) $\vert$ \mbox{\hyperlink{lgc_8h_a0acb34c1b3d1234f11ee9fdc34df3f71}{W\+H\+I\+T\+E\+B\+I\+TS}}))
+\end{DoxyCompactItemize}
+\doxysubsection*{函数}
+\begin{DoxyCompactItemize}
+\item 
+static void \mbox{\hyperlink{lgc_8c_aacf3c8ee0eebd5d5b1cd09da000ad53c}{reallymarkobject}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$o)
+\item 
+static \mbox{\hyperlink{llimits_8h_aac8c50ca0aa51c80523376da77c2c4d8}{lu\+\_\+mem}} \mbox{\hyperlink{lgc_8c_a41eded2c85eaf7e1911cd95da36882d9}{atomic}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static void \mbox{\hyperlink{lgc_8c_aea46d650b68fac11368a752058b80ab7}{entersweep}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$ \mbox{\hyperlink{lgc_8c_a10a95d9a52dbdb6f36c090f5e2870007}{getgclist}} (\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$o)
+\item 
+static void \mbox{\hyperlink{lgc_8c_ae5b5bd4c69910951078ac627fa1654da}{clearkey}} (\mbox{\hyperlink{union_node}{Node}} $\ast$n)
+\item 
+static int \mbox{\hyperlink{lgc_8c_acae02b6cdb8288e654682baf4117e8ab}{iscleared}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g, const \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$o)
+\item 
+void \mbox{\hyperlink{lgc_8c_a72c69b5d5554e0ea4b65e894f2a50793}{lua\+C\+\_\+barrier\+\_\+}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$o, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$v)
+\item 
+void \mbox{\hyperlink{lgc_8c_a61ad59cdf3484ff64c0c3cb7a48388ad}{lua\+C\+\_\+barrierback\+\_\+}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$o)
+\item 
+void \mbox{\hyperlink{lgc_8c_a77a9b70a49730bb007a8a9492687d0eb}{lua\+C\+\_\+fix}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$o)
+\item 
+\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$ \mbox{\hyperlink{lgc_8c_abfc8404c5fbd2a1770202fa0b087d451}{lua\+C\+\_\+newobj}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int tt, size\+\_\+t sz)
+\item 
+static void \mbox{\hyperlink{lgc_8c_a9e8dd447c32dde7eeb9fc5da83df09b1}{markmt}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+static \mbox{\hyperlink{llimits_8h_aac8c50ca0aa51c80523376da77c2c4d8}{lu\+\_\+mem}} \mbox{\hyperlink{lgc_8c_afdc11f26c812a8356585e0e6a67b9982}{markbeingfnz}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+static int \mbox{\hyperlink{lgc_8c_a563e20dbbab2390ef4ac0ac254f59b71}{remarkupvals}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+static void \mbox{\hyperlink{lgc_8c_abc346fb7129981227c874ba0e22a480f}{restartcollection}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+static void \mbox{\hyperlink{lgc_8c_ae8dc436daacca264cf45cb9652c68430}{traverseweakvalue}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g, \mbox{\hyperlink{struct_table}{Table}} $\ast$h)
+\item 
+static int \mbox{\hyperlink{lgc_8c_aad4294f43d919ea5950d992599d1a445}{traverseephemeron}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g, \mbox{\hyperlink{struct_table}{Table}} $\ast$h, int inv)
+\item 
+static void \mbox{\hyperlink{lgc_8c_a3c018ffdc54c29a2ff8f44d32703a7c6}{traversestrongtable}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g, \mbox{\hyperlink{struct_table}{Table}} $\ast$h)
+\item 
+static \mbox{\hyperlink{llimits_8h_aac8c50ca0aa51c80523376da77c2c4d8}{lu\+\_\+mem}} \mbox{\hyperlink{lgc_8c_a86c4c1008df3c908a9cca3cf72abc195}{traversetable}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g, \mbox{\hyperlink{struct_table}{Table}} $\ast$h)
+\item 
+static int \mbox{\hyperlink{lgc_8c_a7a5280b620352ed9282f78028779c968}{traverseudata}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g, \mbox{\hyperlink{struct_udata}{Udata}} $\ast$u)
+\item 
+static int \mbox{\hyperlink{lgc_8c_a19be424be90fc7025deae5ccfdcab62b}{traverseproto}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g, \mbox{\hyperlink{struct_proto}{Proto}} $\ast$f)
+\item 
+static int \mbox{\hyperlink{lgc_8c_aa85f9809abfe94fcd3bbec6e2c46b104}{traverse\+Cclosure}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g, \mbox{\hyperlink{struct_c_closure}{C\+Closure}} $\ast$cl)
+\item 
+static int \mbox{\hyperlink{lgc_8c_a61e584daad5b6a41777ade0e72e559b3}{traverse\+Lclosure}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g, \mbox{\hyperlink{struct_l_closure}{L\+Closure}} $\ast$cl)
+\item 
+static int \mbox{\hyperlink{lgc_8c_a5759d7a25445fd28e24980d7f35a99b2}{traversethread}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g, \mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$th)
+\item 
+static \mbox{\hyperlink{llimits_8h_aac8c50ca0aa51c80523376da77c2c4d8}{lu\+\_\+mem}} \mbox{\hyperlink{lgc_8c_a817005bec4f6438093ec8bff63363f25}{propagatemark}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+static \mbox{\hyperlink{llimits_8h_aac8c50ca0aa51c80523376da77c2c4d8}{lu\+\_\+mem}} \mbox{\hyperlink{lgc_8c_a344b3515bc8cbe737fbdd9fa1521d17d}{propagateall}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+static void \mbox{\hyperlink{lgc_8c_a467150a6e5a6ef4402432c4964817ffc}{convergeephemerons}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+static void \mbox{\hyperlink{lgc_8c_a56ce6be91da7747cf9d93826cf5c8f28}{clearbykeys}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$l)
+\item 
+static void \mbox{\hyperlink{lgc_8c_a634862684194c98758caa196038d7033}{clearbyvalues}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$l, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$f)
+\item 
+static void \mbox{\hyperlink{lgc_8c_a41b4adb59140172e2cd717fb921cd372}{freeupval}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_up_val}{Up\+Val}} $\ast$uv)
+\item 
+static void \mbox{\hyperlink{lgc_8c_aa198d7da2a8502ed70adfe1f7ed38f46}{freeobj}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$o)
+\item 
+static \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$ \mbox{\hyperlink{lgc_8c_a88abd139efb3d69379bf4ee92b84a65d}{sweeplist}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$p, int countin, int $\ast$countout)
+\item 
+static \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$ \mbox{\hyperlink{lgc_8c_ab518b7adba50d2e796e206dbc96a9d52}{sweeptolive}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$p)
+\item 
+static void \mbox{\hyperlink{lgc_8c_a1b2909449f815733deb4bc35c0103002}{check\+Sizes}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+static \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$ \mbox{\hyperlink{lgc_8c_a1b500eec5a67ec92ad263021bd7d9435}{udata2finalize}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+static void \mbox{\hyperlink{lgc_8c_a929058f72c03750fa82374f6bfa639ee}{dothecall}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, void $\ast$ud)
+\item 
+static void \mbox{\hyperlink{lgc_8c_aaf7c6e9e6a93da6bb64ffe7654668ba3}{G\+C\+TM}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{lgc_8c_a5ba38781fc577f890c6f97af9beef40a}{runafewfinalizers}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int n)
+\item 
+static void \mbox{\hyperlink{lgc_8c_a3c6f43e1b63924361ed0ce31b6d30f8b}{callallpendingfinalizers}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$ \mbox{\hyperlink{lgc_8c_a00546669316a08c1286570927e676496}{findlast}} (\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$p)
+\item 
+static void \mbox{\hyperlink{lgc_8c_a39f98f28e85cc750b7cca70b10e79ee9}{separatetobefnz}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g, int all)
+\item 
+void \mbox{\hyperlink{lgc_8c_a0d4f5fb6a8831817e117cfff473aeb0e}{lua\+C\+\_\+checkfinalizer}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$o, \mbox{\hyperlink{struct_table}{Table}} $\ast$mt)
+\item 
+static void \mbox{\hyperlink{lgc_8c_ab1a2b0658321a52d5ae0c139b0bf5494}{setpause}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+static void \mbox{\hyperlink{lgc_8c_a85b353f49bd76eb0199fa5966ee37895}{sweep2old}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$p)
+\item 
+static \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$ \mbox{\hyperlink{lgc_8c_a50d25adc69e217135c766ea1d36d5514}{sweepgen}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$p, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$limit)
+\item 
+static void \mbox{\hyperlink{lgc_8c_a7bb7ff4928b82e65d5844fcaca7d59d8}{whitelist}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$p)
+\item 
+static \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$ \mbox{\hyperlink{lgc_8c_af7188b6e4cd31e997c857b6e010a6d4a}{correctgraylist}} (\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$p)
+\item 
+static void \mbox{\hyperlink{lgc_8c_a528264d2f4073b4a22b7844098a36f7d}{correctgraylists}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+static void \mbox{\hyperlink{lgc_8c_ae4013fea3c735a4c2802a6adf08e4b3c}{markold}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$from, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$to)
+\item 
+static void \mbox{\hyperlink{lgc_8c_ad14690f3e78fd31ce7eddc3acdbeec5b}{finishgencycle}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+static void \mbox{\hyperlink{lgc_8c_a7528878b4bb9da15db0a23fab038a339}{youngcollection}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+static void \mbox{\hyperlink{lgc_8c_a12beeec7fb7ed46e54b5e7633db83ad9}{atomic2gen}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+static \mbox{\hyperlink{llimits_8h_aac8c50ca0aa51c80523376da77c2c4d8}{lu\+\_\+mem}} \mbox{\hyperlink{lgc_8c_a2f8aa4c5cfd7f907a35deaa695ca4d3b}{entergen}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+static void \mbox{\hyperlink{lgc_8c_afed5a93f2093f2a754fb26f31b5207b0}{enterinc}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+void \mbox{\hyperlink{lgc_8c_ac88d5c236307393937e02bc82c10f970}{lua\+C\+\_\+changemode}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int newmode)
+\item 
+static \mbox{\hyperlink{llimits_8h_aac8c50ca0aa51c80523376da77c2c4d8}{lu\+\_\+mem}} \mbox{\hyperlink{lgc_8c_a270a46ab08adc0bb728eeb67b5cc45a9}{fullgen}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+static void \mbox{\hyperlink{lgc_8c_ab446273aaf611d661bb4c8b6e95360f1}{setminordebt}} (\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+static void \mbox{\hyperlink{lgc_8c_a6a3515ae97e70e9ccd0fb50acebc62d1}{stepgenfull}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+static void \mbox{\hyperlink{lgc_8c_a3035567259cf4d2269426622ccc0d022}{genstep}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+static void \mbox{\hyperlink{lgc_8c_af9982b911970c350d2a8c071f7c90fb1}{deletelist}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$p, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$limit)
+\item 
+void \mbox{\hyperlink{lgc_8c_abad938b33f011ec1088d1a79508c6ac9}{lua\+C\+\_\+freeallobjects}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{lgc_8c_a2669bab5717396ec41dda4e5bc46c140}{sweepstep}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g, int nextstate, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$nextlist)
+\item 
+static \mbox{\hyperlink{llimits_8h_aac8c50ca0aa51c80523376da77c2c4d8}{lu\+\_\+mem}} \mbox{\hyperlink{lgc_8c_ae34e22198155f5d365fe500d3735c150}{singlestep}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+void \mbox{\hyperlink{lgc_8c_a97086b84273579d4c9b42a782f30410d}{lua\+C\+\_\+runtilstate}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int statesmask)
+\item 
+static void \mbox{\hyperlink{lgc_8c_a3a70dfeab5db063c688d7e200d63a7c1}{incstep}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+void \mbox{\hyperlink{lgc_8c_ab0133eb7bb37a0a690e0ef71fbc13414}{lua\+C\+\_\+step}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static void \mbox{\hyperlink{lgc_8c_ac6dccdcfb264cbc5f1776cea79c8e375}{fullinc}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$g)
+\item 
+void \mbox{\hyperlink{lgc_8c_ac48130e5263ad8be09a9c51dae6125b9}{lua\+C\+\_\+fullgc}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int isemergency)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{宏定义说明}
+\mbox{\Hypertarget{lgc_8c_a9490dca59c8a4d659ff7522257943f63}\label{lgc_8c_a9490dca59c8a4d659ff7522257943f63}} 
+\index{lgc.c@{lgc.c}!black2gray@{black2gray}}
+\index{black2gray@{black2gray}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{black2gray}{black2gray}}
+{\footnotesize\ttfamily \#define black2gray(\begin{DoxyParamCaption}\item[{}]{x }\end{DoxyParamCaption})~\mbox{\hyperlink{lgc_8h_aca0beb244185329a1b8f0e695ef47748}{resetbit}}(x-\/$>$marked, \mbox{\hyperlink{lgc_8h_acd17af3c46cb360dc67cad2b33b6a26f}{B\+L\+A\+C\+K\+B\+IT}})}
+
+
+
+在文件 lgc.\+c 第 72 行定义.
+
+\mbox{\Hypertarget{lgc_8c_ad950fe2837e04aa03e52239d78ddf427}\label{lgc_8c_ad950fe2837e04aa03e52239d78ddf427}} 
+\index{lgc.c@{lgc.c}!checkconsistency@{checkconsistency}}
+\index{checkconsistency@{checkconsistency}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{checkconsistency}{checkconsistency}}
+{\footnotesize\ttfamily \#define checkconsistency(\begin{DoxyParamCaption}\item[{}]{obj }\end{DoxyParamCaption})~  \mbox{\hyperlink{llimits_8h_a825f22ba1e16fd60e3aae8fe8efc1c4d}{lua\+\_\+longassert}}(!\mbox{\hyperlink{lobject_8h_aaabdb414706e6a904461e39967557185}{iscollectable}}(obj) $\vert$$\vert$ \mbox{\hyperlink{lobject_8h_a08f554017b8314e2dfc0dfd05b1d8167}{righttt}}(obj))}
+
+
+
+在文件 lgc.\+c 第 80 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a84dfd5e385ed6792c171df6b6a972179}\label{lgc_8c_a84dfd5e385ed6792c171df6b6a972179}} 
+\index{lgc.c@{lgc.c}!GCFINALIZECOST@{GCFINALIZECOST}}
+\index{GCFINALIZECOST@{GCFINALIZECOST}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{GCFINALIZECOST}{GCFINALIZECOST}}
+{\footnotesize\ttfamily \#define G\+C\+F\+I\+N\+A\+L\+I\+Z\+E\+C\+O\+ST~50}
+
+
+
+在文件 lgc.\+c 第 46 行定义.
+
+\mbox{\Hypertarget{lgc_8c_ac3a3667112bce0a226dbef4640edee94}\label{lgc_8c_ac3a3667112bce0a226dbef4640edee94}} 
+\index{lgc.c@{lgc.c}!GCFINMAX@{GCFINMAX}}
+\index{GCFINMAX@{GCFINMAX}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{GCFINMAX}{GCFINMAX}}
+{\footnotesize\ttfamily \#define G\+C\+F\+I\+N\+M\+AX~10}
+
+
+
+在文件 lgc.\+c 第 40 行定义.
+
+\mbox{\Hypertarget{lgc_8c_ac31abb557425090d41f055c797049ba8}\label{lgc_8c_ac31abb557425090d41f055c797049ba8}} 
+\index{lgc.c@{lgc.c}!GCSWEEPMAX@{GCSWEEPMAX}}
+\index{GCSWEEPMAX@{GCSWEEPMAX}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{GCSWEEPMAX}{GCSWEEPMAX}}
+{\footnotesize\ttfamily \#define G\+C\+S\+W\+E\+E\+P\+M\+AX~100}
+
+
+
+在文件 lgc.\+c 第 35 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a7c7f051ea3f0945577e90c480ebeee88}\label{lgc_8c_a7c7f051ea3f0945577e90c480ebeee88}} 
+\index{lgc.c@{lgc.c}!gcvalueN@{gcvalueN}}
+\index{gcvalueN@{gcvalueN}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{gcvalueN}{gcvalueN}}
+{\footnotesize\ttfamily \#define gcvalueN(\begin{DoxyParamCaption}\item[{}]{o }\end{DoxyParamCaption})~(\mbox{\hyperlink{lobject_8h_aaabdb414706e6a904461e39967557185}{iscollectable}}(o) ? \mbox{\hyperlink{lobject_8h_a05cdf6070135f10ad37e1048a730b634}{gcvalue}}(o) \+: N\+U\+LL)}
+
+
+
+在文件 lgc.\+c 第 86 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a43ef7b8388b613e737dd3ec7eb493f47}\label{lgc_8c_a43ef7b8388b613e737dd3ec7eb493f47}} 
+\index{lgc.c@{lgc.c}!gnodelast@{gnodelast}}
+\index{gnodelast@{gnodelast}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{gnodelast}{gnodelast}}
+{\footnotesize\ttfamily \#define gnodelast(\begin{DoxyParamCaption}\item[{}]{h }\end{DoxyParamCaption})~\mbox{\hyperlink{ltable_8h_a644cfa3b6d4be1782e818a8340b5f78b}{gnode}}(h, \mbox{\hyperlink{llimits_8h_a025d385a5ce274fa6eade82b6e1458d1}{cast\+\_\+sizet}}(\mbox{\hyperlink{lobject_8h_a2fbf715e78eaa889ed0fb9d4514e736a}{sizenode}}(h)))}
+
+
+
+在文件 lgc.\+c 第 117 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a4e2cb724f6d35593354bd90084b87d49}\label{lgc_8c_a4e2cb724f6d35593354bd90084b87d49}} 
+\index{lgc.c@{lgc.c}!keyiswhite@{keyiswhite}}
+\index{keyiswhite@{keyiswhite}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{keyiswhite}{keyiswhite}}
+{\footnotesize\ttfamily \#define keyiswhite(\begin{DoxyParamCaption}\item[{}]{n }\end{DoxyParamCaption})~(\mbox{\hyperlink{lobject_8h_ad5d0afe3e47112e0136e0d6afb6c4536}{keyiscollectable}}(n) \&\& \mbox{\hyperlink{lgc_8h_a4c0ce78d476460d2e54914301f4a4bf7}{iswhite}}(\mbox{\hyperlink{lobject_8h_ac3dbc3b85a58d872c002e6cbea675bac}{gckey}}(n)))}
+
+
+
+在文件 lgc.\+c 第 77 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a61d084c4959fdcc23103ae67105b3472}\label{lgc_8c_a61d084c4959fdcc23103ae67105b3472}} 
+\index{lgc.c@{lgc.c}!lgc\_c@{lgc\_c}}
+\index{lgc\_c@{lgc\_c}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{lgc\_c}{lgc\_c}}
+{\footnotesize\ttfamily \#define lgc\+\_\+c}
+
+
+
+在文件 lgc.\+c 第 7 行定义.
+
+\mbox{\Hypertarget{lgc_8c_ad63f9d59a67a756d3c3540d9795cdcbe}\label{lgc_8c_ad63f9d59a67a756d3c3540d9795cdcbe}} 
+\index{lgc.c@{lgc.c}!linkgclist@{linkgclist}}
+\index{linkgclist@{linkgclist}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{linkgclist}{linkgclist}}
+{\footnotesize\ttfamily \#define linkgclist(\begin{DoxyParamCaption}\item[{}]{o,  }\item[{}]{p }\end{DoxyParamCaption})~((o)-\/$>$gclist = (p), (p) = \mbox{\hyperlink{lstate_8h_a254ca29aba03e47440082d4591a9734e}{obj2gco}}(o))}
+
+
+
+在文件 lgc.\+c 第 140 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a69a219e9e1a524d24173ef477419f87c}\label{lgc_8c_a69a219e9e1a524d24173ef477419f87c}} 
+\index{lgc.c@{lgc.c}!linkobjgclist@{linkobjgclist}}
+\index{linkobjgclist@{linkobjgclist}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{linkobjgclist}{linkobjgclist}}
+{\footnotesize\ttfamily \#define linkobjgclist(\begin{DoxyParamCaption}\item[{}]{o,  }\item[{}]{p }\end{DoxyParamCaption})~($\ast$\mbox{\hyperlink{lgc_8c_a10a95d9a52dbdb6f36c090f5e2870007}{getgclist}}(o) = (p), (p) = \mbox{\hyperlink{lstate_8h_a254ca29aba03e47440082d4591a9734e}{obj2gco}}(o))}
+
+
+
+在文件 lgc.\+c 第 146 行定义.
+
+\mbox{\Hypertarget{lgc_8c_abf0b3947b59218777a8e928a10be205b}\label{lgc_8c_abf0b3947b59218777a8e928a10be205b}} 
+\index{lgc.c@{lgc.c}!LUA\_CORE@{LUA\_CORE}}
+\index{LUA\_CORE@{LUA\_CORE}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{LUA\_CORE}{LUA\_CORE}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+C\+O\+RE}
+
+
+
+在文件 lgc.\+c 第 8 行定义.
+
+\mbox{\Hypertarget{lgc_8c_ada061b1d508c516b2e53f546521b3eeb}\label{lgc_8c_ada061b1d508c516b2e53f546521b3eeb}} 
+\index{lgc.c@{lgc.c}!makewhite@{makewhite}}
+\index{makewhite@{makewhite}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{makewhite}{makewhite}}
+{\footnotesize\ttfamily \#define makewhite(\begin{DoxyParamCaption}\item[{}]{g,  }\item[{}]{x }\end{DoxyParamCaption})~ (x-\/$>$marked = \mbox{\hyperlink{llimits_8h_a596f5b6e992f53a5a4e5732083448dd4}{cast\+\_\+byte}}((x-\/$>$marked \& \mbox{\hyperlink{lgc_8c_a31f875711ff997274eb999d7fe8ec639}{maskcolors}}) $\vert$ \mbox{\hyperlink{lgc_8h_afaa8a52c4097cf3a5eacd88db94092da}{lua\+C\+\_\+white}}(g)))}
+
+
+
+在文件 lgc.\+c 第 68 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a177a5a645b1409b4f1c20e3c84018d40}\label{lgc_8c_a177a5a645b1409b4f1c20e3c84018d40}} 
+\index{lgc.c@{lgc.c}!markkey@{markkey}}
+\index{markkey@{markkey}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{markkey}{markkey}}
+{\footnotesize\ttfamily \#define markkey(\begin{DoxyParamCaption}\item[{}]{g,  }\item[{}]{n }\end{DoxyParamCaption})~\{ if \mbox{\hyperlink{lgc_8c_a4e2cb724f6d35593354bd90084b87d49}{keyiswhite}}(n) \mbox{\hyperlink{lgc_8c_aacf3c8ee0eebd5d5b1cd09da000ad53c}{reallymarkobject}}(g,\mbox{\hyperlink{lobject_8h_ac3dbc3b85a58d872c002e6cbea675bac}{gckey}}(n)); \}}
+
+
+
+在文件 lgc.\+c 第 92 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a6ae72c43e48b29944e55933df7f15482}\label{lgc_8c_a6ae72c43e48b29944e55933df7f15482}} 
+\index{lgc.c@{lgc.c}!markobject@{markobject}}
+\index{markobject@{markobject}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{markobject}{markobject}}
+{\footnotesize\ttfamily \#define markobject(\begin{DoxyParamCaption}\item[{}]{g,  }\item[{}]{t }\end{DoxyParamCaption})~\{ if (\mbox{\hyperlink{lgc_8h_a4c0ce78d476460d2e54914301f4a4bf7}{iswhite}}(t)) \mbox{\hyperlink{lgc_8c_aacf3c8ee0eebd5d5b1cd09da000ad53c}{reallymarkobject}}(g, \mbox{\hyperlink{lstate_8h_a254ca29aba03e47440082d4591a9734e}{obj2gco}}(t)); \}}
+
+
+
+在文件 lgc.\+c 第 94 行定义.
+
+\mbox{\Hypertarget{lgc_8c_af9d4ee7e422989e2c45413745252211b}\label{lgc_8c_af9d4ee7e422989e2c45413745252211b}} 
+\index{lgc.c@{lgc.c}!markobjectN@{markobjectN}}
+\index{markobjectN@{markobjectN}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{markobjectN}{markobjectN}}
+{\footnotesize\ttfamily \#define markobjectN(\begin{DoxyParamCaption}\item[{}]{g,  }\item[{}]{t }\end{DoxyParamCaption})~\{ if (t) \mbox{\hyperlink{lgc_8c_a6ae72c43e48b29944e55933df7f15482}{markobject}}(g,t); \}}
+
+
+
+在文件 lgc.\+c 第 100 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a2dd4136ac29665568973c074bc450849}\label{lgc_8c_a2dd4136ac29665568973c074bc450849}} 
+\index{lgc.c@{lgc.c}!markvalue@{markvalue}}
+\index{markvalue@{markvalue}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{markvalue}{markvalue}}
+{\footnotesize\ttfamily \#define markvalue(\begin{DoxyParamCaption}\item[{}]{g,  }\item[{}]{o }\end{DoxyParamCaption})}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{  \{ \mbox{\hyperlink{lgc_8c_ad950fe2837e04aa03e52239d78ddf427}{checkconsistency}}(o); \(\backslash\)}
+\DoxyCodeLine{  if (\mbox{\hyperlink{lgc_8c_a84251731518ce7f66d49363eb9f0f594}{valiswhite}}(o)) \mbox{\hyperlink{lgc_8c_aacf3c8ee0eebd5d5b1cd09da000ad53c}{reallymarkobject}}(g,\mbox{\hyperlink{lobject_8h_a05cdf6070135f10ad37e1048a730b634}{gcvalue}}(o)); \}}
+
+\end{DoxyCode}
+
+
+在文件 lgc.\+c 第 89 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a31f875711ff997274eb999d7fe8ec639}\label{lgc_8c_a31f875711ff997274eb999d7fe8ec639}} 
+\index{lgc.c@{lgc.c}!maskcolors@{maskcolors}}
+\index{maskcolors@{maskcolors}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{maskcolors}{maskcolors}}
+{\footnotesize\ttfamily \#define maskcolors~($\sim$(\mbox{\hyperlink{lgc_8h_af25866c39979dd1f72110cbd3a1a427d}{bitmask}}(\mbox{\hyperlink{lgc_8h_acd17af3c46cb360dc67cad2b33b6a26f}{B\+L\+A\+C\+K\+B\+IT}}) $\vert$ \mbox{\hyperlink{lgc_8h_a0acb34c1b3d1234f11ee9fdc34df3f71}{W\+H\+I\+T\+E\+B\+I\+TS}} $\vert$ \mbox{\hyperlink{lgc_8h_a3b446e7d0b31628385b7a1f444192e9a}{A\+G\+E\+B\+I\+TS}}))}
+
+
+
+在文件 lgc.\+c 第 64 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a923d3d00710d5bb817131c7ab853024b}\label{lgc_8c_a923d3d00710d5bb817131c7ab853024b}} 
+\index{lgc.c@{lgc.c}!maskgencolors@{maskgencolors}}
+\index{maskgencolors@{maskgencolors}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{maskgencolors}{maskgencolors}}
+{\footnotesize\ttfamily \#define maskgencolors~($\sim$(\mbox{\hyperlink{lgc_8h_af25866c39979dd1f72110cbd3a1a427d}{bitmask}}(\mbox{\hyperlink{lgc_8h_acd17af3c46cb360dc67cad2b33b6a26f}{B\+L\+A\+C\+K\+B\+IT}}) $\vert$ \mbox{\hyperlink{lgc_8h_a0acb34c1b3d1234f11ee9fdc34df3f71}{W\+H\+I\+T\+E\+B\+I\+TS}}))}
+
+
+
+在文件 lgc.\+c 第 969 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a79ef06ea1e24ee7e3d343f67e954d68c}\label{lgc_8c_a79ef06ea1e24ee7e3d343f67e954d68c}} 
+\index{lgc.c@{lgc.c}!PAUSEADJ@{PAUSEADJ}}
+\index{PAUSEADJ@{PAUSEADJ}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{PAUSEADJ}{PAUSEADJ}}
+{\footnotesize\ttfamily \#define P\+A\+U\+S\+E\+A\+DJ~100}
+
+
+
+在文件 lgc.\+c 第 60 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a84251731518ce7f66d49363eb9f0f594}\label{lgc_8c_a84251731518ce7f66d49363eb9f0f594}} 
+\index{lgc.c@{lgc.c}!valiswhite@{valiswhite}}
+\index{valiswhite@{valiswhite}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{valiswhite}{valiswhite}}
+{\footnotesize\ttfamily \#define valiswhite(\begin{DoxyParamCaption}\item[{}]{x }\end{DoxyParamCaption})~(\mbox{\hyperlink{lobject_8h_aaabdb414706e6a904461e39967557185}{iscollectable}}(x) \&\& \mbox{\hyperlink{lgc_8h_a4c0ce78d476460d2e54914301f4a4bf7}{iswhite}}(\mbox{\hyperlink{lobject_8h_a05cdf6070135f10ad37e1048a730b634}{gcvalue}}(x)))}
+
+
+
+在文件 lgc.\+c 第 75 行定义.
+
+\mbox{\Hypertarget{lgc_8c_aa598e08eb28253fce9f1ebec51a6a739}\label{lgc_8c_aa598e08eb28253fce9f1ebec51a6a739}} 
+\index{lgc.c@{lgc.c}!white2gray@{white2gray}}
+\index{white2gray@{white2gray}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{white2gray}{white2gray}}
+{\footnotesize\ttfamily \#define white2gray(\begin{DoxyParamCaption}\item[{}]{x }\end{DoxyParamCaption})~\mbox{\hyperlink{lgc_8h_a486033531260010debe876a076dd2a41}{resetbits}}(x-\/$>$marked, \mbox{\hyperlink{lgc_8h_a0acb34c1b3d1234f11ee9fdc34df3f71}{W\+H\+I\+T\+E\+B\+I\+TS}})}
+
+
+
+在文件 lgc.\+c 第 71 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a2f1af1a74ed552d994ae1a8f830bd6d2}\label{lgc_8c_a2f1af1a74ed552d994ae1a8f830bd6d2}} 
+\index{lgc.c@{lgc.c}!WORK2MEM@{WORK2MEM}}
+\index{WORK2MEM@{WORK2MEM}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{WORK2MEM}{WORK2MEM}}
+{\footnotesize\ttfamily \#define W\+O\+R\+K2\+M\+EM~sizeof(\mbox{\hyperlink{struct_t_value}{T\+Value}})}
+
+
+
+在文件 lgc.\+c 第 53 行定义.
+
+
+
+\doxysubsection{函数说明}
+\mbox{\Hypertarget{lgc_8c_a41eded2c85eaf7e1911cd95da36882d9}\label{lgc_8c_a41eded2c85eaf7e1911cd95da36882d9}} 
+\index{lgc.c@{lgc.c}!atomic@{atomic}}
+\index{atomic@{atomic}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{atomic()}{atomic()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{llimits_8h_aac8c50ca0aa51c80523376da77c2c4d8}{lu\+\_\+mem}} atomic (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1416 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a12beeec7fb7ed46e54b5e7633db83ad9}\label{lgc_8c_a12beeec7fb7ed46e54b5e7633db83ad9}} 
+\index{lgc.c@{lgc.c}!atomic2gen@{atomic2gen}}
+\index{atomic2gen@{atomic2gen}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{atomic2gen()}{atomic2gen()}}
+{\footnotesize\ttfamily static void atomic2gen (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1169 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a3c6f43e1b63924361ed0ce31b6d30f8b}\label{lgc_8c_a3c6f43e1b63924361ed0ce31b6d30f8b}} 
+\index{lgc.c@{lgc.c}!callallpendingfinalizers@{callallpendingfinalizers}}
+\index{callallpendingfinalizers@{callallpendingfinalizers}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{callallpendingfinalizers()}{callallpendingfinalizers()}}
+{\footnotesize\ttfamily static void callallpendingfinalizers (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 879 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a1b2909449f815733deb4bc35c0103002}\label{lgc_8c_a1b2909449f815733deb4bc35c0103002}} 
+\index{lgc.c@{lgc.c}!checkSizes@{checkSizes}}
+\index{checkSizes@{checkSizes}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{checkSizes()}{checkSizes()}}
+{\footnotesize\ttfamily static void check\+Sizes (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 802 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a56ce6be91da7747cf9d93826cf5c8f28}\label{lgc_8c_a56ce6be91da7747cf9d93826cf5c8f28}} 
+\index{lgc.c@{lgc.c}!clearbykeys@{clearbykeys}}
+\index{clearbykeys@{clearbykeys}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{clearbykeys()}{clearbykeys()}}
+{\footnotesize\ttfamily static void clearbykeys (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$}]{l }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 664 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a634862684194c98758caa196038d7033}\label{lgc_8c_a634862684194c98758caa196038d7033}} 
+\index{lgc.c@{lgc.c}!clearbyvalues@{clearbyvalues}}
+\index{clearbyvalues@{clearbyvalues}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{clearbyvalues()}{clearbyvalues()}}
+{\footnotesize\ttfamily static void clearbyvalues (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$}]{l,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$}]{f }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 683 行定义.
+
+\mbox{\Hypertarget{lgc_8c_ae5b5bd4c69910951078ac627fa1654da}\label{lgc_8c_ae5b5bd4c69910951078ac627fa1654da}} 
+\index{lgc.c@{lgc.c}!clearkey@{clearkey}}
+\index{clearkey@{clearkey}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{clearkey()}{clearkey()}}
+{\footnotesize\ttfamily static void clearkey (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{union_node}{Node}} $\ast$}]{n }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 159 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a467150a6e5a6ef4402432c4964817ffc}\label{lgc_8c_a467150a6e5a6ef4402432c4964817ffc}} 
+\index{lgc.c@{lgc.c}!convergeephemerons@{convergeephemerons}}
+\index{convergeephemerons@{convergeephemerons}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{convergeephemerons()}{convergeephemerons()}}
+{\footnotesize\ttfamily static void convergeephemerons (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 632 行定义.
+
+\mbox{\Hypertarget{lgc_8c_af7188b6e4cd31e997c857b6e010a6d4a}\label{lgc_8c_af7188b6e4cd31e997c857b6e010a6d4a}} 
+\index{lgc.c@{lgc.c}!correctgraylist@{correctgraylist}}
+\index{correctgraylist@{correctgraylist}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{correctgraylist()}{correctgraylist()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}}$\ast$$\ast$ correctgraylist (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$}]{p }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1048 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a528264d2f4073b4a22b7844098a36f7d}\label{lgc_8c_a528264d2f4073b4a22b7844098a36f7d}} 
+\index{lgc.c@{lgc.c}!correctgraylists@{correctgraylists}}
+\index{correctgraylists@{correctgraylists}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{correctgraylists()}{correctgraylists()}}
+{\footnotesize\ttfamily static void correctgraylists (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1091 行定义.
+
+\mbox{\Hypertarget{lgc_8c_af9982b911970c350d2a8c071f7c90fb1}\label{lgc_8c_af9982b911970c350d2a8c071f7c90fb1}} 
+\index{lgc.c@{lgc.c}!deletelist@{deletelist}}
+\index{deletelist@{deletelist}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{deletelist()}{deletelist()}}
+{\footnotesize\ttfamily static void deletelist (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$}]{p,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$}]{limit }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1390 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a929058f72c03750fa82374f6bfa639ee}\label{lgc_8c_a929058f72c03750fa82374f6bfa639ee}} 
+\index{lgc.c@{lgc.c}!dothecall@{dothecall}}
+\index{dothecall@{dothecall}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{dothecall()}{dothecall()}}
+{\footnotesize\ttfamily static void dothecall (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{void $\ast$}]{ud }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 830 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a2f8aa4c5cfd7f907a35deaa695ca4d3b}\label{lgc_8c_a2f8aa4c5cfd7f907a35deaa695ca4d3b}} 
+\index{lgc.c@{lgc.c}!entergen@{entergen}}
+\index{entergen@{entergen}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{entergen()}{entergen()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{llimits_8h_aac8c50ca0aa51c80523376da77c2c4d8}{lu\+\_\+mem}} entergen (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1193 行定义.
+
+\mbox{\Hypertarget{lgc_8c_afed5a93f2093f2a754fb26f31b5207b0}\label{lgc_8c_afed5a93f2093f2a754fb26f31b5207b0}} 
+\index{lgc.c@{lgc.c}!enterinc@{enterinc}}
+\index{enterinc@{enterinc}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{enterinc()}{enterinc()}}
+{\footnotesize\ttfamily static void enterinc (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1208 行定义.
+
+\mbox{\Hypertarget{lgc_8c_aea46d650b68fac11368a752058b80ab7}\label{lgc_8c_aea46d650b68fac11368a752058b80ab7}} 
+\index{lgc.c@{lgc.c}!entersweep@{entersweep}}
+\index{entersweep@{entersweep}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{entersweep()}{entersweep()}}
+{\footnotesize\ttfamily static void entersweep (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1378 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a00546669316a08c1286570927e676496}\label{lgc_8c_a00546669316a08c1286570927e676496}} 
+\index{lgc.c@{lgc.c}!findlast@{findlast}}
+\index{findlast@{findlast}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{findlast()}{findlast()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}}$\ast$$\ast$ findlast (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$}]{p }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 889 行定义.
+
+\mbox{\Hypertarget{lgc_8c_ad14690f3e78fd31ce7eddc3acdbeec5b}\label{lgc_8c_ad14690f3e78fd31ce7eddc3acdbeec5b}} 
+\index{lgc.c@{lgc.c}!finishgencycle@{finishgencycle}}
+\index{finishgencycle@{finishgencycle}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{finishgencycle()}{finishgencycle()}}
+{\footnotesize\ttfamily static void finishgencycle (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1124 行定义.
+
+\mbox{\Hypertarget{lgc_8c_aa198d7da2a8502ed70adfe1f7ed38f46}\label{lgc_8c_aa198d7da2a8502ed70adfe1f7ed38f46}} 
+\index{lgc.c@{lgc.c}!freeobj@{freeobj}}
+\index{freeobj@{freeobj}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{freeobj()}{freeobj()}}
+{\footnotesize\ttfamily static void freeobj (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$}]{o }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 711 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a41b4adb59140172e2cd717fb921cd372}\label{lgc_8c_a41b4adb59140172e2cd717fb921cd372}} 
+\index{lgc.c@{lgc.c}!freeupval@{freeupval}}
+\index{freeupval@{freeupval}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{freeupval()}{freeupval()}}
+{\footnotesize\ttfamily static void freeupval (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_up_val}{Up\+Val}} $\ast$}]{uv }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 704 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a270a46ab08adc0bb728eeb67b5cc45a9}\label{lgc_8c_a270a46ab08adc0bb728eeb67b5cc45a9}} 
+\index{lgc.c@{lgc.c}!fullgen@{fullgen}}
+\index{fullgen@{fullgen}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{fullgen()}{fullgen()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{llimits_8h_aac8c50ca0aa51c80523376da77c2c4d8}{lu\+\_\+mem}} fullgen (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1238 行定义.
+
+\mbox{\Hypertarget{lgc_8c_ac6dccdcfb264cbc5f1776cea79c8e375}\label{lgc_8c_ac6dccdcfb264cbc5f1776cea79c8e375}} 
+\index{lgc.c@{lgc.c}!fullinc@{fullinc}}
+\index{fullinc@{fullinc}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{fullinc()}{fullinc()}}
+{\footnotesize\ttfamily static void fullinc (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1585 行定义.
+
+\mbox{\Hypertarget{lgc_8c_aaf7c6e9e6a93da6bb64ffe7654668ba3}\label{lgc_8c_aaf7c6e9e6a93da6bb64ffe7654668ba3}} 
+\index{lgc.c@{lgc.c}!GCTM@{GCTM}}
+\index{GCTM@{GCTM}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{GCTM()}{GCTM()}}
+{\footnotesize\ttfamily static void G\+C\+TM (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 836 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a3035567259cf4d2269426622ccc0d022}\label{lgc_8c_a3035567259cf4d2269426622ccc0d022}} 
+\index{lgc.c@{lgc.c}!genstep@{genstep}}
+\index{genstep@{genstep}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{genstep()}{genstep()}}
+{\footnotesize\ttfamily static void genstep (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1314 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a10a95d9a52dbdb6f36c090f5e2870007}\label{lgc_8c_a10a95d9a52dbdb6f36c090f5e2870007}} 
+\index{lgc.c@{lgc.c}!getgclist@{getgclist}}
+\index{getgclist@{getgclist}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{getgclist()}{getgclist()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}}$\ast$$\ast$ getgclist (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$}]{o }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 120 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a3a70dfeab5db063c688d7e200d63a7c1}\label{lgc_8c_a3a70dfeab5db063c688d7e200d63a7c1}} 
+\index{lgc.c@{lgc.c}!incstep@{incstep}}
+\index{incstep@{incstep}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{incstep()}{incstep()}}
+{\footnotesize\ttfamily static void incstep (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1545 行定义.
+
+\mbox{\Hypertarget{lgc_8c_acae02b6cdb8288e654682baf4117e8ab}\label{lgc_8c_acae02b6cdb8288e654682baf4117e8ab}} 
+\index{lgc.c@{lgc.c}!iscleared@{iscleared}}
+\index{iscleared@{iscleared}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{iscleared()}{iscleared()}}
+{\footnotesize\ttfamily static int iscleared (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g,  }\item[{const \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$}]{o }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 173 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a72c69b5d5554e0ea4b65e894f2a50793}\label{lgc_8c_a72c69b5d5554e0ea4b65e894f2a50793}} 
+\index{lgc.c@{lgc.c}!luaC\_barrier\_@{luaC\_barrier\_}}
+\index{luaC\_barrier\_@{luaC\_barrier\_}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{luaC\_barrier\_()}{luaC\_barrier\_()}}
+{\footnotesize\ttfamily void lua\+C\+\_\+barrier\+\_\+ (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$}]{o,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$}]{v }\end{DoxyParamCaption})}
+
+
+
+在文件 lgc.\+c 第 193 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a61ad59cdf3484ff64c0c3cb7a48388ad}\label{lgc_8c_a61ad59cdf3484ff64c0c3cb7a48388ad}} 
+\index{lgc.c@{lgc.c}!luaC\_barrierback\_@{luaC\_barrierback\_}}
+\index{luaC\_barrierback\_@{luaC\_barrierback\_}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{luaC\_barrierback\_()}{luaC\_barrierback\_()}}
+{\footnotesize\ttfamily void lua\+C\+\_\+barrierback\+\_\+ (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$}]{o }\end{DoxyParamCaption})}
+
+
+
+在文件 lgc.\+c 第 214 行定义.
+
+\mbox{\Hypertarget{lgc_8c_ac88d5c236307393937e02bc82c10f970}\label{lgc_8c_ac88d5c236307393937e02bc82c10f970}} 
+\index{lgc.c@{lgc.c}!luaC\_changemode@{luaC\_changemode}}
+\index{luaC\_changemode@{luaC\_changemode}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{luaC\_changemode()}{luaC\_changemode()}}
+{\footnotesize\ttfamily void lua\+C\+\_\+changemode (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{newmode }\end{DoxyParamCaption})}
+
+
+
+在文件 lgc.\+c 第 1223 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a0d4f5fb6a8831817e117cfff473aeb0e}\label{lgc_8c_a0d4f5fb6a8831817e117cfff473aeb0e}} 
+\index{lgc.c@{lgc.c}!luaC\_checkfinalizer@{luaC\_checkfinalizer}}
+\index{luaC\_checkfinalizer@{luaC\_checkfinalizer}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{luaC\_checkfinalizer()}{luaC\_checkfinalizer()}}
+{\footnotesize\ttfamily void lua\+C\+\_\+checkfinalizer (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$}]{o,  }\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{mt }\end{DoxyParamCaption})}
+
+
+
+在文件 lgc.\+c 第 927 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a77a9b70a49730bb007a8a9492687d0eb}\label{lgc_8c_a77a9b70a49730bb007a8a9492687d0eb}} 
+\index{lgc.c@{lgc.c}!luaC\_fix@{luaC\_fix}}
+\index{luaC\_fix@{luaC\_fix}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{luaC\_fix()}{luaC\_fix()}}
+{\footnotesize\ttfamily void lua\+C\+\_\+fix (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$}]{o }\end{DoxyParamCaption})}
+
+
+
+在文件 lgc.\+c 第 225 行定义.
+
+\mbox{\Hypertarget{lgc_8c_abad938b33f011ec1088d1a79508c6ac9}\label{lgc_8c_abad938b33f011ec1088d1a79508c6ac9}} 
+\index{lgc.c@{lgc.c}!luaC\_freeallobjects@{luaC\_freeallobjects}}
+\index{luaC\_freeallobjects@{luaC\_freeallobjects}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{luaC\_freeallobjects()}{luaC\_freeallobjects()}}
+{\footnotesize\ttfamily void lua\+C\+\_\+freeallobjects (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})}
+
+
+
+在文件 lgc.\+c 第 1403 行定义.
+
+\mbox{\Hypertarget{lgc_8c_ac48130e5263ad8be09a9c51dae6125b9}\label{lgc_8c_ac48130e5263ad8be09a9c51dae6125b9}} 
+\index{lgc.c@{lgc.c}!luaC\_fullgc@{luaC\_fullgc}}
+\index{luaC\_fullgc@{luaC\_fullgc}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{luaC\_fullgc()}{luaC\_fullgc()}}
+{\footnotesize\ttfamily void lua\+C\+\_\+fullgc (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{isemergency }\end{DoxyParamCaption})}
+
+
+
+在文件 lgc.\+c 第 1603 行定义.
+
+\mbox{\Hypertarget{lgc_8c_abfc8404c5fbd2a1770202fa0b087d451}\label{lgc_8c_abfc8404c5fbd2a1770202fa0b087d451}} 
+\index{lgc.c@{lgc.c}!luaC\_newobj@{luaC\_newobj}}
+\index{luaC\_newobj@{luaC\_newobj}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{luaC\_newobj()}{luaC\_newobj()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}}$\ast$ lua\+C\+\_\+newobj (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{tt,  }\item[{size\+\_\+t}]{sz }\end{DoxyParamCaption})}
+
+
+
+在文件 lgc.\+c 第 240 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a97086b84273579d4c9b42a782f30410d}\label{lgc_8c_a97086b84273579d4c9b42a782f30410d}} 
+\index{lgc.c@{lgc.c}!luaC\_runtilstate@{luaC\_runtilstate}}
+\index{luaC\_runtilstate@{luaC\_runtilstate}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{luaC\_runtilstate()}{luaC\_runtilstate()}}
+{\footnotesize\ttfamily void lua\+C\+\_\+runtilstate (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{statesmask }\end{DoxyParamCaption})}
+
+
+
+在文件 lgc.\+c 第 1531 行定义.
+
+\mbox{\Hypertarget{lgc_8c_ab0133eb7bb37a0a690e0ef71fbc13414}\label{lgc_8c_ab0133eb7bb37a0a690e0ef71fbc13414}} 
+\index{lgc.c@{lgc.c}!luaC\_step@{luaC\_step}}
+\index{luaC\_step@{luaC\_step}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{luaC\_step()}{luaC\_step()}}
+{\footnotesize\ttfamily void lua\+C\+\_\+step (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})}
+
+
+
+在文件 lgc.\+c 第 1566 行定义.
+
+\mbox{\Hypertarget{lgc_8c_afdc11f26c812a8356585e0e6a67b9982}\label{lgc_8c_afdc11f26c812a8356585e0e6a67b9982}} 
+\index{lgc.c@{lgc.c}!markbeingfnz@{markbeingfnz}}
+\index{markbeingfnz@{markbeingfnz}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{markbeingfnz()}{markbeingfnz()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{llimits_8h_aac8c50ca0aa51c80523376da77c2c4d8}{lu\+\_\+mem}} markbeingfnz (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 315 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a9e8dd447c32dde7eeb9fc5da83df09b1}\label{lgc_8c_a9e8dd447c32dde7eeb9fc5da83df09b1}} 
+\index{lgc.c@{lgc.c}!markmt@{markmt}}
+\index{markmt@{markmt}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{markmt()}{markmt()}}
+{\footnotesize\ttfamily static void markmt (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 305 行定义.
+
+\mbox{\Hypertarget{lgc_8c_ae4013fea3c735a4c2802a6adf08e4b3c}\label{lgc_8c_ae4013fea3c735a4c2802a6adf08e4b3c}} 
+\index{lgc.c@{lgc.c}!markold@{markold}}
+\index{markold@{markold}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{markold()}{markold()}}
+{\footnotesize\ttfamily static void markold (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$}]{from,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$}]{to }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1107 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a344b3515bc8cbe737fbdd9fa1521d17d}\label{lgc_8c_a344b3515bc8cbe737fbdd9fa1521d17d}} 
+\index{lgc.c@{lgc.c}!propagateall@{propagateall}}
+\index{propagateall@{propagateall}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{propagateall()}{propagateall()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{llimits_8h_aac8c50ca0aa51c80523376da77c2c4d8}{lu\+\_\+mem}} propagateall (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 617 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a817005bec4f6438093ec8bff63363f25}\label{lgc_8c_a817005bec4f6438093ec8bff63363f25}} 
+\index{lgc.c@{lgc.c}!propagatemark@{propagatemark}}
+\index{propagatemark@{propagatemark}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{propagatemark()}{propagatemark()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{llimits_8h_aac8c50ca0aa51c80523376da77c2c4d8}{lu\+\_\+mem}} propagatemark (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 596 行定义.
+
+\mbox{\Hypertarget{lgc_8c_aacf3c8ee0eebd5d5b1cd09da000ad53c}\label{lgc_8c_aacf3c8ee0eebd5d5b1cd09da000ad53c}} 
+\index{lgc.c@{lgc.c}!reallymarkobject@{reallymarkobject}}
+\index{reallymarkobject@{reallymarkobject}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{reallymarkobject()}{reallymarkobject()}}
+{\footnotesize\ttfamily static void reallymarkobject (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$}]{o }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 268 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a563e20dbbab2390ef4ac0ac254f59b71}\label{lgc_8c_a563e20dbbab2390ef4ac0ac254f59b71}} 
+\index{lgc.c@{lgc.c}!remarkupvals@{remarkupvals}}
+\index{remarkupvals@{remarkupvals}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{remarkupvals()}{remarkupvals()}}
+{\footnotesize\ttfamily static int remarkupvals (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 332 行定义.
+
+\mbox{\Hypertarget{lgc_8c_abc346fb7129981227c874ba0e22a480f}\label{lgc_8c_abc346fb7129981227c874ba0e22a480f}} 
+\index{lgc.c@{lgc.c}!restartcollection@{restartcollection}}
+\index{restartcollection@{restartcollection}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{restartcollection()}{restartcollection()}}
+{\footnotesize\ttfamily static void restartcollection (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 359 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a5ba38781fc577f890c6f97af9beef40a}\label{lgc_8c_a5ba38781fc577f890c6f97af9beef40a}} 
+\index{lgc.c@{lgc.c}!runafewfinalizers@{runafewfinalizers}}
+\index{runafewfinalizers@{runafewfinalizers}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{runafewfinalizers()}{runafewfinalizers()}}
+{\footnotesize\ttfamily static int runafewfinalizers (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{n }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 867 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a39f98f28e85cc750b7cca70b10e79ee9}\label{lgc_8c_a39f98f28e85cc750b7cca70b10e79ee9}} 
+\index{lgc.c@{lgc.c}!separatetobefnz@{separatetobefnz}}
+\index{separatetobefnz@{separatetobefnz}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{separatetobefnz()}{separatetobefnz()}}
+{\footnotesize\ttfamily static void separatetobefnz (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g,  }\item[{int}]{all }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 903 行定义.
+
+\mbox{\Hypertarget{lgc_8c_ab446273aaf611d661bb4c8b6e95360f1}\label{lgc_8c_ab446273aaf611d661bb4c8b6e95360f1}} 
+\index{lgc.c@{lgc.c}!setminordebt@{setminordebt}}
+\index{setminordebt@{setminordebt}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{setminordebt()}{setminordebt()}}
+{\footnotesize\ttfamily static void setminordebt (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1248 行定义.
+
+\mbox{\Hypertarget{lgc_8c_ab1a2b0658321a52d5ae0c139b0bf5494}\label{lgc_8c_ab1a2b0658321a52d5ae0c139b0bf5494}} 
+\index{lgc.c@{lgc.c}!setpause@{setpause}}
+\index{setpause@{setpause}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{setpause()}{setpause()}}
+{\footnotesize\ttfamily static void setpause (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1357 行定义.
+
+\mbox{\Hypertarget{lgc_8c_ae34e22198155f5d365fe500d3735c150}\label{lgc_8c_ae34e22198155f5d365fe500d3735c150}} 
+\index{lgc.c@{lgc.c}!singlestep@{singlestep}}
+\index{singlestep@{singlestep}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{singlestep()}{singlestep()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{llimits_8h_aac8c50ca0aa51c80523376da77c2c4d8}{lu\+\_\+mem}} singlestep (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1476 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a6a3515ae97e70e9ccd0fb50acebc62d1}\label{lgc_8c_a6a3515ae97e70e9ccd0fb50acebc62d1}} 
+\index{lgc.c@{lgc.c}!stepgenfull@{stepgenfull}}
+\index{stepgenfull@{stepgenfull}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{stepgenfull()}{stepgenfull()}}
+{\footnotesize\ttfamily static void stepgenfull (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1274 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a85b353f49bd76eb0199fa5966ee37895}\label{lgc_8c_a85b353f49bd76eb0199fa5966ee37895}} 
+\index{lgc.c@{lgc.c}!sweep2old@{sweep2old}}
+\index{sweep2old@{sweep2old}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{sweep2old()}{sweep2old()}}
+{\footnotesize\ttfamily static void sweep2old (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$}]{p }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 976 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a50d25adc69e217135c766ea1d36d5514}\label{lgc_8c_a50d25adc69e217135c766ea1d36d5514}} 
+\index{lgc.c@{lgc.c}!sweepgen@{sweepgen}}
+\index{sweepgen@{sweepgen}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{sweepgen()}{sweepgen()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}}$\ast$$\ast$ sweepgen (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$}]{p,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$}]{limit }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 999 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a88abd139efb3d69379bf4ee92b84a65d}\label{lgc_8c_a88abd139efb3d69379bf4ee92b84a65d}} 
+\index{lgc.c@{lgc.c}!sweeplist@{sweeplist}}
+\index{sweeplist@{sweeplist}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{sweeplist()}{sweeplist()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}}$\ast$$\ast$ sweeplist (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$}]{p,  }\item[{int}]{countin,  }\item[{int $\ast$}]{countout }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 755 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a2669bab5717396ec41dda4e5bc46c140}\label{lgc_8c_a2669bab5717396ec41dda4e5bc46c140}} 
+\index{lgc.c@{lgc.c}!sweepstep@{sweepstep}}
+\index{sweepstep@{sweepstep}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{sweepstep()}{sweepstep()}}
+{\footnotesize\ttfamily static int sweepstep (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g,  }\item[{int}]{nextstate,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$}]{nextlist }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1459 行定义.
+
+\mbox{\Hypertarget{lgc_8c_ab518b7adba50d2e796e206dbc96a9d52}\label{lgc_8c_ab518b7adba50d2e796e206dbc96a9d52}} 
+\index{lgc.c@{lgc.c}!sweeptolive@{sweeptolive}}
+\index{sweeptolive@{sweeptolive}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{sweeptolive()}{sweeptolive()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}}$\ast$$\ast$ sweeptolive (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$}]{p }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 782 行定义.
+
+\mbox{\Hypertarget{lgc_8c_aa85f9809abfe94fcd3bbec6e2c46b104}\label{lgc_8c_aa85f9809abfe94fcd3bbec6e2c46b104}} 
+\index{lgc.c@{lgc.c}!traverseCclosure@{traverseCclosure}}
+\index{traverseCclosure@{traverseCclosure}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{traverseCclosure()}{traverseCclosure()}}
+{\footnotesize\ttfamily static int traverse\+Cclosure (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g,  }\item[{\mbox{\hyperlink{struct_c_closure}{C\+Closure}} $\ast$}]{cl }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 538 行定义.
+
+\mbox{\Hypertarget{lgc_8c_aad4294f43d919ea5950d992599d1a445}\label{lgc_8c_aad4294f43d919ea5950d992599d1a445}} 
+\index{lgc.c@{lgc.c}!traverseephemeron@{traverseephemeron}}
+\index{traverseephemeron@{traverseephemeron}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{traverseephemeron()}{traverseephemeron()}}
+{\footnotesize\ttfamily static int traverseephemeron (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g,  }\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{h,  }\item[{int}]{inv }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 416 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a61e584daad5b6a41777ade0e72e559b3}\label{lgc_8c_a61e584daad5b6a41777ade0e72e559b3}} 
+\index{lgc.c@{lgc.c}!traverseLclosure@{traverseLclosure}}
+\index{traverseLclosure@{traverseLclosure}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{traverseLclosure()}{traverseLclosure()}}
+{\footnotesize\ttfamily static int traverse\+Lclosure (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g,  }\item[{\mbox{\hyperlink{struct_l_closure}{L\+Closure}} $\ast$}]{cl }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 549 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a19be424be90fc7025deae5ccfdcab62b}\label{lgc_8c_a19be424be90fc7025deae5ccfdcab62b}} 
+\index{lgc.c@{lgc.c}!traverseproto@{traverseproto}}
+\index{traverseproto@{traverseproto}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{traverseproto()}{traverseproto()}}
+{\footnotesize\ttfamily static int traverseproto (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g,  }\item[{\mbox{\hyperlink{struct_proto}{Proto}} $\ast$}]{f }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 523 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a3c018ffdc54c29a2ff8f44d32703a7c6}\label{lgc_8c_a3c018ffdc54c29a2ff8f44d32703a7c6}} 
+\index{lgc.c@{lgc.c}!traversestrongtable@{traversestrongtable}}
+\index{traversestrongtable@{traversestrongtable}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{traversestrongtable()}{traversestrongtable()}}
+{\footnotesize\ttfamily static void traversestrongtable (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g,  }\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{h }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 461 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a86c4c1008df3c908a9cca3cf72abc195}\label{lgc_8c_a86c4c1008df3c908a9cca3cf72abc195}} 
+\index{lgc.c@{lgc.c}!traversetable@{traversetable}}
+\index{traversetable@{traversetable}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{traversetable()}{traversetable()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{llimits_8h_aac8c50ca0aa51c80523376da77c2c4d8}{lu\+\_\+mem}} traversetable (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g,  }\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{h }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 483 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a5759d7a25445fd28e24980d7f35a99b2}\label{lgc_8c_a5759d7a25445fd28e24980d7f35a99b2}} 
+\index{lgc.c@{lgc.c}!traversethread@{traversethread}}
+\index{traversethread@{traversethread}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{traversethread()}{traversethread()}}
+{\footnotesize\ttfamily static int traversethread (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g,  }\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{th }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 565 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a7a5280b620352ed9282f78028779c968}\label{lgc_8c_a7a5280b620352ed9282f78028779c968}} 
+\index{lgc.c@{lgc.c}!traverseudata@{traverseudata}}
+\index{traverseudata@{traverseudata}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{traverseudata()}{traverseudata()}}
+{\footnotesize\ttfamily static int traverseudata (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g,  }\item[{\mbox{\hyperlink{struct_udata}{Udata}} $\ast$}]{u }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 505 行定义.
+
+\mbox{\Hypertarget{lgc_8c_ae8dc436daacca264cf45cb9652c68430}\label{lgc_8c_ae8dc436daacca264cf45cb9652c68430}} 
+\index{lgc.c@{lgc.c}!traverseweakvalue@{traverseweakvalue}}
+\index{traverseweakvalue@{traverseweakvalue}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{traverseweakvalue()}{traverseweakvalue()}}
+{\footnotesize\ttfamily static void traverseweakvalue (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g,  }\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{h }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 383 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a1b500eec5a67ec92ad263021bd7d9435}\label{lgc_8c_a1b500eec5a67ec92ad263021bd7d9435}} 
+\index{lgc.c@{lgc.c}!udata2finalize@{udata2finalize}}
+\index{udata2finalize@{udata2finalize}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{udata2finalize()}{udata2finalize()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}}$\ast$ udata2finalize (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 817 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a7bb7ff4928b82e65d5844fcaca7d59d8}\label{lgc_8c_a7bb7ff4928b82e65d5844fcaca7d59d8}} 
+\index{lgc.c@{lgc.c}!whitelist@{whitelist}}
+\index{whitelist@{whitelist}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{whitelist()}{whitelist()}}
+{\footnotesize\ttfamily static void whitelist (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$}]{p }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1033 行定义.
+
+\mbox{\Hypertarget{lgc_8c_a7528878b4bb9da15db0a23fab038a339}\label{lgc_8c_a7528878b4bb9da15db0a23fab038a339}} 
+\index{lgc.c@{lgc.c}!youngcollection@{youngcollection}}
+\index{youngcollection@{youngcollection}!lgc.c@{lgc.c}}
+\doxysubsubsection{\texorpdfstring{youngcollection()}{youngcollection()}}
+{\footnotesize\ttfamily static void youngcollection (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{structglobal___state}{global\+\_\+\+State}} $\ast$}]{g }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lgc.\+c 第 1140 行定义.
+

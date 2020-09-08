@@ -1,0 +1,710 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_llex_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/llex.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/llex.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;locale.h&gt;
+#include &lt;string.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;lctype.h&quot;
+#include &quot;ldebug.h&quot;
+#include &quot;ldo.h&quot;
+#include &quot;lgc.h&quot;
+#include &quot;llex.h&quot;
+#include &quot;lobject.h&quot;
+#include &quot;lparser.h&quot;
+#include &quot;lstate.h&quot;
+#include &quot;lstring.h&quot;
+#include &quot;ltable.h&quot;
+#include &quot;lzio.h&quot;
+</programlisting>llex.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_llex_8c_1a2e2a05c4292ce934408b59470a78472d">llex_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_llex_8c_1abf0b3947b59218777a8e928a10be205b">LUA_CORE</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls)   (ls-&gt;current = <link linkend="_lzio_8h_1aecca8ea1e6dc0c97b458f77c0e3491de">zgetc</link>(ls-&gt;z))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_llex_8c_1aee0dbe3090a8bf4b0ecd633781c5a09a">currIsNewline</link>(ls)   (ls-&gt;current == &apos;\n&apos; || ls-&gt;current == &apos;\r&apos;)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls)   (<link linkend="_llex_8c_1a3418da69613c587915ff780b0ec3744b">save</link>(ls, ls-&gt;current), <link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls))</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> <link linkend="_llex_8c_1a67bb1f3225ffe5738fef1c3d34879735">lexerror</link> (<link linkend="_struct_lex_state">LexState</link> *ls, const char *msg, int token)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_llex_8c_1a3418da69613c587915ff780b0ec3744b">save</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int c)</para>
+</listitem>
+            <listitem><para>void <link linkend="_llex_8c_1a50834f7eb4b2ac79c8df048988749abe">luaX_init</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>const char * <link linkend="_llex_8c_1afbf0654ae651496d0e8dcebeefbefed6">luaX_token2str</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int token)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_llex_8c_1ab53c17c8b5ca50bcdfbd1cddf7310e83">txtToken</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int token)</para>
+</listitem>
+            <listitem><para><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> <link linkend="_llex_8c_1aa5303ae41cbf1a2d9ef2f422751f85be">luaX_syntaxerror</link> (<link linkend="_struct_lex_state">LexState</link> *ls, const char *msg)</para>
+</listitem>
+            <listitem><para><link linkend="_struct_t_string">TString</link> * <link linkend="_llex_8c_1a83f747518666054180f6a7f8da55ac42">luaX_newstring</link> (<link linkend="_struct_lex_state">LexState</link> *ls, const char *str, size_t l)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_llex_8c_1ac030febfa2dc867e1b48f3328aec45b3">inclinenumber</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>void <link linkend="_llex_8c_1a169c85d08461f83e3f8a8c32dcb3d151">luaX_setinput</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17">ZIO</link> *z, <link linkend="_struct_t_string">TString</link> *source, int firstchar)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_llex_8c_1a7ffd3be1c90014b2b7645e9c7c9641ff">check_next1</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int c)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_llex_8c_1a4f263e61ecf9ca2875bdc3348dfce822">check_next2</link> (<link linkend="_struct_lex_state">LexState</link> *ls, const char *set)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_llex_8c_1a6e3870206c0c321cccaf22d6c2772072">read_numeral</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_union_sem_info">SemInfo</link> *seminfo)</para>
+</listitem>
+            <listitem><para>static size_t <link linkend="_llex_8c_1a9036c54b00ccc4e9781a6b7bafe93c5c">skip_sep</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_llex_8c_1a87255185250aab5f03dafe716cdda273">read_long_string</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_union_sem_info">SemInfo</link> *seminfo, size_t sep)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_llex_8c_1a7dedd6d9ea73e7276da6bcd0effa7cc0">esccheck</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int c, const char *msg)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_llex_8c_1a3b597edba3bbea967a33f6e82463b2e7">gethexa</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_llex_8c_1a5887888b2f49f1350b047c9412422d25">readhexaesc</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static unsigned long <link linkend="_llex_8c_1a705948fb201cb495e1040cf1ed1de54d">readutf8esc</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_llex_8c_1ad753772a24bb842f984798034f62611e">utf8esc</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_llex_8c_1a860413546c7a3220a01e80c57389aa31">readdecesc</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_llex_8c_1a5a2d8bb78e2b8e9ee25f901c811b2275">read_string</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int del, <link linkend="_union_sem_info">SemInfo</link> *seminfo)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_llex_8c_1a83faab0338a28c8b97ff1156725cc61b">llex</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_union_sem_info">SemInfo</link> *seminfo)</para>
+</listitem>
+            <listitem><para>void <link linkend="_llex_8c_1a8b9f2aa3f74c4e2f814d860dc7f5a6a8">luaX_next</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>int <link linkend="_llex_8c_1af44c274f4e9a24ac9bc41ff31bac5ffb">luaX_lookahead</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>变量    </title>
+        <itemizedlist>
+            <listitem><para>static const char *const <link linkend="_llex_8c_1a257ea0c8a6651032b46ea8e5d4f8080f">luaX_tokens</link> []</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_llex_8c_1aee0dbe3090a8bf4b0ecd633781c5a09a"/>    <section>
+    <title>currIsNewline</title>
+<indexterm><primary>currIsNewline</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>currIsNewline</secondary></indexterm>
+<para><computeroutput>#define currIsNewline( ls)   (ls-&gt;current == &apos;\n&apos; || ls-&gt;current == &apos;\r&apos;)</computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00036">36</link> 行定义.</para>
+    </section><anchor xml:id="_llex_8c_1a2e2a05c4292ce934408b59470a78472d"/>    <section>
+    <title>llex_c</title>
+<indexterm><primary>llex_c</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>llex_c</secondary></indexterm>
+<para><computeroutput>#define llex_c</computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_llex_8c_1abf0b3947b59218777a8e928a10be205b"/>    <section>
+    <title>LUA_CORE</title>
+<indexterm><primary>LUA_CORE</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>LUA_CORE</secondary></indexterm>
+<para><computeroutput>#define LUA_CORE</computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00008">8</link> 行定义.</para>
+    </section><anchor xml:id="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995"/>    <section>
+    <title>next</title>
+<indexterm><primary>next</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>next</secondary></indexterm>
+<para><computeroutput>#define next( ls)   (ls-&gt;current = <link linkend="_lzio_8h_1aecca8ea1e6dc0c97b458f77c0e3491de">zgetc</link>(ls-&gt;z))</computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00032">32</link> 行定义.</para>
+    </section><anchor xml:id="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5"/>    <section>
+    <title>save_and_next</title>
+<indexterm><primary>save_and_next</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>save_and_next</secondary></indexterm>
+<para><computeroutput>#define save_and_next( ls)   (<link linkend="_llex_8c_1a3418da69613c587915ff780b0ec3744b">save</link>(ls, ls-&gt;current), <link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls))</computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00051">51</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_llex_8c_1a7ffd3be1c90014b2b7645e9c7c9641ff"/>    <section>
+    <title>check_next1()</title>
+<indexterm><primary>check_next1</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>check_next1</secondary></indexterm>
+<para><computeroutput>static int check_next1 (<link linkend="_struct_lex_state">LexState</link> * ls, int c)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00189">189</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a7ffd3be1c90014b2b7645e9c7c9641ff_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1a4f263e61ecf9ca2875bdc3348dfce822"/>    <section>
+    <title>check_next2()</title>
+<indexterm><primary>check_next2</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>check_next2</secondary></indexterm>
+<para><computeroutput>static int check_next2 (<link linkend="_struct_lex_state">LexState</link> * ls, const char * set)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00202">202</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a4f263e61ecf9ca2875bdc3348dfce822_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1a7dedd6d9ea73e7276da6bcd0effa7cc0"/>    <section>
+    <title>esccheck()</title>
+<indexterm><primary>esccheck</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>esccheck</secondary></indexterm>
+<para><computeroutput>static void esccheck (<link linkend="_struct_lex_state">LexState</link> * ls, int c, const char * msg)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00316">316</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a7dedd6d9ea73e7276da6bcd0effa7cc0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a7dedd6d9ea73e7276da6bcd0effa7cc0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1a3b597edba3bbea967a33f6e82463b2e7"/>    <section>
+    <title>gethexa()</title>
+<indexterm><primary>gethexa</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>gethexa</secondary></indexterm>
+<para><computeroutput>static int gethexa (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00325">325</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a3b597edba3bbea967a33f6e82463b2e7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a3b597edba3bbea967a33f6e82463b2e7_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1ac030febfa2dc867e1b48f3328aec45b3"/>    <section>
+    <title>inclinenumber()</title>
+<indexterm><primary>inclinenumber</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>inclinenumber</secondary></indexterm>
+<para><computeroutput>static void inclinenumber (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00154">154</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_ac030febfa2dc867e1b48f3328aec45b3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_ac030febfa2dc867e1b48f3328aec45b3_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1a67bb1f3225ffe5738fef1c3d34879735"/>    <section>
+    <title>lexerror()</title>
+<indexterm><primary>lexerror</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>lexerror</secondary></indexterm>
+<para><computeroutput>static <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> lexerror (<link linkend="_struct_lex_state">LexState</link> * ls, const char * msg, int token)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00112">112</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a67bb1f3225ffe5738fef1c3d34879735_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a67bb1f3225ffe5738fef1c3d34879735_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1a83faab0338a28c8b97ff1156725cc61b"/>    <section>
+    <title>llex()</title>
+<indexterm><primary>llex</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>llex</secondary></indexterm>
+<para><computeroutput>static int llex (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_union_sem_info">SemInfo</link> * seminfo)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00442">442</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a83faab0338a28c8b97ff1156725cc61b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a83faab0338a28c8b97ff1156725cc61b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1a50834f7eb4b2ac79c8df048988749abe"/>    <section>
+    <title>luaX_init()</title>
+<indexterm><primary>luaX_init</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>luaX_init</secondary></indexterm>
+<para><computeroutput>void luaX_init (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00070">70</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a50834f7eb4b2ac79c8df048988749abe_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a50834f7eb4b2ac79c8df048988749abe_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1af44c274f4e9a24ac9bc41ff31bac5ffb"/>    <section>
+    <title>luaX_lookahead()</title>
+<indexterm><primary>luaX_lookahead</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>luaX_lookahead</secondary></indexterm>
+<para><computeroutput>int luaX_lookahead (<link linkend="_struct_lex_state">LexState</link> * ls)</computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00573">573</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_af44c274f4e9a24ac9bc41ff31bac5ffb_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_af44c274f4e9a24ac9bc41ff31bac5ffb_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1a83f747518666054180f6a7f8da55ac42"/>    <section>
+    <title>luaX_newstring()</title>
+<indexterm><primary>luaX_newstring</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>luaX_newstring</secondary></indexterm>
+<para><computeroutput><link linkend="_struct_t_string">TString</link>* luaX_newstring (<link linkend="_struct_lex_state">LexState</link> * ls, const char * str, size_t l)</computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00130">130</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a83f747518666054180f6a7f8da55ac42_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a83f747518666054180f6a7f8da55ac42_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1a8b9f2aa3f74c4e2f814d860dc7f5a6a8"/>    <section>
+    <title>luaX_next()</title>
+<indexterm><primary>luaX_next</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>luaX_next</secondary></indexterm>
+<para><computeroutput>void luaX_next (<link linkend="_struct_lex_state">LexState</link> * ls)</computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00562">562</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a8b9f2aa3f74c4e2f814d860dc7f5a6a8_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a8b9f2aa3f74c4e2f814d860dc7f5a6a8_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1a169c85d08461f83e3f8a8c32dcb3d151"/>    <section>
+    <title>luaX_setinput()</title>
+<indexterm><primary>luaX_setinput</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>luaX_setinput</secondary></indexterm>
+<para><computeroutput>void luaX_setinput (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17">ZIO</link> * z, <link linkend="_struct_t_string">TString</link> * source, int firstchar)</computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00165">165</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a169c85d08461f83e3f8a8c32dcb3d151_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1aa5303ae41cbf1a2d9ef2f422751f85be"/>    <section>
+    <title>luaX_syntaxerror()</title>
+<indexterm><primary>luaX_syntaxerror</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>luaX_syntaxerror</secondary></indexterm>
+<para><computeroutput><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> luaX_syntaxerror (<link linkend="_struct_lex_state">LexState</link> * ls, const char * msg)</computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00120">120</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_aa5303ae41cbf1a2d9ef2f422751f85be_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_aa5303ae41cbf1a2d9ef2f422751f85be_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1afbf0654ae651496d0e8dcebeefbefed6"/>    <section>
+    <title>luaX_token2str()</title>
+<indexterm><primary>luaX_token2str</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>luaX_token2str</secondary></indexterm>
+<para><computeroutput>const char* luaX_token2str (<link linkend="_struct_lex_state">LexState</link> * ls, int token)</computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00082">82</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_afbf0654ae651496d0e8dcebeefbefed6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_afbf0654ae651496d0e8dcebeefbefed6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1a87255185250aab5f03dafe716cdda273"/>    <section>
+    <title>read_long_string()</title>
+<indexterm><primary>read_long_string</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>read_long_string</secondary></indexterm>
+<para><computeroutput>static void read_long_string (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_union_sem_info">SemInfo</link> * seminfo, size_t sep)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00277">277</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a87255185250aab5f03dafe716cdda273_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a87255185250aab5f03dafe716cdda273_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1a6e3870206c0c321cccaf22d6c2772072"/>    <section>
+    <title>read_numeral()</title>
+<indexterm><primary>read_numeral</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>read_numeral</secondary></indexterm>
+<para><computeroutput>static int read_numeral (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_union_sem_info">SemInfo</link> * seminfo)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00225">225</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a6e3870206c0c321cccaf22d6c2772072_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a6e3870206c0c321cccaf22d6c2772072_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1a5a2d8bb78e2b8e9ee25f901c811b2275"/>    <section>
+    <title>read_string()</title>
+<indexterm><primary>read_string</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>read_string</secondary></indexterm>
+<para><computeroutput>static void read_string (<link linkend="_struct_lex_state">LexState</link> * ls, int del, <link linkend="_union_sem_info">SemInfo</link> * seminfo)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00379">379</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a5a2d8bb78e2b8e9ee25f901c811b2275_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a5a2d8bb78e2b8e9ee25f901c811b2275_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1a860413546c7a3220a01e80c57389aa31"/>    <section>
+    <title>readdecesc()</title>
+<indexterm><primary>readdecesc</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>readdecesc</secondary></indexterm>
+<para><computeroutput>static int readdecesc (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00366">366</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a860413546c7a3220a01e80c57389aa31_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a860413546c7a3220a01e80c57389aa31_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1a5887888b2f49f1350b047c9412422d25"/>    <section>
+    <title>readhexaesc()</title>
+<indexterm><primary>readhexaesc</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>readhexaesc</secondary></indexterm>
+<para><computeroutput>static int readhexaesc (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00332">332</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a5887888b2f49f1350b047c9412422d25_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a5887888b2f49f1350b047c9412422d25_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1a705948fb201cb495e1040cf1ed1de54d"/>    <section>
+    <title>readutf8esc()</title>
+<indexterm><primary>readutf8esc</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>readutf8esc</secondary></indexterm>
+<para><computeroutput>static unsigned long readutf8esc (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00340">340</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a705948fb201cb495e1040cf1ed1de54d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a705948fb201cb495e1040cf1ed1de54d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1a3418da69613c587915ff780b0ec3744b"/>    <section>
+    <title>save()</title>
+<indexterm><primary>save</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>save</secondary></indexterm>
+<para><computeroutput>static void save (<link linkend="_struct_lex_state">LexState</link> * ls, int c)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00057">57</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a3418da69613c587915ff780b0ec3744b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a3418da69613c587915ff780b0ec3744b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1a9036c54b00ccc4e9781a6b7bafe93c5c"/>    <section>
+    <title>skip_sep()</title>
+<indexterm><primary>skip_sep</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>skip_sep</secondary></indexterm>
+<para><computeroutput>static size_t skip_sep (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00262">262</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_a9036c54b00ccc4e9781a6b7bafe93c5c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1ab53c17c8b5ca50bcdfbd1cddf7310e83"/>    <section>
+    <title>txtToken()</title>
+<indexterm><primary>txtToken</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>txtToken</secondary></indexterm>
+<para><computeroutput>static const char* txtToken (<link linkend="_struct_lex_state">LexState</link> * ls, int token)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00100">100</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_ab53c17c8b5ca50bcdfbd1cddf7310e83_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_ab53c17c8b5ca50bcdfbd1cddf7310e83_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8c_1ad753772a24bb842f984798034f62611e"/>    <section>
+    <title>utf8esc()</title>
+<indexterm><primary>utf8esc</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>utf8esc</secondary></indexterm>
+<para><computeroutput>static void utf8esc (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00358">358</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_ad753772a24bb842f984798034f62611e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8c_ad753772a24bb842f984798034f62611e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+<section>
+<title>变量说明</title>
+<anchor xml:id="_llex_8c_1a257ea0c8a6651032b46ea8e5d4f8080f"/>    <section>
+    <title>luaX_tokens</title>
+<indexterm><primary>luaX_tokens</primary><secondary>llex.c</secondary></indexterm>
+<indexterm><primary>llex.c</primary><secondary>luaX_tokens</secondary></indexterm>
+<para><computeroutput>const char* const luaX_tokens[]<computeroutput>[static]</computeroutput></computeroutput></para><emphasis role="strong">初始值:</emphasis><programlisting>=&#32;{
+&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;and&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;break&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;do&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;else&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;elseif&quot;</emphasis>,
+&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;end&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;false&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;for&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;function&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;goto&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;if&quot;</emphasis>,
+&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;in&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;local&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;nil&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;not&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;or&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;repeat&quot;</emphasis>,
+&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;return&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;then&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;true&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;until&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;while&quot;</emphasis>,
+&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;//&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;..&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;...&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;==&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;&gt;=&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;&lt;=&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;~=&quot;</emphasis>,
+&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;&lt;&lt;&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;&gt;&gt;&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;::&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;&lt;eof&gt;&quot;</emphasis>,
+&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;&lt;number&gt;&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;&lt;integer&gt;&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;&lt;name&gt;&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;&lt;string&gt;&quot;</emphasis>
+}
+</programlisting><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00040">40</link> 行定义.</para>
+</section>
+</section>
+</section>

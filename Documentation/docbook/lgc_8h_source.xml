@@ -1,0 +1,193 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lgc_8h_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/lgc.h</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;lgc.h&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Garbage&#32;Collector</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+00007 <emphasis role="preprocessor">#ifndef&#32;lgc_h</emphasis>
+00008 <emphasis role="preprocessor">#define&#32;lgc_h</emphasis>
+00009 
+00010 
+00011 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lobject_8h">lobject.h</link>&quot;</emphasis>
+00012 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lstate_8h">lstate.h</link>&quot;</emphasis>
+00013 
+00014 <emphasis role="comment">/*</emphasis>
+00015 <emphasis role="comment">**&#32;Collectable&#32;objects&#32;may&#32;have&#32;one&#32;of&#32;three&#32;colors:&#32;white,&#32;which&#32;means</emphasis>
+00016 <emphasis role="comment">**&#32;the&#32;object&#32;is&#32;not&#32;marked;&#32;gray,&#32;which&#32;means&#32;the&#32;object&#32;is&#32;marked,&#32;but</emphasis>
+00017 <emphasis role="comment">**&#32;its&#32;references&#32;may&#32;be&#32;not&#32;marked;&#32;and&#32;black,&#32;which&#32;means&#32;that&#32;the</emphasis>
+00018 <emphasis role="comment">**&#32;object&#32;and&#32;all&#32;its&#32;references&#32;are&#32;marked.&#32;&#32;The&#32;main&#32;invariant&#32;of&#32;the</emphasis>
+00019 <emphasis role="comment">**&#32;garbage&#32;collector,&#32;while&#32;marking&#32;objects,&#32;is&#32;that&#32;a&#32;black&#32;object&#32;can</emphasis>
+00020 <emphasis role="comment">**&#32;never&#32;point&#32;to&#32;a&#32;white&#32;one.&#32;Moreover,&#32;any&#32;gray&#32;object&#32;must&#32;be&#32;in&#32;a</emphasis>
+00021 <emphasis role="comment">**&#32;&quot;gray&#32;list&quot;&#32;(gray,&#32;grayagain,&#32;weak,&#32;allweak,&#32;ephemeron)&#32;so&#32;that&#32;it</emphasis>
+00022 <emphasis role="comment">**&#32;can&#32;be&#32;visited&#32;again&#32;before&#32;finishing&#32;the&#32;collection&#32;cycle.&#32;(Open</emphasis>
+00023 <emphasis role="comment">**&#32;upvalues&#32;are&#32;an&#32;exception&#32;to&#32;this&#32;rule.)&#32;&#32;These&#32;lists&#32;have&#32;no&#32;meaning</emphasis>
+00024 <emphasis role="comment">**&#32;when&#32;the&#32;invariant&#32;is&#32;not&#32;being&#32;enforced&#32;(e.g.,&#32;sweep&#32;phase).</emphasis>
+00025 <emphasis role="comment">*/</emphasis>
+00026 
+00027 
+00028 <emphasis role="comment">/*</emphasis>
+00029 <emphasis role="comment">**&#32;Possible&#32;states&#32;of&#32;the&#32;Garbage&#32;Collector</emphasis>
+00030 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00031"/><link linkend="_lgc_8h_1a2ed301793747f3a2d0a7fc7d64d482fd">00031</link> <emphasis role="preprocessor">#define&#32;GCSpropagate&#32;&#32;&#32;&#32;0</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00032"/><link linkend="_lgc_8h_1a7d4a80ad5991cca9822822f63deef987">00032</link> <emphasis role="preprocessor">#define&#32;GCSenteratomic&#32;&#32;1</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00033"/><link linkend="_lgc_8h_1a7c7806ab609fa3c19ed9c2b688e10730">00033</link> <emphasis role="preprocessor">#define&#32;GCSatomic&#32;&#32;&#32;2</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00034"/><link linkend="_lgc_8h_1aac9b5b472434aa8d38a89b46b6b29196">00034</link> <emphasis role="preprocessor">#define&#32;GCSswpallgc&#32;3</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00035"/><link linkend="_lgc_8h_1a9d28766c63918e69c9ea3853a3e6c4c0">00035</link> <emphasis role="preprocessor">#define&#32;GCSswpfinobj&#32;&#32;&#32;&#32;4</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00036"/><link linkend="_lgc_8h_1a152f379e712cbc7f0bfa2c6a3e15166d">00036</link> <emphasis role="preprocessor">#define&#32;GCSswptobefnz&#32;&#32;&#32;5</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00037"/><link linkend="_lgc_8h_1a4e40597ebd731cafa743cd9a8e0db709">00037</link> <emphasis role="preprocessor">#define&#32;GCSswpend&#32;&#32;&#32;6</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00038"/><link linkend="_lgc_8h_1a84094ff0ba3d8c7d4f84984e74f7705a">00038</link> <emphasis role="preprocessor">#define&#32;GCScallfin&#32;&#32;7</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00039"/><link linkend="_lgc_8h_1ab546d91106ec5cfdba254de13e5b5c5f">00039</link> <emphasis role="preprocessor">#define&#32;GCSpause&#32;&#32;&#32;&#32;8</emphasis>
+00040 
+00041 
+<anchor xml:id="_lgc_8h_source_1l00042"/><link linkend="_lgc_8h_1a860db734bc919435aba75c30e4fe261b">00042</link> <emphasis role="preprocessor">#define&#32;issweepphase(g)&#32;&#32;\</emphasis>
+00043 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;(GCSswpallgc&#32;&lt;=&#32;(g)-&gt;gcstate&#32;&amp;&amp;&#32;(g)-&gt;gcstate&#32;&lt;=&#32;GCSswpend)</emphasis>
+00044 
+00045 
+00046 <emphasis role="comment">/*</emphasis>
+00047 <emphasis role="comment">**&#32;macro&#32;to&#32;tell&#32;when&#32;main&#32;invariant&#32;(white&#32;objects&#32;cannot&#32;point&#32;to&#32;black</emphasis>
+00048 <emphasis role="comment">**&#32;ones)&#32;must&#32;be&#32;kept.&#32;During&#32;a&#32;collection,&#32;the&#32;sweep</emphasis>
+00049 <emphasis role="comment">**&#32;phase&#32;may&#32;break&#32;the&#32;invariant,&#32;as&#32;objects&#32;turned&#32;white&#32;may&#32;point&#32;to</emphasis>
+00050 <emphasis role="comment">**&#32;still-black&#32;objects.&#32;The&#32;invariant&#32;is&#32;restored&#32;when&#32;sweep&#32;ends&#32;and</emphasis>
+00051 <emphasis role="comment">**&#32;all&#32;objects&#32;are&#32;white&#32;again.</emphasis>
+00052 <emphasis role="comment">*/</emphasis>
+00053 
+<anchor xml:id="_lgc_8h_source_1l00054"/><link linkend="_lgc_8h_1a40b40242e96f45f8d04dcf4feb1475ae">00054</link> <emphasis role="preprocessor">#define&#32;keepinvariant(g)&#32;&#32;&#32;&#32;((g)-&gt;gcstate&#32;&lt;=&#32;GCSatomic)</emphasis>
+00055 
+00056 
+00057 <emphasis role="comment">/*</emphasis>
+00058 <emphasis role="comment">**&#32;some&#32;useful&#32;bit&#32;tricks</emphasis>
+00059 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00060"/><link linkend="_lgc_8h_1a486033531260010debe876a076dd2a41">00060</link> <emphasis role="preprocessor">#define&#32;resetbits(x,m)&#32;&#32;&#32;&#32;&#32;&#32;((x)&#32;&amp;=&#32;cast_byte(~(m)))</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00061"/><link linkend="_lgc_8h_1ada181faae5c9af4ed7392057c5dcbbae">00061</link> <emphasis role="preprocessor">#define&#32;setbits(x,m)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;((x)&#32;|=&#32;(m))</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00062"/><link linkend="_lgc_8h_1a7612bc83b764b507e12e08417a053854">00062</link> <emphasis role="preprocessor">#define&#32;testbits(x,m)&#32;&#32;&#32;&#32;&#32;&#32;&#32;((x)&#32;&amp;&#32;(m))</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00063"/><link linkend="_lgc_8h_1af25866c39979dd1f72110cbd3a1a427d">00063</link> <emphasis role="preprocessor">#define&#32;bitmask(b)&#32;&#32;&#32;&#32;&#32;&#32;(1&lt;&lt;(b))</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00064"/><link linkend="_lgc_8h_1a39293d5e5fbd7bb9a24556b3e2f15d43">00064</link> <emphasis role="preprocessor">#define&#32;bit2mask(b1,b2)&#32;&#32;&#32;&#32;&#32;(bitmask(b1)&#32;|&#32;bitmask(b2))</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00065"/><link linkend="_lgc_8h_1aad559b25ee580ea2894c540dc817e41f">00065</link> <emphasis role="preprocessor">#define&#32;l_setbit(x,b)&#32;&#32;&#32;&#32;&#32;&#32;&#32;setbits(x,&#32;bitmask(b))</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00066"/><link linkend="_lgc_8h_1aca0beb244185329a1b8f0e695ef47748">00066</link> <emphasis role="preprocessor">#define&#32;resetbit(x,b)&#32;&#32;&#32;&#32;&#32;&#32;&#32;resetbits(x,&#32;bitmask(b))</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00067"/><link linkend="_lgc_8h_1a25c19ff3161e2a2395ba69fdef49915f">00067</link> <emphasis role="preprocessor">#define&#32;testbit(x,b)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;testbits(x,&#32;bitmask(b))</emphasis>
+00068 
+00069 
+00070 <emphasis role="comment">/*</emphasis>
+00071 <emphasis role="comment">**&#32;Layout&#32;for&#32;bit&#32;use&#32;in&#32;&apos;marked&apos;&#32;field.&#32;First&#32;three&#32;bits&#32;are</emphasis>
+00072 <emphasis role="comment">**&#32;used&#32;for&#32;object&#32;&quot;age&quot;&#32;in&#32;generational&#32;mode.&#32;Last&#32;bit&#32;is&#32;used</emphasis>
+00073 <emphasis role="comment">**&#32;by&#32;tests.</emphasis>
+00074 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00075"/><link linkend="_lgc_8h_1a4b3ebb4bccaf9a33e772a2f4515519e6">00075</link> <emphasis role="preprocessor">#define&#32;WHITE0BIT&#32;&#32;&#32;3&#32;&#32;</emphasis><emphasis role="comment">/*&#32;object&#32;is&#32;white&#32;(type&#32;0)&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lgc_8h_source_1l00076"/><link linkend="_lgc_8h_1a7de7885f3d09155a2c530154ec045d72">00076</link> <emphasis role="preprocessor">#define&#32;WHITE1BIT&#32;&#32;&#32;4&#32;&#32;</emphasis><emphasis role="comment">/*&#32;object&#32;is&#32;white&#32;(type&#32;1)&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lgc_8h_source_1l00077"/><link linkend="_lgc_8h_1acd17af3c46cb360dc67cad2b33b6a26f">00077</link> <emphasis role="preprocessor">#define&#32;BLACKBIT&#32;&#32;&#32;&#32;5&#32;&#32;</emphasis><emphasis role="comment">/*&#32;object&#32;is&#32;black&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lgc_8h_source_1l00078"/><link linkend="_lgc_8h_1a92211ad01420ac616819ba8f61ca7365">00078</link> <emphasis role="preprocessor">#define&#32;FINALIZEDBIT&#32;&#32;&#32;&#32;6&#32;&#32;</emphasis><emphasis role="comment">/*&#32;object&#32;has&#32;been&#32;marked&#32;for&#32;finalization&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00079 
+<anchor xml:id="_lgc_8h_source_1l00080"/><link linkend="_lgc_8h_1ab85d4eae1efa2e1a40d2f41bdbbda226">00080</link> <emphasis role="preprocessor">#define&#32;TESTBIT&#32;&#32;&#32;&#32;&#32;7</emphasis>
+00081 
+00082 
+00083 
+<anchor xml:id="_lgc_8h_source_1l00084"/><link linkend="_lgc_8h_1a0acb34c1b3d1234f11ee9fdc34df3f71">00084</link> <emphasis role="preprocessor">#define&#32;WHITEBITS&#32;&#32;&#32;bit2mask(WHITE0BIT,&#32;WHITE1BIT)</emphasis>
+00085 
+00086 
+<anchor xml:id="_lgc_8h_source_1l00087"/><link linkend="_lgc_8h_1a4c0ce78d476460d2e54914301f4a4bf7">00087</link> <emphasis role="preprocessor">#define&#32;iswhite(x)&#32;&#32;&#32;&#32;&#32;&#32;testbits((x)-&gt;marked,&#32;WHITEBITS)</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00088"/><link linkend="_lgc_8h_1ac1e4847ad9a91e4cea36520dc9078365">00088</link> <emphasis role="preprocessor">#define&#32;isblack(x)&#32;&#32;&#32;&#32;&#32;&#32;testbit((x)-&gt;marked,&#32;BLACKBIT)</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00089"/><link linkend="_lgc_8h_1ad417e22072630b33cf74a3055b27d8d7">00089</link> <emphasis role="preprocessor">#define&#32;isgray(x)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;neither&#32;white&#32;nor&#32;black&#32;*/</emphasis><emphasis role="preprocessor">&#32;&#32;\</emphasis>
+00090 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;(!testbits((x)-&gt;marked,&#32;WHITEBITS&#32;|&#32;bitmask(BLACKBIT)))</emphasis>
+00091 
+<anchor xml:id="_lgc_8h_source_1l00092"/><link linkend="_lgc_8h_1a6d17f226d57a796f7741f457400cf8bd">00092</link> <emphasis role="preprocessor">#define&#32;tofinalize(x)&#32;&#32;&#32;testbit((x)-&gt;marked,&#32;FINALIZEDBIT)</emphasis>
+00093 
+<anchor xml:id="_lgc_8h_source_1l00094"/><link linkend="_lgc_8h_1a486df16493498577d4081a8c231154f0">00094</link> <emphasis role="preprocessor">#define&#32;otherwhite(g)&#32;&#32;&#32;((g)-&gt;currentwhite&#32;^&#32;WHITEBITS)</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00095"/><link linkend="_lgc_8h_1a0540e865b6cd21e83104cf427c968c86">00095</link> <emphasis role="preprocessor">#define&#32;isdeadm(ow,m)&#32;&#32;&#32;((m)&#32;&amp;&#32;(ow))</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00096"/><link linkend="_lgc_8h_1acc409eb45f598d23d8388fc9e96189ea">00096</link> <emphasis role="preprocessor">#define&#32;isdead(g,v)&#32;isdeadm(otherwhite(g),&#32;(v)-&gt;marked)</emphasis>
+00097 
+<anchor xml:id="_lgc_8h_source_1l00098"/><link linkend="_lgc_8h_1a28e94f77147fd242f514b98a1b251486">00098</link> <emphasis role="preprocessor">#define&#32;changewhite(x)&#32;&#32;((x)-&gt;marked&#32;^=&#32;WHITEBITS)</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00099"/><link linkend="_lgc_8h_1a990de0d171d8b5425a5515d0bff78789">00099</link> <emphasis role="preprocessor">#define&#32;nw2black(x)&#32;&#32;\</emphasis>
+00100 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;check_exp(!iswhite(x),&#32;l_setbit((x)-&gt;marked,&#32;BLACKBIT))</emphasis>
+00101 
+<anchor xml:id="_lgc_8h_source_1l00102"/><link linkend="_lgc_8h_1afaa8a52c4097cf3a5eacd88db94092da">00102</link> <emphasis role="preprocessor">#define&#32;luaC_white(g)&#32;&#32;&#32;cast_byte((g)-&gt;currentwhite&#32;&amp;&#32;WHITEBITS)</emphasis>
+00103 
+00104 
+00105 <emphasis role="comment">/*&#32;object&#32;age&#32;in&#32;generational&#32;mode&#32;*/</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00106"/><link linkend="_lgc_8h_1a611544eedb63012098eab46a011fe618">00106</link> <emphasis role="preprocessor">#define&#32;G_NEW&#32;&#32;&#32;&#32;&#32;&#32;&#32;0&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;created&#32;in&#32;current&#32;cycle&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lgc_8h_source_1l00107"/><link linkend="_lgc_8h_1aa8c9510ab591432a3b80e90519156116">00107</link> <emphasis role="preprocessor">#define&#32;G_SURVIVAL&#32;&#32;1&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;created&#32;in&#32;previous&#32;cycle&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lgc_8h_source_1l00108"/><link linkend="_lgc_8h_1a19ac124332eabcbdcb744e14923700b9">00108</link> <emphasis role="preprocessor">#define&#32;G_OLD0&#32;&#32;&#32;&#32;&#32;&#32;2&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;marked&#32;old&#32;by&#32;frw.&#32;barrier&#32;in&#32;this&#32;cycle&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lgc_8h_source_1l00109"/><link linkend="_lgc_8h_1a266a8ec4a8dbacf8d7b99dca3adcac90">00109</link> <emphasis role="preprocessor">#define&#32;G_OLD1&#32;&#32;&#32;&#32;&#32;&#32;3&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;first&#32;full&#32;cycle&#32;as&#32;old&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lgc_8h_source_1l00110"/><link linkend="_lgc_8h_1a96372e9b92aa939f300e0477ba112716">00110</link> <emphasis role="preprocessor">#define&#32;G_OLD&#32;&#32;&#32;&#32;&#32;&#32;&#32;4&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;really&#32;old&#32;object&#32;(not&#32;to&#32;be&#32;visited)&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lgc_8h_source_1l00111"/><link linkend="_lgc_8h_1ae2c1796f4fb3359730723ce0acd2d162">00111</link> <emphasis role="preprocessor">#define&#32;G_TOUCHED1&#32;&#32;5&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;old&#32;object&#32;touched&#32;this&#32;cycle&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lgc_8h_source_1l00112"/><link linkend="_lgc_8h_1ac2b8a2255c79c9f43f88d1625767e1bf">00112</link> <emphasis role="preprocessor">#define&#32;G_TOUCHED2&#32;&#32;6&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;old&#32;object&#32;touched&#32;in&#32;previous&#32;cycle&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00113 
+<anchor xml:id="_lgc_8h_source_1l00114"/><link linkend="_lgc_8h_1a3b446e7d0b31628385b7a1f444192e9a">00114</link> <emphasis role="preprocessor">#define&#32;AGEBITS&#32;&#32;&#32;&#32;&#32;7&#32;&#32;</emphasis><emphasis role="comment">/*&#32;all&#32;age&#32;bits&#32;(111)&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00115 
+<anchor xml:id="_lgc_8h_source_1l00116"/><link linkend="_lgc_8h_1ae68465c1574c4b45a05a6548ad934235">00116</link> <emphasis role="preprocessor">#define&#32;getage(o)&#32;&#32;&#32;((o)-&gt;marked&#32;&amp;&#32;AGEBITS)</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00117"/><link linkend="_lgc_8h_1a42f07cc5f8f0a9d97989f7769f00c3f2">00117</link> <emphasis role="preprocessor">#define&#32;setage(o,a)&#32;&#32;((o)-&gt;marked&#32;=&#32;cast_byte(((o)-&gt;marked&#32;&amp;&#32;(~AGEBITS))&#32;|&#32;a))</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00118"/><link linkend="_lgc_8h_1a24d47e523ecf2d6e475a34913ce06b05">00118</link> <emphasis role="preprocessor">#define&#32;isold(o)&#32;&#32;&#32;&#32;(getage(o)&#32;&gt;&#32;G_SURVIVAL)</emphasis>
+00119 
+<anchor xml:id="_lgc_8h_source_1l00120"/><link linkend="_lgc_8h_1a61d44df5c26bb4efcf4e19b500933bbb">00120</link> <emphasis role="preprocessor">#define&#32;changeage(o,f,t)&#32;&#32;\</emphasis>
+00121 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;check_exp(getage(o)&#32;==&#32;(f),&#32;(o)-&gt;marked&#32;^=&#32;((f)^(t)))</emphasis>
+00122 
+00123 
+00124 <emphasis role="comment">/*&#32;Default&#32;Values&#32;for&#32;GC&#32;parameters&#32;*/</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00125"/><link linkend="_lgc_8h_1a6adb6d8358e1ed9e94c88f810c8dd44e">00125</link> <emphasis role="preprocessor">#define&#32;LUAI_GENMAJORMUL&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;100</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00126"/><link linkend="_lgc_8h_1a1660119f32a7ea875ce967d1ef8deadc">00126</link> <emphasis role="preprocessor">#define&#32;LUAI_GENMINORMUL&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;20</emphasis>
+00127 
+00128 <emphasis role="comment">/*&#32;wait&#32;memory&#32;to&#32;double&#32;before&#32;starting&#32;new&#32;cycle&#32;*/</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00129"/><link linkend="_lgc_8h_1a961a6871328af0c7bb50169633e15fd9">00129</link> <emphasis role="preprocessor">#define&#32;LUAI_GCPAUSE&#32;&#32;&#32;&#32;200</emphasis>
+00130 
+00131 <emphasis role="comment">/*</emphasis>
+00132 <emphasis role="comment">**&#32;some&#32;gc&#32;parameters&#32;are&#32;stored&#32;divided&#32;by&#32;4&#32;to&#32;allow&#32;a&#32;maximum&#32;value</emphasis>
+00133 <emphasis role="comment">**&#32;up&#32;to&#32;1023&#32;in&#32;a&#32;&apos;lu_byte&apos;.</emphasis>
+00134 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00135"/><link linkend="_lgc_8h_1a1991625e57703760cf5236bc02cd8858">00135</link> <emphasis role="preprocessor">#define&#32;getgcparam(p)&#32;&#32;&#32;((p)&#32;*&#32;4)</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00136"/><link linkend="_lgc_8h_1a757077227d006e517adfaa82c2d30e72">00136</link> <emphasis role="preprocessor">#define&#32;setgcparam(p,v)&#32;((p)&#32;=&#32;(v)&#32;/&#32;4)</emphasis>
+00137 
+<anchor xml:id="_lgc_8h_source_1l00138"/><link linkend="_lgc_8h_1adccc1cf9bf213c770940796d73635444">00138</link> <emphasis role="preprocessor">#define&#32;LUAI_GCMUL&#32;&#32;&#32;&#32;&#32;&#32;100</emphasis>
+00139 
+00140 <emphasis role="comment">/*&#32;how&#32;much&#32;to&#32;allocate&#32;before&#32;next&#32;GC&#32;step&#32;(log2)&#32;*/</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00141"/><link linkend="_lgc_8h_1a5289131664af0f4b111556cb5b4bfe9c">00141</link> <emphasis role="preprocessor">#define&#32;LUAI_GCSTEPSIZE&#32;13&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;8&#32;KB&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00142 
+00143 
+00144 <emphasis role="comment">/*</emphasis>
+00145 <emphasis role="comment">**&#32;Check&#32;whether&#32;the&#32;declared&#32;GC&#32;mode&#32;is&#32;generational.&#32;While&#32;in</emphasis>
+00146 <emphasis role="comment">**&#32;generational&#32;mode,&#32;the&#32;collector&#32;can&#32;go&#32;temporarily&#32;to&#32;incremental</emphasis>
+00147 <emphasis role="comment">**&#32;mode&#32;to&#32;improve&#32;performance.&#32;This&#32;is&#32;signaled&#32;by&#32;&apos;g-&gt;lastatomic&#32;!=&#32;0&apos;.</emphasis>
+00148 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00149"/><link linkend="_lgc_8h_1a634f3aa786242e81eb2d29da7cdacf4a">00149</link> <emphasis role="preprocessor">#define&#32;isdecGCmodegen(g)&#32;&#32;&#32;(g-&gt;gckind&#32;==&#32;KGC_GEN&#32;||&#32;g-&gt;lastatomic&#32;!=&#32;0)</emphasis>
+00150 
+00151 <emphasis role="comment">/*</emphasis>
+00152 <emphasis role="comment">**&#32;Does&#32;one&#32;step&#32;of&#32;collection&#32;when&#32;debt&#32;becomes&#32;positive.&#32;&apos;pre&apos;/&apos;pos&apos;</emphasis>
+00153 <emphasis role="comment">**&#32;allows&#32;some&#32;adjustments&#32;to&#32;be&#32;done&#32;only&#32;when&#32;needed.&#32;macro</emphasis>
+00154 <emphasis role="comment">**&#32;&apos;condchangemem&apos;&#32;is&#32;used&#32;only&#32;for&#32;heavy&#32;tests&#32;(forcing&#32;a&#32;full</emphasis>
+00155 <emphasis role="comment">**&#32;GC&#32;cycle&#32;on&#32;every&#32;opportunity)</emphasis>
+00156 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00157"/><link linkend="_lgc_8h_1a52f302b0dac5467152f322c8fe1c1a3e">00157</link> <emphasis role="preprocessor">#define&#32;luaC_condGC(L,pre,pos)&#32;\</emphasis>
+00158 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;{&#32;if&#32;(G(L)-&gt;GCdebt&#32;&gt;&#32;0)&#32;{&#32;pre;&#32;luaC_step(L);&#32;pos;};&#32;\</emphasis>
+00159 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;condchangemem(L,pre,pos);&#32;}</emphasis>
+00160 
+00161 <emphasis role="comment">/*&#32;more&#32;often&#32;than&#32;not,&#32;&apos;pre&apos;/&apos;pos&apos;&#32;are&#32;empty&#32;*/</emphasis>
+<anchor xml:id="_lgc_8h_source_1l00162"/><link linkend="_lgc_8h_1ad013db5004ccc5fbe8a6450caa1f1ad9">00162</link> <emphasis role="preprocessor">#define&#32;luaC_checkGC(L)&#32;&#32;&#32;&#32;&#32;luaC_condGC(L,(void)0,(void)0)</emphasis>
+00163 
+00164 
+<anchor xml:id="_lgc_8h_source_1l00165"/><link linkend="_lgc_8h_1a21660a316c42bc1aad10f115e2261bca">00165</link> <emphasis role="preprocessor">#define&#32;luaC_barrier(L,p,v)&#32;(&#32;&#32;\</emphasis>
+00166 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;(iscollectable(v)&#32;&amp;&amp;&#32;isblack(p)&#32;&amp;&amp;&#32;iswhite(gcvalue(v)))&#32;?&#32;&#32;\</emphasis>
+00167 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;luaC_barrier_(L,obj2gco(p),gcvalue(v))&#32;:&#32;cast_void(0))</emphasis>
+00168 
+<anchor xml:id="_lgc_8h_source_1l00169"/><link linkend="_lgc_8h_1a60903f232a1c51d22de556ea4c144f3a">00169</link> <emphasis role="preprocessor">#define&#32;luaC_barrierback(L,p,v)&#32;(&#32;&#32;\</emphasis>
+00170 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;(iscollectable(v)&#32;&amp;&amp;&#32;isblack(p)&#32;&amp;&amp;&#32;iswhite(gcvalue(v)))&#32;?&#32;\</emphasis>
+00171 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;luaC_barrierback_(L,p)&#32;:&#32;cast_void(0))</emphasis>
+00172 
+<anchor xml:id="_lgc_8h_source_1l00173"/><link linkend="_lgc_8h_1a90ac4f3c7085a418025edcc7215e8983">00173</link> <emphasis role="preprocessor">#define&#32;luaC_objbarrier(L,p,o)&#32;(&#32;&#32;\</emphasis>
+00174 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;(isblack(p)&#32;&amp;&amp;&#32;iswhite(o))&#32;?&#32;\</emphasis>
+00175 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;luaC_barrier_(L,obj2gco(p),obj2gco(o))&#32;:&#32;cast_void(0))</emphasis>
+00176 
+00177 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lgc_8h_1a242d4a66c025c294ec2c1ec4fe75e804">luaC_fix</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_g_c_object">GCObject</link>&#32;*o);
+00178 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lgc_8h_1a9aa52a500c9cc2076edb1707e6d8a045">luaC_freeallobjects</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00179 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lgc_8h_1a6c71cc4b9e503c0e96c0c4ffcff93900">luaC_step</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00180 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lgc_8h_1a1da32357417ce5766ed5e3ada033c32f">luaC_runtilstate</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;statesmask);
+00181 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lgc_8h_1aa0b753c3ed80e1eed0379ec58592c404">luaC_fullgc</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;isemergency);
+00182 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_struct_g_c_object">GCObject</link>&#32;*<link linkend="_lgc_8h_1a08e480a0ddf25233346594d9bbd719e9">luaC_newobj</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;tt,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;sz);
+00183 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lgc_8h_1ac5106ee2a18cde8bc3bd92e5891ad8e5">luaC_barrier_</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_g_c_object">GCObject</link>&#32;*o,&#32;<link linkend="_struct_g_c_object">GCObject</link>&#32;*v);
+00184 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lgc_8h_1a65d1fcc6e437592a5a893406cce7d8e3">luaC_barrierback_</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_g_c_object">GCObject</link>&#32;*o);
+00185 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lgc_8h_1a15870c09448216ce5c4e1ff63d39e0a9">luaC_checkfinalizer</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_g_c_object">GCObject</link>&#32;*o,&#32;<link linkend="_struct_table">Table</link>&#32;*mt);
+00186 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lgc_8h_1a45671ff26d738167ce8e421cc233fc59">luaC_changemode</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;newmode);
+00187 
+00188 
+00189 <emphasis role="preprocessor">#endif</emphasis>
+</programlisting></section>

@@ -1,0 +1,4340 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.20"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Lua_Docmention: D:/gitworkspace/lua/src/lparser.c 文件参考</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectlogo"><img alt="Logo" src="luaa.gif"/></td>
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">Lua_Docmention
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.8.20 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+var searchBox = new SearchBox("searchBox", "search",false,'搜索');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(function() {
+  initMenu('',true,false,'search.php','搜索');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */</script>
+<div id="main-nav"></div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li>  </ul>
+</div>
+</div><!-- top -->
+<div class="header">
+  <div class="summary">
+<a href="#nested-classes">结构体</a> &#124;
+<a href="#define-members">宏定义</a> &#124;
+<a href="#typedef-members">类型定义</a> &#124;
+<a href="#func-members">函数</a> &#124;
+<a href="#var-members">变量</a>  </div>
+  <div class="headertitle">
+<div class="title">lparser.c 文件参考</div>  </div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><code>#include &quot;<a class="el" href="lprefix_8h_source.html">lprefix.h</a>&quot;</code><br />
+<code>#include &lt;limits.h&gt;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+<code>#include &quot;<a class="el" href="lua_8h_source.html">lua.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="lcode_8h_source.html">lcode.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="ldebug_8h_source.html">ldebug.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="ldo_8h_source.html">ldo.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="lfunc_8h_source.html">lfunc.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="llex_8h_source.html">llex.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="lmem_8h_source.html">lmem.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="lobject_8h_source.html">lobject.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="lopcodes_8h_source.html">lopcodes.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="lparser_8h_source.html">lparser.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="lstate_8h_source.html">lstate.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="lstring_8h_source.html">lstring.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="ltable_8h_source.html">ltable.h</a>&quot;</code><br />
+</div>
+<p><a href="lparser_8c_source.html">浏览源代码.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+结构体</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_block_cnt.html">BlockCnt</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_cons_control.html">ConsControl</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_l_h_s__assign.html">LHS_assign</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+宏定义</h2></td></tr>
+<tr class="memitem:a7b083c8164f99ddd60e711ca706869d0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a7b083c8164f99ddd60e711ca706869d0">lparser_c</a></td></tr>
+<tr class="separator:a7b083c8164f99ddd60e711ca706869d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf0b3947b59218777a8e928a10be205b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#abf0b3947b59218777a8e928a10be205b">LUA_CORE</a></td></tr>
+<tr class="separator:abf0b3947b59218777a8e928a10be205b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0879a0e632584a9a8bee5ebffab571ca"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a0879a0e632584a9a8bee5ebffab571ca">MAXVARS</a>&#160;&#160;&#160;200</td></tr>
+<tr class="separator:a0879a0e632584a9a8bee5ebffab571ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38d6bad3bcde3d124ca880d6a9d82ba6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a38d6bad3bcde3d124ca880d6a9d82ba6">hasmultret</a>(k)&#160;&#160;&#160;((k) == <a class="el" href="lparser_8h.html#aecced501a9387ab3e6e50a9834615d4eae61a8c04cfeabd756694cd13774e47b7">VCALL</a> || (k) == <a class="el" href="lparser_8h.html#aecced501a9387ab3e6e50a9834615d4ea3f5f58de0fa9e69449d4e2362ddbfaa1">VVARARG</a>)</td></tr>
+<tr class="separator:a38d6bad3bcde3d124ca880d6a9d82ba6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ea0ac9ed10a85ea4b0db7ca78050824"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a5ea0ac9ed10a85ea4b0db7ca78050824">eqstr</a>(a,  b)&#160;&#160;&#160;((a) == (b))</td></tr>
+<tr class="separator:a5ea0ac9ed10a85ea4b0db7ca78050824"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aece9aca90eb75d99df8490bdb813bdd4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#aece9aca90eb75d99df8490bdb813bdd4">check_condition</a>(ls,  c,  msg)&#160;&#160;&#160;{ if (!(c)) <a class="el" href="llex_8h.html#a189ff2bb7bd23c89531fdad321fccd02">luaX_syntaxerror</a>(ls, msg); }</td></tr>
+<tr class="separator:aece9aca90eb75d99df8490bdb813bdd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a031fd03dec54eb67a3cfac513b8575bb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a031fd03dec54eb67a3cfac513b8575bb">new_localvarliteral</a>(ls,  v)</td></tr>
+<tr class="separator:a031fd03dec54eb67a3cfac513b8575bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab61308992bd6c2013519fdebd0d52704"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#ab61308992bd6c2013519fdebd0d52704">enterlevel</a>(ls)&#160;&#160;&#160;<a class="el" href="lstate_8h.html#a0a0b9a376c81e1247ae41d3cfeb1921c">luaE_enterCcall</a>((ls)-&gt;L)</td></tr>
+<tr class="separator:ab61308992bd6c2013519fdebd0d52704"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a147b3ba4d2004b4b4ee7260661ec31e1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a147b3ba4d2004b4b4ee7260661ec31e1">leavelevel</a>(ls)&#160;&#160;&#160;<a class="el" href="lstate_8h.html#ab08fafa9debffb694b3a1aec123347da">luaE_exitCcall</a>((ls)-&gt;L)</td></tr>
+<tr class="separator:a147b3ba4d2004b4b4ee7260661ec31e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a521d60e3611f1afe98634adda1a0a050"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a521d60e3611f1afe98634adda1a0a050">UNARY_PRIORITY</a>&#160;&#160;&#160;12  /* <a class="el" href="lparser_8c.html#ac6fd7e992c9eb0344ae1d64618ac5d27">priority</a> for unary operators */</td></tr>
+<tr class="separator:a521d60e3611f1afe98634adda1a0a050"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+类型定义</h2></td></tr>
+<tr class="memitem:a672971a1a6f6fb76c404bac87274225f"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_block_cnt.html">BlockCnt</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a672971a1a6f6fb76c404bac87274225f">BlockCnt</a></td></tr>
+<tr class="separator:a672971a1a6f6fb76c404bac87274225f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac0d82e2c5c45771c53cd25cb8b48972"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_cons_control.html">ConsControl</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#aac0d82e2c5c45771c53cd25cb8b48972">ConsControl</a></td></tr>
+<tr class="separator:aac0d82e2c5c45771c53cd25cb8b48972"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+函数</h2></td></tr>
+<tr class="memitem:ac29df3687aea9407dcfec478092fce4c"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#ac29df3687aea9407dcfec478092fce4c">statement</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls)</td></tr>
+<tr class="separator:ac29df3687aea9407dcfec478092fce4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af2c543df6cbb49247cd0a71956786d92"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#af2c543df6cbb49247cd0a71956786d92">expr</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="structexpdesc.html">expdesc</a> *v)</td></tr>
+<tr class="separator:af2c543df6cbb49247cd0a71956786d92"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a285759c10955d85bbf00c0041125e7bc"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="llimits_8h.html#a9f743fcc9a5278cb9ee10355f09f7302">l_noret</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a285759c10955d85bbf00c0041125e7bc">error_expected</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, int token)</td></tr>
+<tr class="separator:a285759c10955d85bbf00c0041125e7bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad02c6061a90a3461a24d2eede35cbf1f"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="llimits_8h.html#a9f743fcc9a5278cb9ee10355f09f7302">l_noret</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#ad02c6061a90a3461a24d2eede35cbf1f">errorlimit</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs, int limit, const char *what)</td></tr>
+<tr class="separator:ad02c6061a90a3461a24d2eede35cbf1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adcc7a63edd0b578c2e7980371ff7f686"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#adcc7a63edd0b578c2e7980371ff7f686">checklimit</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs, int v, int l, const char *what)</td></tr>
+<tr class="separator:adcc7a63edd0b578c2e7980371ff7f686"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a73a8be4e1269883a7b1f101bc14902e3"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a73a8be4e1269883a7b1f101bc14902e3">testnext</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, int c)</td></tr>
+<tr class="separator:a73a8be4e1269883a7b1f101bc14902e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c856a5873c90f45525cf0d9abebbfde"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a2c856a5873c90f45525cf0d9abebbfde">check</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, int c)</td></tr>
+<tr class="separator:a2c856a5873c90f45525cf0d9abebbfde"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a00410145409eca75b14b1f1c4f553ca0"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a00410145409eca75b14b1f1c4f553ca0">checknext</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, int c)</td></tr>
+<tr class="separator:a00410145409eca75b14b1f1c4f553ca0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abbe267f2acab7a24f25b89b7782b21a6"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#abbe267f2acab7a24f25b89b7782b21a6">check_match</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, int what, int who, int where)</td></tr>
+<tr class="separator:abbe267f2acab7a24f25b89b7782b21a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac6a77e92851fefeaf3facfdc47e5e39d"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="struct_t_string.html">TString</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#ac6a77e92851fefeaf3facfdc47e5e39d">str_checkname</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls)</td></tr>
+<tr class="separator:ac6a77e92851fefeaf3facfdc47e5e39d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa0cc4c3d9d11b020ff13b23262b8b17"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#aaa0cc4c3d9d11b020ff13b23262b8b17">init_exp</a> (<a class="el" href="structexpdesc.html">expdesc</a> *e, <a class="el" href="lparser_8h.html#aecced501a9387ab3e6e50a9834615d4e">expkind</a> k, int i)</td></tr>
+<tr class="separator:aaa0cc4c3d9d11b020ff13b23262b8b17"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a08fd72f32434a2bab9cd08298085e9f9"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a08fd72f32434a2bab9cd08298085e9f9">codestring</a> (<a class="el" href="structexpdesc.html">expdesc</a> *e, <a class="el" href="struct_t_string.html">TString</a> *s)</td></tr>
+<tr class="separator:a08fd72f32434a2bab9cd08298085e9f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7da9556e730c9865b3de6c6440640266"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a7da9556e730c9865b3de6c6440640266">codename</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="structexpdesc.html">expdesc</a> *e)</td></tr>
+<tr class="separator:a7da9556e730c9865b3de6c6440640266"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3420853c676cec8df3bf2c102315f51"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#ae3420853c676cec8df3bf2c102315f51">registerlocalvar</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="struct_func_state.html">FuncState</a> *fs, <a class="el" href="struct_t_string.html">TString</a> *varname)</td></tr>
+<tr class="separator:ae3420853c676cec8df3bf2c102315f51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89f5732cbee45d78cfec9dbd1a207bb7"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a89f5732cbee45d78cfec9dbd1a207bb7">new_localvar</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="struct_t_string.html">TString</a> *name)</td></tr>
+<tr class="separator:a89f5732cbee45d78cfec9dbd1a207bb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae54e8d8f199763735b5175342fbce5ca"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="union_vardesc.html">Vardesc</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#ae54e8d8f199763735b5175342fbce5ca">getlocalvardesc</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs, int vidx)</td></tr>
+<tr class="separator:ae54e8d8f199763735b5175342fbce5ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f8a29677082a5ef36452294a527d740"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a7f8a29677082a5ef36452294a527d740">stacklevel</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs, int nvar)</td></tr>
+<tr class="separator:a7f8a29677082a5ef36452294a527d740"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a03d8535460edd67f5c2d495c2a08bdd2"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a03d8535460edd67f5c2d495c2a08bdd2">luaY_nvarstack</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs)</td></tr>
+<tr class="separator:a03d8535460edd67f5c2d495c2a08bdd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af4e2a81c94d2b795fd0a4c4a2cd9d22f"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="struct_loc_var.html">LocVar</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#af4e2a81c94d2b795fd0a4c4a2cd9d22f">localdebuginfo</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs, int vidx)</td></tr>
+<tr class="separator:af4e2a81c94d2b795fd0a4c4a2cd9d22f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a234a1dfbb418ebb04cc831ee29dac2b3"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a234a1dfbb418ebb04cc831ee29dac2b3">init_var</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs, <a class="el" href="structexpdesc.html">expdesc</a> *e, int vidx)</td></tr>
+<tr class="separator:a234a1dfbb418ebb04cc831ee29dac2b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a68563b28ef658576afc360b4979f3ed6"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a68563b28ef658576afc360b4979f3ed6">check_readonly</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="structexpdesc.html">expdesc</a> *e)</td></tr>
+<tr class="separator:a68563b28ef658576afc360b4979f3ed6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f84287f74dc67840aae694b6ace6998"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a4f84287f74dc67840aae694b6ace6998">adjustlocalvars</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, int nvars)</td></tr>
+<tr class="separator:a4f84287f74dc67840aae694b6ace6998"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12f6d0b70d7dc43b72f45ad2a6293fb7"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a12f6d0b70d7dc43b72f45ad2a6293fb7">removevars</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs, int tolevel)</td></tr>
+<tr class="separator:a12f6d0b70d7dc43b72f45ad2a6293fb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4fa16ff6ddba70e699b1b87ca18d30e1"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a4fa16ff6ddba70e699b1b87ca18d30e1">searchupvalue</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs, <a class="el" href="struct_t_string.html">TString</a> *name)</td></tr>
+<tr class="separator:a4fa16ff6ddba70e699b1b87ca18d30e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a355e8b6a68c23cc5a65e40cd276c38b1"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="struct_upvaldesc.html">Upvaldesc</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a355e8b6a68c23cc5a65e40cd276c38b1">allocupvalue</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs)</td></tr>
+<tr class="separator:a355e8b6a68c23cc5a65e40cd276c38b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a840fa0de24ef09efda91ce6ebae3876d"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a840fa0de24ef09efda91ce6ebae3876d">newupvalue</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs, <a class="el" href="struct_t_string.html">TString</a> *name, <a class="el" href="structexpdesc.html">expdesc</a> *v)</td></tr>
+<tr class="separator:a840fa0de24ef09efda91ce6ebae3876d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa0f0bf6be9c3844c8c9bd05074b53c07"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#aa0f0bf6be9c3844c8c9bd05074b53c07">searchvar</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs, <a class="el" href="struct_t_string.html">TString</a> *n, <a class="el" href="structexpdesc.html">expdesc</a> *var)</td></tr>
+<tr class="separator:aa0f0bf6be9c3844c8c9bd05074b53c07"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab92f39b4f46a9844ecab9d585d636bd4"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#ab92f39b4f46a9844ecab9d585d636bd4">markupval</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs, int level)</td></tr>
+<tr class="separator:ab92f39b4f46a9844ecab9d585d636bd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e2939a86340a3fe70c3238288c4af8a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a4e2939a86340a3fe70c3238288c4af8a">singlevaraux</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs, <a class="el" href="struct_t_string.html">TString</a> *n, <a class="el" href="structexpdesc.html">expdesc</a> *var, int base)</td></tr>
+<tr class="separator:a4e2939a86340a3fe70c3238288c4af8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39a46ec796479bdd22eea51ddef11685"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a39a46ec796479bdd22eea51ddef11685">singlevar</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="structexpdesc.html">expdesc</a> *var)</td></tr>
+<tr class="separator:a39a46ec796479bdd22eea51ddef11685"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7dafcad9b819fe82292276b63a632e80"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a7dafcad9b819fe82292276b63a632e80">adjust_assign</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, int nvars, int nexps, <a class="el" href="structexpdesc.html">expdesc</a> *e)</td></tr>
+<tr class="separator:a7dafcad9b819fe82292276b63a632e80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6095ffe4a3669369b48424a59063fb71"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="llimits_8h.html#a9f743fcc9a5278cb9ee10355f09f7302">l_noret</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a6095ffe4a3669369b48424a59063fb71">jumpscopeerror</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="struct_labeldesc.html">Labeldesc</a> *gt)</td></tr>
+<tr class="separator:a6095ffe4a3669369b48424a59063fb71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a73b1624593cc10a15008229b30eeae81"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a73b1624593cc10a15008229b30eeae81">solvegoto</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, int g, <a class="el" href="struct_labeldesc.html">Labeldesc</a> *label)</td></tr>
+<tr class="separator:a73b1624593cc10a15008229b30eeae81"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a599b5cc6bd2b4abfe73b21b01e09af33"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="struct_labeldesc.html">Labeldesc</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a599b5cc6bd2b4abfe73b21b01e09af33">findlabel</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="struct_t_string.html">TString</a> *name)</td></tr>
+<tr class="separator:a599b5cc6bd2b4abfe73b21b01e09af33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8408d50bc1af7533968d363841bcf27"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#ac8408d50bc1af7533968d363841bcf27">newlabelentry</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="struct_labellist.html">Labellist</a> *l, <a class="el" href="struct_t_string.html">TString</a> *name, int line, int pc)</td></tr>
+<tr class="separator:ac8408d50bc1af7533968d363841bcf27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa4884f1fcf6756c7c9ebadef88a629f"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#afa4884f1fcf6756c7c9ebadef88a629f">newgotoentry</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="struct_t_string.html">TString</a> *name, int line, int pc)</td></tr>
+<tr class="separator:afa4884f1fcf6756c7c9ebadef88a629f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd72e798cea4c3def7bc6791e5f07a43"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#abd72e798cea4c3def7bc6791e5f07a43">solvegotos</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="struct_labeldesc.html">Labeldesc</a> *lb)</td></tr>
+<tr class="separator:abd72e798cea4c3def7bc6791e5f07a43"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abfc0a485f2b04026699cafcdaa1bfb04"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#abfc0a485f2b04026699cafcdaa1bfb04">createlabel</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="struct_t_string.html">TString</a> *name, int line, int last)</td></tr>
+<tr class="separator:abfc0a485f2b04026699cafcdaa1bfb04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59499d1fac1f098f62ea922753ff88bb"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a59499d1fac1f098f62ea922753ff88bb">movegotosout</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs, <a class="el" href="struct_block_cnt.html">BlockCnt</a> *bl)</td></tr>
+<tr class="separator:a59499d1fac1f098f62ea922753ff88bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeed63e1438983826777df4cadc063aee"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#aeed63e1438983826777df4cadc063aee">enterblock</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs, <a class="el" href="struct_block_cnt.html">BlockCnt</a> *bl, <a class="el" href="llimits_8h.html#ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</a> isloop)</td></tr>
+<tr class="separator:aeed63e1438983826777df4cadc063aee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e6f2c50414357750f14eb41e3d08edc"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="llimits_8h.html#a9f743fcc9a5278cb9ee10355f09f7302">l_noret</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a0e6f2c50414357750f14eb41e3d08edc">undefgoto</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="struct_labeldesc.html">Labeldesc</a> *gt)</td></tr>
+<tr class="separator:a0e6f2c50414357750f14eb41e3d08edc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f9c2ed0786c3b036f177f2b33f4f79d"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a9f9c2ed0786c3b036f177f2b33f4f79d">leaveblock</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs)</td></tr>
+<tr class="separator:a9f9c2ed0786c3b036f177f2b33f4f79d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57dad991ad72ca00978d43967277d9db"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="struct_proto.html">Proto</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a57dad991ad72ca00978d43967277d9db">addprototype</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls)</td></tr>
+<tr class="separator:a57dad991ad72ca00978d43967277d9db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f0a5b9e975f44a4e7291445786434d8"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a3f0a5b9e975f44a4e7291445786434d8">codeclosure</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="structexpdesc.html">expdesc</a> *v)</td></tr>
+<tr class="separator:a3f0a5b9e975f44a4e7291445786434d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac89cbbdfd75804eae46bce05f8381915"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#ac89cbbdfd75804eae46bce05f8381915">open_func</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="struct_func_state.html">FuncState</a> *fs, <a class="el" href="struct_block_cnt.html">BlockCnt</a> *bl)</td></tr>
+<tr class="separator:ac89cbbdfd75804eae46bce05f8381915"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46bd6da1ec8052eeaf6fd524199ca72a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a46bd6da1ec8052eeaf6fd524199ca72a">close_func</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls)</td></tr>
+<tr class="separator:a46bd6da1ec8052eeaf6fd524199ca72a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5be23689d7ea5fd2561c345df03fbf7c"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a5be23689d7ea5fd2561c345df03fbf7c">block_follow</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, int withuntil)</td></tr>
+<tr class="separator:a5be23689d7ea5fd2561c345df03fbf7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff3c4f1970c0f3c50f37a8187a2414e3"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#aff3c4f1970c0f3c50f37a8187a2414e3">statlist</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls)</td></tr>
+<tr class="separator:aff3c4f1970c0f3c50f37a8187a2414e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a749eb16d6a8c1bb6e94d4c0392e57374"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a749eb16d6a8c1bb6e94d4c0392e57374">fieldsel</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="structexpdesc.html">expdesc</a> *v)</td></tr>
+<tr class="separator:a749eb16d6a8c1bb6e94d4c0392e57374"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac3e6a3b89f1a54a2ff4f3570831faf35"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#ac3e6a3b89f1a54a2ff4f3570831faf35">yindex</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="structexpdesc.html">expdesc</a> *v)</td></tr>
+<tr class="separator:ac3e6a3b89f1a54a2ff4f3570831faf35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84d7688b0c57f012eaf7f84c0062f29e"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a84d7688b0c57f012eaf7f84c0062f29e">recfield</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="struct_cons_control.html">ConsControl</a> *cc)</td></tr>
+<tr class="separator:a84d7688b0c57f012eaf7f84c0062f29e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2704183a18ae12a124af76b08b2dccf"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#ab2704183a18ae12a124af76b08b2dccf">closelistfield</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs, <a class="el" href="struct_cons_control.html">ConsControl</a> *cc)</td></tr>
+<tr class="separator:ab2704183a18ae12a124af76b08b2dccf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4a987d1a5d0a2f3e72a02570322e923"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#aa4a987d1a5d0a2f3e72a02570322e923">lastlistfield</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs, <a class="el" href="struct_cons_control.html">ConsControl</a> *cc)</td></tr>
+<tr class="separator:aa4a987d1a5d0a2f3e72a02570322e923"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ad1cddd376a59ba97755723bdcce8de"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a4ad1cddd376a59ba97755723bdcce8de">listfield</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="struct_cons_control.html">ConsControl</a> *cc)</td></tr>
+<tr class="separator:a4ad1cddd376a59ba97755723bdcce8de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a1a4b5a661e480a87ce14027a01f177"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a3a1a4b5a661e480a87ce14027a01f177">field</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="struct_cons_control.html">ConsControl</a> *cc)</td></tr>
+<tr class="separator:a3a1a4b5a661e480a87ce14027a01f177"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd4901e9e6b1ba046efc1a5932cd664c"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#afd4901e9e6b1ba046efc1a5932cd664c">constructor</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="structexpdesc.html">expdesc</a> *t)</td></tr>
+<tr class="separator:afd4901e9e6b1ba046efc1a5932cd664c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a71bb47764e4103bbd98a4285ab97ca5d"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a71bb47764e4103bbd98a4285ab97ca5d">setvararg</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs, int nparams)</td></tr>
+<tr class="separator:a71bb47764e4103bbd98a4285ab97ca5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc6c3bb5079c197371a6ddcdbc574de6"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#adc6c3bb5079c197371a6ddcdbc574de6">parlist</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls)</td></tr>
+<tr class="separator:adc6c3bb5079c197371a6ddcdbc574de6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa6a712055fa7e1b41488c71be4f55303"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#aa6a712055fa7e1b41488c71be4f55303">body</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="structexpdesc.html">expdesc</a> *e, int ismethod, int line)</td></tr>
+<tr class="separator:aa6a712055fa7e1b41488c71be4f55303"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a25966bcc2d6cf47dbb9e0251fb26d661"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a25966bcc2d6cf47dbb9e0251fb26d661">explist</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="structexpdesc.html">expdesc</a> *v)</td></tr>
+<tr class="separator:a25966bcc2d6cf47dbb9e0251fb26d661"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5050696e535c2da862810fc9910b6afc"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a5050696e535c2da862810fc9910b6afc">funcargs</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="structexpdesc.html">expdesc</a> *f, int line)</td></tr>
+<tr class="separator:a5050696e535c2da862810fc9910b6afc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb6d6e594e184f737324863a01201cce"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#abb6d6e594e184f737324863a01201cce">primaryexp</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="structexpdesc.html">expdesc</a> *v)</td></tr>
+<tr class="separator:abb6d6e594e184f737324863a01201cce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adecf4ab651d795c1af76b75998a4dd9c"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#adecf4ab651d795c1af76b75998a4dd9c">suffixedexp</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="structexpdesc.html">expdesc</a> *v)</td></tr>
+<tr class="separator:adecf4ab651d795c1af76b75998a4dd9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b0b05af60978b05faf5713968573985"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a3b0b05af60978b05faf5713968573985">simpleexp</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="structexpdesc.html">expdesc</a> *v)</td></tr>
+<tr class="separator:a3b0b05af60978b05faf5713968573985"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb550c9d0656dfe2f49f1b87cb91b648"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="lcode_8h.html#a36fd1054d39d6fc3373303522a7ef534">UnOpr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#afb550c9d0656dfe2f49f1b87cb91b648">getunopr</a> (int op)</td></tr>
+<tr class="separator:afb550c9d0656dfe2f49f1b87cb91b648"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a762cacc5df371cedf267a03fa2191385"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="lcode_8h.html#ae9a305c1104efedfc54af8d08b942c83">BinOpr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a762cacc5df371cedf267a03fa2191385">getbinopr</a> (int op)</td></tr>
+<tr class="separator:a762cacc5df371cedf267a03fa2191385"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49946c41497533490f57063b1ca7cb7c"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="lcode_8h.html#ae9a305c1104efedfc54af8d08b942c83">BinOpr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a49946c41497533490f57063b1ca7cb7c">subexpr</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="structexpdesc.html">expdesc</a> *v, int limit)</td></tr>
+<tr class="separator:a49946c41497533490f57063b1ca7cb7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a235428bed4c6be6cb6d2760cd0fa9d34"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a235428bed4c6be6cb6d2760cd0fa9d34">block</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls)</td></tr>
+<tr class="separator:a235428bed4c6be6cb6d2760cd0fa9d34"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d3af7471b2da7a36d18b73683181456"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a7d3af7471b2da7a36d18b73683181456">check_conflict</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, struct <a class="el" href="struct_l_h_s__assign.html">LHS_assign</a> *lh, <a class="el" href="structexpdesc.html">expdesc</a> *v)</td></tr>
+<tr class="separator:a7d3af7471b2da7a36d18b73683181456"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4edcfc19b8a94936c58860eded728be4"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a4edcfc19b8a94936c58860eded728be4">restassign</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, struct <a class="el" href="struct_l_h_s__assign.html">LHS_assign</a> *lh, int nvars)</td></tr>
+<tr class="separator:a4edcfc19b8a94936c58860eded728be4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24002c50a108445d916457eb3c21d5e1"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a24002c50a108445d916457eb3c21d5e1">cond</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls)</td></tr>
+<tr class="separator:a24002c50a108445d916457eb3c21d5e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55bae7d03576b713ff5460644f102dfd"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a55bae7d03576b713ff5460644f102dfd">gotostat</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls)</td></tr>
+<tr class="separator:a55bae7d03576b713ff5460644f102dfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0650c2b4b5d311a24bd0ddb7b267db3"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#ae0650c2b4b5d311a24bd0ddb7b267db3">breakstat</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls)</td></tr>
+<tr class="separator:ae0650c2b4b5d311a24bd0ddb7b267db3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae46e95438b3cd72afa0838f362d9423"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#aae46e95438b3cd72afa0838f362d9423">checkrepeated</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="struct_t_string.html">TString</a> *name)</td></tr>
+<tr class="separator:aae46e95438b3cd72afa0838f362d9423"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20b1ca0b6642f6a79d5cc5abeb5dae63"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a20b1ca0b6642f6a79d5cc5abeb5dae63">labelstat</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="struct_t_string.html">TString</a> *name, int line)</td></tr>
+<tr class="separator:a20b1ca0b6642f6a79d5cc5abeb5dae63"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af24623e7aa293515c8293aaf892de531"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#af24623e7aa293515c8293aaf892de531">whilestat</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, int line)</td></tr>
+<tr class="separator:af24623e7aa293515c8293aaf892de531"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8638807967aa30e7700834f6bd4aaa5d"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a8638807967aa30e7700834f6bd4aaa5d">repeatstat</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, int line)</td></tr>
+<tr class="separator:a8638807967aa30e7700834f6bd4aaa5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7daced5a038385200486346caea6d96"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#ad7daced5a038385200486346caea6d96">exp1</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls)</td></tr>
+<tr class="separator:ad7daced5a038385200486346caea6d96"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a672ee0543c0616f70608b4ab0c99c646"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a672ee0543c0616f70608b4ab0c99c646">fixforjump</a> (<a class="el" href="struct_func_state.html">FuncState</a> *fs, int pc, int dest, int back)</td></tr>
+<tr class="separator:a672ee0543c0616f70608b4ab0c99c646"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a253feeb1a37a9ffb5814070a44893b7f"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a253feeb1a37a9ffb5814070a44893b7f">forbody</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, int base, int line, int nvars, int isgen)</td></tr>
+<tr class="separator:a253feeb1a37a9ffb5814070a44893b7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18532c1a3a900cb8f3399b470c00daf0"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a18532c1a3a900cb8f3399b470c00daf0">fornum</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="struct_t_string.html">TString</a> *varname, int line)</td></tr>
+<tr class="separator:a18532c1a3a900cb8f3399b470c00daf0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f15a71e248c4e1e9c867ccac8a450c2"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a5f15a71e248c4e1e9c867ccac8a450c2">forlist</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="struct_t_string.html">TString</a> *indexname)</td></tr>
+<tr class="separator:a5f15a71e248c4e1e9c867ccac8a450c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af783542828ac360981e0ce0f55abc630"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#af783542828ac360981e0ce0f55abc630">forstat</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, int line)</td></tr>
+<tr class="separator:af783542828ac360981e0ce0f55abc630"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac39115fb9e5fd58006bbe36a28eddc7a"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#ac39115fb9e5fd58006bbe36a28eddc7a">issinglejump</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="struct_t_string.html">TString</a> **label, int *target)</td></tr>
+<tr class="separator:ac39115fb9e5fd58006bbe36a28eddc7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a51dbd956bff1ce06bb45b3e3d9fde83f"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a51dbd956bff1ce06bb45b3e3d9fde83f">test_then_block</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, int *escapelist)</td></tr>
+<tr class="separator:a51dbd956bff1ce06bb45b3e3d9fde83f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae59a0e4b7bd8d539f377ee6f82eac19b"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#ae59a0e4b7bd8d539f377ee6f82eac19b">ifstat</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, int line)</td></tr>
+<tr class="separator:ae59a0e4b7bd8d539f377ee6f82eac19b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a906778e7e7ae16a38c8c6b38bdc34f13"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a906778e7e7ae16a38c8c6b38bdc34f13">localfunc</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls)</td></tr>
+<tr class="separator:a906778e7e7ae16a38c8c6b38bdc34f13"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aacf507e8cbb1eb7a3b49474c510043a8"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#aacf507e8cbb1eb7a3b49474c510043a8">getlocalattribute</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls)</td></tr>
+<tr class="separator:aacf507e8cbb1eb7a3b49474c510043a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2940067b35656914fe3c7be633096a9b"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a2940067b35656914fe3c7be633096a9b">checktoclose</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, int level)</td></tr>
+<tr class="separator:a2940067b35656914fe3c7be633096a9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aedb81864a38588cc65a205ff4c07abfa"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#aedb81864a38588cc65a205ff4c07abfa">localstat</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls)</td></tr>
+<tr class="separator:aedb81864a38588cc65a205ff4c07abfa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c06dde377cf16bda138da1cba949c82"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a9c06dde377cf16bda138da1cba949c82">funcname</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="structexpdesc.html">expdesc</a> *v)</td></tr>
+<tr class="separator:a9c06dde377cf16bda138da1cba949c82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ab22c159a4bdcda2bd652f01229111b"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a7ab22c159a4bdcda2bd652f01229111b">funcstat</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, int line)</td></tr>
+<tr class="separator:a7ab22c159a4bdcda2bd652f01229111b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2bafac5e65f8e5de6e00d717bf90f091"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a2bafac5e65f8e5de6e00d717bf90f091">exprstat</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls)</td></tr>
+<tr class="separator:a2bafac5e65f8e5de6e00d717bf90f091"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7998fc603fbe151c85cf0ff9b5517ad6"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a7998fc603fbe151c85cf0ff9b5517ad6">retstat</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls)</td></tr>
+<tr class="separator:a7998fc603fbe151c85cf0ff9b5517ad6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a011959c631cc7cfc75646a0fddc1a149"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#a011959c631cc7cfc75646a0fddc1a149">mainfunc</a> (<a class="el" href="struct_lex_state.html">LexState</a> *ls, <a class="el" href="struct_func_state.html">FuncState</a> *fs)</td></tr>
+<tr class="separator:a011959c631cc7cfc75646a0fddc1a149"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab1aebed32ae816b2979db5b8dd2d1554"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct_l_closure.html">LClosure</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#ab1aebed32ae816b2979db5b8dd2d1554">luaY_parser</a> (<a class="el" href="structlua___state.html">lua_State</a> *L, <a class="el" href="lzio_8h.html#a3a6756c936bdfffa304b1d808ce7dc17">ZIO</a> *z, <a class="el" href="struct_mbuffer.html">Mbuffer</a> *buff, <a class="el" href="struct_dyndata.html">Dyndata</a> *dyd, const char *name, int firstchar)</td></tr>
+<tr class="separator:ab1aebed32ae816b2979db5b8dd2d1554"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+变量</h2></td></tr>
+<tr class="memitem:ac6fd7e992c9eb0344ae1d64618ac5d27"><td class="memItemLeft" >union {</td></tr>
+<tr class="memitem:a3584754acc5e91c03d6fc91359eefd78"><td class="memItemLeft" >&#160;&#160;&#160;<a class="el" href="llimits_8h.html#ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</a>&#160;&#160;&#160;<a class="el" href="lparser_8c.html#a3584754acc5e91c03d6fc91359eefd78">left</a></td></tr>
+<tr class="separator:a3584754acc5e91c03d6fc91359eefd78"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a34b07942956eb7acd9d02c5b75177ae6"><td class="memItemLeft" >&#160;&#160;&#160;<a class="el" href="llimits_8h.html#ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</a>&#160;&#160;&#160;<a class="el" href="lparser_8c.html#a34b07942956eb7acd9d02c5b75177ae6">right</a></td></tr>
+<tr class="separator:a34b07942956eb7acd9d02c5b75177ae6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c1d654b7b6114d7a0abc8d351dd1bcd"><td class="memItemLeft" >&#160;&#160;&#160;int&#160;&#160;&#160;<a class="el" href="lstrlib_8c.html#a7c1d654b7b6114d7a0abc8d351dd1bcd">dummy</a></td></tr>
+<tr class="separator:a7c1d654b7b6114d7a0abc8d351dd1bcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5831a9b38577f9ef9b30553737b5b7f9"><td class="memItemLeft" >&#160;&#160;&#160;char&#160;&#160;&#160;<a class="el" href="lstrlib_8c.html#a5831a9b38577f9ef9b30553737b5b7f9">little</a></td></tr>
+<tr class="separator:a5831a9b38577f9ef9b30553737b5b7f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac6fd7e992c9eb0344ae1d64618ac5d27"><td class="memItemLeft" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lparser_8c.html#ac6fd7e992c9eb0344ae1d64618ac5d27">priority</a> []</td></tr>
+<tr class="separator:ac6fd7e992c9eb0344ae1d64618ac5d27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<h2 class="groupheader">宏定义说明</h2>
+<a id="aece9aca90eb75d99df8490bdb813bdd4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aece9aca90eb75d99df8490bdb813bdd4">&#9670;&nbsp;</a></span>check_condition</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define check_condition</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ls, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">c, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">msg&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td>&#160;&#160;&#160;{ if (!(c)) <a class="el" href="llex_8h.html#a189ff2bb7bd23c89531fdad321fccd02">luaX_syntaxerror</a>(ls, msg); }</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00122">122</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ab61308992bd6c2013519fdebd0d52704"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab61308992bd6c2013519fdebd0d52704">&#9670;&nbsp;</a></span>enterlevel</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define enterlevel</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ls</td><td>)</td>
+          <td>&#160;&#160;&#160;<a class="el" href="lstate_8h.html#a0a0b9a376c81e1247ae41d3cfeb1921c">luaE_enterCcall</a>((ls)-&gt;L)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00495">495</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a5ea0ac9ed10a85ea4b0db7ca78050824"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5ea0ac9ed10a85ea4b0db7ca78050824">&#9670;&nbsp;</a></span>eqstr</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define eqstr</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">a, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">b&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td>&#160;&#160;&#160;((a) == (b))</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00043">43</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a38d6bad3bcde3d124ca880d6a9d82ba6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38d6bad3bcde3d124ca880d6a9d82ba6">&#9670;&nbsp;</a></span>hasmultret</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define hasmultret</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">k</td><td>)</td>
+          <td>&#160;&#160;&#160;((k) == <a class="el" href="lparser_8h.html#aecced501a9387ab3e6e50a9834615d4eae61a8c04cfeabd756694cd13774e47b7">VCALL</a> || (k) == <a class="el" href="lparser_8h.html#aecced501a9387ab3e6e50a9834615d4ea3f5f58de0fa9e69449d4e2362ddbfaa1">VVARARG</a>)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00038">38</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a147b3ba4d2004b4b4ee7260661ec31e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a147b3ba4d2004b4b4ee7260661ec31e1">&#9670;&nbsp;</a></span>leavelevel</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define leavelevel</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ls</td><td>)</td>
+          <td>&#160;&#160;&#160;<a class="el" href="lstate_8h.html#ab08fafa9debffb694b3a1aec123347da">luaE_exitCcall</a>((ls)-&gt;L)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00497">497</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a7b083c8164f99ddd60e711ca706869d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7b083c8164f99ddd60e711ca706869d0">&#9670;&nbsp;</a></span>lparser_c</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define lparser_c</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00007">7</a> 行定义.</p>
+
+</div>
+</div>
+<a id="abf0b3947b59218777a8e928a10be205b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf0b3947b59218777a8e928a10be205b">&#9670;&nbsp;</a></span>LUA_CORE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LUA_CORE</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00008">8</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a0879a0e632584a9a8bee5ebffab571ca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0879a0e632584a9a8bee5ebffab571ca">&#9670;&nbsp;</a></span>MAXVARS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define MAXVARS&#160;&#160;&#160;200</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00035">35</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a031fd03dec54eb67a3cfac513b8575bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a031fd03dec54eb67a3cfac513b8575bb">&#9670;&nbsp;</a></span>new_localvarliteral</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define new_localvarliteral</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ls, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">v&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">    <a class="code" href="lparser_8c.html#a89f5732cbee45d78cfec9dbd1a207bb7">new_localvar</a>(ls,  \</div>
+<div class="line">      <a class="code" href="llex_8c.html#a83f747518666054180f6a7f8da55ac42">luaX_newstring</a>(ls, <span class="stringliteral">&quot;&quot;</span> v, (<span class="keyword">sizeof</span>(v)/<span class="keyword">sizeof</span>(<span class="keywordtype">char</span>)) - 1));</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00208">208</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a521d60e3611f1afe98634adda1a0a050"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a521d60e3611f1afe98634adda1a0a050">&#9670;&nbsp;</a></span>UNARY_PRIORITY</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define UNARY_PRIORITY&#160;&#160;&#160;12  /* <a class="el" href="lparser_8c.html#ac6fd7e992c9eb0344ae1d64618ac5d27">priority</a> for unary operators */</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01243">1243</a> 行定义.</p>
+
+</div>
+</div>
+<h2 class="groupheader">类型定义说明</h2>
+<a id="a672971a1a6f6fb76c404bac87274225f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a672971a1a6f6fb76c404bac87274225f">&#9670;&nbsp;</a></span>BlockCnt</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="struct_block_cnt.html">BlockCnt</a> <a class="el" href="struct_block_cnt.html">BlockCnt</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aac0d82e2c5c45771c53cd25cb8b48972"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aac0d82e2c5c45771c53cd25cb8b48972">&#9670;&nbsp;</a></span>ConsControl</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="struct_cons_control.html">ConsControl</a> <a class="el" href="struct_cons_control.html">ConsControl</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">函数说明</h2>
+<a id="a57dad991ad72ca00978d43967277d9db"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a57dad991ad72ca00978d43967277d9db">&#9670;&nbsp;</a></span>addprototype()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="struct_proto.html">Proto</a>* addprototype </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00688">688</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a7dafcad9b819fe82292276b63a632e80"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7dafcad9b819fe82292276b63a632e80">&#9670;&nbsp;</a></span>adjust_assign()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void adjust_assign </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nvars</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nexps</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>e</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00470">470</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a4f84287f74dc67840aae694b6ace6998"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4f84287f74dc67840aae694b6ace6998">&#9670;&nbsp;</a></span>adjustlocalvars()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void adjustlocalvars </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nvars</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00311">311</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a355e8b6a68c23cc5a65e40cd276c38b1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a355e8b6a68c23cc5a65e40cd276c38b1">&#9670;&nbsp;</a></span>allocupvalue()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="struct_upvaldesc.html">Upvaldesc</a>* allocupvalue </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00352">352</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a235428bed4c6be6cb6d2760cd0fa9d34"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a235428bed4c6be6cb6d2760cd0fa9d34">&#9670;&nbsp;</a></span>block()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void block </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01295">1295</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a5be23689d7ea5fd2561c345df03fbf7c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5be23689d7ea5fd2561c345df03fbf7c">&#9670;&nbsp;</a></span>block_follow()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int block_follow </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>withuntil</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00778">778</a> 行定义.</p>
+
+</div>
+</div>
+<a id="aa6a712055fa7e1b41488c71be4f55303"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa6a712055fa7e1b41488c71be4f55303">&#9670;&nbsp;</a></span>body()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void body </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>e</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>ismethod</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>line</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00980">980</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ae0650c2b4b5d311a24bd0ddb7b267db3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae0650c2b4b5d311a24bd0ddb7b267db3">&#9670;&nbsp;</a></span>breakstat()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void breakstat </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01428">1428</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a2c856a5873c90f45525cf0d9abebbfde"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2c856a5873c90f45525cf0d9abebbfde">&#9670;&nbsp;</a></span>check()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void check </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>c</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00107">107</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a7d3af7471b2da7a36d18b73683181456"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7d3af7471b2da7a36d18b73683181456">&#9670;&nbsp;</a></span>check_conflict()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void check_conflict </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="struct_l_h_s__assign.html">LHS_assign</a> *&#160;</td>
+          <td class="paramname"><em>lh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>v</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01321">1321</a> 行定义.</p>
+
+</div>
+</div>
+<a id="abbe267f2acab7a24f25b89b7782b21a6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abbe267f2acab7a24f25b89b7782b21a6">&#9670;&nbsp;</a></span>check_match()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void check_match </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>what</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>who</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>where</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00130">130</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a68563b28ef658576afc360b4979f3ed6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a68563b28ef658576afc360b4979f3ed6">&#9670;&nbsp;</a></span>check_readonly()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void check_readonly </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>e</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00277">277</a> 行定义.</p>
+
+</div>
+</div>
+<a id="adcc7a63edd0b578c2e7980371ff7f686"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adcc7a63edd0b578c2e7980371ff7f686">&#9670;&nbsp;</a></span>checklimit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void checklimit </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>v</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>l</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>what</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00087">87</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a00410145409eca75b14b1f1c4f553ca0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a00410145409eca75b14b1f1c4f553ca0">&#9670;&nbsp;</a></span>checknext()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void checknext </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>c</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00116">116</a> 行定义.</p>
+
+</div>
+</div>
+<a id="aae46e95438b3cd72afa0838f362d9423"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aae46e95438b3cd72afa0838f362d9423">&#9670;&nbsp;</a></span>checkrepeated()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void checkrepeated </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_t_string.html">TString</a> *&#160;</td>
+          <td class="paramname"><em>name</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01438">1438</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a2940067b35656914fe3c7be633096a9b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2940067b35656914fe3c7be633096a9b">&#9670;&nbsp;</a></span>checktoclose()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void checktoclose </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>level</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01746">1746</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a46bd6da1ec8052eeaf6fd524199ca72a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46bd6da1ec8052eeaf6fd524199ca72a">&#9670;&nbsp;</a></span>close_func()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void close_func </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00746">746</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ab2704183a18ae12a124af76b08b2dccf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab2704183a18ae12a124af76b08b2dccf">&#9670;&nbsp;</a></span>closelistfield()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void closelistfield </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_cons_control.html">ConsControl</a> *&#160;</td>
+          <td class="paramname"><em>cc</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00858">858</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a3f0a5b9e975f44a4e7291445786434d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3f0a5b9e975f44a4e7291445786434d8">&#9670;&nbsp;</a></span>codeclosure()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void codeclosure </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>v</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00712">712</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a7da9556e730c9865b3de6c6440640266"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7da9556e730c9865b3de6c6440640266">&#9670;&nbsp;</a></span>codename()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void codename </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>e</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00166">166</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a08fd72f32434a2bab9cd08298085e9f9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a08fd72f32434a2bab9cd08298085e9f9">&#9670;&nbsp;</a></span>codestring()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void codestring </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>e</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_t_string.html">TString</a> *&#160;</td>
+          <td class="paramname"><em>s</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00159">159</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a24002c50a108445d916457eb3c21d5e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a24002c50a108445d916457eb3c21d5e1">&#9670;&nbsp;</a></span>cond()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int cond </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01396">1396</a> 行定义.</p>
+
+</div>
+</div>
+<a id="afd4901e9e6b1ba046efc1a5932cd664c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd4901e9e6b1ba046efc1a5932cd664c">&#9670;&nbsp;</a></span>constructor()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void constructor </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>t</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00915">915</a> 行定义.</p>
+
+</div>
+</div>
+<a id="abfc0a485f2b04026699cafcdaa1bfb04"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abfc0a485f2b04026699cafcdaa1bfb04">&#9670;&nbsp;</a></span>createlabel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int createlabel </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_t_string.html">TString</a> *&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>line</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>last</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00598">598</a> 行定义.</p>
+
+</div>
+</div>
+<a id="aeed63e1438983826777df4cadc063aee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeed63e1438983826777df4cadc063aee">&#9670;&nbsp;</a></span>enterblock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void enterblock </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_block_cnt.html">BlockCnt</a> *&#160;</td>
+          <td class="paramname"><em>bl</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="llimits_8h.html#ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</a>&#160;</td>
+          <td class="paramname"><em>isloop</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00632">632</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a285759c10955d85bbf00c0041125e7bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a285759c10955d85bbf00c0041125e7bc">&#9670;&nbsp;</a></span>error_expected()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="llimits_8h.html#a9f743fcc9a5278cb9ee10355f09f7302">l_noret</a> error_expected </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>token</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00068">68</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ad02c6061a90a3461a24d2eede35cbf1f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad02c6061a90a3461a24d2eede35cbf1f">&#9670;&nbsp;</a></span>errorlimit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="llimits_8h.html#a9f743fcc9a5278cb9ee10355f09f7302">l_noret</a> errorlimit </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>limit</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>what</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00074">74</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ad7daced5a038385200486346caea6d96"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad7daced5a038385200486346caea6d96">&#9670;&nbsp;</a></span>exp1()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void exp1 </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01507">1507</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a25966bcc2d6cf47dbb9e0251fb26d661"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a25966bcc2d6cf47dbb9e0251fb26d661">&#9670;&nbsp;</a></span>explist()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int explist </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>v</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01002">1002</a> 行定义.</p>
+
+</div>
+</div>
+<a id="af2c543df6cbb49247cd0a71956786d92"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af2c543df6cbb49247cd0a71956786d92">&#9670;&nbsp;</a></span>expr()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void expr </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>v</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01280">1280</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a2bafac5e65f8e5de6e00d717bf90f091"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2bafac5e65f8e5de6e00d717bf90f091">&#9670;&nbsp;</a></span>exprstat()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void exprstat </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01824">1824</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a3a1a4b5a661e480a87ce14027a01f177"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3a1a4b5a661e480a87ce14027a01f177">&#9670;&nbsp;</a></span>field()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void field </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_cons_control.html">ConsControl</a> *&#160;</td>
+          <td class="paramname"><em>cc</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00893">893</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a749eb16d6a8c1bb6e94d4c0392e57374"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a749eb16d6a8c1bb6e94d4c0392e57374">&#9670;&nbsp;</a></span>fieldsel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void fieldsel </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>v</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00801">801</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a599b5cc6bd2b4abfe73b21b01e09af33"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a599b5cc6bd2b4abfe73b21b01e09af33">&#9670;&nbsp;</a></span>findlabel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="struct_labeldesc.html">Labeldesc</a>* findlabel </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_t_string.html">TString</a> *&#160;</td>
+          <td class="paramname"><em>name</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00534">534</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a672ee0543c0616f70608b4ab0c99c646"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a672ee0543c0616f70608b4ab0c99c646">&#9670;&nbsp;</a></span>fixforjump()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void fixforjump </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>pc</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>dest</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>back</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01520">1520</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a253feeb1a37a9ffb5814070a44893b7f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a253feeb1a37a9ffb5814070a44893b7f">&#9670;&nbsp;</a></span>forbody()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void forbody </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>line</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nvars</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>isgen</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01534">1534</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a5f15a71e248c4e1e9c867ccac8a450c2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f15a71e248c4e1e9c867ccac8a450c2">&#9670;&nbsp;</a></span>forlist()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void forlist </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_t_string.html">TString</a> *&#160;</td>
+          <td class="paramname"><em>indexname</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01582">1582</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a18532c1a3a900cb8f3399b470c00daf0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a18532c1a3a900cb8f3399b470c00daf0">&#9670;&nbsp;</a></span>fornum()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void fornum </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_t_string.html">TString</a> *&#160;</td>
+          <td class="paramname"><em>varname</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>line</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01559">1559</a> 行定义.</p>
+
+</div>
+</div>
+<a id="af783542828ac360981e0ce0f55abc630"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af783542828ac360981e0ce0f55abc630">&#9670;&nbsp;</a></span>forstat()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void forstat </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>line</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01610">1610</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a5050696e535c2da862810fc9910b6afc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5050696e535c2da862810fc9910b6afc">&#9670;&nbsp;</a></span>funcargs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void funcargs </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>f</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>line</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01015">1015</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a9c06dde377cf16bda138da1cba949c82"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9c06dde377cf16bda138da1cba949c82">&#9670;&nbsp;</a></span>funcname()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int funcname </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>v</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01798">1798</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a7ab22c159a4bdcda2bd652f01229111b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ab22c159a4bdcda2bd652f01229111b">&#9670;&nbsp;</a></span>funcstat()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void funcstat </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>line</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01812">1812</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a762cacc5df371cedf267a03fa2191385"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a762cacc5df371cedf267a03fa2191385">&#9670;&nbsp;</a></span>getbinopr()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="lcode_8h.html#ae9a305c1104efedfc54af8d08b942c83">BinOpr</a> getbinopr </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>op</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01196">1196</a> 行定义.</p>
+
+</div>
+</div>
+<a id="aacf507e8cbb1eb7a3b49474c510043a8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aacf507e8cbb1eb7a3b49474c510043a8">&#9670;&nbsp;</a></span>getlocalattribute()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int getlocalattribute </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01729">1729</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ae54e8d8f199763735b5175342fbce5ca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae54e8d8f199763735b5175342fbce5ca">&#9670;&nbsp;</a></span>getlocalvardesc()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="union_vardesc.html">Vardesc</a>* getlocalvardesc </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>vidx</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00219">219</a> 行定义.</p>
+
+</div>
+</div>
+<a id="afb550c9d0656dfe2f49f1b87cb91b648"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afb550c9d0656dfe2f49f1b87cb91b648">&#9670;&nbsp;</a></span>getunopr()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="lcode_8h.html#a36fd1054d39d6fc3373303522a7ef534">UnOpr</a> getunopr </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>op</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01185">1185</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a55bae7d03576b713ff5460644f102dfd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a55bae7d03576b713ff5460644f102dfd">&#9670;&nbsp;</a></span>gotostat()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void gotostat </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01406">1406</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ae59a0e4b7bd8d539f377ee6f82eac19b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae59a0e4b7bd8d539f377ee6f82eac19b">&#9670;&nbsp;</a></span>ifstat()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void ifstat </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>line</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01703">1703</a> 行定义.</p>
+
+</div>
+</div>
+<a id="aaa0cc4c3d9d11b020ff13b23262b8b17"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaa0cc4c3d9d11b020ff13b23262b8b17">&#9670;&nbsp;</a></span>init_exp()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void init_exp </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>e</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="lparser_8h.html#aecced501a9387ab3e6e50a9834615d4e">expkind</a>&#160;</td>
+          <td class="paramname"><em>k</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>i</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00152">152</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a234a1dfbb418ebb04cc831ee29dac2b3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a234a1dfbb418ebb04cc831ee29dac2b3">&#9670;&nbsp;</a></span>init_var()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void init_var </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>e</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>vidx</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00266">266</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ac39115fb9e5fd58006bbe36a28eddc7a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac39115fb9e5fd58006bbe36a28eddc7a">&#9670;&nbsp;</a></span>issinglejump()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int issinglejump </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_t_string.html">TString</a> **&#160;</td>
+          <td class="paramname"><em>label</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int *&#160;</td>
+          <td class="paramname"><em>target</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01636">1636</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a6095ffe4a3669369b48424a59063fb71"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6095ffe4a3669369b48424a59063fb71">&#9670;&nbsp;</a></span>jumpscopeerror()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="llimits_8h.html#a9f743fcc9a5278cb9ee10355f09f7302">l_noret</a> jumpscopeerror </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_labeldesc.html">Labeldesc</a> *&#160;</td>
+          <td class="paramname"><em>gt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00504">504</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a20b1ca0b6642f6a79d5cc5abeb5dae63"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a20b1ca0b6642f6a79d5cc5abeb5dae63">&#9670;&nbsp;</a></span>labelstat()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void labelstat </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_t_string.html">TString</a> *&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>line</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01448">1448</a> 行定义.</p>
+
+</div>
+</div>
+<a id="aa4a987d1a5d0a2f3e72a02570322e923"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa4a987d1a5d0a2f3e72a02570322e923">&#9670;&nbsp;</a></span>lastlistfield()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void lastlistfield </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_cons_control.html">ConsControl</a> *&#160;</td>
+          <td class="paramname"><em>cc</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00870">870</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a9f9c2ed0786c3b036f177f2b33f4f79d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9f9c2ed0786c3b036f177f2b33f4f79d">&#9670;&nbsp;</a></span>leaveblock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void leaveblock </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00662">662</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a4ad1cddd376a59ba97755723bdcce8de"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4ad1cddd376a59ba97755723bdcce8de">&#9670;&nbsp;</a></span>listfield()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void listfield </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_cons_control.html">ConsControl</a> *&#160;</td>
+          <td class="paramname"><em>cc</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00886">886</a> 行定义.</p>
+
+</div>
+</div>
+<a id="af4e2a81c94d2b795fd0a4c4a2cd9d22f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af4e2a81c94d2b795fd0a4c4a2cd9d22f">&#9670;&nbsp;</a></span>localdebuginfo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="struct_loc_var.html">LocVar</a>* localdebuginfo </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>vidx</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00251">251</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a906778e7e7ae16a38c8c6b38bdc34f13"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a906778e7e7ae16a38c8c6b38bdc34f13">&#9670;&nbsp;</a></span>localfunc()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void localfunc </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01717">1717</a> 行定义.</p>
+
+</div>
+</div>
+<a id="aedb81864a38588cc65a205ff4c07abfa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aedb81864a38588cc65a205ff4c07abfa">&#9670;&nbsp;</a></span>localstat()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void localstat </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01756">1756</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a03d8535460edd67f5c2d495c2a08bdd2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a03d8535460edd67f5c2d495c2a08bdd2">&#9670;&nbsp;</a></span>luaY_nvarstack()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int luaY_nvarstack </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00243">243</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ab1aebed32ae816b2979db5b8dd2d1554"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab1aebed32ae816b2979db5b8dd2d1554">&#9670;&nbsp;</a></span>luaY_parser()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="struct_l_closure.html">LClosure</a>* luaY_parser </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structlua___state.html">lua_State</a> *&#160;</td>
+          <td class="paramname"><em>L</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="lzio_8h.html#a3a6756c936bdfffa304b1d808ce7dc17">ZIO</a> *&#160;</td>
+          <td class="paramname"><em>z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_mbuffer.html">Mbuffer</a> *&#160;</td>
+          <td class="paramname"><em>buff</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_dyndata.html">Dyndata</a> *&#160;</td>
+          <td class="paramname"><em>dyd</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>firstchar</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01971">1971</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a011959c631cc7cfc75646a0fddc1a149"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a011959c631cc7cfc75646a0fddc1a149">&#9670;&nbsp;</a></span>mainfunc()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void mainfunc </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01953">1953</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ab92f39b4f46a9844ecab9d585d636bd4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab92f39b4f46a9844ecab9d585d636bd4">&#9670;&nbsp;</a></span>markupval()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void markupval </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>level</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00410">410</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a59499d1fac1f098f62ea922753ff88bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a59499d1fac1f098f62ea922753ff88bb">&#9670;&nbsp;</a></span>movegotosout()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void movegotosout </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_block_cnt.html">BlockCnt</a> *&#160;</td>
+          <td class="paramname"><em>bl</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00618">618</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a89f5732cbee45d78cfec9dbd1a207bb7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a89f5732cbee45d78cfec9dbd1a207bb7">&#9670;&nbsp;</a></span>new_localvar()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int new_localvar </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_t_string.html">TString</a> *&#160;</td>
+          <td class="paramname"><em>name</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00193">193</a> 行定义.</p>
+
+</div>
+</div>
+<a id="afa4884f1fcf6756c7c9ebadef88a629f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afa4884f1fcf6756c7c9ebadef88a629f">&#9670;&nbsp;</a></span>newgotoentry()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int newgotoentry </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_t_string.html">TString</a> *&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>line</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>pc</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00565">565</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ac8408d50bc1af7533968d363841bcf27"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac8408d50bc1af7533968d363841bcf27">&#9670;&nbsp;</a></span>newlabelentry()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int newlabelentry </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_labellist.html">Labellist</a> *&#160;</td>
+          <td class="paramname"><em>l</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_t_string.html">TString</a> *&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>line</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>pc</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00550">550</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a840fa0de24ef09efda91ce6ebae3876d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a840fa0de24ef09efda91ce6ebae3876d">&#9670;&nbsp;</a></span>newupvalue()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int newupvalue </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_t_string.html">TString</a> *&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>v</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00364">364</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ac89cbbdfd75804eae46bce05f8381915"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac89cbbdfd75804eae46bce05f8381915">&#9670;&nbsp;</a></span>open_func()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void open_func </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_block_cnt.html">BlockCnt</a> *&#160;</td>
+          <td class="paramname"><em>bl</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00719">719</a> 行定义.</p>
+
+</div>
+</div>
+<a id="adc6c3bb5079c197371a6ddcdbc574de6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adc6c3bb5079c197371a6ddcdbc574de6">&#9670;&nbsp;</a></span>parlist()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void parlist </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00949">949</a> 行定义.</p>
+
+</div>
+</div>
+<a id="abb6d6e594e184f737324863a01201cce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abb6d6e594e184f737324863a01201cce">&#9670;&nbsp;</a></span>primaryexp()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void primaryexp </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>v</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01070">1070</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a84d7688b0c57f012eaf7f84c0062f29e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a84d7688b0c57f012eaf7f84c0062f29e">&#9670;&nbsp;</a></span>recfield()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void recfield </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_cons_control.html">ConsControl</a> *&#160;</td>
+          <td class="paramname"><em>cc</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00837">837</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ae3420853c676cec8df3bf2c102315f51"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae3420853c676cec8df3bf2c102315f51">&#9670;&nbsp;</a></span>registerlocalvar()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int registerlocalvar </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_t_string.html">TString</a> *&#160;</td>
+          <td class="paramname"><em>varname</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00175">175</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a12f6d0b70d7dc43b72f45ad2a6293fb7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a12f6d0b70d7dc43b72f45ad2a6293fb7">&#9670;&nbsp;</a></span>removevars()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void removevars </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>tolevel</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00328">328</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a8638807967aa30e7700834f6bd4aaa5d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8638807967aa30e7700834f6bd4aaa5d">&#9670;&nbsp;</a></span>repeatstat()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void repeatstat </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>line</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01477">1477</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a4edcfc19b8a94936c58860eded728be4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4edcfc19b8a94936c58860eded728be4">&#9670;&nbsp;</a></span>restassign()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void restassign </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="struct_l_h_s__assign.html">LHS_assign</a> *&#160;</td>
+          <td class="paramname"><em>lh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nvars</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01365">1365</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a7998fc603fbe151c85cf0ff9b5517ad6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7998fc603fbe151c85cf0ff9b5517ad6">&#9670;&nbsp;</a></span>retstat()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void retstat </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01842">1842</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a4fa16ff6ddba70e699b1b87ca18d30e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4fa16ff6ddba70e699b1b87ca18d30e1">&#9670;&nbsp;</a></span>searchupvalue()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int searchupvalue </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_t_string.html">TString</a> *&#160;</td>
+          <td class="paramname"><em>name</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00342">342</a> 行定义.</p>
+
+</div>
+</div>
+<a id="aa0f0bf6be9c3844c8c9bd05074b53c07"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa0f0bf6be9c3844c8c9bd05074b53c07">&#9670;&nbsp;</a></span>searchvar()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int searchvar </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_t_string.html">TString</a> *&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>var</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00390">390</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a71bb47764e4103bbd98a4285ab97ca5d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a71bb47764e4103bbd98a4285ab97ca5d">&#9670;&nbsp;</a></span>setvararg()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void setvararg </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nparams</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00943">943</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a3b0b05af60978b05faf5713968573985"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b0b05af60978b05faf5713968573985">&#9670;&nbsp;</a></span>simpleexp()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void simpleexp </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>v</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01130">1130</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a39a46ec796479bdd22eea51ddef11685"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a39a46ec796479bdd22eea51ddef11685">&#9670;&nbsp;</a></span>singlevar()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void singlevar </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>var</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00452">452</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a4e2939a86340a3fe70c3238288c4af8a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e2939a86340a3fe70c3238288c4af8a">&#9670;&nbsp;</a></span>singlevaraux()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void singlevaraux </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_t_string.html">TString</a> *&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>var</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>base</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00424">424</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a73b1624593cc10a15008229b30eeae81"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a73b1624593cc10a15008229b30eeae81">&#9670;&nbsp;</a></span>solvegoto()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void solvegoto </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>g</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_labeldesc.html">Labeldesc</a> *&#160;</td>
+          <td class="paramname"><em>label</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00517">517</a> 行定义.</p>
+
+</div>
+</div>
+<a id="abd72e798cea4c3def7bc6791e5f07a43"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abd72e798cea4c3def7bc6791e5f07a43">&#9670;&nbsp;</a></span>solvegotos()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int solvegotos </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_labeldesc.html">Labeldesc</a> *&#160;</td>
+          <td class="paramname"><em>lb</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00575">575</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a7f8a29677082a5ef36452294a527d740"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f8a29677082a5ef36452294a527d740">&#9670;&nbsp;</a></span>stacklevel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int stacklevel </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_func_state.html">FuncState</a> *&#160;</td>
+          <td class="paramname"><em>fs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>nvar</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00230">230</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ac29df3687aea9407dcfec478092fce4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac29df3687aea9407dcfec478092fce4c">&#9670;&nbsp;</a></span>statement()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void statement </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01874">1874</a> 行定义.</p>
+
+</div>
+</div>
+<a id="aff3c4f1970c0f3c50f37a8187a2414e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff3c4f1970c0f3c50f37a8187a2414e3">&#9670;&nbsp;</a></span>statlist()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void statlist </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00789">789</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ac6a77e92851fefeaf3facfdc47e5e39d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac6a77e92851fefeaf3facfdc47e5e39d">&#9670;&nbsp;</a></span>str_checkname()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="struct_t_string.html">TString</a>* str_checkname </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00143">143</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a49946c41497533490f57063b1ca7cb7c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a49946c41497533490f57063b1ca7cb7c">&#9670;&nbsp;</a></span>subexpr()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="lcode_8h.html#ae9a305c1104efedfc54af8d08b942c83">BinOpr</a> subexpr </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>v</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>limit</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01250">1250</a> 行定义.</p>
+
+</div>
+</div>
+<a id="adecf4ab651d795c1af76b75998a4dd9c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adecf4ab651d795c1af76b75998a4dd9c">&#9670;&nbsp;</a></span>suffixedexp()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void suffixedexp </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>v</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01092">1092</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a51dbd956bff1ce06bb45b3e3d9fde83f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a51dbd956bff1ce06bb45b3e3d9fde83f">&#9670;&nbsp;</a></span>test_then_block()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void test_then_block </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int *&#160;</td>
+          <td class="paramname"><em>escapelist</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01661">1661</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a73a8be4e1269883a7b1f101bc14902e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a73a8be4e1269883a7b1f101bc14902e3">&#9670;&nbsp;</a></span>testnext()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int testnext </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>c</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00095">95</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a0e6f2c50414357750f14eb41e3d08edc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0e6f2c50414357750f14eb41e3d08edc">&#9670;&nbsp;</a></span>undefgoto()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="llimits_8h.html#a9f743fcc9a5278cb9ee10355f09f7302">l_noret</a> undefgoto </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_labeldesc.html">Labeldesc</a> *&#160;</td>
+          <td class="paramname"><em>gt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00648">648</a> 行定义.</p>
+
+</div>
+</div>
+<a id="af24623e7aa293515c8293aaf892de531"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af24623e7aa293515c8293aaf892de531">&#9670;&nbsp;</a></span>whilestat()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void whilestat </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>line</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01458">1458</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ac3e6a3b89f1a54a2ff4f3570831faf35"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac3e6a3b89f1a54a2ff4f3570831faf35">&#9670;&nbsp;</a></span>yindex()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void yindex </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_lex_state.html">LexState</a> *&#160;</td>
+          <td class="paramname"><em>ls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structexpdesc.html">expdesc</a> *&#160;</td>
+          <td class="paramname"><em>v</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l00812">812</a> 行定义.</p>
+
+</div>
+</div>
+<h2 class="groupheader">变量说明</h2>
+<a id="a3584754acc5e91c03d6fc91359eefd78"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3584754acc5e91c03d6fc91359eefd78">&#9670;&nbsp;</a></span>left</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="llimits_8h.html#ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</a> left</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01228">1228</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ac6fd7e992c9eb0344ae1d64618ac5d27"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac6fd7e992c9eb0344ae1d64618ac5d27">&#9670;&nbsp;</a></span>priority</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const { ... }  priority[]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>初始值:</b><div class="fragment"><div class="line">= {  </div>
+<div class="line">   {10, 10}, {10, 10},           </div>
+<div class="line">   {11, 11}, {11, 11},           </div>
+<div class="line">   {14, 13},                  </div>
+<div class="line">   {11, 11}, {11, 11},           </div>
+<div class="line">   {6, 6}, {4, 4}, {5, 5},   </div>
+<div class="line">   {7, 7}, {7, 7},           </div>
+<div class="line">   {9, 8},                   </div>
+<div class="line">   {3, 3}, {3, 3}, {3, 3},   </div>
+<div class="line">   {3, 3}, {3, 3}, {3, 3},   </div>
+<div class="line">   {2, 2}, {1, 1}            </div>
+<div class="line">}</div>
+</div><!-- fragment -->
+</div>
+</div>
+<a id="a34b07942956eb7acd9d02c5b75177ae6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a34b07942956eb7acd9d02c5b75177ae6">&#9670;&nbsp;</a></span>right</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="llimits_8h.html#ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</a> right</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="lparser_8c_source.html">lparser.c</a> 第 <a class="el" href="lparser_8c_source.html#l01229">1229</a> 行定义.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+<div class="ttc" id="allex_8c_html_a83f747518666054180f6a7f8da55ac42"><div class="ttname"><a href="llex_8c.html#a83f747518666054180f6a7f8da55ac42">luaX_newstring</a></div><div class="ttdeci">TString * luaX_newstring(LexState *ls, const char *str, size_t l)</div><div class="ttdef"><b>Definition:</b> <a href="llex_8c_source.html#l00130">llex.c:130</a></div></div>
+<div class="ttc" id="alparser_8c_html_a89f5732cbee45d78cfec9dbd1a207bb7"><div class="ttname"><a href="lparser_8c.html#a89f5732cbee45d78cfec9dbd1a207bb7">new_localvar</a></div><div class="ttdeci">static int new_localvar(LexState *ls, TString *name)</div><div class="ttdef"><b>Definition:</b> <a href="lparser_8c_source.html#l00193">lparser.c:193</a></div></div>
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+制作者&#160;<a href="http://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.8.20
+</small></address>
+</body>
+</html>

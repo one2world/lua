@@ -1,0 +1,204 @@
+.TH "CallInfo" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+CallInfo
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <lstate\&.h>\fP
+.SS "成员变量"
+
+.in +1c
+.ti -1c
+.RI "\fBStkId\fP \fBfunc\fP"
+.br
+.RI "function index in the stack "
+.ti -1c
+.RI "\fBStkId\fP \fBtop\fP"
+.br
+.RI "top for this function "
+.ti -1c
+.RI "struct \fBCallInfo\fP * \fBprevious\fP"
+.br
+.ti -1c
+.RI "struct \fBCallInfo\fP * \fBnext\fP"
+.br
+.RI "dynamic call link "
+.ti -1c
+.RI "union {"
+.br
+.ti -1c
+.RI "   struct {"
+.br
+.ti -1c
+.RI "      const \fBInstruction\fP * \fBsavedpc\fP"
+.br
+.RI "< only for Lua functions "
+.ti -1c
+.RI "      volatile \fBl_signalT\fP \fBtrap\fP"
+.br
+.ti -1c
+.RI "      int \fBnextraargs\fP"
+.br
+.ti -1c
+.RI "   } \fBl\fP"
+.br
+.ti -1c
+.RI "   struct {"
+.br
+.ti -1c
+.RI "      \fBlua_KFunction\fP \fBk\fP"
+.br
+.RI "< only for C functions "
+.ti -1c
+.RI "      ptrdiff_t \fBold_errfunc\fP"
+.br
+.ti -1c
+.RI "      \fBlua_KContext\fP \fBctx\fP"
+.br
+.ti -1c
+.RI "   } \fBc\fP"
+.br
+.ti -1c
+.RI "} \fBu\fP"
+.br
+.ti -1c
+.RI "union {"
+.br
+.ti -1c
+.RI "   int \fBfuncidx\fP"
+.br
+.ti -1c
+.RI "   int \fBnyield\fP"
+.br
+.ti -1c
+.RI "   struct {"
+.br
+.ti -1c
+.RI "      unsigned short \fBftransfer\fP"
+.br
+.ti -1c
+.RI "      unsigned short \fBntransfer\fP"
+.br
+.ti -1c
+.RI "   } \fBtransferinfo\fP"
+.br
+.ti -1c
+.RI "} \fBu2\fP"
+.br
+.ti -1c
+.RI "short \fBnresults\fP"
+.br
+.ti -1c
+.RI "unsigned short \fBcallstatus\fP"
+.br
+.in -1c
+.SH "详细描述"
+.PP 
+Information about a call\&. 
+.PP
+\fB注解\fP
+.RS 4
+记录了函数在堆栈中的位置,函数top，前一个调用的函数(如果被调用者),后一个调用函数(如果调用者)。c func和 lua func区分公用union，调用状态、返回值个数。 
+.RE
+.PP
+\fB待办事项\fP
+.RS 4
+yields部分 TODO 
+.RE
+.PP
+
+.PP
+在文件 lstate\&.h 第 172 行定义\&.
+.SH "结构体成员变量说明"
+.PP 
+.SS "struct { \&.\&.\&. }  c"
+
+.SS "unsigned short callstatus"
+
+.PP
+在文件 lstate\&.h 第 197 行定义\&.
+.SS "\fBlua_KContext\fP ctx"
+
+.PP
+在文件 lstate\&.h 第 185 行定义\&.
+.SS "unsigned short ftransfer"
+
+.PP
+在文件 lstate\&.h 第 192 行定义\&.
+.SS "\fBStkId\fP func"
+
+.PP
+function index in the stack 
+.PP
+在文件 lstate\&.h 第 173 行定义\&.
+.SS "int funcidx"
+
+.PP
+在文件 lstate\&.h 第 189 行定义\&.
+.SS "\fBlua_KFunction\fP k"
+
+.PP
+< only for C functions 
+.PP
+在文件 lstate\&.h 第 183 行定义\&.
+.SS "struct { \&.\&.\&. }  l"
+
+.SS "struct \fBCallInfo\fP * next"
+
+.PP
+dynamic call link 
+.PP
+在文件 lstate\&.h 第 175 行定义\&.
+.SS "int nextraargs"
+
+.PP
+在文件 lstate\&.h 第 180 行定义\&.
+.SS "short nresults"
+
+.PP
+在文件 lstate\&.h 第 196 行定义\&.
+.SS "unsigned short ntransfer"
+
+.PP
+在文件 lstate\&.h 第 193 行定义\&.
+.SS "int nyield"
+
+.PP
+在文件 lstate\&.h 第 190 行定义\&.
+.SS "ptrdiff_t old_errfunc"
+
+.PP
+在文件 lstate\&.h 第 184 行定义\&.
+.SS "struct \fBCallInfo\fP* previous"
+
+.PP
+在文件 lstate\&.h 第 175 行定义\&.
+.SS "const \fBInstruction\fP* savedpc"
+
+.PP
+< only for Lua functions 
+.PP
+在文件 lstate\&.h 第 178 行定义\&.
+.SS "\fBStkId\fP top"
+
+.PP
+top for this function 
+.PP
+在文件 lstate\&.h 第 174 行定义\&.
+.SS "struct { \&.\&.\&. }  transferinfo"
+
+.SS "volatile \fBl_signalT\fP trap"
+
+.PP
+在文件 lstate\&.h 第 179 行定义\&.
+.SS "union { \&.\&.\&. }  u"
+
+.SS "union { \&.\&.\&. }  u2"
+
+
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

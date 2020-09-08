@@ -1,0 +1,394 @@
+.TH "D:/gitworkspace/lua/src/lua.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lua.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include <signal\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lauxlib\&.h'\fP
+.br
+\fC#include 'lualib\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBlua_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_PROGNAME\fP   'lua'"
+.br
+.ti -1c
+.RI "#define \fBLUA_INIT_VAR\fP   'LUA_INIT'"
+.br
+.ti -1c
+.RI "#define \fBLUA_INITVARVERSION\fP   \fBLUA_INIT_VAR\fP \fBLUA_VERSUFFIX\fP"
+.br
+.ti -1c
+.RI "#define \fBhas_error\fP   1	/* bad option */"
+.br
+.ti -1c
+.RI "#define \fBhas_i\fP   2	/* \-i */"
+.br
+.ti -1c
+.RI "#define \fBhas_v\fP   4	/* \-v */"
+.br
+.ti -1c
+.RI "#define \fBhas_e\fP   8	/* \-e */"
+.br
+.ti -1c
+.RI "#define \fBhas_E\fP   16	/* \-E */"
+.br
+.ti -1c
+.RI "#define \fBLUA_PROMPT\fP   '> '"
+.br
+.ti -1c
+.RI "#define \fBLUA_PROMPT2\fP   '>> '"
+.br
+.ti -1c
+.RI "#define \fBLUA_MAXINPUT\fP   512"
+.br
+.ti -1c
+.RI "#define \fBlua_stdin_is_tty\fP()   1  /* assume stdin is a tty */"
+.br
+.ti -1c
+.RI "#define \fBlua_initreadline\fP(L)   ((void)L)"
+.br
+.ti -1c
+.RI "#define \fBlua_readline\fP(L,  b,  p)"
+.br
+.ti -1c
+.RI "#define \fBlua_saveline\fP(L,  line)   { (void)L; (void)line; }"
+.br
+.ti -1c
+.RI "#define \fBlua_freeline\fP(L,  b)   { (void)L; (void)b; }"
+.br
+.ti -1c
+.RI "#define \fBEOFMARK\fP   '<eof>'"
+.br
+.ti -1c
+.RI "#define \fBmarklen\fP   (sizeof(\fBEOFMARK\fP)/sizeof(char) \- 1)"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static void \fBlstop\fP (\fBlua_State\fP *L, \fBlua_Debug\fP *ar)"
+.br
+.ti -1c
+.RI "static void \fBlaction\fP (int i)"
+.br
+.ti -1c
+.RI "static void \fBprint_usage\fP (const char *badoption)"
+.br
+.ti -1c
+.RI "static void \fBl_message\fP (const char *pname, const char *msg)"
+.br
+.ti -1c
+.RI "static int \fBreport\fP (\fBlua_State\fP *L, int status)"
+.br
+.ti -1c
+.RI "static int \fBmsghandler\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBdocall\fP (\fBlua_State\fP *L, int narg, int nres)"
+.br
+.ti -1c
+.RI "static void \fBprint_version\fP (void)"
+.br
+.ti -1c
+.RI "static void \fBcreateargtable\fP (\fBlua_State\fP *L, char **argv, int argc, int script)"
+.br
+.ti -1c
+.RI "static int \fBdochunk\fP (\fBlua_State\fP *L, int status)"
+.br
+.ti -1c
+.RI "static int \fBdofile\fP (\fBlua_State\fP *L, const char *name)"
+.br
+.ti -1c
+.RI "static int \fBdostring\fP (\fBlua_State\fP *L, const char *s, const char *name)"
+.br
+.ti -1c
+.RI "static int \fBdolibrary\fP (\fBlua_State\fP *L, const char *name)"
+.br
+.ti -1c
+.RI "static int \fBpushargs\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBhandle_script\fP (\fBlua_State\fP *L, char **argv)"
+.br
+.ti -1c
+.RI "static int \fBcollectargs\fP (char **argv, int *first)"
+.br
+.ti -1c
+.RI "static int \fBrunargs\fP (\fBlua_State\fP *L, char **argv, int n)"
+.br
+.ti -1c
+.RI "static int \fBhandle_luainit\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static const char * \fBget_prompt\fP (\fBlua_State\fP *L, int firstline)"
+.br
+.ti -1c
+.RI "static int \fBincomplete\fP (\fBlua_State\fP *L, int status)"
+.br
+.ti -1c
+.RI "static int \fBpushline\fP (\fBlua_State\fP *L, int firstline)"
+.br
+.ti -1c
+.RI "static int \fBaddreturn\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmultiline\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBloadline\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBl_print\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBdoREPL\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBpmain\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "int \fBmain\fP (int argc, char **argv)"
+.br
+.in -1c
+.SS "变量"
+
+.in +1c
+.ti -1c
+.RI "static \fBlua_State\fP * \fBglobalL\fP = NULL"
+.br
+.ti -1c
+.RI "static const char * \fBprogname\fP = \fBLUA_PROGNAME\fP"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define EOFMARK   '<eof>'"
+
+.PP
+在文件 lua\&.c 第 430 行定义\&.
+.SS "#define has_e   8	/* \-e */"
+
+.PP
+在文件 lua\&.c 第 238 行定义\&.
+.SS "#define has_E   16	/* \-E */"
+
+.PP
+在文件 lua\&.c 第 239 行定义\&.
+.SS "#define has_error   1	/* bad option */"
+
+.PP
+在文件 lua\&.c 第 235 行定义\&.
+.SS "#define has_i   2	/* \-i */"
+
+.PP
+在文件 lua\&.c 第 236 行定义\&.
+.SS "#define has_v   4	/* \-v */"
+
+.PP
+在文件 lua\&.c 第 237 行定义\&.
+.SS "#define lua_c"
+
+.PP
+在文件 lua\&.c 第 7 行定义\&.
+.SS "#define lua_freeline(L, b)   { (void)L; (void)b; }"
+
+.PP
+在文件 lua\&.c 第 411 行定义\&.
+.SS "#define LUA_INIT_VAR   'LUA_INIT'"
+
+.PP
+在文件 lua\&.c 第 29 行定义\&.
+.SS "#define lua_initreadline(L)   ((void)L)"
+
+.PP
+在文件 lua\&.c 第 406 行定义\&.
+.SS "#define LUA_INITVARVERSION   \fBLUA_INIT_VAR\fP \fBLUA_VERSUFFIX\fP"
+
+.PP
+在文件 lua\&.c 第 32 行定义\&.
+.SS "#define LUA_MAXINPUT   512"
+
+.PP
+在文件 lua\&.c 第 355 行定义\&.
+.SS "#define LUA_PROGNAME   'lua'"
+
+.PP
+在文件 lua\&.c 第 25 行定义\&.
+.SS "#define LUA_PROMPT   '> '"
+
+.PP
+在文件 lua\&.c 第 350 行定义\&.
+.SS "#define LUA_PROMPT2   '>> '"
+
+.PP
+在文件 lua\&.c 第 351 行定义\&.
+.SS "#define lua_readline(L, b, p)"
+\fB值:\fP
+.PP
+.nf
+        ((void)L, fputs(p, stdout), fflush(stdout),  /* show prompt */ \
+        fgets(b, LUA_MAXINPUT, stdin) != NULL)  /* get line */
+.fi
+.PP
+在文件 lua\&.c 第 407 行定义\&.
+.SS "#define lua_saveline(L, line)   { (void)L; (void)line; }"
+
+.PP
+在文件 lua\&.c 第 410 行定义\&.
+.SS "#define lua_stdin_is_tty()   1  /* assume stdin is a tty */"
+
+.PP
+在文件 lua\&.c 第 380 行定义\&.
+.SS "#define marklen   (sizeof(\fBEOFMARK\fP)/sizeof(char) \- 1)"
+
+.PP
+在文件 lua\&.c 第 431 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static int addreturn (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 480 行定义\&.
+.SS "static int collectargs (char ** argv, int * first)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 248 行定义\&.
+.SS "static void createargtable (\fBlua_State\fP * L, char ** argv, int argc, int script)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 160 行定义\&.
+.SS "static int docall (\fBlua_State\fP * L, int narg, int nres)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 132 行定义\&.
+.SS "static int dochunk (\fBlua_State\fP * L, int status)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 173 行定义\&.
+.SS "static int dofile (\fBlua_State\fP * L, const char * name)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 179 行定义\&.
+.SS "static int dolibrary (\fBlua_State\fP * L, const char * name)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 193 行定义\&.
+.SS "static void doREPL (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 553 行定义\&.
+.SS "static int dostring (\fBlua_State\fP * L, const char * s, const char * name)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 184 行定义\&.
+.SS "static const char* get_prompt (\fBlua_State\fP * L, int firstline)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 421 行定义\&.
+.SS "static int handle_luainit (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 328 行定义\&.
+.SS "static int handle_script (\fBlua_State\fP * L, char ** argv)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 220 行定义\&.
+.SS "static int incomplete (\fBlua_State\fP * L, int status)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 439 行定义\&.
+.SS "static void l_message (const char * pname, const char * msg)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 89 行定义\&.
+.SS "static void l_print (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 536 行定义\&.
+.SS "static void laction (int i)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 56 行定义\&.
+.SS "static int loadline (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 520 行定义\&.
+.SS "static void lstop (\fBlua_State\fP * L, \fBlua_Debug\fP * ar)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 43 行定义\&.
+.SS "int main (int argc, char ** argv)"
+
+.PP
+在文件 lua\&.c 第 619 行定义\&.
+.SS "static int msghandler (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 113 行定义\&.
+.SS "static int multiline (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 498 行定义\&.
+.SS "static int pmain (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 576 行定义\&.
+.SS "static void print_usage (const char * badoption)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 63 行定义\&.
+.SS "static void print_version (void)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 146 行定义\&.
+.SS "static int pushargs (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 207 行定义\&.
+.SS "static int pushline (\fBlua_State\fP * L, int firstline)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 455 行定义\&.
+.SS "static int report (\fBlua_State\fP * L, int status)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 100 行定义\&.
+.SS "static int runargs (\fBlua_State\fP * L, char ** argv, int n)\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 302 行定义\&.
+.SH "变量说明"
+.PP 
+.SS "\fBlua_State\fP* globalL = NULL\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 35 行定义\&.
+.SS "const char* progname = \fBLUA_PROGNAME\fP\fC [static]\fP"
+
+.PP
+在文件 lua\&.c 第 37 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

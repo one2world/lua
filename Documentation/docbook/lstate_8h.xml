@@ -1,0 +1,587 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lstate_8h" xml:lang="zh">
+<title>D:/gitworkspace/lua/lstate.h 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lstate.h</primary></indexterm>
+<programlisting>#include &quot;lua.h&quot;
+#include &quot;lobject.h&quot;
+#include &quot;ltm.h&quot;
+#include &quot;lzio.h&quot;
+#include &lt;signal.h&gt;
+</programlisting>lstate.h 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8h__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8h__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>结构体    </title>
+        <itemizedlist>
+            <listitem><para>struct <link linkend="_structstringtable">stringtable</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_call_info">CallInfo</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_structglobal___state">global_State</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_structlua___state">lua_State</link></para>
+</listitem>
+            <listitem><para>union <link linkend="_union_g_c_union">GCUnion</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lstate_8h_1a3bba88e738931dcb80bbd326ba5a00dc">CSTACKCF</link>   10</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a9bebfd5d51da62e374c701b7273be718">CSTACKERR</link>   (8 * <link linkend="_lstate_8h_1a3bba88e738931dcb80bbd326ba5a00dc">CSTACKCF</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1af7aadb49580714742c3c70c9e923e5e7">CSTACKMARK</link>   (<link linkend="_lstate_8h_1a9bebfd5d51da62e374c701b7273be718">CSTACKERR</link> - (<link linkend="_lstate_8h_1a3bba88e738931dcb80bbd326ba5a00dc">CSTACKCF</link> + 2))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a1ec4c7b60f71b63a0a92031cb3995721">CSTACKERRMARK</link>   (<link linkend="_lstate_8h_1a3bba88e738931dcb80bbd326ba5a00dc">CSTACKCF</link> + 2)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a5d73c3269da96b2249cd47e5fefb2720">CSTACKTHREAD</link>   (2 * <link linkend="_lstate_8h_1a9bebfd5d51da62e374c701b7273be718">CSTACKERR</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1aab879b1429bb9a48168253ab32cd270b">yieldable</link>(L)   (((L)-&gt;nCcalls &amp; 0xffff0000) == 0)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1aa36c58fe1f92b6539e2a9b525a2fdde9">getCcalls</link>(L)   ((L)-&gt;nCcalls &amp; 0xffff)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1aeb39a01d2065f4d8df78714df6aa7a34">incnny</link>(L)   ((L)-&gt;nCcalls += 0x10000)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a233692af4a2d35e617ee8ac5453cc23a">decnny</link>(L)   ((L)-&gt;nCcalls -= 0x10000)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1aeb8db5c698d12c0c03c600c6f0918718">incXCcalls</link>(L)   ((L)-&gt;nCcalls += 0x10000 - <link linkend="_lstate_8h_1a3bba88e738931dcb80bbd326ba5a00dc">CSTACKCF</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a31e8bbbe3006b767dc8b4a0914418226">decXCcalls</link>(L)   ((L)-&gt;nCcalls -= 0x10000 - <link linkend="_lstate_8h_1a3bba88e738931dcb80bbd326ba5a00dc">CSTACKCF</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a671695c87339f30600d0f0f27a2cd2f0">l_signalT</link>   sig_atomic_t</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a9e690b8e4047af306d2dd1f78a9094d7">EXTRA_STACK</link>   5</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a8f869ebbbd09a2c657864e11e3d88453">BASIC_STACK_SIZE</link>   (2*<link linkend="_lua_8h_1ad0180b89de8a4425cb2a1a3e3f793aa5">LUA_MINSTACK</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a52c54e51ee8ad2218ac72b745afc2f7d">KGC_INC</link>   0	/* incremental gc */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1aa2765fe939333ebc895ba9cedbaa30a0">KGC_GEN</link>   1	/* generational gc */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1aa79d6ca436cdf0651af29bf3a10e8615">CIST_OAH</link>   (1&lt;&lt;0)	/* original value of &apos;allowhook&apos; */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a9bd55a931fefd2ddeb3d63b245fc39f1">CIST_C</link>   (1&lt;&lt;1)	/* call is running a C function */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a800d75f1a5d7a4a9b2fc810cdeedffb1">CIST_HOOKED</link>   (1&lt;&lt;2)	/* call is running a debug hook */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a4b2deea0fb7c8f4b21151e5f105de6dc">CIST_YPCALL</link>   (1&lt;&lt;3)	/* call is a <link linkend="_lstate_8h_1aab879b1429bb9a48168253ab32cd270b">yieldable</link> protected call */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a0b8ca2af9b603d2807b3377f97038e8f">CIST_TAIL</link>   (1&lt;&lt;4)	/* call was tail called */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a2ee8b2631d186257649cce9f39e17aae">CIST_HOOKYIELD</link>   (1&lt;&lt;5)	/* last hook called yielded */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a6238abb19ba287875358e796aacb9473">CIST_FIN</link>   (1&lt;&lt;6)  /* call is running a finalizer */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1ac659536c0c3241a9f25397491601bb41">CIST_TRAN</link>   (1&lt;&lt;7)	/* &apos;ci&apos; has transfer information */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a489eab424b094f54dd7f6b35e2cf68a2">isLua</link>(ci)   (!((ci)-&gt;callstatus &amp; <link linkend="_lstate_8h_1a9bd55a931fefd2ddeb3d63b245fc39f1">CIST_C</link>))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1abf81b7132f7940af70784ccaf75a0e49">isLuacode</link>(ci)   (!((ci)-&gt;callstatus &amp; (<link linkend="_lstate_8h_1a9bd55a931fefd2ddeb3d63b245fc39f1">CIST_C</link> | <link linkend="_lstate_8h_1a800d75f1a5d7a4a9b2fc810cdeedffb1">CIST_HOOKED</link>)))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a77033f2cdcc8950b8961e2a413c9117b">setoah</link>(st,  v)   ((st) = ((st) &amp; ~<link linkend="_lstate_8h_1aa79d6ca436cdf0651af29bf3a10e8615">CIST_OAH</link>) | (v))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a565f5990436c4b7db223e9d33e8a5f57">getoah</link>(st)   ((st) &amp; <link linkend="_lstate_8h_1aa79d6ca436cdf0651af29bf3a10e8615">CIST_OAH</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L)   (L-&gt;l_G)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(o)   <link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(union <link linkend="_union_g_c_union">GCUnion</link> *, (o))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1af6c16f3aa27ad97ea1bcaa31e05e0b06">gco2ts</link>(o)   	<link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a40d12e88a0d8249d226109e0d6d70dd6">novariant</link>((o)-&gt;tt) == <link linkend="_lua_8h_1a57de20d87bb5131a3159f2bd52e3fab6">LUA_TSTRING</link>, &amp;((<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(o))-&gt;ts))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a55e9a228ad0d3a82ee9cfc353002fd8a">gco2u</link>(o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((o)-&gt;tt == <link linkend="_lobject_8h_1af45b44d4031e7e869195dd97759d2ca3">LUA_VUSERDATA</link>, &amp;((<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(o))-&gt;u))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1adaac0379079b200986d6ae72b65aefaf">gco2lcl</link>(o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((o)-&gt;tt == <link linkend="_lobject_8h_1a5d0e6e41ea93960667095501aa5745c1">LUA_VLCL</link>, &amp;((<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(o))-&gt;cl.l))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a1dcf2ea170c68fe70adb5af7ae04c71e">gco2ccl</link>(o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((o)-&gt;tt == <link linkend="_lobject_8h_1a2361d923ddb7fc1468b978fe043e35c2">LUA_VCCL</link>, &amp;((<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(o))-&gt;cl.c))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a003658bade3405a30fe2cf7fee2f7e10">gco2cl</link>(o)   	<link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a40d12e88a0d8249d226109e0d6d70dd6">novariant</link>((o)-&gt;tt) == <link linkend="_lua_8h_1adaa7fa6e2561c1bc428ba8d265171494">LUA_TFUNCTION</link>, &amp;((<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(o))-&gt;cl))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a4f233ba369144fad9fd5fc6c513da1ac">gco2t</link>(o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((o)-&gt;tt == <link linkend="_lobject_8h_1afaf24d5b79b9027ad768d023778669df">LUA_VTABLE</link>, &amp;((<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(o))-&gt;h))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a8792af5dd4539a71f6ed8ddb31d079c3">gco2p</link>(o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((o)-&gt;tt == <link linkend="_lobject_8h_1a1c6c32cba3e6d0c897f68ceb273dd757">LUA_VPROTO</link>, &amp;((<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(o))-&gt;p))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a52c467e11bd40cad5ca78372f7f67b4d">gco2th</link>(o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((o)-&gt;tt == <link linkend="_lobject_8h_1ad224258ccc4e8f79f148d54d32ddbd00">LUA_VTHREAD</link>, &amp;((<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(o))-&gt;th))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a1633a3ec133e64956014aafd04e31cce">gco2upv</link>(o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((o)-&gt;tt == <link linkend="_lobject_8h_1ae982db94518ed52587579ed70d822ad5">LUA_VUPVAL</link>, &amp;((<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(o))-&gt;upv))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(v)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((v)-&gt;tt &gt;= <link linkend="_lua_8h_1a57de20d87bb5131a3159f2bd52e3fab6">LUA_TSTRING</link>, &amp;(<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(v)-&gt;gc))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1a27490dbb57469f3fa83a73d4b7a79df2">gettotalbytes</link>(g)   <link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(<link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link>, (g)-&gt;totalbytes + (g)-&gt;GCdebt)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8h_1ab08fafa9debffb694b3a1aec123347da">luaE_exitCcall</link>(L)   ((L)-&gt;nCcalls++)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>类型定义    </title>
+        <itemizedlist>
+            <listitem><para>typedef struct <link linkend="_structstringtable">stringtable</link> <link linkend="_lstate_8h_1a30fbba34f6a57f628f9b4617cb5e6e85">stringtable</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_call_info">CallInfo</link> <link linkend="_lstate_8h_1a8385a34ef0855af12719434f90ae78be">CallInfo</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_structglobal___state">global_State</link> <link linkend="_lstate_8h_1a483e748c0bb89880075d6442bc8bd4c2">global_State</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lstate_8h_1af1b915fc323a9a154d892b1c16b8cc6c">luaE_setdebt</link> (<link linkend="_structglobal___state">global_State</link> *g, <link linkend="_llimits_8h_1a24fc195087e262c99a4cf0f9b346a684">l_mem</link> debt)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lstate_8h_1a0882226c718293b23af460f7e2faeef0">luaE_freethread</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structlua___state">lua_State</link> *L1)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> <link linkend="_struct_call_info">CallInfo</link> * <link linkend="_lstate_8h_1aad92caaae77beaadf1d10954133eb53e">luaE_extendCI</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lstate_8h_1afd548baa613a5be59f9724df0b3c179c">luaE_freeCI</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lstate_8h_1a5f4d20913889e46b69f0a54b10a9a545">luaE_shrinkCI</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lstate_8h_1a0a0b9a376c81e1247ae41d3cfeb1921c">luaE_enterCcall</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lstate_8h_1a42e5b1838bc6dc0e4545059556df0842">luaE_warning</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *msg, int tocont)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lstate_8h_1a19ac557deb44046d082cf5d052831bbb">luaE_warnerror</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *where)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lstate_8h_1a8f869ebbbd09a2c657864e11e3d88453"/>    <section>
+    <title>BASIC_STACK_SIZE</title>
+<indexterm><primary>BASIC_STACK_SIZE</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>BASIC_STACK_SIZE</secondary></indexterm>
+<para><computeroutput>#define BASIC_STACK_SIZE   (2*<link linkend="_lua_8h_1ad0180b89de8a4425cb2a1a3e3f793aa5">LUA_MINSTACK</link>)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00175">175</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a34b04e38154abb464adc00abd6760e37"/>    <section>
+    <title>cast_u</title>
+<indexterm><primary>cast_u</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>cast_u</secondary></indexterm>
+<para><computeroutput>#define cast_u( o)   <link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(union <link linkend="_union_g_c_union">GCUnion</link> *, (o))</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00350">350</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a9bd55a931fefd2ddeb3d63b245fc39f1"/>    <section>
+    <title>CIST_C</title>
+<indexterm><primary>CIST_C</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>CIST_C</secondary></indexterm>
+<para><computeroutput>#define CIST_C   (1&lt;&lt;1)	/* call is running a C function */</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00226">226</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a6238abb19ba287875358e796aacb9473"/>    <section>
+    <title>CIST_FIN</title>
+<indexterm><primary>CIST_FIN</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>CIST_FIN</secondary></indexterm>
+<para><computeroutput>#define CIST_FIN   (1&lt;&lt;6)  /* call is running a finalizer */</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00231">231</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a800d75f1a5d7a4a9b2fc810cdeedffb1"/>    <section>
+    <title>CIST_HOOKED</title>
+<indexterm><primary>CIST_HOOKED</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>CIST_HOOKED</secondary></indexterm>
+<para><computeroutput>#define CIST_HOOKED   (1&lt;&lt;2)	/* call is running a debug hook */</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00227">227</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a2ee8b2631d186257649cce9f39e17aae"/>    <section>
+    <title>CIST_HOOKYIELD</title>
+<indexterm><primary>CIST_HOOKYIELD</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>CIST_HOOKYIELD</secondary></indexterm>
+<para><computeroutput>#define CIST_HOOKYIELD   (1&lt;&lt;5)	/* last hook called yielded */</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00230">230</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1aa79d6ca436cdf0651af29bf3a10e8615"/>    <section>
+    <title>CIST_OAH</title>
+<indexterm><primary>CIST_OAH</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>CIST_OAH</secondary></indexterm>
+<para><computeroutput>#define CIST_OAH   (1&lt;&lt;0)	/* original value of &apos;allowhook&apos; */</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00225">225</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a0b8ca2af9b603d2807b3377f97038e8f"/>    <section>
+    <title>CIST_TAIL</title>
+<indexterm><primary>CIST_TAIL</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>CIST_TAIL</secondary></indexterm>
+<para><computeroutput>#define CIST_TAIL   (1&lt;&lt;4)	/* call was tail called */</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00229">229</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1ac659536c0c3241a9f25397491601bb41"/>    <section>
+    <title>CIST_TRAN</title>
+<indexterm><primary>CIST_TRAN</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>CIST_TRAN</secondary></indexterm>
+<para><computeroutput>#define CIST_TRAN   (1&lt;&lt;7)	/* &apos;ci&apos; has transfer information */</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00232">232</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a4b2deea0fb7c8f4b21151e5f105de6dc"/>    <section>
+    <title>CIST_YPCALL</title>
+<indexterm><primary>CIST_YPCALL</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>CIST_YPCALL</secondary></indexterm>
+<para><computeroutput>#define CIST_YPCALL   (1&lt;&lt;3)	/* call is a <link linkend="_lstate_8h_1aab879b1429bb9a48168253ab32cd270b">yieldable</link> protected call */</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00228">228</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a3bba88e738931dcb80bbd326ba5a00dc"/>    <section>
+    <title>CSTACKCF</title>
+<indexterm><primary>CSTACKCF</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>CSTACKCF</secondary></indexterm>
+<para><computeroutput>#define CSTACKCF   10</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00112">112</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a9bebfd5d51da62e374c701b7273be718"/>    <section>
+    <title>CSTACKERR</title>
+<indexterm><primary>CSTACKERR</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>CSTACKERR</secondary></indexterm>
+<para><computeroutput>#define CSTACKERR   (8 * <link linkend="_lstate_8h_1a3bba88e738931dcb80bbd326ba5a00dc">CSTACKCF</link>)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00125">125</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a1ec4c7b60f71b63a0a92031cb3995721"/>    <section>
+    <title>CSTACKERRMARK</title>
+<indexterm><primary>CSTACKERRMARK</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>CSTACKERRMARK</secondary></indexterm>
+<para><computeroutput>#define CSTACKERRMARK   (<link linkend="_lstate_8h_1a3bba88e738931dcb80bbd326ba5a00dc">CSTACKCF</link> + 2)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00127">127</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1af7aadb49580714742c3c70c9e923e5e7"/>    <section>
+    <title>CSTACKMARK</title>
+<indexterm><primary>CSTACKMARK</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>CSTACKMARK</secondary></indexterm>
+<para><computeroutput>#define CSTACKMARK   (<link linkend="_lstate_8h_1a9bebfd5d51da62e374c701b7273be718">CSTACKERR</link> - (<link linkend="_lstate_8h_1a3bba88e738931dcb80bbd326ba5a00dc">CSTACKCF</link> + 2))</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00126">126</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a5d73c3269da96b2249cd47e5fefb2720"/>    <section>
+    <title>CSTACKTHREAD</title>
+<indexterm><primary>CSTACKTHREAD</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>CSTACKTHREAD</secondary></indexterm>
+<para><computeroutput>#define CSTACKTHREAD   (2 * <link linkend="_lstate_8h_1a9bebfd5d51da62e374c701b7273be718">CSTACKERR</link>)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00131">131</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a233692af4a2d35e617ee8ac5453cc23a"/>    <section>
+    <title>decnny</title>
+<indexterm><primary>decnny</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>decnny</secondary></indexterm>
+<para><computeroutput>#define decnny( L)   ((L)-&gt;nCcalls -= 0x10000)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00145">145</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a31e8bbbe3006b767dc8b4a0914418226"/>    <section>
+    <title>decXCcalls</title>
+<indexterm><primary>decXCcalls</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>decXCcalls</secondary></indexterm>
+<para><computeroutput>#define decXCcalls( L)   ((L)-&gt;nCcalls -= 0x10000 - <link linkend="_lstate_8h_1a3bba88e738931dcb80bbd326ba5a00dc">CSTACKCF</link>)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00151">151</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a9e690b8e4047af306d2dd1f78a9094d7"/>    <section>
+    <title>EXTRA_STACK</title>
+<indexterm><primary>EXTRA_STACK</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>EXTRA_STACK</secondary></indexterm>
+<para><computeroutput>#define EXTRA_STACK   5</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00172">172</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406"/>    <section>
+    <title>G</title>
+<indexterm><primary>G</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>G</secondary></indexterm>
+<para><computeroutput>#define G( L)   (L-&gt;l_G)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00332">332</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a1dcf2ea170c68fe70adb5af7ae04c71e"/>    <section>
+    <title>gco2ccl</title>
+<indexterm><primary>gco2ccl</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>gco2ccl</secondary></indexterm>
+<para><computeroutput>#define gco2ccl( o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((o)-&gt;tt == <link linkend="_lobject_8h_1a2361d923ddb7fc1468b978fe043e35c2">LUA_VCCL</link>, &amp;((<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(o))-&gt;cl.c))</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00357">357</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a003658bade3405a30fe2cf7fee2f7e10"/>    <section>
+    <title>gco2cl</title>
+<indexterm><primary>gco2cl</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>gco2cl</secondary></indexterm>
+<para><computeroutput>#define gco2cl( o)   	<link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a40d12e88a0d8249d226109e0d6d70dd6">novariant</link>((o)-&gt;tt) == <link linkend="_lua_8h_1adaa7fa6e2561c1bc428ba8d265171494">LUA_TFUNCTION</link>, &amp;((<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(o))-&gt;cl))</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00358">358</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1adaac0379079b200986d6ae72b65aefaf"/>    <section>
+    <title>gco2lcl</title>
+<indexterm><primary>gco2lcl</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>gco2lcl</secondary></indexterm>
+<para><computeroutput>#define gco2lcl( o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((o)-&gt;tt == <link linkend="_lobject_8h_1a5d0e6e41ea93960667095501aa5745c1">LUA_VLCL</link>, &amp;((<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(o))-&gt;cl.l))</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00356">356</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a8792af5dd4539a71f6ed8ddb31d079c3"/>    <section>
+    <title>gco2p</title>
+<indexterm><primary>gco2p</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>gco2p</secondary></indexterm>
+<para><computeroutput>#define gco2p( o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((o)-&gt;tt == <link linkend="_lobject_8h_1a1c6c32cba3e6d0c897f68ceb273dd757">LUA_VPROTO</link>, &amp;((<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(o))-&gt;p))</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00361">361</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a4f233ba369144fad9fd5fc6c513da1ac"/>    <section>
+    <title>gco2t</title>
+<indexterm><primary>gco2t</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>gco2t</secondary></indexterm>
+<para><computeroutput>#define gco2t( o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((o)-&gt;tt == <link linkend="_lobject_8h_1afaf24d5b79b9027ad768d023778669df">LUA_VTABLE</link>, &amp;((<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(o))-&gt;h))</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00360">360</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a52c467e11bd40cad5ca78372f7f67b4d"/>    <section>
+    <title>gco2th</title>
+<indexterm><primary>gco2th</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>gco2th</secondary></indexterm>
+<para><computeroutput>#define gco2th( o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((o)-&gt;tt == <link linkend="_lobject_8h_1ad224258ccc4e8f79f148d54d32ddbd00">LUA_VTHREAD</link>, &amp;((<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(o))-&gt;th))</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00362">362</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1af6c16f3aa27ad97ea1bcaa31e05e0b06"/>    <section>
+    <title>gco2ts</title>
+<indexterm><primary>gco2ts</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>gco2ts</secondary></indexterm>
+<para><computeroutput>#define gco2ts( o)   	<link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a40d12e88a0d8249d226109e0d6d70dd6">novariant</link>((o)-&gt;tt) == <link linkend="_lua_8h_1a57de20d87bb5131a3159f2bd52e3fab6">LUA_TSTRING</link>, &amp;((<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(o))-&gt;ts))</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00353">353</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a55e9a228ad0d3a82ee9cfc353002fd8a"/>    <section>
+    <title>gco2u</title>
+<indexterm><primary>gco2u</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>gco2u</secondary></indexterm>
+<para><computeroutput>#define gco2u( o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((o)-&gt;tt == <link linkend="_lobject_8h_1af45b44d4031e7e869195dd97759d2ca3">LUA_VUSERDATA</link>, &amp;((<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(o))-&gt;u))</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00355">355</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a1633a3ec133e64956014aafd04e31cce"/>    <section>
+    <title>gco2upv</title>
+<indexterm><primary>gco2upv</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>gco2upv</secondary></indexterm>
+<para><computeroutput>#define gco2upv( o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((o)-&gt;tt == <link linkend="_lobject_8h_1ae982db94518ed52587579ed70d822ad5">LUA_VUPVAL</link>, &amp;((<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(o))-&gt;upv))</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00363">363</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1aa36c58fe1f92b6539e2a9b525a2fdde9"/>    <section>
+    <title>getCcalls</title>
+<indexterm><primary>getCcalls</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>getCcalls</secondary></indexterm>
+<para><computeroutput>#define getCcalls( L)   ((L)-&gt;nCcalls &amp; 0xffff)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00138">138</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a565f5990436c4b7db223e9d33e8a5f57"/>    <section>
+    <title>getoah</title>
+<indexterm><primary>getoah</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>getoah</secondary></indexterm>
+<para><computeroutput>#define getoah( st)   ((st) &amp; <link linkend="_lstate_8h_1aa79d6ca436cdf0651af29bf3a10e8615">CIST_OAH</link>)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00245">245</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a27490dbb57469f3fa83a73d4b7a79df2"/>    <section>
+    <title>gettotalbytes</title>
+<indexterm><primary>gettotalbytes</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>gettotalbytes</secondary></indexterm>
+<para><computeroutput>#define gettotalbytes( g)   <link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(<link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link>, (g)-&gt;totalbytes + (g)-&gt;GCdebt)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00374">374</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1aeb39a01d2065f4d8df78714df6aa7a34"/>    <section>
+    <title>incnny</title>
+<indexterm><primary>incnny</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>incnny</secondary></indexterm>
+<para><computeroutput>#define incnny( L)   ((L)-&gt;nCcalls += 0x10000)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00142">142</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1aeb8db5c698d12c0c03c600c6f0918718"/>    <section>
+    <title>incXCcalls</title>
+<indexterm><primary>incXCcalls</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>incXCcalls</secondary></indexterm>
+<para><computeroutput>#define incXCcalls( L)   ((L)-&gt;nCcalls += 0x10000 - <link linkend="_lstate_8h_1a3bba88e738931dcb80bbd326ba5a00dc">CSTACKCF</link>)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00148">148</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a489eab424b094f54dd7f6b35e2cf68a2"/>    <section>
+    <title>isLua</title>
+<indexterm><primary>isLua</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>isLua</secondary></indexterm>
+<para><computeroutput>#define isLua( ci)   (!((ci)-&gt;callstatus &amp; <link linkend="_lstate_8h_1a9bd55a931fefd2ddeb3d63b245fc39f1">CIST_C</link>))</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00238">238</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1abf81b7132f7940af70784ccaf75a0e49"/>    <section>
+    <title>isLuacode</title>
+<indexterm><primary>isLuacode</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>isLuacode</secondary></indexterm>
+<para><computeroutput>#define isLuacode( ci)   (!((ci)-&gt;callstatus &amp; (<link linkend="_lstate_8h_1a9bd55a931fefd2ddeb3d63b245fc39f1">CIST_C</link> | <link linkend="_lstate_8h_1a800d75f1a5d7a4a9b2fc810cdeedffb1">CIST_HOOKED</link>)))</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00241">241</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1aa2765fe939333ebc895ba9cedbaa30a0"/>    <section>
+    <title>KGC_GEN</title>
+<indexterm><primary>KGC_GEN</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>KGC_GEN</secondary></indexterm>
+<para><computeroutput>#define KGC_GEN   1	/* generational gc */</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00180">180</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a52c54e51ee8ad2218ac72b745afc2f7d"/>    <section>
+    <title>KGC_INC</title>
+<indexterm><primary>KGC_INC</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>KGC_INC</secondary></indexterm>
+<para><computeroutput>#define KGC_INC   0	/* incremental gc */</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00179">179</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a671695c87339f30600d0f0f27a2cd2f0"/>    <section>
+    <title>l_signalT</title>
+<indexterm><primary>l_signalT</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>l_signalT</secondary></indexterm>
+<para><computeroutput>#define l_signalT   sig_atomic_t</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00167">167</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1ab08fafa9debffb694b3a1aec123347da"/>    <section>
+    <title>luaE_exitCcall</title>
+<indexterm><primary>luaE_exitCcall</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>luaE_exitCcall</secondary></indexterm>
+<para><computeroutput>#define luaE_exitCcall( L)   ((L)-&gt;nCcalls++)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00386">386</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a254ca29aba03e47440082d4591a9734e"/>    <section>
+    <title>obj2gco</title>
+<indexterm><primary>obj2gco</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>obj2gco</secondary></indexterm>
+<para><computeroutput>#define obj2gco( v)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((v)-&gt;tt &gt;= <link linkend="_lua_8h_1a57de20d87bb5131a3159f2bd52e3fab6">LUA_TSTRING</link>, &amp;(<link linkend="_lstate_8h_1a34b04e38154abb464adc00abd6760e37">cast_u</link>(v)-&gt;gc))</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00370">370</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1a77033f2cdcc8950b8961e2a413c9117b"/>    <section>
+    <title>setoah</title>
+<indexterm><primary>setoah</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>setoah</secondary></indexterm>
+<para><computeroutput>#define setoah( st,  v)   ((st) = ((st) &amp; ~<link linkend="_lstate_8h_1aa79d6ca436cdf0651af29bf3a10e8615">CIST_OAH</link>) | (v))</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00244">244</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8h_1aab879b1429bb9a48168253ab32cd270b"/>    <section>
+    <title>yieldable</title>
+<indexterm><primary>yieldable</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>yieldable</secondary></indexterm>
+<para><computeroutput>#define yieldable( L)   (((L)-&gt;nCcalls &amp; 0xffff0000) == 0)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8h_source">lstate.h</link> 第 <link linkend="_lstate_8h_source_1l00135">135</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>类型定义说明</title>
+<anchor xml:id="_lstate_8h_1a8385a34ef0855af12719434f90ae78be"/>    <section>
+    <title>CallInfo</title>
+<indexterm><primary>CallInfo</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>CallInfo</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_call_info">CallInfo</link> <link linkend="_struct_call_info">CallInfo</link></computeroutput></para>    </section><anchor xml:id="_lstate_8h_1a483e748c0bb89880075d6442bc8bd4c2"/>    <section>
+    <title>global_State</title>
+<indexterm><primary>global_State</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>global_State</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_structglobal___state">global_State</link> <link linkend="_structglobal___state">global_State</link></computeroutput></para>    </section><anchor xml:id="_lstate_8h_1a30fbba34f6a57f628f9b4617cb5e6e85"/>    <section>
+    <title>stringtable</title>
+<indexterm><primary>stringtable</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>stringtable</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_structstringtable">stringtable</link> <link linkend="_structstringtable">stringtable</link></computeroutput></para></section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lstate_8h_1a0a0b9a376c81e1247ae41d3cfeb1921c"/>    <section>
+    <title>luaE_enterCcall()</title>
+<indexterm><primary>luaE_enterCcall</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>luaE_enterCcall</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaE_enterCcall (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00135">135</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8h_a0a0b9a376c81e1247ae41d3cfeb1921c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8h_a0a0b9a376c81e1247ae41d3cfeb1921c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8h_1aad92caaae77beaadf1d10954133eb53e"/>    <section>
+    <title>luaE_extendCI()</title>
+<indexterm><primary>luaE_extendCI</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>luaE_extendCI</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> <link linkend="_struct_call_info">CallInfo</link>* luaE_extendCI (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00156">156</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8h_aad92caaae77beaadf1d10954133eb53e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8h_1afd548baa613a5be59f9724df0b3c179c"/>    <section>
+    <title>luaE_freeCI()</title>
+<indexterm><primary>luaE_freeCI</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>luaE_freeCI</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaE_freeCI (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00174">174</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8h_afd548baa613a5be59f9724df0b3c179c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8h_1a0882226c718293b23af460f7e2faeef0"/>    <section>
+    <title>luaE_freethread()</title>
+<indexterm><primary>luaE_freethread</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>luaE_freethread</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaE_freethread (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structlua___state">lua_State</link> * L1)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00353">353</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8h_a0882226c718293b23af460f7e2faeef0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8h_a0882226c718293b23af460f7e2faeef0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8h_1af1b915fc323a9a154d892b1c16b8cc6c"/>    <section>
+    <title>luaE_setdebt()</title>
+<indexterm><primary>luaE_setdebt</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>luaE_setdebt</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaE_setdebt (<link linkend="_structglobal___state">global_State</link> * g, <link linkend="_llimits_8h_1a24fc195087e262c99a4cf0f9b346a684">l_mem</link> debt)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00089">89</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8h_af1b915fc323a9a154d892b1c16b8cc6c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8h_1a5f4d20913889e46b69f0a54b10a9a545"/>    <section>
+    <title>luaE_shrinkCI()</title>
+<indexterm><primary>luaE_shrinkCI</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>luaE_shrinkCI</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaE_shrinkCI (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00192">192</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8h_a5f4d20913889e46b69f0a54b10a9a545_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8h_1a19ac557deb44046d082cf5d052831bbb"/>    <section>
+    <title>luaE_warnerror()</title>
+<indexterm><primary>luaE_warnerror</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>luaE_warnerror</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaE_warnerror (<link linkend="_structlua___state">lua_State</link> * L, const char * where)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00458">458</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8h_a19ac557deb44046d082cf5d052831bbb_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8h_a19ac557deb44046d082cf5d052831bbb_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8h_1a42e5b1838bc6dc0e4545059556df0842"/>    <section>
+    <title>luaE_warning()</title>
+<indexterm><primary>luaE_warning</primary><secondary>lstate.h</secondary></indexterm>
+<indexterm><primary>lstate.h</primary><secondary>luaE_warning</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaE_warning (<link linkend="_structlua___state">lua_State</link> * L, const char * msg, int tocont)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00448">448</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8h_a42e5b1838bc6dc0e4545059556df0842_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+</section>

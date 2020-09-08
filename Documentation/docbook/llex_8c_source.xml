@@ -1,0 +1,582 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_llex_8c_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/llex.c</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;llex.c&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Lexical&#32;Analyzer</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+<anchor xml:id="_llex_8c_source_1l00007"/><link linkend="_llex_8c_1a2e2a05c4292ce934408b59470a78472d">00007</link> <emphasis role="preprocessor">#define&#32;llex_c</emphasis>
+<anchor xml:id="_llex_8c_source_1l00008"/><link linkend="_llex_8c_1abf0b3947b59218777a8e928a10be205b">00008</link> <emphasis role="preprocessor">#define&#32;LUA_CORE</emphasis>
+00009 
+00010 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lprefix_8h">lprefix.h</link>&quot;</emphasis>
+00011 
+00012 
+00013 <emphasis role="preprocessor">#include&#32;&lt;locale.h&gt;</emphasis>
+00014 <emphasis role="preprocessor">#include&#32;&lt;string.h&gt;</emphasis>
+00015 
+00016 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lua_8h">lua.h</link>&quot;</emphasis>
+00017 
+00018 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lctype_8h">lctype.h</link>&quot;</emphasis>
+00019 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ldebug_8h">ldebug.h</link>&quot;</emphasis>
+00020 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ldo_8h">ldo.h</link>&quot;</emphasis>
+00021 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lgc_8h">lgc.h</link>&quot;</emphasis>
+00022 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_llex_8h">llex.h</link>&quot;</emphasis>
+00023 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lobject_8h">lobject.h</link>&quot;</emphasis>
+00024 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lparser_8h">lparser.h</link>&quot;</emphasis>
+00025 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lstate_8h">lstate.h</link>&quot;</emphasis>
+00026 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lstring_8h">lstring.h</link>&quot;</emphasis>
+00027 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ltable_8h">ltable.h</link>&quot;</emphasis>
+00028 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lzio_8h">lzio.h</link>&quot;</emphasis>
+00029 
+00030 
+00031 
+<anchor xml:id="_llex_8c_source_1l00032"/><link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">00032</link> <emphasis role="preprocessor">#define&#32;next(ls)&#32;&#32;&#32;&#32;(ls-&gt;current&#32;=&#32;zgetc(ls-&gt;z))</emphasis>
+00033 
+00034 
+00035 
+<anchor xml:id="_llex_8c_source_1l00036"/><link linkend="_llex_8c_1aee0dbe3090a8bf4b0ecd633781c5a09a">00036</link> <emphasis role="preprocessor">#define&#32;currIsNewline(ls)&#32;&#32;&#32;(ls-&gt;current&#32;==&#32;&apos;\n&apos;&#32;||&#32;ls-&gt;current&#32;==&#32;&apos;\r&apos;)</emphasis>
+00037 
+00038 
+00039 <emphasis role="comment">/*&#32;ORDER&#32;RESERVED&#32;*/</emphasis>
+<anchor xml:id="_llex_8c_source_1l00040"/><link linkend="_llex_8c_1a257ea0c8a6651032b46ea8e5d4f8080f">00040</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<emphasis role="keyword">const</emphasis>&#32;<link linkend="_llex_8c_1a257ea0c8a6651032b46ea8e5d4f8080f">luaX_tokens</link>&#32;[]&#32;=&#32;{
+00041 &#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;and&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;break&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;do&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;else&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;elseif&quot;</emphasis>,
+00042 &#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;end&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;false&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;for&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;function&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;goto&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;if&quot;</emphasis>,
+00043 &#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;in&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;local&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;nil&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;not&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;or&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;repeat&quot;</emphasis>,
+00044 &#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;return&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;then&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;true&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;until&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;while&quot;</emphasis>,
+00045 &#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;//&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;..&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;...&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;==&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;&gt;=&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;&lt;=&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;~=&quot;</emphasis>,
+00046 &#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;&lt;&lt;&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;&gt;&gt;&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;::&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;&lt;eof&gt;&quot;</emphasis>,
+00047 &#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;&lt;number&gt;&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;&lt;integer&gt;&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;&lt;name&gt;&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;&lt;string&gt;&quot;</emphasis>
+00048 };
+00049 
+00050 
+<anchor xml:id="_llex_8c_source_1l00051"/><link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">00051</link> <emphasis role="preprocessor">#define&#32;save_and_next(ls)&#32;(save(ls,&#32;ls-&gt;current),&#32;next(ls))</emphasis>
+00052 
+00053 
+00054 <emphasis role="keyword">static</emphasis>&#32;<link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_llex_8c_1a67bb1f3225ffe5738fef1c3d34879735">lexerror</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg,&#32;<emphasis role="keywordtype">int</emphasis>&#32;token);
+00055 
+00056 
+<anchor xml:id="_llex_8c_source_1l00057"/><link linkend="_llex_8c_1a3418da69613c587915ff780b0ec3744b">00057</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_llex_8c_1a3418da69613c587915ff780b0ec3744b">save</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls,&#32;<emphasis role="keywordtype">int</emphasis>&#32;c)&#32;{
+00058 &#32;&#32;<link linkend="_struct_mbuffer">Mbuffer</link>&#32;*b&#32;=&#32;ls-&gt;<link linkend="_struct_lex_state_1a95ff497fc7c445d1bcd30c247eff828a">buff</link>;
+00059 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lzio_8h_1a26c3aeb9ce93f8559b0a596cf7bb1031">luaZ_bufflen</link>(b)&#32;+&#32;1&#32;&gt;&#32;<link linkend="_lzio_8h_1a072ede62ba384b9d5fdedbb80eaf3ee1">luaZ_sizebuffer</link>(b))&#32;{
+00060 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;newsize;
+00061 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lzio_8h_1a072ede62ba384b9d5fdedbb80eaf3ee1">luaZ_sizebuffer</link>(b)&#32;&gt;=&#32;<link linkend="_llimits_8h_1a0592dba56693fad79136250c11e5a7fe">MAX_SIZE</link>/2)
+00062 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a67bb1f3225ffe5738fef1c3d34879735">lexerror</link>(ls,&#32;<emphasis role="stringliteral">&quot;lexical&#32;element&#32;too&#32;long&quot;</emphasis>,&#32;0);
+00063 &#32;&#32;&#32;&#32;newsize&#32;=&#32;<link linkend="_lzio_8h_1a072ede62ba384b9d5fdedbb80eaf3ee1">luaZ_sizebuffer</link>(b)&#32;*&#32;2;
+00064 &#32;&#32;&#32;&#32;<link linkend="_lzio_8h_1ab158420acf019b3a45e8ae6e65b51fdb">luaZ_resizebuffer</link>(ls-&gt;<link linkend="_struct_lex_state_1aa5d917ce132777857314b50118bc2105">L</link>,&#32;b,&#32;newsize);
+00065 &#32;&#32;}
+00066 &#32;&#32;b-&gt;<link linkend="_struct_mbuffer_1aff2566f4c366b48d73479bef43ee4d2e">buffer</link>[<link linkend="_lzio_8h_1a26c3aeb9ce93f8559b0a596cf7bb1031">luaZ_bufflen</link>(b)++]&#32;=&#32;<link linkend="_llimits_8h_1a045e548576226e8c7e9ab5de8a59f4bc">cast_char</link>(c);
+00067 }
+00068 
+00069 
+<anchor xml:id="_llex_8c_source_1l00070"/><link linkend="_llex_8h_1a5f7573e2f03006437bd01422a0e390df">00070</link> <emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_llex_8c_1a50834f7eb4b2ac79c8df048988749abe">luaX_init</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00071 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i;
+00072 &#32;&#32;<link linkend="_struct_t_string">TString</link>&#32;*e&#32;=&#32;<link linkend="_lstring_8h_1a1cd2754b136ed096325a76c6d16a82f5">luaS_newliteral</link>(L,&#32;<link linkend="_llex_8h_1af868e4c2b4c8551dad769502e7c3ec32">LUA_ENV</link>);&#32;&#32;<emphasis role="comment">/*&#32;create&#32;env&#32;name&#32;*/</emphasis>
+00073 &#32;&#32;<link linkend="_lgc_8c_1a77a9b70a49730bb007a8a9492687d0eb">luaC_fix</link>(L,&#32;<link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(e));&#32;&#32;<emphasis role="comment">/*&#32;never&#32;collect&#32;this&#32;name&#32;*/</emphasis>
+00074 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i=0;&#32;i&lt;<link linkend="_llex_8h_1a24f40ac0891b0d584c0e432b2c6e1c71">NUM_RESERVED</link>;&#32;i++)&#32;{
+00075 &#32;&#32;&#32;&#32;<link linkend="_struct_t_string">TString</link>&#32;*ts&#32;=&#32;<link linkend="_lstring_8c_1a6d47e53be6b8e58202bb927752f4824b">luaS_new</link>(L,&#32;<link linkend="_llex_8c_1a257ea0c8a6651032b46ea8e5d4f8080f">luaX_tokens</link>[i]);
+00076 &#32;&#32;&#32;&#32;<link linkend="_lgc_8c_1a77a9b70a49730bb007a8a9492687d0eb">luaC_fix</link>(L,&#32;<link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(ts));&#32;&#32;<emphasis role="comment">/*&#32;reserved&#32;words&#32;are&#32;never&#32;collected&#32;*/</emphasis>
+00077 &#32;&#32;&#32;&#32;ts-&gt;<link linkend="_struct_t_string_1af8a633c0d3c4543d3731e518dd658347">extra</link>&#32;=&#32;<link linkend="_llimits_8h_1a596f5b6e992f53a5a4e5732083448dd4">cast_byte</link>(i+1);&#32;&#32;<emphasis role="comment">/*&#32;reserved&#32;word&#32;*/</emphasis>
+00078 &#32;&#32;}
+00079 }
+00080 
+00081 
+<anchor xml:id="_llex_8c_source_1l00082"/><link linkend="_llex_8h_1a3e3a9d8e2c65ba5fc79b156c342fdb25">00082</link> <emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_llex_8c_1afbf0654ae651496d0e8dcebeefbefed6">luaX_token2str</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls,&#32;<emphasis role="keywordtype">int</emphasis>&#32;token)&#32;{
+00083 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(token&#32;&lt;&#32;<link linkend="_llex_8h_1a6bc8e20ff15b7aa178aceea51e691e44">FIRST_RESERVED</link>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;single-byte&#32;symbols?&#32;*/</emphasis>
+00084 &#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(token&#32;==&#32;<link linkend="_llimits_8h_1aa0c49a2b32329cc39df5ccafd1f720e0">cast_uchar</link>(token));
+00085 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lctype_8h_1a68562616d451f440d5c8e4e3d345c573">lisprint</link>(token))
+00086 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lobject_8c_1a8e224db7123c74d695076a96d1bfda61">luaO_pushfstring</link>(ls-&gt;<link linkend="_struct_lex_state_1aa5d917ce132777857314b50118bc2105">L</link>,&#32;<emphasis role="stringliteral">&quot;&apos;%c&apos;&quot;</emphasis>,&#32;token);
+00087 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;&#32;<emphasis role="comment">/*&#32;control&#32;character&#32;*/</emphasis>
+00088 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lobject_8c_1a8e224db7123c74d695076a96d1bfda61">luaO_pushfstring</link>(ls-&gt;<link linkend="_struct_lex_state_1aa5d917ce132777857314b50118bc2105">L</link>,&#32;<emphasis role="stringliteral">&quot;&apos;&lt;\\%d&gt;&apos;&quot;</emphasis>,&#32;token);
+00089 &#32;&#32;}
+00090 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00091 &#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*s&#32;=&#32;<link linkend="_llex_8c_1a257ea0c8a6651032b46ea8e5d4f8080f">luaX_tokens</link>[token&#32;-&#32;<link linkend="_llex_8h_1a6bc8e20ff15b7aa178aceea51e691e44">FIRST_RESERVED</link>];
+00092 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(token&#32;&lt;&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a9fcd34e2e50a0afb82f0dae65836187b">TK_EOS</link>)&#32;&#32;<emphasis role="comment">/*&#32;fixed&#32;format&#32;(symbols&#32;and&#32;reserved&#32;words)?&#32;*/</emphasis>
+00093 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lobject_8c_1a8e224db7123c74d695076a96d1bfda61">luaO_pushfstring</link>(ls-&gt;<link linkend="_struct_lex_state_1aa5d917ce132777857314b50118bc2105">L</link>,&#32;<emphasis role="stringliteral">&quot;&apos;%s&apos;&quot;</emphasis>,&#32;s);
+00094 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;&#32;<emphasis role="comment">/*&#32;names,&#32;strings,&#32;and&#32;numerals&#32;*/</emphasis>
+00095 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;s;
+00096 &#32;&#32;}
+00097 }
+00098 
+00099 
+<anchor xml:id="_llex_8c_source_1l00100"/><link linkend="_llex_8c_1ab53c17c8b5ca50bcdfbd1cddf7310e83">00100</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_llex_8c_1ab53c17c8b5ca50bcdfbd1cddf7310e83">txtToken</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls,&#32;<emphasis role="keywordtype">int</emphasis>&#32;token)&#32;{
+00101 &#32;&#32;<emphasis role="keywordflow">switch</emphasis>&#32;(token)&#32;{
+00102 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a84e5aed35515b2881005d88dccaf0c30">TK_NAME</link>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a2f748d118b4a20e2b1dc12538ccd9876">TK_STRING</link>:
+00103 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a81df881e62ebf1fe93b4820b7b54984d">TK_FLT</link>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a9f48ed12541fab691e25e3ca9e38ac9f">TK_INT</link>:
+00104 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a3418da69613c587915ff780b0ec3744b">save</link>(ls,&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>);
+00105 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lobject_8c_1a8e224db7123c74d695076a96d1bfda61">luaO_pushfstring</link>(ls-&gt;<link linkend="_struct_lex_state_1aa5d917ce132777857314b50118bc2105">L</link>,&#32;<emphasis role="stringliteral">&quot;&apos;%s&apos;&quot;</emphasis>,&#32;<link linkend="_lzio_8h_1aa51f632cb0519368a65ada80b71ea1e3">luaZ_buffer</link>(ls-&gt;<link linkend="_struct_lex_state_1a95ff497fc7c445d1bcd30c247eff828a">buff</link>));
+00106 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">default</emphasis>:
+00107 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llex_8c_1afbf0654ae651496d0e8dcebeefbefed6">luaX_token2str</link>(ls,&#32;token);
+00108 &#32;&#32;}
+00109 }
+00110 
+00111 
+<anchor xml:id="_llex_8c_source_1l00112"/><link linkend="_llex_8c_1a67bb1f3225ffe5738fef1c3d34879735">00112</link> <emphasis role="keyword">static</emphasis>&#32;<link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_llex_8c_1a67bb1f3225ffe5738fef1c3d34879735">lexerror</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg,&#32;<emphasis role="keywordtype">int</emphasis>&#32;token)&#32;{
+00113 &#32;&#32;msg&#32;=&#32;<link linkend="_ldebug_8c_1a7e1dc7518150bf19bd9aa5dda166a2eb">luaG_addinfo</link>(ls-&gt;<link linkend="_struct_lex_state_1aa5d917ce132777857314b50118bc2105">L</link>,&#32;msg,&#32;ls-&gt;<link linkend="_struct_lex_state_1a47b5f25d6c53f3892e43702659c6de69">source</link>,&#32;ls-&gt;<link linkend="_struct_lex_state_1abe06567f8b14c148f18771aacccf1be1">linenumber</link>);
+00114 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(token)
+00115 &#32;&#32;&#32;&#32;<link linkend="_lobject_8c_1a8e224db7123c74d695076a96d1bfda61">luaO_pushfstring</link>(ls-&gt;<link linkend="_struct_lex_state_1aa5d917ce132777857314b50118bc2105">L</link>,&#32;<emphasis role="stringliteral">&quot;%s&#32;near&#32;%s&quot;</emphasis>,&#32;msg,&#32;<link linkend="_llex_8c_1ab53c17c8b5ca50bcdfbd1cddf7310e83">txtToken</link>(ls,&#32;token));
+00116 &#32;&#32;<link linkend="_ldo_8c_1a2b46d9db5b9ca3d5402a0c2ac640a6b0">luaD_throw</link>(ls-&gt;<link linkend="_struct_lex_state_1aa5d917ce132777857314b50118bc2105">L</link>,&#32;<link linkend="_lua_8h_1a779d4c0fc1c9da41b7d983646267e11f">LUA_ERRSYNTAX</link>);
+00117 }
+00118 
+00119 
+<anchor xml:id="_llex_8c_source_1l00120"/><link linkend="_llex_8h_1a189ff2bb7bd23c89531fdad321fccd02">00120</link> <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_llex_8c_1aa5303ae41cbf1a2d9ef2f422751f85be">luaX_syntaxerror</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg)&#32;{
+00121 &#32;&#32;<link linkend="_llex_8c_1a67bb1f3225ffe5738fef1c3d34879735">lexerror</link>(ls,&#32;msg,&#32;ls-&gt;<link linkend="_struct_lex_state_1a87971c677cea6a64536114c36f785b72">t</link>.<link linkend="_struct_token_1a8abb7e972adc09624edab301e021dc5f">token</link>);
+00122 }
+00123 
+00124 
+00125 <emphasis role="comment">/*</emphasis>
+00126 <emphasis role="comment">**&#32;creates&#32;a&#32;new&#32;string&#32;and&#32;anchors&#32;it&#32;in&#32;scanner&apos;s&#32;table&#32;so&#32;that</emphasis>
+00127 <emphasis role="comment">**&#32;it&#32;will&#32;not&#32;be&#32;collected&#32;until&#32;the&#32;end&#32;of&#32;the&#32;compilation</emphasis>
+00128 <emphasis role="comment">**&#32;(by&#32;that&#32;time&#32;it&#32;should&#32;be&#32;anchored&#32;somewhere)</emphasis>
+00129 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_llex_8c_source_1l00130"/><link linkend="_llex_8h_1aa6e79179f823cf156f61899a09239ca6">00130</link> <link linkend="_struct_t_string">TString</link>&#32;*<link linkend="_llex_8c_1a83f747518666054180f6a7f8da55ac42">luaX_newstring</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*str,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;l)&#32;{
+00131 &#32;&#32;<link linkend="_structlua___state">lua_State</link>&#32;*L&#32;=&#32;ls-&gt;<link linkend="_struct_lex_state_1aa5d917ce132777857314b50118bc2105">L</link>;
+00132 &#32;&#32;<link linkend="_struct_t_value">TValue</link>&#32;*o;&#32;&#32;<emphasis role="comment">/*&#32;entry&#32;for&#32;&apos;str&apos;&#32;*/</emphasis>
+00133 &#32;&#32;<link linkend="_struct_t_string">TString</link>&#32;*ts&#32;=&#32;<link linkend="_lstring_8c_1ab41fb084ce3ea5e2779f6659ccc2484d">luaS_newlstr</link>(L,&#32;str,&#32;l);&#32;&#32;<emphasis role="comment">/*&#32;create&#32;new&#32;string&#32;*/</emphasis>
+00134 &#32;&#32;<link linkend="_lobject_8h_1aa60b4c3bb90063dcaa2f90e77d4a61f6">setsvalue2s</link>(L,&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>++,&#32;ts);&#32;&#32;<emphasis role="comment">/*&#32;temporarily&#32;anchor&#32;it&#32;in&#32;stack&#32;*/</emphasis>
+00135 &#32;&#32;o&#32;=&#32;<link linkend="_ltable_8c_1ab6b8518d8099b17f3ef58df047237fba">luaH_set</link>(L,&#32;ls-&gt;<link linkend="_struct_lex_state_1ae8d2bc73408dae7cb98274d0da3fe172">h</link>,&#32;<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;-&#32;1));
+00136 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lobject_8h_1a5345ae49ed16dfecdfef95ec5399b000">isempty</link>(o))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;not&#32;in&#32;use&#32;yet?&#32;*/</emphasis>
+00137 &#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;boolean&#32;value&#32;does&#32;not&#32;need&#32;GC&#32;barrier;</emphasis>
+00138 <emphasis role="comment">&#32;&#32;&#32;&#32;&#32;&#32;&#32;table&#32;is&#32;not&#32;a&#32;metatable,&#32;so&#32;it&#32;does&#32;not&#32;need&#32;to&#32;invalidate&#32;cache&#32;*/</emphasis>
+00139 &#32;&#32;&#32;&#32;<link linkend="_lobject_8h_1a1b86e0dccf6b92c4c89d47af26e3a8e3">setbtvalue</link>(o);&#32;&#32;<emphasis role="comment">/*&#32;t[string]&#32;=&#32;true&#32;*/</emphasis>
+00140 &#32;&#32;&#32;&#32;<link linkend="_lgc_8h_1ad013db5004ccc5fbe8a6450caa1f1ad9">luaC_checkGC</link>(L);
+00141 &#32;&#32;}
+00142 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;string&#32;already&#32;present&#32;*/</emphasis>
+00143 &#32;&#32;&#32;&#32;ts&#32;=&#32;<link linkend="_lobject_8h_1af0d29f0c2bdfa023abc9e7a0d34e8e24">keystrval</link>(<link linkend="_ltable_8h_1aa318820e0b85f1a9b1c34821e3d37a10">nodefromval</link>(o));&#32;&#32;<emphasis role="comment">/*&#32;re-use&#32;value&#32;previously&#32;stored&#32;*/</emphasis>
+00144 &#32;&#32;}
+00145 &#32;&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>--;&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;string&#32;from&#32;stack&#32;*/</emphasis>
+00146 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;ts;
+00147 }
+00148 
+00149 
+00150 <emphasis role="comment">/*</emphasis>
+00151 <emphasis role="comment">**&#32;increment&#32;line&#32;number&#32;and&#32;skips&#32;newline&#32;sequence&#32;(any&#32;of</emphasis>
+00152 <emphasis role="comment">**&#32;\n,&#32;\r,&#32;\n\r,&#32;or&#32;\r\n)</emphasis>
+00153 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_llex_8c_source_1l00154"/><link linkend="_llex_8c_1ac030febfa2dc867e1b48f3328aec45b3">00154</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_llex_8c_1ac030febfa2dc867e1b48f3328aec45b3">inclinenumber</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls)&#32;{
+00155 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;old&#32;=&#32;ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>;
+00156 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(<link linkend="_llex_8c_1aee0dbe3090a8bf4b0ecd633781c5a09a">currIsNewline</link>(ls));
+00157 &#32;&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls);&#32;&#32;<emphasis role="comment">/*&#32;skip&#32;&apos;\n&apos;&#32;or&#32;&apos;\r&apos;&#32;*/</emphasis>
+00158 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llex_8c_1aee0dbe3090a8bf4b0ecd633781c5a09a">currIsNewline</link>(ls)&#32;&amp;&amp;&#32;ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>&#32;!=&#32;old)
+00159 &#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls);&#32;&#32;<emphasis role="comment">/*&#32;skip&#32;&apos;\n\r&apos;&#32;or&#32;&apos;\r\n&apos;&#32;*/</emphasis>
+00160 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(++ls-&gt;<link linkend="_struct_lex_state_1abe06567f8b14c148f18771aacccf1be1">linenumber</link>&#32;&gt;=&#32;<link linkend="_llimits_8h_1aaa1ac5caef84256eaeb39594e58e096f">MAX_INT</link>)
+00161 &#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a67bb1f3225ffe5738fef1c3d34879735">lexerror</link>(ls,&#32;<emphasis role="stringliteral">&quot;chunk&#32;has&#32;too&#32;many&#32;lines&quot;</emphasis>,&#32;0);
+00162 }
+00163 
+00164 
+<anchor xml:id="_llex_8c_source_1l00165"/><link linkend="_llex_8h_1aac9c3f80c74f7d861348e74f5fda1452">00165</link> <emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_llex_8c_1a169c85d08461f83e3f8a8c32dcb3d151">luaX_setinput</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_lex_state">LexState</link>&#32;*ls,&#32;<link linkend="_struct_zio">ZIO</link>&#32;*z,&#32;<link linkend="_struct_t_string">TString</link>&#32;*source,
+00166 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;firstchar)&#32;{
+00167 &#32;&#32;ls-&gt;<link linkend="_struct_lex_state_1a87971c677cea6a64536114c36f785b72">t</link>.<link linkend="_struct_token_1a8abb7e972adc09624edab301e021dc5f">token</link>&#32;=&#32;0;
+00168 &#32;&#32;ls-&gt;<link linkend="_struct_lex_state_1aa5d917ce132777857314b50118bc2105">L</link>&#32;=&#32;L;
+00169 &#32;&#32;ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>&#32;=&#32;firstchar;
+00170 &#32;&#32;ls-&gt;<link linkend="_struct_lex_state_1aff1615e0bd5c464085f800a63c335e43">lookahead</link>.<link linkend="_struct_token_1a8abb7e972adc09624edab301e021dc5f">token</link>&#32;=&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a9fcd34e2e50a0afb82f0dae65836187b">TK_EOS</link>;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;look-ahead&#32;token&#32;*/</emphasis>
+00171 &#32;&#32;ls-&gt;<link linkend="_struct_lex_state_1aac4353da38192628b7fa7814e9be2a61">z</link>&#32;=&#32;z;
+00172 &#32;&#32;ls-&gt;<link linkend="_struct_lex_state_1a99c527337ae84b128baaa1006f44d987">fs</link>&#32;=&#32;NULL;
+00173 &#32;&#32;ls-&gt;<link linkend="_struct_lex_state_1abe06567f8b14c148f18771aacccf1be1">linenumber</link>&#32;=&#32;1;
+00174 &#32;&#32;ls-&gt;<link linkend="_struct_lex_state_1a43f6f8a28e02774b94cceaaad727a035">lastline</link>&#32;=&#32;1;
+00175 &#32;&#32;ls-&gt;<link linkend="_struct_lex_state_1a47b5f25d6c53f3892e43702659c6de69">source</link>&#32;=&#32;source;
+00176 &#32;&#32;ls-&gt;<link linkend="_struct_lex_state_1a67ee27111e3e3fb2fe5304d91f390a7f">envn</link>&#32;=&#32;<link linkend="_lstring_8h_1a1cd2754b136ed096325a76c6d16a82f5">luaS_newliteral</link>(L,&#32;<link linkend="_llex_8h_1af868e4c2b4c8551dad769502e7c3ec32">LUA_ENV</link>);&#32;&#32;<emphasis role="comment">/*&#32;get&#32;env&#32;name&#32;*/</emphasis>
+00177 &#32;&#32;<link linkend="_lzio_8h_1ab158420acf019b3a45e8ae6e65b51fdb">luaZ_resizebuffer</link>(ls-&gt;<link linkend="_struct_lex_state_1aa5d917ce132777857314b50118bc2105">L</link>,&#32;ls-&gt;<link linkend="_struct_lex_state_1a95ff497fc7c445d1bcd30c247eff828a">buff</link>,&#32;<link linkend="_llimits_8h_1aa0320f75a72bf131ae24d39111ac9938">LUA_MINBUFFER</link>);&#32;&#32;<emphasis role="comment">/*&#32;initialize&#32;buffer&#32;*/</emphasis>
+00178 }
+00179 
+00180 
+00181 
+00182 <emphasis role="comment">/*</emphasis>
+00183 <emphasis role="comment">**&#32;=======================================================</emphasis>
+00184 <emphasis role="comment">**&#32;LEXICAL&#32;ANALYZER</emphasis>
+00185 <emphasis role="comment">**&#32;=======================================================</emphasis>
+00186 <emphasis role="comment">*/</emphasis>
+00187 
+00188 
+<anchor xml:id="_llex_8c_source_1l00189"/><link linkend="_llex_8c_1a7ffd3be1c90014b2b7645e9c7c9641ff">00189</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_llex_8c_1a7ffd3be1c90014b2b7645e9c7c9641ff">check_next1</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls,&#32;<emphasis role="keywordtype">int</emphasis>&#32;c)&#32;{
+00190 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>&#32;==&#32;c)&#32;{
+00191 &#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls);
+00192 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00193 &#32;&#32;}
+00194 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;
+00195 }
+00196 
+00197 
+00198 <emphasis role="comment">/*</emphasis>
+00199 <emphasis role="comment">**&#32;Check&#32;whether&#32;current&#32;char&#32;is&#32;in&#32;set&#32;&apos;set&apos;&#32;(with&#32;two&#32;chars)&#32;and</emphasis>
+00200 <emphasis role="comment">**&#32;saves&#32;it</emphasis>
+00201 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_llex_8c_source_1l00202"/><link linkend="_llex_8c_1a4f263e61ecf9ca2875bdc3348dfce822">00202</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_llex_8c_1a4f263e61ecf9ca2875bdc3348dfce822">check_next2</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*set)&#32;{
+00203 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(set[2]&#32;==&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>);
+00204 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>&#32;==&#32;set[0]&#32;||&#32;ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>&#32;==&#32;set[1])&#32;{
+00205 &#32;&#32;&#32;&#32;<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls);
+00206 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00207 &#32;&#32;}
+00208 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;
+00209 }
+00210 
+00211 
+00212 <emphasis role="comment">/*&#32;LUA_NUMBER&#32;*/</emphasis>
+00213 <emphasis role="comment">/*</emphasis>
+00214 <emphasis role="comment">**&#32;This&#32;function&#32;is&#32;quite&#32;liberal&#32;in&#32;what&#32;it&#32;accepts,&#32;as&#32;&apos;luaO_str2num&apos;</emphasis>
+00215 <emphasis role="comment">**&#32;will&#32;reject&#32;ill-formed&#32;numerals.&#32;Roughly,&#32;it&#32;accepts&#32;the&#32;following</emphasis>
+00216 <emphasis role="comment">**&#32;pattern:</emphasis>
+00217 <emphasis role="comment">**</emphasis>
+00218 <emphasis role="comment">**&#32;&#32;&#32;%d(%x|%.|([Ee][+-]?))*&#32;|&#32;0[Xx](%x|%.|([Pp][+-]?))*</emphasis>
+00219 <emphasis role="comment">**</emphasis>
+00220 <emphasis role="comment">**&#32;The&#32;only&#32;tricky&#32;part&#32;is&#32;to&#32;accept&#32;[+-]&#32;only&#32;after&#32;a&#32;valid&#32;exponent</emphasis>
+00221 <emphasis role="comment">**&#32;mark,&#32;to&#32;avoid&#32;reading&#32;&apos;3-4&apos;&#32;or&#32;&apos;0xe+1&apos;&#32;as&#32;a&#32;single&#32;number.</emphasis>
+00222 <emphasis role="comment">**</emphasis>
+00223 <emphasis role="comment">**&#32;The&#32;caller&#32;might&#32;have&#32;already&#32;read&#32;an&#32;initial&#32;dot.</emphasis>
+00224 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_llex_8c_source_1l00225"/><link linkend="_llex_8c_1a6e3870206c0c321cccaf22d6c2772072">00225</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_llex_8c_1a6e3870206c0c321cccaf22d6c2772072">read_numeral</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls,&#32;<link linkend="_union_sem_info">SemInfo</link>&#32;*seminfo)&#32;{
+00226 &#32;&#32;<link linkend="_struct_t_value">TValue</link>&#32;obj;
+00227 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*expo&#32;=&#32;<emphasis role="stringliteral">&quot;Ee&quot;</emphasis>;
+00228 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;first&#32;=&#32;ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>;
+00229 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(<link linkend="_lctype_8h_1aee1d27a5eac398ec2c9c8b80281041e6">lisdigit</link>(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>));
+00230 &#32;&#32;<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls);
+00231 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(first&#32;==&#32;<emphasis role="charliteral">&apos;0&apos;</emphasis>&#32;&amp;&amp;&#32;<link linkend="_llex_8c_1a4f263e61ecf9ca2875bdc3348dfce822">check_next2</link>(ls,&#32;<emphasis role="stringliteral">&quot;xX&quot;</emphasis>))&#32;&#32;<emphasis role="comment">/*&#32;hexadecimal?&#32;*/</emphasis>
+00232 &#32;&#32;&#32;&#32;expo&#32;=&#32;<emphasis role="stringliteral">&quot;Pp&quot;</emphasis>;
+00233 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(;;)&#32;{
+00234 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llex_8c_1a4f263e61ecf9ca2875bdc3348dfce822">check_next2</link>(ls,&#32;expo))&#32;&#32;<emphasis role="comment">/*&#32;exponent&#32;mark?&#32;*/</emphasis>
+00235 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a4f263e61ecf9ca2875bdc3348dfce822">check_next2</link>(ls,&#32;<emphasis role="stringliteral">&quot;-+&quot;</emphasis>);&#32;&#32;<emphasis role="comment">/*&#32;optional&#32;exponent&#32;sign&#32;*/</emphasis>
+00236 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lctype_8h_1a72e55b66d80325fb20cbc098d3448996">lisxdigit</link>(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>)&#32;||&#32;ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>&#32;==&#32;<emphasis role="charliteral">&apos;.&apos;</emphasis>)&#32;&#32;<emphasis role="comment">/*&#32;&apos;%x|%.&apos;&#32;*/</emphasis>
+00237 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls);
+00238 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">break</emphasis>;
+00239 &#32;&#32;}
+00240 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lctype_8h_1a7132e9f6daf30b344b74f51d64eadf7d">lislalpha</link>(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>))&#32;&#32;<emphasis role="comment">/*&#32;is&#32;numeral&#32;touching&#32;a&#32;letter?&#32;*/</emphasis>
+00241 &#32;&#32;&#32;&#32;<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls);&#32;&#32;<emphasis role="comment">/*&#32;force&#32;an&#32;error&#32;*/</emphasis>
+00242 &#32;&#32;<link linkend="_llex_8c_1a3418da69613c587915ff780b0ec3744b">save</link>(ls,&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>);
+00243 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lobject_8c_1ab1956c979ca7ff39b07534390714505d">luaO_str2num</link>(<link linkend="_lzio_8h_1aa51f632cb0519368a65ada80b71ea1e3">luaZ_buffer</link>(ls-&gt;<link linkend="_struct_lex_state_1a95ff497fc7c445d1bcd30c247eff828a">buff</link>),&#32;&amp;obj)&#32;==&#32;0)&#32;&#32;<emphasis role="comment">/*&#32;format&#32;error?&#32;*/</emphasis>
+00244 &#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a67bb1f3225ffe5738fef1c3d34879735">lexerror</link>(ls,&#32;<emphasis role="stringliteral">&quot;malformed&#32;number&quot;</emphasis>,&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a81df881e62ebf1fe93b4820b7b54984d">TK_FLT</link>);
+00245 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lobject_8h_1abade243295a9140f7b86838fbb049054">ttisinteger</link>(&amp;obj))&#32;{
+00246 &#32;&#32;&#32;&#32;seminfo-&gt;<link linkend="_union_sem_info_1a5bfb8f000fff9f547fdcebfb5ce512d6">i</link>&#32;=&#32;<link linkend="_lobject_8h_1af1a59636db050b842a791cd19086d925">ivalue</link>(&amp;obj);
+00247 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a9f48ed12541fab691e25e3ca9e38ac9f">TK_INT</link>;
+00248 &#32;&#32;}
+00249 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00250 &#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(<link linkend="_lobject_8h_1ac1338b5ac67cadf27489f5ae7e939c29">ttisfloat</link>(&amp;obj));
+00251 &#32;&#32;&#32;&#32;seminfo-&gt;<link linkend="_union_sem_info_1ab1fde61ebd0228b9fe867095bbda02f6">r</link>&#32;=&#32;<link linkend="_lobject_8h_1a7d7d6b08f40350c9e7364e9cb984d744">fltvalue</link>(&amp;obj);
+00252 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a81df881e62ebf1fe93b4820b7b54984d">TK_FLT</link>;
+00253 &#32;&#32;}
+00254 }
+00255 
+00256 
+00257 <emphasis role="comment">/*</emphasis>
+00258 <emphasis role="comment">**&#32;reads&#32;a&#32;sequence&#32;&apos;[=*[&apos;&#32;or&#32;&apos;]=*]&apos;,&#32;leaving&#32;the&#32;last&#32;bracket.</emphasis>
+00259 <emphasis role="comment">**&#32;If&#32;sequence&#32;is&#32;well&#32;formed,&#32;return&#32;its&#32;number&#32;of&#32;&apos;=&apos;s&#32;+&#32;2;&#32;otherwise,</emphasis>
+00260 <emphasis role="comment">**&#32;return&#32;1&#32;if&#32;there&#32;is&#32;no&#32;&apos;=&apos;s&#32;or&#32;0&#32;otherwise&#32;(an&#32;unfinished&#32;&apos;[==...&apos;).</emphasis>
+00261 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_llex_8c_source_1l00262"/><link linkend="_llex_8c_1a9036c54b00ccc4e9781a6b7bafe93c5c">00262</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;<link linkend="_llex_8c_1a9036c54b00ccc4e9781a6b7bafe93c5c">skip_sep</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls)&#32;{
+00263 &#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;count&#32;=&#32;0;
+00264 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;s&#32;=&#32;ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>;
+00265 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(s&#32;==&#32;<emphasis role="charliteral">&apos;[&apos;</emphasis>&#32;||&#32;s&#32;==&#32;<emphasis role="charliteral">&apos;]&apos;</emphasis>);
+00266 &#32;&#32;<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls);
+00267 &#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>&#32;==&#32;<emphasis role="charliteral">&apos;=&apos;</emphasis>)&#32;{
+00268 &#32;&#32;&#32;&#32;<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls);
+00269 &#32;&#32;&#32;&#32;count++;
+00270 &#32;&#32;}
+00271 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>&#32;==&#32;s)&#32;?&#32;count&#32;+&#32;2
+00272 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;:&#32;(count&#32;==&#32;0)&#32;?&#32;1
+00273 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;:&#32;0;
+00274 }
+00275 
+00276 
+<anchor xml:id="_llex_8c_source_1l00277"/><link linkend="_llex_8c_1a87255185250aab5f03dafe716cdda273">00277</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_llex_8c_1a87255185250aab5f03dafe716cdda273">read_long_string</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls,&#32;<link linkend="_union_sem_info">SemInfo</link>&#32;*seminfo,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;sep)&#32;{
+00278 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;line&#32;=&#32;ls-&gt;<link linkend="_struct_lex_state_1abe06567f8b14c148f18771aacccf1be1">linenumber</link>;&#32;&#32;<emphasis role="comment">/*&#32;initial&#32;line&#32;(for&#32;error&#32;message)&#32;*/</emphasis>
+00279 &#32;&#32;<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls);&#32;&#32;<emphasis role="comment">/*&#32;skip&#32;2nd&#32;&apos;[&apos;&#32;*/</emphasis>
+00280 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llex_8c_1aee0dbe3090a8bf4b0ecd633781c5a09a">currIsNewline</link>(ls))&#32;&#32;<emphasis role="comment">/*&#32;string&#32;starts&#32;with&#32;a&#32;newline?&#32;*/</emphasis>
+00281 &#32;&#32;&#32;&#32;<link linkend="_llex_8c_1ac030febfa2dc867e1b48f3328aec45b3">inclinenumber</link>(ls);&#32;&#32;<emphasis role="comment">/*&#32;skip&#32;it&#32;*/</emphasis>
+00282 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(;;)&#32;{
+00283 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">switch</emphasis>&#32;(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>)&#32;{
+00284 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lzio_8h_1a8341bdc72db5a2f045e18440f9523008">EOZ</link>:&#32;{&#32;&#32;<emphasis role="comment">/*&#32;error&#32;*/</emphasis>
+00285 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*what&#32;=&#32;(seminfo&#32;?&#32;<emphasis role="stringliteral">&quot;string&quot;</emphasis>&#32;:&#32;<emphasis role="stringliteral">&quot;comment&quot;</emphasis>);
+00286 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg&#32;=&#32;<link linkend="_lobject_8c_1a8e224db7123c74d695076a96d1bfda61">luaO_pushfstring</link>(ls-&gt;<link linkend="_struct_lex_state_1aa5d917ce132777857314b50118bc2105">L</link>,
+00287 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;unfinished&#32;long&#32;%s&#32;(starting&#32;at&#32;line&#32;%d)&quot;</emphasis>,&#32;what,&#32;line);
+00288 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a67bb1f3225ffe5738fef1c3d34879735">lexerror</link>(ls,&#32;msg,&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a9fcd34e2e50a0afb82f0dae65836187b">TK_EOS</link>);
+00289 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;to&#32;avoid&#32;warnings&#32;*/</emphasis>
+00290 &#32;&#32;&#32;&#32;&#32;&#32;}
+00291 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;]&apos;</emphasis>:&#32;{
+00292 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llex_8c_1a9036c54b00ccc4e9781a6b7bafe93c5c">skip_sep</link>(ls)&#32;==&#32;sep)&#32;{
+00293 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls);&#32;&#32;<emphasis role="comment">/*&#32;skip&#32;2nd&#32;&apos;]&apos;&#32;*/</emphasis>
+00294 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">goto</emphasis>&#32;endloop;
+00295 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+00296 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00297 &#32;&#32;&#32;&#32;&#32;&#32;}
+00298 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;\n&apos;</emphasis>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;\r&apos;</emphasis>:&#32;{
+00299 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a3418da69613c587915ff780b0ec3744b">save</link>(ls,&#32;<emphasis role="charliteral">&apos;\n&apos;</emphasis>);
+00300 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1ac030febfa2dc867e1b48f3328aec45b3">inclinenumber</link>(ls);
+00301 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!seminfo)&#32;<link linkend="_lzio_8h_1a53c928283083a162c79e0152048affe2">luaZ_resetbuffer</link>(ls-&gt;<link linkend="_struct_lex_state_1a95ff497fc7c445d1bcd30c247eff828a">buff</link>);&#32;&#32;<emphasis role="comment">/*&#32;avoid&#32;wasting&#32;space&#32;*/</emphasis>
+00302 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00303 &#32;&#32;&#32;&#32;&#32;&#32;}
+00304 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">default</emphasis>:&#32;{
+00305 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(seminfo)&#32;<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls);
+00306 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls);
+00307 &#32;&#32;&#32;&#32;&#32;&#32;}
+00308 &#32;&#32;&#32;&#32;}
+00309 &#32;&#32;}&#32;endloop:
+00310 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(seminfo)
+00311 &#32;&#32;&#32;&#32;seminfo-&gt;<link linkend="_union_sem_info_1ae879ced0cb88fb344f2b1b8ac7786af8">ts</link>&#32;=&#32;<link linkend="_llex_8c_1a83f747518666054180f6a7f8da55ac42">luaX_newstring</link>(ls,&#32;<link linkend="_lzio_8h_1aa51f632cb0519368a65ada80b71ea1e3">luaZ_buffer</link>(ls-&gt;<link linkend="_struct_lex_state_1a95ff497fc7c445d1bcd30c247eff828a">buff</link>)&#32;+&#32;sep,
+00312 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lzio_8h_1a26c3aeb9ce93f8559b0a596cf7bb1031">luaZ_bufflen</link>(ls-&gt;<link linkend="_struct_lex_state_1a95ff497fc7c445d1bcd30c247eff828a">buff</link>)&#32;-&#32;2&#32;*&#32;sep);
+00313 }
+00314 
+00315 
+<anchor xml:id="_llex_8c_source_1l00316"/><link linkend="_llex_8c_1a7dedd6d9ea73e7276da6bcd0effa7cc0">00316</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_llex_8c_1a7dedd6d9ea73e7276da6bcd0effa7cc0">esccheck</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls,&#32;<emphasis role="keywordtype">int</emphasis>&#32;c,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg)&#32;{
+00317 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!c)&#32;{
+00318 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>&#32;!=&#32;<link linkend="_lzio_8h_1a8341bdc72db5a2f045e18440f9523008">EOZ</link>)
+00319 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls);&#32;&#32;<emphasis role="comment">/*&#32;add&#32;current&#32;to&#32;buffer&#32;for&#32;error&#32;message&#32;*/</emphasis>
+00320 &#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a67bb1f3225ffe5738fef1c3d34879735">lexerror</link>(ls,&#32;msg,&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a2f748d118b4a20e2b1dc12538ccd9876">TK_STRING</link>);
+00321 &#32;&#32;}
+00322 }
+00323 
+00324 
+<anchor xml:id="_llex_8c_source_1l00325"/><link linkend="_llex_8c_1a3b597edba3bbea967a33f6e82463b2e7">00325</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_llex_8c_1a3b597edba3bbea967a33f6e82463b2e7">gethexa</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls)&#32;{
+00326 &#32;&#32;<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls);
+00327 &#32;&#32;<link linkend="_llex_8c_1a7dedd6d9ea73e7276da6bcd0effa7cc0">esccheck</link>&#32;(ls,&#32;<link linkend="_lctype_8h_1a72e55b66d80325fb20cbc098d3448996">lisxdigit</link>(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>),&#32;<emphasis role="stringliteral">&quot;hexadecimal&#32;digit&#32;expected&quot;</emphasis>);
+00328 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lobject_8c_1ab73b1325bd3b1a6f9affc08fb46c07ec">luaO_hexavalue</link>(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>);
+00329 }
+00330 
+00331 
+<anchor xml:id="_llex_8c_source_1l00332"/><link linkend="_llex_8c_1a5887888b2f49f1350b047c9412422d25">00332</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_llex_8c_1a5887888b2f49f1350b047c9412422d25">readhexaesc</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls)&#32;{
+00333 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;r&#32;=&#32;<link linkend="_llex_8c_1a3b597edba3bbea967a33f6e82463b2e7">gethexa</link>(ls);
+00334 &#32;&#32;r&#32;=&#32;(r&#32;&lt;&lt;&#32;4)&#32;+&#32;<link linkend="_llex_8c_1a3b597edba3bbea967a33f6e82463b2e7">gethexa</link>(ls);
+00335 &#32;&#32;<link linkend="_lzio_8h_1ab9e4cabf75529d0c2f5a809f49a25281">luaZ_buffremove</link>(ls-&gt;<link linkend="_struct_lex_state_1a95ff497fc7c445d1bcd30c247eff828a">buff</link>,&#32;2);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;saved&#32;chars&#32;from&#32;buffer&#32;*/</emphasis>
+00336 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;r;
+00337 }
+00338 
+00339 
+<anchor xml:id="_llex_8c_source_1l00340"/><link linkend="_llex_8c_1a705948fb201cb495e1040cf1ed1de54d">00340</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">long</emphasis>&#32;<link linkend="_llex_8c_1a705948fb201cb495e1040cf1ed1de54d">readutf8esc</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls)&#32;{
+00341 &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">long</emphasis>&#32;r;
+00342 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i&#32;=&#32;4;&#32;&#32;<emphasis role="comment">/*&#32;chars&#32;to&#32;be&#32;removed:&#32;&apos;\&apos;,&#32;&apos;u&apos;,&#32;&apos;{&apos;,&#32;and&#32;first&#32;digit&#32;*/</emphasis>
+00343 &#32;&#32;<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls);&#32;&#32;<emphasis role="comment">/*&#32;skip&#32;&apos;u&apos;&#32;*/</emphasis>
+00344 &#32;&#32;<link linkend="_llex_8c_1a7dedd6d9ea73e7276da6bcd0effa7cc0">esccheck</link>(ls,&#32;ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>&#32;==&#32;<emphasis role="charliteral">&apos;{&apos;</emphasis>,&#32;<emphasis role="stringliteral">&quot;missing&#32;&apos;{&apos;&quot;</emphasis>);
+00345 &#32;&#32;r&#32;=&#32;<link linkend="_llex_8c_1a3b597edba3bbea967a33f6e82463b2e7">gethexa</link>(ls);&#32;&#32;<emphasis role="comment">/*&#32;must&#32;have&#32;at&#32;least&#32;one&#32;digit&#32;*/</emphasis>
+00346 &#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;(<link linkend="_llimits_8h_1a52a5166d7dc0590b63a9331cfc0f4564">cast_void</link>(<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls)),&#32;<link linkend="_lctype_8h_1a72e55b66d80325fb20cbc098d3448996">lisxdigit</link>(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>))&#32;{
+00347 &#32;&#32;&#32;&#32;i++;
+00348 &#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a7dedd6d9ea73e7276da6bcd0effa7cc0">esccheck</link>(ls,&#32;r&#32;&lt;=&#32;(0x7FFFFFFFu&#32;&gt;&gt;&#32;4),&#32;<emphasis role="stringliteral">&quot;UTF-8&#32;value&#32;too&#32;large&quot;</emphasis>);
+00349 &#32;&#32;&#32;&#32;r&#32;=&#32;(r&#32;&lt;&lt;&#32;4)&#32;+&#32;<link linkend="_lobject_8c_1ab73b1325bd3b1a6f9affc08fb46c07ec">luaO_hexavalue</link>(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>);
+00350 &#32;&#32;}
+00351 &#32;&#32;<link linkend="_llex_8c_1a7dedd6d9ea73e7276da6bcd0effa7cc0">esccheck</link>(ls,&#32;ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>&#32;==&#32;<emphasis role="charliteral">&apos;}&apos;</emphasis>,&#32;<emphasis role="stringliteral">&quot;missing&#32;&apos;}&apos;&quot;</emphasis>);
+00352 &#32;&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls);&#32;&#32;<emphasis role="comment">/*&#32;skip&#32;&apos;}&apos;&#32;*/</emphasis>
+00353 &#32;&#32;<link linkend="_lzio_8h_1ab9e4cabf75529d0c2f5a809f49a25281">luaZ_buffremove</link>(ls-&gt;<link linkend="_struct_lex_state_1a95ff497fc7c445d1bcd30c247eff828a">buff</link>,&#32;i);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;saved&#32;chars&#32;from&#32;buffer&#32;*/</emphasis>
+00354 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;r;
+00355 }
+00356 
+00357 
+<anchor xml:id="_llex_8c_source_1l00358"/><link linkend="_llex_8c_1ad753772a24bb842f984798034f62611e">00358</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_llex_8c_1ad753772a24bb842f984798034f62611e">utf8esc</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls)&#32;{
+00359 &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;buff[<link linkend="_lobject_8h_1ae0741e99030a23e3c24b0eb828fbbe4b">UTF8BUFFSZ</link>];
+00360 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;n&#32;=&#32;<link linkend="_lobject_8c_1af3136de4693789b08f78aafda9604676">luaO_utf8esc</link>(buff,&#32;<link linkend="_llex_8c_1a705948fb201cb495e1040cf1ed1de54d">readutf8esc</link>(ls));
+00361 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(;&#32;n&#32;&gt;&#32;0;&#32;n--)&#32;&#32;<emphasis role="comment">/*&#32;add&#32;&apos;buff&apos;&#32;to&#32;string&#32;*/</emphasis>
+00362 &#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a3418da69613c587915ff780b0ec3744b">save</link>(ls,&#32;buff[<link linkend="_lobject_8h_1ae0741e99030a23e3c24b0eb828fbbe4b">UTF8BUFFSZ</link>&#32;-&#32;n]);
+00363 }
+00364 
+00365 
+<anchor xml:id="_llex_8c_source_1l00366"/><link linkend="_llex_8c_1a860413546c7a3220a01e80c57389aa31">00366</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_llex_8c_1a860413546c7a3220a01e80c57389aa31">readdecesc</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls)&#32;{
+00367 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i;
+00368 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;r&#32;=&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;result&#32;accumulator&#32;*/</emphasis>
+00369 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;0;&#32;i&#32;&lt;&#32;3&#32;&amp;&amp;&#32;<link linkend="_lctype_8h_1aee1d27a5eac398ec2c9c8b80281041e6">lisdigit</link>(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>);&#32;i++)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;read&#32;up&#32;to&#32;3&#32;digits&#32;*/</emphasis>
+00370 &#32;&#32;&#32;&#32;r&#32;=&#32;10*r&#32;+&#32;ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>&#32;-&#32;<emphasis role="charliteral">&apos;0&apos;</emphasis>;
+00371 &#32;&#32;&#32;&#32;<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls);
+00372 &#32;&#32;}
+00373 &#32;&#32;<link linkend="_llex_8c_1a7dedd6d9ea73e7276da6bcd0effa7cc0">esccheck</link>(ls,&#32;r&#32;&lt;=&#32;UCHAR_MAX,&#32;<emphasis role="stringliteral">&quot;decimal&#32;escape&#32;too&#32;large&quot;</emphasis>);
+00374 &#32;&#32;<link linkend="_lzio_8h_1ab9e4cabf75529d0c2f5a809f49a25281">luaZ_buffremove</link>(ls-&gt;<link linkend="_struct_lex_state_1a95ff497fc7c445d1bcd30c247eff828a">buff</link>,&#32;i);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;read&#32;digits&#32;from&#32;buffer&#32;*/</emphasis>
+00375 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;r;
+00376 }
+00377 
+00378 
+<anchor xml:id="_llex_8c_source_1l00379"/><link linkend="_llex_8c_1a5a2d8bb78e2b8e9ee25f901c811b2275">00379</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_llex_8c_1a5a2d8bb78e2b8e9ee25f901c811b2275">read_string</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls,&#32;<emphasis role="keywordtype">int</emphasis>&#32;del,&#32;<link linkend="_union_sem_info">SemInfo</link>&#32;*seminfo)&#32;{
+00380 &#32;&#32;<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls);&#32;&#32;<emphasis role="comment">/*&#32;keep&#32;delimiter&#32;(for&#32;error&#32;messages)&#32;*/</emphasis>
+00381 &#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>&#32;!=&#32;del)&#32;{
+00382 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">switch</emphasis>&#32;(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>)&#32;{
+00383 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lzio_8h_1a8341bdc72db5a2f045e18440f9523008">EOZ</link>:
+00384 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a67bb1f3225ffe5738fef1c3d34879735">lexerror</link>(ls,&#32;<emphasis role="stringliteral">&quot;unfinished&#32;string&quot;</emphasis>,&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a9fcd34e2e50a0afb82f0dae65836187b">TK_EOS</link>);
+00385 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;to&#32;avoid&#32;warnings&#32;*/</emphasis>
+00386 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;\n&apos;</emphasis>:
+00387 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;\r&apos;</emphasis>:
+00388 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a67bb1f3225ffe5738fef1c3d34879735">lexerror</link>(ls,&#32;<emphasis role="stringliteral">&quot;unfinished&#32;string&quot;</emphasis>,&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a2f748d118b4a20e2b1dc12538ccd9876">TK_STRING</link>);
+00389 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;to&#32;avoid&#32;warnings&#32;*/</emphasis>
+00390 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;\\&apos;</emphasis>:&#32;{&#32;&#32;<emphasis role="comment">/*&#32;escape&#32;sequences&#32;*/</emphasis>
+00391 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;c;&#32;&#32;<emphasis role="comment">/*&#32;final&#32;character&#32;to&#32;be&#32;saved&#32;*/</emphasis>
+00392 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls);&#32;&#32;<emphasis role="comment">/*&#32;keep&#32;&apos;\\&apos;&#32;for&#32;error&#32;messages&#32;*/</emphasis>
+00393 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">switch</emphasis>&#32;(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>)&#32;{
+00394 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;a&apos;</emphasis>:&#32;c&#32;=&#32;<emphasis role="charliteral">&apos;\a&apos;</emphasis>;&#32;<emphasis role="keywordflow">goto</emphasis>&#32;read_save;
+00395 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;b&apos;</emphasis>:&#32;c&#32;=&#32;<emphasis role="charliteral">&apos;\b&apos;</emphasis>;&#32;<emphasis role="keywordflow">goto</emphasis>&#32;read_save;
+00396 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;f&apos;</emphasis>:&#32;c&#32;=&#32;<emphasis role="charliteral">&apos;\f&apos;</emphasis>;&#32;<emphasis role="keywordflow">goto</emphasis>&#32;read_save;
+00397 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;n&apos;</emphasis>:&#32;c&#32;=&#32;<emphasis role="charliteral">&apos;\n&apos;</emphasis>;&#32;<emphasis role="keywordflow">goto</emphasis>&#32;read_save;
+00398 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;r&apos;</emphasis>:&#32;c&#32;=&#32;<emphasis role="charliteral">&apos;\r&apos;</emphasis>;&#32;<emphasis role="keywordflow">goto</emphasis>&#32;read_save;
+00399 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;t&apos;</emphasis>:&#32;c&#32;=&#32;<emphasis role="charliteral">&apos;\t&apos;</emphasis>;&#32;<emphasis role="keywordflow">goto</emphasis>&#32;read_save;
+00400 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;v&apos;</emphasis>:&#32;c&#32;=&#32;<emphasis role="charliteral">&apos;\v&apos;</emphasis>;&#32;<emphasis role="keywordflow">goto</emphasis>&#32;read_save;
+00401 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;x&apos;</emphasis>:&#32;c&#32;=&#32;<link linkend="_llex_8c_1a5887888b2f49f1350b047c9412422d25">readhexaesc</link>(ls);&#32;<emphasis role="keywordflow">goto</emphasis>&#32;read_save;
+00402 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;u&apos;</emphasis>:&#32;<link linkend="_llex_8c_1ad753772a24bb842f984798034f62611e">utf8esc</link>(ls);&#32;&#32;<emphasis role="keywordflow">goto</emphasis>&#32;no_save;
+00403 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;\n&apos;</emphasis>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;\r&apos;</emphasis>:
+00404 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1ac030febfa2dc867e1b48f3328aec45b3">inclinenumber</link>(ls);&#32;c&#32;=&#32;<emphasis role="charliteral">&apos;\n&apos;</emphasis>;&#32;<emphasis role="keywordflow">goto</emphasis>&#32;only_save;
+00405 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;\\&apos;</emphasis>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;\&quot;&apos;</emphasis>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;\&apos;&apos;</emphasis>:
+00406 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;c&#32;=&#32;ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>;&#32;<emphasis role="keywordflow">goto</emphasis>&#32;read_save;
+00407 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lzio_8h_1a8341bdc72db5a2f045e18440f9523008">EOZ</link>:&#32;<emphasis role="keywordflow">goto</emphasis>&#32;no_save;&#32;&#32;<emphasis role="comment">/*&#32;will&#32;raise&#32;an&#32;error&#32;next&#32;loop&#32;*/</emphasis>
+00408 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;z&apos;</emphasis>:&#32;{&#32;&#32;<emphasis role="comment">/*&#32;zap&#32;following&#32;span&#32;of&#32;spaces&#32;*/</emphasis>
+00409 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lzio_8h_1ab9e4cabf75529d0c2f5a809f49a25281">luaZ_buffremove</link>(ls-&gt;<link linkend="_struct_lex_state_1a95ff497fc7c445d1bcd30c247eff828a">buff</link>,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;&apos;\\&apos;&#32;*/</emphasis>
+00410 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls);&#32;&#32;<emphasis role="comment">/*&#32;skip&#32;the&#32;&apos;z&apos;&#32;*/</emphasis>
+00411 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;(<link linkend="_lctype_8h_1a768801f115261ae5ad51fdf6e54904e2">lisspace</link>(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>))&#32;{
+00412 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llex_8c_1aee0dbe3090a8bf4b0ecd633781c5a09a">currIsNewline</link>(ls))&#32;<link linkend="_llex_8c_1ac030febfa2dc867e1b48f3328aec45b3">inclinenumber</link>(ls);
+00413 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls);
+00414 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+00415 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">goto</emphasis>&#32;no_save;
+00416 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+00417 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">default</emphasis>:&#32;{
+00418 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a7dedd6d9ea73e7276da6bcd0effa7cc0">esccheck</link>(ls,&#32;<link linkend="_lctype_8h_1aee1d27a5eac398ec2c9c8b80281041e6">lisdigit</link>(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>),&#32;<emphasis role="stringliteral">&quot;invalid&#32;escape&#32;sequence&quot;</emphasis>);
+00419 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;c&#32;=&#32;<link linkend="_llex_8c_1a860413546c7a3220a01e80c57389aa31">readdecesc</link>(ls);&#32;&#32;<emphasis role="comment">/*&#32;digital&#32;escape&#32;&apos;\ddd&apos;&#32;*/</emphasis>
+00420 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">goto</emphasis>&#32;only_save;
+00421 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+00422 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+00423 &#32;&#32;&#32;&#32;&#32;&#32;&#32;read_save:
+00424 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls);
+00425 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;go&#32;through&#32;*/</emphasis>
+00426 &#32;&#32;&#32;&#32;&#32;&#32;&#32;only_save:
+00427 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lzio_8h_1ab9e4cabf75529d0c2f5a809f49a25281">luaZ_buffremove</link>(ls-&gt;<link linkend="_struct_lex_state_1a95ff497fc7c445d1bcd30c247eff828a">buff</link>,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;&apos;\\&apos;&#32;*/</emphasis>
+00428 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a3418da69613c587915ff780b0ec3744b">save</link>(ls,&#32;c);
+00429 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;go&#32;through&#32;*/</emphasis>
+00430 &#32;&#32;&#32;&#32;&#32;&#32;&#32;no_save:&#32;<emphasis role="keywordflow">break</emphasis>;
+00431 &#32;&#32;&#32;&#32;&#32;&#32;}
+00432 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">default</emphasis>:
+00433 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls);
+00434 &#32;&#32;&#32;&#32;}
+00435 &#32;&#32;}
+00436 &#32;&#32;<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls);&#32;&#32;<emphasis role="comment">/*&#32;skip&#32;delimiter&#32;*/</emphasis>
+00437 &#32;&#32;seminfo-&gt;<link linkend="_union_sem_info_1ae879ced0cb88fb344f2b1b8ac7786af8">ts</link>&#32;=&#32;<link linkend="_llex_8c_1a83f747518666054180f6a7f8da55ac42">luaX_newstring</link>(ls,&#32;<link linkend="_lzio_8h_1aa51f632cb0519368a65ada80b71ea1e3">luaZ_buffer</link>(ls-&gt;<link linkend="_struct_lex_state_1a95ff497fc7c445d1bcd30c247eff828a">buff</link>)&#32;+&#32;1,
+00438 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lzio_8h_1a26c3aeb9ce93f8559b0a596cf7bb1031">luaZ_bufflen</link>(ls-&gt;<link linkend="_struct_lex_state_1a95ff497fc7c445d1bcd30c247eff828a">buff</link>)&#32;-&#32;2);
+00439 }
+00440 
+00441 
+<anchor xml:id="_llex_8c_source_1l00442"/><link linkend="_llex_8c_1a83faab0338a28c8b97ff1156725cc61b">00442</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_llex_8c_1a83faab0338a28c8b97ff1156725cc61b">llex</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls,&#32;<link linkend="_union_sem_info">SemInfo</link>&#32;*seminfo)&#32;{
+00443 &#32;&#32;<link linkend="_lzio_8h_1a53c928283083a162c79e0152048affe2">luaZ_resetbuffer</link>(ls-&gt;<link linkend="_struct_lex_state_1a95ff497fc7c445d1bcd30c247eff828a">buff</link>);
+00444 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(;;)&#32;{
+00445 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">switch</emphasis>&#32;(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>)&#32;{
+00446 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;\n&apos;</emphasis>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;\r&apos;</emphasis>:&#32;{&#32;&#32;<emphasis role="comment">/*&#32;line&#32;breaks&#32;*/</emphasis>
+00447 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1ac030febfa2dc867e1b48f3328aec45b3">inclinenumber</link>(ls);
+00448 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00449 &#32;&#32;&#32;&#32;&#32;&#32;}
+00450 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;&#32;&apos;</emphasis>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;\f&apos;</emphasis>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;\t&apos;</emphasis>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;\v&apos;</emphasis>:&#32;{&#32;&#32;<emphasis role="comment">/*&#32;spaces&#32;*/</emphasis>
+00451 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls);
+00452 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00453 &#32;&#32;&#32;&#32;&#32;&#32;}
+00454 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;-&apos;</emphasis>:&#32;{&#32;&#32;<emphasis role="comment">/*&#32;&apos;-&apos;&#32;or&#32;&apos;--&apos;&#32;(comment)&#32;*/</emphasis>
+00455 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls);
+00456 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>&#32;!=&#32;<emphasis role="charliteral">&apos;-&apos;</emphasis>)&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="charliteral">&apos;-&apos;</emphasis>;
+00457 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;else&#32;is&#32;a&#32;comment&#32;*/</emphasis>
+00458 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls);
+00459 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>&#32;==&#32;<emphasis role="charliteral">&apos;[&apos;</emphasis>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;long&#32;comment?&#32;*/</emphasis>
+00460 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;sep&#32;=&#32;<link linkend="_llex_8c_1a9036c54b00ccc4e9781a6b7bafe93c5c">skip_sep</link>(ls);
+00461 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lzio_8h_1a53c928283083a162c79e0152048affe2">luaZ_resetbuffer</link>(ls-&gt;<link linkend="_struct_lex_state_1a95ff497fc7c445d1bcd30c247eff828a">buff</link>);&#32;&#32;<emphasis role="comment">/*&#32;&apos;skip_sep&apos;&#32;may&#32;dirty&#32;the&#32;buffer&#32;*/</emphasis>
+00462 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(sep&#32;&gt;=&#32;2)&#32;{
+00463 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a87255185250aab5f03dafe716cdda273">read_long_string</link>(ls,&#32;NULL,&#32;sep);&#32;&#32;<emphasis role="comment">/*&#32;skip&#32;long&#32;comment&#32;*/</emphasis>
+00464 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lzio_8h_1a53c928283083a162c79e0152048affe2">luaZ_resetbuffer</link>(ls-&gt;<link linkend="_struct_lex_state_1a95ff497fc7c445d1bcd30c247eff828a">buff</link>);&#32;&#32;<emphasis role="comment">/*&#32;previous&#32;call&#32;may&#32;dirty&#32;the&#32;buff.&#32;*/</emphasis>
+00465 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00466 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+00467 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+00468 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;else&#32;short&#32;comment&#32;*/</emphasis>
+00469 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;(!<link linkend="_llex_8c_1aee0dbe3090a8bf4b0ecd633781c5a09a">currIsNewline</link>(ls)&#32;&amp;&amp;&#32;ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>&#32;!=&#32;<link linkend="_lzio_8h_1a8341bdc72db5a2f045e18440f9523008">EOZ</link>)
+00470 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls);&#32;&#32;<emphasis role="comment">/*&#32;skip&#32;until&#32;end&#32;of&#32;line&#32;(or&#32;end&#32;of&#32;file)&#32;*/</emphasis>
+00471 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00472 &#32;&#32;&#32;&#32;&#32;&#32;}
+00473 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;[&apos;</emphasis>:&#32;{&#32;&#32;<emphasis role="comment">/*&#32;long&#32;string&#32;or&#32;simply&#32;&apos;[&apos;&#32;*/</emphasis>
+00474 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;sep&#32;=&#32;<link linkend="_llex_8c_1a9036c54b00ccc4e9781a6b7bafe93c5c">skip_sep</link>(ls);
+00475 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(sep&#32;&gt;=&#32;2)&#32;{
+00476 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a87255185250aab5f03dafe716cdda273">read_long_string</link>(ls,&#32;seminfo,&#32;sep);
+00477 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a2f748d118b4a20e2b1dc12538ccd9876">TK_STRING</link>;
+00478 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+00479 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(sep&#32;==&#32;0)&#32;&#32;<emphasis role="comment">/*&#32;&apos;[=...&apos;&#32;missing&#32;second&#32;bracket?&#32;*/</emphasis>
+00480 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a67bb1f3225ffe5738fef1c3d34879735">lexerror</link>(ls,&#32;<emphasis role="stringliteral">&quot;invalid&#32;long&#32;string&#32;delimiter&quot;</emphasis>,&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a2f748d118b4a20e2b1dc12538ccd9876">TK_STRING</link>);
+00481 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="charliteral">&apos;[&apos;</emphasis>;
+00482 &#32;&#32;&#32;&#32;&#32;&#32;}
+00483 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;=&apos;</emphasis>:&#32;{
+00484 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls);
+00485 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llex_8c_1a7ffd3be1c90014b2b7645e9c7c9641ff">check_next1</link>(ls,&#32;<emphasis role="charliteral">&apos;=&apos;</emphasis>))&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04ae9b97178246db483138ab3d18039bfb2">TK_EQ</link>;
+00486 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="charliteral">&apos;=&apos;</emphasis>;
+00487 &#32;&#32;&#32;&#32;&#32;&#32;}
+00488 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;&lt;&apos;</emphasis>:&#32;{
+00489 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls);
+00490 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llex_8c_1a7ffd3be1c90014b2b7645e9c7c9641ff">check_next1</link>(ls,&#32;<emphasis role="charliteral">&apos;=&apos;</emphasis>))&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04ace38c3f7b08d6ffe00acdd0706ba35de">TK_LE</link>;
+00491 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llex_8c_1a7ffd3be1c90014b2b7645e9c7c9641ff">check_next1</link>(ls,&#32;<emphasis role="charliteral">&apos;&lt;&apos;</emphasis>))&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04afe39400ab62457e9a823aa8521d0610b">TK_SHL</link>;
+00492 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="charliteral">&apos;&lt;&apos;</emphasis>;
+00493 &#32;&#32;&#32;&#32;&#32;&#32;}
+00494 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;&gt;&apos;</emphasis>:&#32;{
+00495 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls);
+00496 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llex_8c_1a7ffd3be1c90014b2b7645e9c7c9641ff">check_next1</link>(ls,&#32;<emphasis role="charliteral">&apos;=&apos;</emphasis>))&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a39306a802115256cf2099f6c724a95b0">TK_GE</link>;
+00497 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llex_8c_1a7ffd3be1c90014b2b7645e9c7c9641ff">check_next1</link>(ls,&#32;<emphasis role="charliteral">&apos;&gt;&apos;</emphasis>))&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04ad15c43ae39b99d8f834419ec74183185">TK_SHR</link>;
+00498 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="charliteral">&apos;&gt;&apos;</emphasis>;
+00499 &#32;&#32;&#32;&#32;&#32;&#32;}
+00500 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;/&apos;</emphasis>:&#32;{
+00501 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls);
+00502 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llex_8c_1a7ffd3be1c90014b2b7645e9c7c9641ff">check_next1</link>(ls,&#32;<emphasis role="charliteral">&apos;/&apos;</emphasis>))&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a7f7c69f2e524e3ab183318cf52575ba8">TK_IDIV</link>;
+00503 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="charliteral">&apos;/&apos;</emphasis>;
+00504 &#32;&#32;&#32;&#32;&#32;&#32;}
+00505 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;~&apos;</emphasis>:&#32;{
+00506 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls);
+00507 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llex_8c_1a7ffd3be1c90014b2b7645e9c7c9641ff">check_next1</link>(ls,&#32;<emphasis role="charliteral">&apos;=&apos;</emphasis>))&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a6897243f49a32e90ca094af33c16374b">TK_NE</link>;
+00508 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="charliteral">&apos;~&apos;</emphasis>;
+00509 &#32;&#32;&#32;&#32;&#32;&#32;}
+00510 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;:&apos;</emphasis>:&#32;{
+00511 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls);
+00512 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llex_8c_1a7ffd3be1c90014b2b7645e9c7c9641ff">check_next1</link>(ls,&#32;<emphasis role="charliteral">&apos;:&apos;</emphasis>))&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a3a767e0c4ce0407785d87a1a56980de2">TK_DBCOLON</link>;
+00513 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="charliteral">&apos;:&apos;</emphasis>;
+00514 &#32;&#32;&#32;&#32;&#32;&#32;}
+00515 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;&quot;&apos;</emphasis>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;\&apos;&apos;</emphasis>:&#32;{&#32;&#32;<emphasis role="comment">/*&#32;short&#32;literal&#32;strings&#32;*/</emphasis>
+00516 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a5a2d8bb78e2b8e9ee25f901c811b2275">read_string</link>(ls,&#32;ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>,&#32;seminfo);
+00517 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a2f748d118b4a20e2b1dc12538ccd9876">TK_STRING</link>;
+00518 &#32;&#32;&#32;&#32;&#32;&#32;}
+00519 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;.&apos;</emphasis>:&#32;{&#32;&#32;<emphasis role="comment">/*&#32;&apos;.&apos;,&#32;&apos;..&apos;,&#32;&apos;...&apos;,&#32;or&#32;number&#32;*/</emphasis>
+00520 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls);
+00521 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llex_8c_1a7ffd3be1c90014b2b7645e9c7c9641ff">check_next1</link>(ls,&#32;<emphasis role="charliteral">&apos;.&apos;</emphasis>))&#32;{
+00522 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llex_8c_1a7ffd3be1c90014b2b7645e9c7c9641ff">check_next1</link>(ls,&#32;<emphasis role="charliteral">&apos;.&apos;</emphasis>))
+00523 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a500efed658259c56ef30938c20c3b6c4">TK_DOTS</link>;&#32;&#32;&#32;<emphasis role="comment">/*&#32;&apos;...&apos;&#32;*/</emphasis>
+00524 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a8367a7a9a88e9ea3cef16ab15887a278">TK_CONCAT</link>;&#32;&#32;&#32;<emphasis role="comment">/*&#32;&apos;..&apos;&#32;*/</emphasis>
+00525 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+00526 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_lctype_8h_1aee1d27a5eac398ec2c9c8b80281041e6">lisdigit</link>(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>))&#32;<emphasis role="keywordflow">return</emphasis>&#32;<emphasis role="charliteral">&apos;.&apos;</emphasis>;
+00527 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llex_8c_1a6e3870206c0c321cccaf22d6c2772072">read_numeral</link>(ls,&#32;seminfo);
+00528 &#32;&#32;&#32;&#32;&#32;&#32;}
+00529 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;0&apos;</emphasis>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;1&apos;</emphasis>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;2&apos;</emphasis>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;3&apos;</emphasis>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;4&apos;</emphasis>:
+00530 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;5&apos;</emphasis>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;6&apos;</emphasis>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;7&apos;</emphasis>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;8&apos;</emphasis>:&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;9&apos;</emphasis>:&#32;{
+00531 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llex_8c_1a6e3870206c0c321cccaf22d6c2772072">read_numeral</link>(ls,&#32;seminfo);
+00532 &#32;&#32;&#32;&#32;&#32;&#32;}
+00533 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<link linkend="_lzio_8h_1a8341bdc72db5a2f045e18440f9523008">EOZ</link>:&#32;{
+00534 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a9fcd34e2e50a0afb82f0dae65836187b">TK_EOS</link>;
+00535 &#32;&#32;&#32;&#32;&#32;&#32;}
+00536 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">default</emphasis>:&#32;{
+00537 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lctype_8h_1a7132e9f6daf30b344b74f51d64eadf7d">lislalpha</link>(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;identifier&#32;or&#32;reserved&#32;word?&#32;*/</emphasis>
+00538 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_struct_t_string">TString</link>&#32;*ts;
+00539 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">do</emphasis>&#32;{
+00540 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1ac4c2ebdfa66caf9c1ef124c30e9d68a5">save_and_next</link>(ls);
+00541 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}&#32;<emphasis role="keywordflow">while</emphasis>&#32;(<link linkend="_lctype_8h_1a9c0dc6a934853b8ab5e7d65a3ca8abcd">lislalnum</link>(ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>));
+00542 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;ts&#32;=&#32;<link linkend="_llex_8c_1a83f747518666054180f6a7f8da55ac42">luaX_newstring</link>(ls,&#32;<link linkend="_lzio_8h_1aa51f632cb0519368a65ada80b71ea1e3">luaZ_buffer</link>(ls-&gt;<link linkend="_struct_lex_state_1a95ff497fc7c445d1bcd30c247eff828a">buff</link>),
+00543 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lzio_8h_1a26c3aeb9ce93f8559b0a596cf7bb1031">luaZ_bufflen</link>(ls-&gt;<link linkend="_struct_lex_state_1a95ff497fc7c445d1bcd30c247eff828a">buff</link>));
+00544 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;seminfo-&gt;<link linkend="_union_sem_info_1ae879ced0cb88fb344f2b1b8ac7786af8">ts</link>&#32;=&#32;ts;
+00545 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lstring_8h_1a7b490cd8212260e1cf975f59a16fb745">isreserved</link>(ts))&#32;&#32;<emphasis role="comment">/*&#32;reserved&#32;word?&#32;*/</emphasis>
+00546 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;ts-&gt;<link linkend="_struct_t_string_1af8a633c0d3c4543d3731e518dd658347">extra</link>&#32;-&#32;1&#32;+&#32;<link linkend="_llex_8h_1a6bc8e20ff15b7aa178aceea51e691e44">FIRST_RESERVED</link>;
+00547 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00548 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a84e5aed35515b2881005d88dccaf0c30">TK_NAME</link>;
+00549 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+00550 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+00551 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;single-char&#32;tokens&#32;(+&#32;-&#32;/&#32;...)&#32;*/</emphasis>
+00552 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;c&#32;=&#32;ls-&gt;<link linkend="_struct_lex_state_1ab04e2d55ea4a544f3575812582af7b51">current</link>;
+00553 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>(ls);
+00554 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;c;
+00555 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+00556 &#32;&#32;&#32;&#32;&#32;&#32;}
+00557 &#32;&#32;&#32;&#32;}
+00558 &#32;&#32;}
+00559 }
+00560 
+00561 
+<anchor xml:id="_llex_8c_source_1l00562"/><link linkend="_llex_8h_1a626896648b5c598666b1e051fd70a568">00562</link> <emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_llex_8c_1a8b9f2aa3f74c4e2f814d860dc7f5a6a8">luaX_next</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls)&#32;{
+00563 &#32;&#32;ls-&gt;<link linkend="_struct_lex_state_1a43f6f8a28e02774b94cceaaad727a035">lastline</link>&#32;=&#32;ls-&gt;<link linkend="_struct_lex_state_1abe06567f8b14c148f18771aacccf1be1">linenumber</link>;
+00564 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ls-&gt;<link linkend="_struct_lex_state_1aff1615e0bd5c464085f800a63c335e43">lookahead</link>.<link linkend="_struct_token_1a8abb7e972adc09624edab301e021dc5f">token</link>&#32;!=&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a9fcd34e2e50a0afb82f0dae65836187b">TK_EOS</link>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;is&#32;there&#32;a&#32;look-ahead&#32;token?&#32;*/</emphasis>
+00565 &#32;&#32;&#32;&#32;ls-&gt;<link linkend="_struct_lex_state_1a87971c677cea6a64536114c36f785b72">t</link>&#32;=&#32;ls-&gt;<link linkend="_struct_lex_state_1aff1615e0bd5c464085f800a63c335e43">lookahead</link>;&#32;&#32;<emphasis role="comment">/*&#32;use&#32;this&#32;one&#32;*/</emphasis>
+00566 &#32;&#32;&#32;&#32;ls-&gt;<link linkend="_struct_lex_state_1aff1615e0bd5c464085f800a63c335e43">lookahead</link>.<link linkend="_struct_token_1a8abb7e972adc09624edab301e021dc5f">token</link>&#32;=&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a9fcd34e2e50a0afb82f0dae65836187b">TK_EOS</link>;&#32;&#32;<emphasis role="comment">/*&#32;and&#32;discharge&#32;it&#32;*/</emphasis>
+00567 &#32;&#32;}
+00568 &#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00569 &#32;&#32;&#32;&#32;ls-&gt;<link linkend="_struct_lex_state_1a87971c677cea6a64536114c36f785b72">t</link>.<link linkend="_struct_token_1a8abb7e972adc09624edab301e021dc5f">token</link>&#32;=&#32;<link linkend="_llex_8c_1a83faab0338a28c8b97ff1156725cc61b">llex</link>(ls,&#32;&amp;ls-&gt;<link linkend="_struct_lex_state_1a87971c677cea6a64536114c36f785b72">t</link>.<link linkend="_struct_token_1a54762edd38b11a9194e6c7cee3c3fcdd">seminfo</link>);&#32;&#32;<emphasis role="comment">/*&#32;read&#32;next&#32;token&#32;*/</emphasis>
+00570 }
+00571 
+00572 
+<anchor xml:id="_llex_8c_source_1l00573"/><link linkend="_llex_8h_1ad024d435463fc54e7e592d9bb8a7b26b">00573</link> <emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_llex_8c_1af44c274f4e9a24ac9bc41ff31bac5ffb">luaX_lookahead</link>&#32;(<link linkend="_struct_lex_state">LexState</link>&#32;*ls)&#32;{
+00574 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(ls-&gt;<link linkend="_struct_lex_state_1aff1615e0bd5c464085f800a63c335e43">lookahead</link>.<link linkend="_struct_token_1a8abb7e972adc09624edab301e021dc5f">token</link>&#32;==&#32;<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a9fcd34e2e50a0afb82f0dae65836187b">TK_EOS</link>);
+00575 &#32;&#32;ls-&gt;<link linkend="_struct_lex_state_1aff1615e0bd5c464085f800a63c335e43">lookahead</link>.<link linkend="_struct_token_1a8abb7e972adc09624edab301e021dc5f">token</link>&#32;=&#32;<link linkend="_llex_8c_1a83faab0338a28c8b97ff1156725cc61b">llex</link>(ls,&#32;&amp;ls-&gt;<link linkend="_struct_lex_state_1aff1615e0bd5c464085f800a63c335e43">lookahead</link>.<link linkend="_struct_token_1a54762edd38b11a9194e6c7cee3c3fcdd">seminfo</link>);
+00576 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;ls-&gt;<link linkend="_struct_lex_state_1aff1615e0bd5c464085f800a63c335e43">lookahead</link>.<link linkend="_struct_token_1a8abb7e972adc09624edab301e021dc5f">token</link>;
+00577 }
+00578 
+</programlisting></section>

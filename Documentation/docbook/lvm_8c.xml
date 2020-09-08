@@ -1,0 +1,1370 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lvm_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/lvm.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lvm.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;float.h&gt;
+#include &lt;limits.h&gt;
+#include &lt;math.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;ldebug.h&quot;
+#include &quot;ldo.h&quot;
+#include &quot;lfunc.h&quot;
+#include &quot;lgc.h&quot;
+#include &quot;lobject.h&quot;
+#include &quot;lopcodes.h&quot;
+#include &quot;lstate.h&quot;
+#include &quot;lstring.h&quot;
+#include &quot;ltable.h&quot;
+#include &quot;ltm.h&quot;
+#include &quot;lvm.h&quot;
+</programlisting>lvm.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lvm_8c_1a26fd89afa52fe8d2335f741f35611ea2">lvm_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1abf0b3947b59218777a8e928a10be205b">LUA_CORE</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a23db0b8d14efa41ab925d3c939eff24b">LUA_USE_JUMPTABLE</link>   0</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1aa25ebed8c5d8537e72643d5c81420bea">MAXTAGLOOP</link>   2000</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1ae126772a4eeffe9b1f4ad8b8bea1228f">NBM</link>   (<link linkend="_luaconf_8h_1af41b220b80eae0908ca2e190ca024990">l_floatatt</link>(MANT_DIG))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1ae3419ac662e1d1cf37cde228781d8ad9">l_intfitsf</link>(i)   1</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1ac4af8d3b7a2c325068e51a81b01d0a65">tostring</link>(L,  o)   	(<link linkend="_lobject_8h_1a9bdf057a0de8da2ffae3ac35662dd255">ttisstring</link>(o) || (<link linkend="_lvm_8h_1aa6af30bdcb0dce1826c81061cec16d81">cvt2str</link>(o) &amp;&amp; (<link linkend="_lobject_8h_1a007d2c6293fee953f3af21f60f8133ba">luaO_tostring</link>(L, o), 1)))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1ae8f3af735ff64fa28e84ea124ff77861">isemptystr</link>(o)   (<link linkend="_lobject_8h_1a6513e161c7e8cc7276a9677d50a99b76">ttisshrstring</link>(o) &amp;&amp; <link linkend="_lobject_8h_1a8661397faed512ccc9c70a4661f1a83d">tsvalue</link>(o)-&gt;shrlen == 0)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a671db1197d35e1db5d5bf18f1af5ed3f">NBITS</link>   <link linkend="_llimits_8h_1a37a9e2c4b53433d34bad0f12a1500c08">cast_int</link>(sizeof(<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>) * CHAR_BIT)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a1696d36ebff18f8164f4aa2f993c2088">luaV_shiftr</link>(x,  y)   <link linkend="_lvm_8h_1aa785f0ac32664e47c2d3689d75edc5e8">luaV_shiftl</link>(x,-(y))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1ad15610968ca2288a0ee43de0ac00fc56">l_addi</link>(L,  a,  b)   <link linkend="_lvm_8h_1a6c054eb9ce53c1b282e7ff0088895a37">intop</link>(+, a, b)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1adca3ee1c8bff66cff29c485a8b0f8d0b">l_subi</link>(L,  a,  b)   <link linkend="_lvm_8h_1a6c054eb9ce53c1b282e7ff0088895a37">intop</link>(-, a, b)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a87f648fd6055968d928dc2fef3e2d05b">l_muli</link>(L,  a,  b)   <link linkend="_lvm_8h_1a6c054eb9ce53c1b282e7ff0088895a37">intop</link>(*, a, b)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a2ae697e156c4a4f2c92f2d1e133a5255">l_band</link>(a,  b)   <link linkend="_lvm_8h_1a6c054eb9ce53c1b282e7ff0088895a37">intop</link>(&amp;, a, b)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a2c1a2e4332f652bc78071b89b06b3d58">l_bor</link>(a,  b)   <link linkend="_lvm_8h_1a6c054eb9ce53c1b282e7ff0088895a37">intop</link>(|, a, b)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a1719c71ba0a699fa728a6d3091114941">l_bxor</link>(a,  b)   <link linkend="_lvm_8h_1a6c054eb9ce53c1b282e7ff0088895a37">intop</link>(^, a, b)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a52eace142e89aebd3cc76b2257bc1ac6">l_lti</link>(a,  b)   (a &lt; b)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1af018f58bdf08a419023bcb94d0fab609">l_lei</link>(a,  b)   (a &lt;= b)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a8fdefcbe99129a14abac1d25be4794bc">l_gti</link>(a,  b)   (a &gt; b)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a3890b28845d18e2c75d51b3e7fd85f9c">l_gei</link>(a,  b)   (a &gt;= b)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a64f748f1270f46a82d9740b510e0cd3a">op_arithI</link>(L,  iop,  fop)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a27c82162e3bd29ab27ae1cd6660207ca">op_arithf_aux</link>(L,  v1,  v2,  fop)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a3a4f9c96d42bbb54c163fd3f3799a53c">op_arithf</link>(L,  fop)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a2bf3c022ca2f380a54b253dcb57ed4fc">op_arithfK</link>(L,  fop)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a293974e782860ba3cc56e8357d0c2ac4">op_arith_aux</link>(L,  v1,  v2,  iop,  fop)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1accac296bbdd639e9a290dd90e6ee97bc">op_arith</link>(L,  iop,  fop)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1af99dda342975a0c5aa932cd408476008">op_arithK</link>(L,  iop,  fop)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a58d4f607b71631156a48372cf05d403e">op_bitwiseK</link>(L,  op)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a65ec8fe21615050150ecc5aed115bc1b">op_bitwise</link>(L,  op)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a427d042b492c9feb6beaeea80f6bd594">op_order</link>(L,  opi,  opn,  other)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1ac2b4fecc5abdaf3ec282df9a7b728e13">op_orderI</link>(L,  opi,  opf,  inv,  tm)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a721dd0af7e652d2d98b1f765f7860bcb">RA</link>(i)   (base+<link linkend="_lopcodes_8h_1a1d504abc1e2246548f89977210dce0b9">GETARG_A</link>(i))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a2688e9bc2c975760015dd57956107eb4">RB</link>(i)   (base+<link linkend="_lopcodes_8h_1a7a343159ef7669a438c2097b839b2b13">GETARG_B</link>(i))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a83fae87b4e07c8e466b98d2085582562">vRB</link>(i)   <link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(<link linkend="_lvm_8c_1a2688e9bc2c975760015dd57956107eb4">RB</link>(i))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a11423b97da0e060b24d31d7e71534844">KB</link>(i)   (k+<link linkend="_lopcodes_8h_1a7a343159ef7669a438c2097b839b2b13">GETARG_B</link>(i))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a316a781a03ac24357a00b0037fb38565">RC</link>(i)   (base+<link linkend="_lopcodes_8h_1af96cb84f2685fda7f36d3d099dba6a44">GETARG_C</link>(i))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a0c07e0d29b6b7d24e42617450d7bff24">vRC</link>(i)   <link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(<link linkend="_lvm_8c_1a316a781a03ac24357a00b0037fb38565">RC</link>(i))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1ac0b1105a4fbcaf1eaaeeb21fde493268">KC</link>(i)   (k+<link linkend="_lopcodes_8h_1af96cb84f2685fda7f36d3d099dba6a44">GETARG_C</link>(i))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a621b920c2683748903f90d71a1fb157b">RKC</link>(i)   ((<link linkend="_lopcodes_8h_1aa874f9aac8107c30bf683067661a988a">TESTARG_k</link>(i)) ? k + <link linkend="_lopcodes_8h_1af96cb84f2685fda7f36d3d099dba6a44">GETARG_C</link>(i) : <link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(base + <link linkend="_lopcodes_8h_1af96cb84f2685fda7f36d3d099dba6a44">GETARG_C</link>(i)))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1abb4b554ff3bfb81c40e994b89c466728">updatetrap</link>(ci)   (trap = ci-&gt;u.l.trap)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a8e2f8e15f68c38d8c1a784fa79fbfe2d">updatebase</link>(ci)   (base = ci-&gt;func + 1)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1aa2532fb78de8437337c3a287df45a139">updatestack</link>(ci)   { if (trap) { <link linkend="_lvm_8c_1a8e2f8e15f68c38d8c1a784fa79fbfe2d">updatebase</link>(ci); ra = <link linkend="_lvm_8c_1a721dd0af7e652d2d98b1f765f7860bcb">RA</link>(i); } }</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a145a3aec07a6b2a6b78e91f83b810a9f">dojump</link>(ci,  i,  e)   { pc += <link linkend="_lopcodes_8h_1a1e69b8e862462ab13df4acd8de7ef54c">GETARG_sJ</link>(i) + e; <link linkend="_lvm_8c_1abb4b554ff3bfb81c40e994b89c466728">updatetrap</link>(ci); }</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1ab6c6e5c0af31fccecc3464db950e8107">donextjump</link>(ci)   { <link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link> ni = *pc; <link linkend="_lvm_8c_1a145a3aec07a6b2a6b78e91f83b810a9f">dojump</link>(ci, ni, 1); }</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1af4484c1945bfa516c6dec5382c7d3f20">docondjump</link>()   if (<link linkend="_lparser_8c_1a24002c50a108445d916457eb3c21d5e1">cond</link> != <link linkend="_lopcodes_8h_1aa9ce1e6169ccc23a1e9c783f61af343f">GETARG_k</link>(i)) pc++; else <link linkend="_lvm_8c_1ab6c6e5c0af31fccecc3464db950e8107">donextjump</link>(ci);</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1af118f5c1afd189a53b6d967d5e2f5479">savepc</link>(L)   (ci-&gt;u.l.savedpc = pc)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a59d34ce7e11dd5c6aa72c76fa2fe09a0">savestate</link>(L,  ci)   (<link linkend="_lvm_8c_1af118f5c1afd189a53b6d967d5e2f5479">savepc</link>(L), L-&gt;top = ci-&gt;top)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1ae20e156330a1cdfb3738f042f7eae35a">Protect</link>(exp)   (<link linkend="_lvm_8c_1a59d34ce7e11dd5c6aa72c76fa2fe09a0">savestate</link>(L,ci), (exp), <link linkend="_lvm_8c_1abb4b554ff3bfb81c40e994b89c466728">updatetrap</link>(ci))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a240b167bd7f3ed903cd1518960b1489c">ProtectNT</link>(exp)   (<link linkend="_lvm_8c_1af118f5c1afd189a53b6d967d5e2f5479">savepc</link>(L), (exp), <link linkend="_lvm_8c_1abb4b554ff3bfb81c40e994b89c466728">updatetrap</link>(ci))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a89acfdec431169d8ad8bde3952bbd844">halfProtect</link>(exp)   (<link linkend="_lvm_8c_1a59d34ce7e11dd5c6aa72c76fa2fe09a0">savestate</link>(L,ci), (exp))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a8d3732d68d992f7662e63fedf2e781c9">halfProtectNT</link>(exp)   (<link linkend="_lvm_8c_1af118f5c1afd189a53b6d967d5e2f5479">savepc</link>(L), (exp))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a05f520b99525b2ec56d5597ed4a15eb8">checkGC</link>(L,  c)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1ae2618898a2f8e320a173906bb811c9bd">vmfetch</link>()</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1ae65c98d22c152f2d423102a999a821c9">vmdispatch</link>(o)   switch(o)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a64ed762fd3da016b8792d4ac0d0cf17f">vmcase</link>(l)   case l:</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lvm_8c_1a362451cac7ed1e9ebf8978cd761a01fb">vmbreak</link>   break</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static int <link linkend="_lvm_8c_1ad20630400fb41a023f723f86d1bcf2ee">l_strton</link> (const <link linkend="_struct_t_value">TValue</link> *obj, <link linkend="_struct_t_value">TValue</link> *result)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lvm_8c_1adf13f75d26fb8674d228c32803abe382">luaV_tonumber_</link> (const <link linkend="_struct_t_value">TValue</link> *obj, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> *n)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lvm_8c_1a3a9a9378ccdbd0ea4cba6555673dccf9">luaV_flttointeger</link> (<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> n, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> *p, <link linkend="_lvm_8h_1a1639065f78212a54317141b2703061c0">F2Imod</link> mode)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lvm_8c_1aed793e2bcd34f922ab591e317e57d375">luaV_tointegerns</link> (const <link linkend="_struct_t_value">TValue</link> *obj, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> *p, <link linkend="_lvm_8h_1a1639065f78212a54317141b2703061c0">F2Imod</link> mode)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lvm_8c_1a924f46c2bf450e137210ca19b4461747">luaV_tointeger</link> (const <link linkend="_struct_t_value">TValue</link> *obj, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> *p, <link linkend="_lvm_8h_1a1639065f78212a54317141b2703061c0">F2Imod</link> mode)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lvm_8c_1a74de39e56f455130121e51b2cae6685a">forlimit</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> init, const <link linkend="_struct_t_value">TValue</link> *lim, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> *p, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> step)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lvm_8c_1a8d9c9746ae6f28dd1b17982a88589b51">forprep</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> ra)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lvm_8c_1ae1da05262daf2e1f5616c2f0e6472264">floatforloop</link> (<link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> ra)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lvm_8c_1a45c30a70c51ed843f58bd446aa2096c9">luaV_finishget</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_struct_t_value">TValue</link> *t, <link linkend="_struct_t_value">TValue</link> *key, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> val, const <link linkend="_struct_t_value">TValue</link> *slot)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lvm_8c_1a190116824dc13c5d37a6b2962f425a0d">luaV_finishset</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_struct_t_value">TValue</link> *t, <link linkend="_struct_t_value">TValue</link> *key, <link linkend="_struct_t_value">TValue</link> *val, const <link linkend="_struct_t_value">TValue</link> *slot)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lvm_8c_1af609f8da5aa129c2dfe05d03f7001c03">l_strcmp</link> (const <link linkend="_struct_t_string">TString</link> *ls, const <link linkend="_struct_t_string">TString</link> *rs)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lvm_8c_1aed56b743321d737d2c2df6268674281f">LTintfloat</link> (<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> i, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> f)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lvm_8c_1ab394eec9acbce8e5be88eeaf799d6a13">LEintfloat</link> (<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> i, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> f)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lvm_8c_1a4c8a4beda3cf0a265070dc6832183318">LTfloatint</link> (<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> f, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> i)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lvm_8c_1a29b512f6e7e0c458be29cf7fe250bba3">LEfloatint</link> (<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> f, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> i)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lvm_8c_1a1e3534dce31fc52f71f974802bc6ace2">LTnum</link> (const <link linkend="_struct_t_value">TValue</link> *l, const <link linkend="_struct_t_value">TValue</link> *r)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lvm_8c_1aa531a8c826e4bbb1918f43bd84b9456a">LEnum</link> (const <link linkend="_struct_t_value">TValue</link> *l, const <link linkend="_struct_t_value">TValue</link> *r)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lvm_8c_1a13f124eec78027029d2e8fd9b83ee614">lessthanothers</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_struct_t_value">TValue</link> *l, const <link linkend="_struct_t_value">TValue</link> *r)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lvm_8c_1a82cf4e4e2322eef8c4c53b98669e2ada">luaV_lessthan</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_struct_t_value">TValue</link> *l, const <link linkend="_struct_t_value">TValue</link> *r)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lvm_8c_1aa12d860dd59154d1952911589fd72fb2">lessequalothers</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_struct_t_value">TValue</link> *l, const <link linkend="_struct_t_value">TValue</link> *r)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lvm_8c_1a03d32b640c60651c78bc5ae0f2bc0549">luaV_lessequal</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_struct_t_value">TValue</link> *l, const <link linkend="_struct_t_value">TValue</link> *r)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lvm_8c_1a4826066036eb5f7cf0f8a33f7073f49e">luaV_equalobj</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_struct_t_value">TValue</link> *t1, const <link linkend="_struct_t_value">TValue</link> *t2)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lvm_8c_1a7f03a9c23b77ec5cd280bb955ec430b8">copy2buff</link> (<link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> top, int n, char *buff)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lvm_8c_1a2f076040af405dcb50d661edd692eca7">luaV_concat</link> (<link linkend="_structlua___state">lua_State</link> *L, int total)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lvm_8c_1aae23b597659b2aae680f1d0a0b39ab3b">luaV_objlen</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> ra, const <link linkend="_struct_t_value">TValue</link> *rb)</para>
+</listitem>
+            <listitem><para><link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> <link linkend="_lvm_8c_1a8815b6d106992c5713900b20a0da5e29">luaV_idiv</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> m, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> n)</para>
+</listitem>
+            <listitem><para><link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> <link linkend="_lvm_8c_1af1241d1650e114f39843626fd879d3d6">luaV_mod</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> m, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> n)</para>
+</listitem>
+            <listitem><para><link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> <link linkend="_lvm_8c_1ac0162e10dc7e235089eb3cbef4addca7">luaV_modf</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> m, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> n)</para>
+</listitem>
+            <listitem><para><link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> <link linkend="_lvm_8c_1ade6c9565152d0bb1f6116a90ea2c867a">luaV_shiftl</link> (<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> x, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> y)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lvm_8c_1a4bcc07915cc8b4d397b6d411e4d2723c">pushclosure</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_proto">Proto</link> *p, <link linkend="_struct_up_val">UpVal</link> **encup, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> base, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> ra)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lvm_8c_1a8ccb90ee001013b54a5005df64c7359d">luaV_finishOp</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lvm_8c_1a221e6dd0bc488dc961e9007ed8e21189">luaV_execute</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_call_info">CallInfo</link> *ci)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lvm_8c_1a05f520b99525b2ec56d5597ed4a15eb8"/>    <section>
+    <title>checkGC</title>
+<indexterm><primary>checkGC</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>checkGC</secondary></indexterm>
+<para><computeroutput>#define checkGC( L,  c)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;{&#32;<link linkend="_lgc_8h_1a52f302b0dac5467152f322c8fe1c1a3e">luaC_condGC</link>(L,&#32;(<link linkend="_lvm_8c_1af118f5c1afd189a53b6d967d5e2f5479">savepc</link>(L),&#32;L-&gt;top&#32;=&#32;(c)),&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lvm_8c_1abb4b554ff3bfb81c40e994b89c466728">updatetrap</link>(ci));&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;luai_threadyield(L);&#32;}
+</programlisting><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01105">1105</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1af4484c1945bfa516c6dec5382c7d3f20"/>    <section>
+    <title>docondjump</title>
+<indexterm><primary>docondjump</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>docondjump</secondary></indexterm>
+<para><computeroutput>#define docondjump( )   if (<link linkend="_lparser_8c_1a24002c50a108445d916457eb3c21d5e1">cond</link> != <link linkend="_lopcodes_8h_1aa9ce1e6169ccc23a1e9c783f61af343f">GETARG_k</link>(i)) pc++; else <link linkend="_lvm_8c_1ab6c6e5c0af31fccecc3464db950e8107">donextjump</link>(ci);</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01069">1069</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a145a3aec07a6b2a6b78e91f83b810a9f"/>    <section>
+    <title>dojump</title>
+<indexterm><primary>dojump</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>dojump</secondary></indexterm>
+<para><computeroutput>#define dojump( ci,  i,  e)   { pc += <link linkend="_lopcodes_8h_1a1e69b8e862462ab13df4acd8de7ef54c">GETARG_sJ</link>(i) + e; <link linkend="_lvm_8c_1abb4b554ff3bfb81c40e994b89c466728">updatetrap</link>(ci); }</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01058">1058</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1ab6c6e5c0af31fccecc3464db950e8107"/>    <section>
+    <title>donextjump</title>
+<indexterm><primary>donextjump</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>donextjump</secondary></indexterm>
+<para><computeroutput>#define donextjump( ci)   { <link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link> ni = *pc; <link linkend="_lvm_8c_1a145a3aec07a6b2a6b78e91f83b810a9f">dojump</link>(ci, ni, 1); }</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01062">1062</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a89acfdec431169d8ad8bde3952bbd844"/>    <section>
+    <title>halfProtect</title>
+<indexterm><primary>halfProtect</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>halfProtect</secondary></indexterm>
+<para><computeroutput>#define halfProtect( exp)   (<link linkend="_lvm_8c_1a59d34ce7e11dd5c6aa72c76fa2fe09a0">savestate</link>(L,ci), (exp))</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01099">1099</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a8d3732d68d992f7662e63fedf2e781c9"/>    <section>
+    <title>halfProtectNT</title>
+<indexterm><primary>halfProtectNT</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>halfProtectNT</secondary></indexterm>
+<para><computeroutput>#define halfProtectNT( exp)   (<link linkend="_lvm_8c_1af118f5c1afd189a53b6d967d5e2f5479">savepc</link>(L), (exp))</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01102">1102</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1ae8f3af735ff64fa28e84ea124ff77861"/>    <section>
+    <title>isemptystr</title>
+<indexterm><primary>isemptystr</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>isemptystr</secondary></indexterm>
+<para><computeroutput>#define isemptystr( o)   (<link linkend="_lobject_8h_1a6513e161c7e8cc7276a9677d50a99b76">ttisshrstring</link>(o) &amp;&amp; <link linkend="_lobject_8h_1a8661397faed512ccc9c70a4661f1a83d">tsvalue</link>(o)-&gt;shrlen == 0)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00619">619</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a11423b97da0e060b24d31d7e71534844"/>    <section>
+    <title>KB</title>
+<indexterm><primary>KB</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>KB</secondary></indexterm>
+<para><computeroutput>#define KB( i)   (k+<link linkend="_lopcodes_8h_1a7a343159ef7669a438c2097b839b2b13">GETARG_B</link>(i))</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01038">1038</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1ac0b1105a4fbcaf1eaaeeb21fde493268"/>    <section>
+    <title>KC</title>
+<indexterm><primary>KC</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>KC</secondary></indexterm>
+<para><computeroutput>#define KC( i)   (k+<link linkend="_lopcodes_8h_1af96cb84f2685fda7f36d3d099dba6a44">GETARG_C</link>(i))</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01041">1041</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1ad15610968ca2288a0ee43de0ac00fc56"/>    <section>
+    <title>l_addi</title>
+<indexterm><primary>l_addi</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>l_addi</secondary></indexterm>
+<para><computeroutput>#define l_addi( L,  a,  b)   <link linkend="_lvm_8h_1a6c054eb9ce53c1b282e7ff0088895a37">intop</link>(+, a, b)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00867">867</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a2ae697e156c4a4f2c92f2d1e133a5255"/>    <section>
+    <title>l_band</title>
+<indexterm><primary>l_band</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>l_band</secondary></indexterm>
+<para><computeroutput>#define l_band( a,  b)   <link linkend="_lvm_8h_1a6c054eb9ce53c1b282e7ff0088895a37">intop</link>(&amp;, a, b)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00870">870</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a2c1a2e4332f652bc78071b89b06b3d58"/>    <section>
+    <title>l_bor</title>
+<indexterm><primary>l_bor</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>l_bor</secondary></indexterm>
+<para><computeroutput>#define l_bor( a,  b)   <link linkend="_lvm_8h_1a6c054eb9ce53c1b282e7ff0088895a37">intop</link>(|, a, b)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00871">871</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a1719c71ba0a699fa728a6d3091114941"/>    <section>
+    <title>l_bxor</title>
+<indexterm><primary>l_bxor</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>l_bxor</secondary></indexterm>
+<para><computeroutput>#define l_bxor( a,  b)   <link linkend="_lvm_8h_1a6c054eb9ce53c1b282e7ff0088895a37">intop</link>(^, a, b)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00872">872</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a3890b28845d18e2c75d51b3e7fd85f9c"/>    <section>
+    <title>l_gei</title>
+<indexterm><primary>l_gei</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>l_gei</secondary></indexterm>
+<para><computeroutput>#define l_gei( a,  b)   (a &gt;= b)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00877">877</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a8fdefcbe99129a14abac1d25be4794bc"/>    <section>
+    <title>l_gti</title>
+<indexterm><primary>l_gti</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>l_gti</secondary></indexterm>
+<para><computeroutput>#define l_gti( a,  b)   (a &gt; b)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00876">876</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1ae3419ac662e1d1cf37cde228781d8ad9"/>    <section>
+    <title>l_intfitsf</title>
+<indexterm><primary>l_intfitsf</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>l_intfitsf</secondary></indexterm>
+<para><computeroutput>#define l_intfitsf( i)   1</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00078">78</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1af018f58bdf08a419023bcb94d0fab609"/>    <section>
+    <title>l_lei</title>
+<indexterm><primary>l_lei</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>l_lei</secondary></indexterm>
+<para><computeroutput>#define l_lei( a,  b)   (a &lt;= b)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00875">875</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a52eace142e89aebd3cc76b2257bc1ac6"/>    <section>
+    <title>l_lti</title>
+<indexterm><primary>l_lti</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>l_lti</secondary></indexterm>
+<para><computeroutput>#define l_lti( a,  b)   (a &lt; b)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00874">874</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a87f648fd6055968d928dc2fef3e2d05b"/>    <section>
+    <title>l_muli</title>
+<indexterm><primary>l_muli</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>l_muli</secondary></indexterm>
+<para><computeroutput>#define l_muli( L,  a,  b)   <link linkend="_lvm_8h_1a6c054eb9ce53c1b282e7ff0088895a37">intop</link>(*, a, b)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00869">869</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1adca3ee1c8bff66cff29c485a8b0f8d0b"/>    <section>
+    <title>l_subi</title>
+<indexterm><primary>l_subi</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>l_subi</secondary></indexterm>
+<para><computeroutput>#define l_subi( L,  a,  b)   <link linkend="_lvm_8h_1a6c054eb9ce53c1b282e7ff0088895a37">intop</link>(-, a, b)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00868">868</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1abf0b3947b59218777a8e928a10be205b"/>    <section>
+    <title>LUA_CORE</title>
+<indexterm><primary>LUA_CORE</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>LUA_CORE</secondary></indexterm>
+<para><computeroutput>#define LUA_CORE</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00008">8</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a23db0b8d14efa41ab925d3c939eff24b"/>    <section>
+    <title>LUA_USE_JUMPTABLE</title>
+<indexterm><primary>LUA_USE_JUMPTABLE</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>LUA_USE_JUMPTABLE</secondary></indexterm>
+<para><computeroutput>#define LUA_USE_JUMPTABLE   0</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00042">42</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a1696d36ebff18f8164f4aa2f993c2088"/>    <section>
+    <title>luaV_shiftr</title>
+<indexterm><primary>luaV_shiftr</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>luaV_shiftr</secondary></indexterm>
+<para><computeroutput>#define luaV_shiftr( x,  y)   <link linkend="_lvm_8h_1aa785f0ac32664e47c2d3689d75edc5e8">luaV_shiftl</link>(x,-(y))</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00767">767</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a26fd89afa52fe8d2335f741f35611ea2"/>    <section>
+    <title>lvm_c</title>
+<indexterm><primary>lvm_c</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>lvm_c</secondary></indexterm>
+<para><computeroutput>#define lvm_c</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1aa25ebed8c5d8537e72643d5c81420bea"/>    <section>
+    <title>MAXTAGLOOP</title>
+<indexterm><primary>MAXTAGLOOP</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>MAXTAGLOOP</secondary></indexterm>
+<para><computeroutput>#define MAXTAGLOOP   2000</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00049">49</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a671db1197d35e1db5d5bf18f1af5ed3f"/>    <section>
+    <title>NBITS</title>
+<indexterm><primary>NBITS</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>NBITS</secondary></indexterm>
+<para><computeroutput>#define NBITS   <link linkend="_llimits_8h_1a37a9e2c4b53433d34bad0f12a1500c08">cast_int</link>(sizeof(<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>) * CHAR_BIT)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00762">762</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1ae126772a4eeffe9b1f4ad8b8bea1228f"/>    <section>
+    <title>NBM</title>
+<indexterm><primary>NBM</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>NBM</secondary></indexterm>
+<para><computeroutput>#define NBM   (<link linkend="_luaconf_8h_1af41b220b80eae0908ca2e190ca024990">l_floatatt</link>(MANT_DIG))</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00058">58</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1accac296bbdd639e9a290dd90e6ee97bc"/>    <section>
+    <title>op_arith</title>
+<indexterm><primary>op_arith</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>op_arith</secondary></indexterm>
+<para><computeroutput>#define op_arith( L,  iop,  fop)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;{&#32;&#32;\
+&#32;&#32;TValue&#32;*v1&#32;=&#32;<link linkend="_lvm_8c_1a83fae87b4e07c8e466b98d2085582562">vRB</link>(i);&#32;&#32;\
+&#32;&#32;TValue&#32;*v2&#32;=&#32;<link linkend="_lvm_8c_1a0c07e0d29b6b7d24e42617450d7bff24">vRC</link>(i);&#32;&#32;\
+&#32;&#32;op_arith_aux(L,&#32;v1,&#32;v2,&#32;iop,&#32;fop);&#32;}
+</programlisting><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00941">941</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a293974e782860ba3cc56e8357d0c2ac4"/>    <section>
+    <title>op_arith_aux</title>
+<indexterm><primary>op_arith_aux</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>op_arith_aux</secondary></indexterm>
+<para><computeroutput>#define op_arith_aux( L,  v1,  v2,  iop,  fop)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;{&#32;&#32;\
+&#32;&#32;if&#32;(<link linkend="_lobject_8h_1abade243295a9140f7b86838fbb049054">ttisinteger</link>(v1)&#32;&amp;&amp;&#32;<link linkend="_lobject_8h_1abade243295a9140f7b86838fbb049054">ttisinteger</link>(v2))&#32;{&#32;&#32;\
+&#32;&#32;&#32;&#32;lua_Integer&#32;i1&#32;=&#32;<link linkend="_lobject_8h_1af1a59636db050b842a791cd19086d925">ivalue</link>(v1);&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;i2&#32;=&#32;<link linkend="_lobject_8h_1af1a59636db050b842a791cd19086d925">ivalue</link>(v2);&#32;&#32;\
+&#32;&#32;&#32;&#32;pc++;&#32;<link linkend="_lobject_8h_1af9dd109ba186841ab26efb2d62baf4f6">setivalue</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(ra),&#32;iop(L,&#32;i1,&#32;i2));&#32;&#32;\
+&#32;&#32;}&#32;&#32;\
+&#32;&#32;else&#32;<link linkend="_lvm_8c_1a27c82162e3bd29ab27ae1cd6660207ca">op_arithf_aux</link>(L,&#32;v1,&#32;v2,&#32;fop);&#32;}
+</programlisting><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00930">930</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a3a4f9c96d42bbb54c163fd3f3799a53c"/>    <section>
+    <title>op_arithf</title>
+<indexterm><primary>op_arithf</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>op_arithf</secondary></indexterm>
+<para><computeroutput>#define op_arithf( L,  fop)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;{&#32;&#32;\
+&#32;&#32;TValue&#32;*v1&#32;=&#32;<link linkend="_lvm_8c_1a83fae87b4e07c8e466b98d2085582562">vRB</link>(i);&#32;&#32;\
+&#32;&#32;TValue&#32;*v2&#32;=&#32;<link linkend="_lvm_8c_1a0c07e0d29b6b7d24e42617450d7bff24">vRC</link>(i);&#32;&#32;\
+&#32;&#32;op_arithf_aux(L,&#32;v1,&#32;v2,&#32;fop);&#32;}
+</programlisting><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00912">912</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a27c82162e3bd29ab27ae1cd6660207ca"/>    <section>
+    <title>op_arithf_aux</title>
+<indexterm><primary>op_arithf_aux</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>op_arithf_aux</secondary></indexterm>
+<para><computeroutput>#define op_arithf_aux( L,  v1,  v2,  fop)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;{&#32;&#32;\
+&#32;&#32;lua_Number&#32;n1;&#32;<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link>&#32;n2;&#32;&#32;\
+&#32;&#32;if&#32;(<link linkend="_lvm_8h_1a1c1072a8845c14cc7b5b7744ef4d18a4">tonumberns</link>(v1,&#32;n1)&#32;&amp;&amp;&#32;<link linkend="_lvm_8h_1a1c1072a8845c14cc7b5b7744ef4d18a4">tonumberns</link>(v2,&#32;n2))&#32;{&#32;&#32;\
+&#32;&#32;&#32;&#32;pc++;&#32;<link linkend="_lobject_8h_1ae357382324a8220a3cf77607752de887">setfltvalue</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(ra),&#32;fop(L,&#32;n1,&#32;n2));&#32;&#32;\
+&#32;&#32;}}
+</programlisting><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00902">902</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a2bf3c022ca2f380a54b253dcb57ed4fc"/>    <section>
+    <title>op_arithfK</title>
+<indexterm><primary>op_arithfK</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>op_arithfK</secondary></indexterm>
+<para><computeroutput>#define op_arithfK( L,  fop)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;{&#32;&#32;\
+&#32;&#32;TValue&#32;*v1&#32;=&#32;<link linkend="_lvm_8c_1a83fae87b4e07c8e466b98d2085582562">vRB</link>(i);&#32;&#32;\
+&#32;&#32;TValue&#32;*v2&#32;=&#32;<link linkend="_lvm_8c_1ac0b1105a4fbcaf1eaaeeb21fde493268">KC</link>(i);&#32;&#32;\
+&#32;&#32;op_arithf_aux(L,&#32;v1,&#32;v2,&#32;fop);&#32;}
+</programlisting><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00921">921</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a64f748f1270f46a82d9740b510e0cd3a"/>    <section>
+    <title>op_arithI</title>
+<indexterm><primary>op_arithI</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>op_arithI</secondary></indexterm>
+<para><computeroutput>#define op_arithI( L,  iop,  fop)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;{&#32;&#32;\
+&#32;&#32;TValue&#32;*v1&#32;=&#32;<link linkend="_lvm_8c_1a83fae87b4e07c8e466b98d2085582562">vRB</link>(i);&#32;&#32;\
+&#32;&#32;int&#32;imm&#32;=&#32;<link linkend="_lopcodes_8h_1a2dadd55729fda230ce1765caef7ea416">GETARG_sC</link>(i);&#32;&#32;\
+&#32;&#32;if&#32;(<link linkend="_lobject_8h_1abade243295a9140f7b86838fbb049054">ttisinteger</link>(v1))&#32;{&#32;&#32;\
+&#32;&#32;&#32;&#32;lua_Integer&#32;iv1&#32;=&#32;<link linkend="_lobject_8h_1af1a59636db050b842a791cd19086d925">ivalue</link>(v1);&#32;&#32;\
+&#32;&#32;&#32;&#32;pc++;&#32;<link linkend="_lobject_8h_1af9dd109ba186841ab26efb2d62baf4f6">setivalue</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(ra),&#32;iop(L,&#32;iv1,&#32;imm));&#32;&#32;\
+&#32;&#32;}&#32;&#32;\
+&#32;&#32;else&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lobject_8h_1ac1338b5ac67cadf27489f5ae7e939c29">ttisfloat</link>(v1))&#32;{&#32;&#32;\
+&#32;&#32;&#32;&#32;lua_Number&#32;nb&#32;=&#32;<link linkend="_lobject_8h_1a7d7d6b08f40350c9e7364e9cb984d744">fltvalue</link>(v1);&#32;&#32;\
+&#32;&#32;&#32;&#32;lua_Number&#32;fimm&#32;=&#32;<link linkend="_llimits_8h_1ac92cecb12c5aba1164877e81e76e2cb6">cast_num</link>(imm);&#32;&#32;\
+&#32;&#32;&#32;&#32;pc++;&#32;<link linkend="_lobject_8h_1ae357382324a8220a3cf77607752de887">setfltvalue</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(ra),&#32;fop(L,&#32;nb,&#32;fimm));&#32;\
+&#32;&#32;}}
+</programlisting><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00884">884</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1af99dda342975a0c5aa932cd408476008"/>    <section>
+    <title>op_arithK</title>
+<indexterm><primary>op_arithK</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>op_arithK</secondary></indexterm>
+<para><computeroutput>#define op_arithK( L,  iop,  fop)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;{&#32;&#32;\
+&#32;&#32;TValue&#32;*v1&#32;=&#32;<link linkend="_lvm_8c_1a83fae87b4e07c8e466b98d2085582562">vRB</link>(i);&#32;&#32;\
+&#32;&#32;TValue&#32;*v2&#32;=&#32;<link linkend="_lvm_8c_1ac0b1105a4fbcaf1eaaeeb21fde493268">KC</link>(i);&#32;&#32;\
+&#32;&#32;op_arith_aux(L,&#32;v1,&#32;v2,&#32;iop,&#32;fop);&#32;}
+</programlisting><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00950">950</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a65ec8fe21615050150ecc5aed115bc1b"/>    <section>
+    <title>op_bitwise</title>
+<indexterm><primary>op_bitwise</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>op_bitwise</secondary></indexterm>
+<para><computeroutput>#define op_bitwise( L,  op)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;{&#32;&#32;\
+&#32;&#32;TValue&#32;*v1&#32;=&#32;<link linkend="_lvm_8c_1a83fae87b4e07c8e466b98d2085582562">vRB</link>(i);&#32;&#32;\
+&#32;&#32;TValue&#32;*v2&#32;=&#32;<link linkend="_lvm_8c_1a0c07e0d29b6b7d24e42617450d7bff24">vRC</link>(i);&#32;&#32;\
+&#32;&#32;lua_Integer&#32;i1;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;i2;&#32;&#32;\
+&#32;&#32;if&#32;(<link linkend="_lvm_8h_1a0b3a6eff12747eacea6551dbc2d42707">tointegerns</link>(v1,&#32;&amp;i1)&#32;&amp;&amp;&#32;<link linkend="_lvm_8h_1a0b3a6eff12747eacea6551dbc2d42707">tointegerns</link>(v2,&#32;&amp;i2))&#32;{&#32;&#32;\
+&#32;&#32;&#32;&#32;pc++;&#32;<link linkend="_lobject_8h_1af9dd109ba186841ab26efb2d62baf4f6">setivalue</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(ra),&#32;op(i1,&#32;i2));&#32;&#32;\
+&#32;&#32;}}
+</programlisting><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00972">972</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a58d4f607b71631156a48372cf05d403e"/>    <section>
+    <title>op_bitwiseK</title>
+<indexterm><primary>op_bitwiseK</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>op_bitwiseK</secondary></indexterm>
+<para><computeroutput>#define op_bitwiseK( L,  op)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;{&#32;&#32;\
+&#32;&#32;TValue&#32;*v1&#32;=&#32;<link linkend="_lvm_8c_1a83fae87b4e07c8e466b98d2085582562">vRB</link>(i);&#32;&#32;\
+&#32;&#32;TValue&#32;*v2&#32;=&#32;<link linkend="_lvm_8c_1ac0b1105a4fbcaf1eaaeeb21fde493268">KC</link>(i);&#32;&#32;\
+&#32;&#32;lua_Integer&#32;i1;&#32;&#32;\
+&#32;&#32;lua_Integer&#32;i2&#32;=&#32;<link linkend="_lobject_8h_1af1a59636db050b842a791cd19086d925">ivalue</link>(v2);&#32;&#32;\
+&#32;&#32;if&#32;(<link linkend="_lvm_8h_1a0b3a6eff12747eacea6551dbc2d42707">tointegerns</link>(v1,&#32;&amp;i1))&#32;{&#32;&#32;\
+&#32;&#32;&#32;&#32;pc++;&#32;<link linkend="_lobject_8h_1af9dd109ba186841ab26efb2d62baf4f6">setivalue</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(ra),&#32;op(i1,&#32;i2));&#32;&#32;\
+&#32;&#32;}}
+</programlisting><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00959">959</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a427d042b492c9feb6beaeea80f6bd594"/>    <section>
+    <title>op_order</title>
+<indexterm><primary>op_order</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>op_order</secondary></indexterm>
+<para><computeroutput>#define op_order( L,  opi,  opn,  other)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;{&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;int&#32;<link linkend="_lparser_8c_1a24002c50a108445d916457eb3c21d5e1">cond</link>;&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;TValue&#32;*rb&#32;=&#32;<link linkend="_lvm_8c_1a83fae87b4e07c8e466b98d2085582562">vRB</link>(i);&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(<link linkend="_lobject_8h_1abade243295a9140f7b86838fbb049054">ttisinteger</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(ra))&#32;&amp;&amp;&#32;<link linkend="_lobject_8h_1abade243295a9140f7b86838fbb049054">ttisinteger</link>(rb))&#32;{&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;lua_Integer&#32;ia&#32;=&#32;<link linkend="_lobject_8h_1af1a59636db050b842a791cd19086d925">ivalue</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(ra));&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;lua_Integer&#32;ib&#32;=&#32;<link linkend="_lobject_8h_1af1a59636db050b842a791cd19086d925">ivalue</link>(rb);&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;cond&#32;=&#32;opi(ia,&#32;ib);&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;else&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lobject_8h_1a7a1392f89b1f29ed3b1afa37a22d0be2">ttisnumber</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(ra))&#32;&amp;&amp;&#32;<link linkend="_lobject_8h_1a7a1392f89b1f29ed3b1afa37a22d0be2">ttisnumber</link>(rb))&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;cond&#32;=&#32;opn(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(ra),&#32;rb);&#32;&#32;<link linkend="_lvm_8c_1ae20e156330a1cdfb3738f042f7eae35a">\</link>
+<link linkend="_lvm_8c_1ae20e156330a1cdfb3738f042f7eae35a">        else  \</link>
+<link linkend="_lvm_8c_1ae20e156330a1cdfb3738f042f7eae35a">          Protect</link>(<link linkend="_lparser_8c_1a24002c50a108445d916457eb3c21d5e1">cond</link>&#32;=&#32;other(L,&#32;<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(ra),&#32;rb));&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;docondjump();&#32;}
+</programlisting><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00986">986</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1ac2b4fecc5abdaf3ec282df9a7b728e13"/>    <section>
+    <title>op_orderI</title>
+<indexterm><primary>op_orderI</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>op_orderI</secondary></indexterm>
+<para><computeroutput>#define op_orderI( L,  opi,  opf,  inv,  tm)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;{&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;int&#32;<link linkend="_lparser_8c_1a24002c50a108445d916457eb3c21d5e1">cond</link>;&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;int&#32;im&#32;=&#32;<link linkend="_lopcodes_8h_1a7af64834446acb4afeec51438217c73d">GETARG_sB</link>(i);&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(<link linkend="_lobject_8h_1abade243295a9140f7b86838fbb049054">ttisinteger</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(ra)))&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;cond&#32;=&#32;opi(<link linkend="_lobject_8h_1af1a59636db050b842a791cd19086d925">ivalue</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(ra)),&#32;im);&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;else&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lobject_8h_1ac1338b5ac67cadf27489f5ae7e939c29">ttisfloat</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(ra)))&#32;{&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;lua_Number&#32;fa&#32;=&#32;<link linkend="_lobject_8h_1a7d7d6b08f40350c9e7364e9cb984d744">fltvalue</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(ra));&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;lua_Number&#32;fim&#32;=&#32;<link linkend="_llimits_8h_1ac92cecb12c5aba1164877e81e76e2cb6">cast_num</link>(im);&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;cond&#32;=&#32;opf(fa,&#32;fim);&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;else&#32;{&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;int&#32;isf&#32;=&#32;<link linkend="_lopcodes_8h_1af96cb84f2685fda7f36d3d099dba6a44">GETARG_C</link>(i);&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;Protect(<link linkend="_lparser_8c_1a24002c50a108445d916457eb3c21d5e1">cond</link>&#32;=&#32;<link linkend="_ltm_8c_1a690946d84a71c365611e06711cb5beb7">luaT_callorderiTM</link>(L,&#32;<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(ra),&#32;im,&#32;inv,&#32;isf,&#32;tm));&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;docondjump();&#32;}
+</programlisting><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01005">1005</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1ae20e156330a1cdfb3738f042f7eae35a"/>    <section>
+    <title>Protect</title>
+<indexterm><primary>Protect</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>Protect</secondary></indexterm>
+<para><computeroutput>#define Protect( exp)   (<link linkend="_lvm_8c_1a59d34ce7e11dd5c6aa72c76fa2fe09a0">savestate</link>(L,ci), (exp), <link linkend="_lvm_8c_1abb4b554ff3bfb81c40e994b89c466728">updatetrap</link>(ci))</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01089">1089</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a240b167bd7f3ed903cd1518960b1489c"/>    <section>
+    <title>ProtectNT</title>
+<indexterm><primary>ProtectNT</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>ProtectNT</secondary></indexterm>
+<para><computeroutput>#define ProtectNT( exp)   (<link linkend="_lvm_8c_1af118f5c1afd189a53b6d967d5e2f5479">savepc</link>(L), (exp), <link linkend="_lvm_8c_1abb4b554ff3bfb81c40e994b89c466728">updatetrap</link>(ci))</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01092">1092</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a721dd0af7e652d2d98b1f765f7860bcb"/>    <section>
+    <title>RA</title>
+<indexterm><primary>RA</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>RA</secondary></indexterm>
+<para><computeroutput>#define RA( i)   (base+<link linkend="_lopcodes_8h_1a1d504abc1e2246548f89977210dce0b9">GETARG_A</link>(i))</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01035">1035</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a2688e9bc2c975760015dd57956107eb4"/>    <section>
+    <title>RB</title>
+<indexterm><primary>RB</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>RB</secondary></indexterm>
+<para><computeroutput>#define RB( i)   (base+<link linkend="_lopcodes_8h_1a7a343159ef7669a438c2097b839b2b13">GETARG_B</link>(i))</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01036">1036</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a316a781a03ac24357a00b0037fb38565"/>    <section>
+    <title>RC</title>
+<indexterm><primary>RC</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>RC</secondary></indexterm>
+<para><computeroutput>#define RC( i)   (base+<link linkend="_lopcodes_8h_1af96cb84f2685fda7f36d3d099dba6a44">GETARG_C</link>(i))</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01039">1039</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a621b920c2683748903f90d71a1fb157b"/>    <section>
+    <title>RKC</title>
+<indexterm><primary>RKC</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>RKC</secondary></indexterm>
+<para><computeroutput>#define RKC( i)   ((<link linkend="_lopcodes_8h_1aa874f9aac8107c30bf683067661a988a">TESTARG_k</link>(i)) ? k + <link linkend="_lopcodes_8h_1af96cb84f2685fda7f36d3d099dba6a44">GETARG_C</link>(i) : <link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(base + <link linkend="_lopcodes_8h_1af96cb84f2685fda7f36d3d099dba6a44">GETARG_C</link>(i)))</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01042">1042</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1af118f5c1afd189a53b6d967d5e2f5479"/>    <section>
+    <title>savepc</title>
+<indexterm><primary>savepc</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>savepc</secondary></indexterm>
+<para><computeroutput>#define savepc( L)   (ci-&gt;u.l.savedpc = pc)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01075">1075</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a59d34ce7e11dd5c6aa72c76fa2fe09a0"/>    <section>
+    <title>savestate</title>
+<indexterm><primary>savestate</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>savestate</secondary></indexterm>
+<para><computeroutput>#define savestate( L,  ci)   (<link linkend="_lvm_8c_1af118f5c1afd189a53b6d967d5e2f5479">savepc</link>(L), L-&gt;top = ci-&gt;top)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01082">1082</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1ac4af8d3b7a2c325068e51a81b01d0a65"/>    <section>
+    <title>tostring</title>
+<indexterm><primary>tostring</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>tostring</secondary></indexterm>
+<para><computeroutput>#define tostring( L,  o)   	(<link linkend="_lobject_8h_1a9bdf057a0de8da2ffae3ac35662dd255">ttisstring</link>(o) || (<link linkend="_lvm_8h_1aa6af30bdcb0dce1826c81061cec16d81">cvt2str</link>(o) &amp;&amp; (<link linkend="_lobject_8h_1a007d2c6293fee953f3af21f60f8133ba">luaO_tostring</link>(L, o), 1)))</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00616">616</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a8e2f8e15f68c38d8c1a784fa79fbfe2d"/>    <section>
+    <title>updatebase</title>
+<indexterm><primary>updatebase</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>updatebase</secondary></indexterm>
+<para><computeroutput>#define updatebase( ci)   (base = ci-&gt;func + 1)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01048">1048</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1aa2532fb78de8437337c3a287df45a139"/>    <section>
+    <title>updatestack</title>
+<indexterm><primary>updatestack</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>updatestack</secondary></indexterm>
+<para><computeroutput>#define updatestack( ci)   { if (trap) { <link linkend="_lvm_8c_1a8e2f8e15f68c38d8c1a784fa79fbfe2d">updatebase</link>(ci); ra = <link linkend="_lvm_8c_1a721dd0af7e652d2d98b1f765f7860bcb">RA</link>(i); } }</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01051">1051</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1abb4b554ff3bfb81c40e994b89c466728"/>    <section>
+    <title>updatetrap</title>
+<indexterm><primary>updatetrap</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>updatetrap</secondary></indexterm>
+<para><computeroutput>#define updatetrap( ci)   (trap = ci-&gt;u.l.trap)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01046">1046</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a362451cac7ed1e9ebf8978cd761a01fb"/>    <section>
+    <title>vmbreak</title>
+<indexterm><primary>vmbreak</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>vmbreak</secondary></indexterm>
+<para><computeroutput>#define vmbreak   break</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01123">1123</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a64ed762fd3da016b8792d4ac0d0cf17f"/>    <section>
+    <title>vmcase</title>
+<indexterm><primary>vmcase</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>vmcase</secondary></indexterm>
+<para><computeroutput>#define vmcase( l)   case l:</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01122">1122</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1ae65c98d22c152f2d423102a999a821c9"/>    <section>
+    <title>vmdispatch</title>
+<indexterm><primary>vmdispatch</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>vmdispatch</secondary></indexterm>
+<para><computeroutput>#define vmdispatch( o)   switch(o)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01121">1121</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1ae2618898a2f8e320a173906bb811c9bd"/>    <section>
+    <title>vmfetch</title>
+<indexterm><primary>vmfetch</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>vmfetch</secondary></indexterm>
+<para><computeroutput>#define vmfetch( )</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;{&#32;\
+&#32;&#32;if&#32;(trap)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;stack&#32;reallocation&#32;or&#32;hooks?&#32;*/</emphasis>&#32;\
+&#32;&#32;&#32;&#32;trap&#32;=&#32;<link linkend="_ldebug_8c_1aa85fcb28f50397f11ac54ed47be24f8b">luaG_traceexec</link>(L,&#32;pc);&#32;&#32;<emphasis role="comment">/*&#32;handle&#32;hooks&#32;*/</emphasis>&#32;\
+&#32;&#32;&#32;&#32;updatebase(ci);&#32;&#32;<emphasis role="comment">/*&#32;correct&#32;stack&#32;*/</emphasis>&#32;\
+&#32;&#32;}&#32;\
+&#32;&#32;i&#32;=&#32;*(pc++);&#32;\
+&#32;&#32;ra&#32;=&#32;<link linkend="_lvm_8c_1a721dd0af7e652d2d98b1f765f7860bcb">RA</link>(i);&#32;<emphasis role="comment">/*&#32;WARNING:&#32;any&#32;stack&#32;reallocation&#32;invalidates&#32;&apos;ra&apos;&#32;*/</emphasis>&#32;\
+}
+</programlisting><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01112">1112</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a83fae87b4e07c8e466b98d2085582562"/>    <section>
+    <title>vRB</title>
+<indexterm><primary>vRB</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>vRB</secondary></indexterm>
+<para><computeroutput>#define vRB( i)   <link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(<link linkend="_lvm_8c_1a2688e9bc2c975760015dd57956107eb4">RB</link>(i))</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01037">1037</link> 行定义.</para>
+    </section><anchor xml:id="_lvm_8c_1a0c07e0d29b6b7d24e42617450d7bff24"/>    <section>
+    <title>vRC</title>
+<indexterm><primary>vRC</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>vRC</secondary></indexterm>
+<para><computeroutput>#define vRC( i)   <link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(<link linkend="_lvm_8c_1a316a781a03ac24357a00b0037fb38565">RC</link>(i))</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01040">1040</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lvm_8c_1a7f03a9c23b77ec5cd280bb955ec430b8"/>    <section>
+    <title>copy2buff()</title>
+<indexterm><primary>copy2buff</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>copy2buff</secondary></indexterm>
+<para><computeroutput>static void copy2buff (<link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> top, int n, char * buff)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00622">622</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a7f03a9c23b77ec5cd280bb955ec430b8_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1ae1da05262daf2e1f5616c2f0e6472264"/>    <section>
+    <title>floatforloop()</title>
+<indexterm><primary>floatforloop</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>floatforloop</secondary></indexterm>
+<para><computeroutput>static int floatforloop (<link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> ra)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00266">266</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_ae1da05262daf2e1f5616c2f0e6472264_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1a74de39e56f455130121e51b2cae6685a"/>    <section>
+    <title>forlimit()</title>
+<indexterm><primary>forlimit</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>forlimit</secondary></indexterm>
+<para><computeroutput>static int forlimit (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> init, const <link linkend="_struct_t_value">TValue</link> * lim, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> * p, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> step)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00176">176</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a74de39e56f455130121e51b2cae6685a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a74de39e56f455130121e51b2cae6685a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1a8d9c9746ae6f28dd1b17982a88589b51"/>    <section>
+    <title>forprep()</title>
+<indexterm><primary>forprep</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>forprep</secondary></indexterm>
+<para><computeroutput>static int forprep (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> ra)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00206">206</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a8d9c9746ae6f28dd1b17982a88589b51_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a8d9c9746ae6f28dd1b17982a88589b51_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1af609f8da5aa129c2dfe05d03f7001c03"/>    <section>
+    <title>l_strcmp()</title>
+<indexterm><primary>l_strcmp</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>l_strcmp</secondary></indexterm>
+<para><computeroutput>static int l_strcmp (const <link linkend="_struct_t_string">TString</link> * ls, const <link linkend="_struct_t_string">TString</link> * rs)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00378">378</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_af609f8da5aa129c2dfe05d03f7001c03_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1ad20630400fb41a023f723f86d1bcf2ee"/>    <section>
+    <title>l_strton()</title>
+<indexterm><primary>l_strton</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>l_strton</secondary></indexterm>
+<para><computeroutput>static int l_strton (const <link linkend="_struct_t_value">TValue</link> * obj, <link linkend="_struct_t_value">TValue</link> * result)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00090">90</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_ad20630400fb41a023f723f86d1bcf2ee_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_ad20630400fb41a023f723f86d1bcf2ee_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1a29b512f6e7e0c458be29cf7fe250bba3"/>    <section>
+    <title>LEfloatint()</title>
+<indexterm><primary>LEfloatint</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>LEfloatint</secondary></indexterm>
+<para><computeroutput>static int LEfloatint (<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> f, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> i)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00463">463</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a29b512f6e7e0c458be29cf7fe250bba3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a29b512f6e7e0c458be29cf7fe250bba3_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1ab394eec9acbce8e5be88eeaf799d6a13"/>    <section>
+    <title>LEintfloat()</title>
+<indexterm><primary>LEintfloat</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>LEintfloat</secondary></indexterm>
+<para><computeroutput>static int LEintfloat (<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> i, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> f)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00429">429</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_ab394eec9acbce8e5be88eeaf799d6a13_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_ab394eec9acbce8e5be88eeaf799d6a13_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1aa531a8c826e4bbb1918f43bd84b9456a"/>    <section>
+    <title>LEnum()</title>
+<indexterm><primary>LEnum</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>LEnum</secondary></indexterm>
+<para><computeroutput>static int LEnum (const <link linkend="_struct_t_value">TValue</link> * l, const <link linkend="_struct_t_value">TValue</link> * r)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00501">501</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_aa531a8c826e4bbb1918f43bd84b9456a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_aa531a8c826e4bbb1918f43bd84b9456a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1aa12d860dd59154d1952911589fd72fb2"/>    <section>
+    <title>lessequalothers()</title>
+<indexterm><primary>lessequalothers</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>lessequalothers</secondary></indexterm>
+<para><computeroutput>static int lessequalothers (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_struct_t_value">TValue</link> * l, const <link linkend="_struct_t_value">TValue</link> * r)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00545">545</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_aa12d860dd59154d1952911589fd72fb2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_aa12d860dd59154d1952911589fd72fb2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1a13f124eec78027029d2e8fd9b83ee614"/>    <section>
+    <title>lessthanothers()</title>
+<indexterm><primary>lessthanothers</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>lessthanothers</secondary></indexterm>
+<para><computeroutput>static int lessthanothers (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_struct_t_value">TValue</link> * l, const <link linkend="_struct_t_value">TValue</link> * r)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00523">523</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a13f124eec78027029d2e8fd9b83ee614_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a13f124eec78027029d2e8fd9b83ee614_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1a4c8a4beda3cf0a265070dc6832183318"/>    <section>
+    <title>LTfloatint()</title>
+<indexterm><primary>LTfloatint</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>LTfloatint</secondary></indexterm>
+<para><computeroutput>static int LTfloatint (<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> f, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> i)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00446">446</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a4c8a4beda3cf0a265070dc6832183318_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a4c8a4beda3cf0a265070dc6832183318_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1aed56b743321d737d2c2df6268674281f"/>    <section>
+    <title>LTintfloat()</title>
+<indexterm><primary>LTintfloat</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>LTintfloat</secondary></indexterm>
+<para><computeroutput>static int LTintfloat (<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> i, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> f)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00412">412</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_aed56b743321d737d2c2df6268674281f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_aed56b743321d737d2c2df6268674281f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1a1e3534dce31fc52f71f974802bc6ace2"/>    <section>
+    <title>LTnum()</title>
+<indexterm><primary>LTnum</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>LTnum</secondary></indexterm>
+<para><computeroutput>static int LTnum (const <link linkend="_struct_t_value">TValue</link> * l, const <link linkend="_struct_t_value">TValue</link> * r)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00479">479</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a1e3534dce31fc52f71f974802bc6ace2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a1e3534dce31fc52f71f974802bc6ace2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1a2f076040af405dcb50d661edd692eca7"/>    <section>
+    <title>luaV_concat()</title>
+<indexterm><primary>luaV_concat</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>luaV_concat</secondary></indexterm>
+<para><computeroutput>void luaV_concat (<link linkend="_structlua___state">lua_State</link> * L, int total)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00636">636</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a2f076040af405dcb50d661edd692eca7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a2f076040af405dcb50d661edd692eca7_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1a4826066036eb5f7cf0f8a33f7073f49e"/>    <section>
+    <title>luaV_equalobj()</title>
+<indexterm><primary>luaV_equalobj</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>luaV_equalobj</secondary></indexterm>
+<para><computeroutput>int luaV_equalobj (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_struct_t_value">TValue</link> * t1, const <link linkend="_struct_t_value">TValue</link> * t2)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00568">568</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a4826066036eb5f7cf0f8a33f7073f49e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a4826066036eb5f7cf0f8a33f7073f49e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1a221e6dd0bc488dc961e9007ed8e21189"/>    <section>
+    <title>luaV_execute()</title>
+<indexterm><primary>luaV_execute</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>luaV_execute</secondary></indexterm>
+<para><computeroutput>void luaV_execute (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_call_info">CallInfo</link> * ci)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l01126">1126</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a221e6dd0bc488dc961e9007ed8e21189_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a221e6dd0bc488dc961e9007ed8e21189_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1a45c30a70c51ed843f58bd446aa2096c9"/>    <section>
+    <title>luaV_finishget()</title>
+<indexterm><primary>luaV_finishget</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>luaV_finishget</secondary></indexterm>
+<para><computeroutput>void luaV_finishget (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_struct_t_value">TValue</link> * t, <link linkend="_struct_t_value">TValue</link> * key, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> val, const <link linkend="_struct_t_value">TValue</link> * slot)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00287">287</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a45c30a70c51ed843f58bd446aa2096c9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a45c30a70c51ed843f58bd446aa2096c9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1a8ccb90ee001013b54a5005df64c7359d"/>    <section>
+    <title>luaV_finishOp()</title>
+<indexterm><primary>luaV_finishOp</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>luaV_finishOp</secondary></indexterm>
+<para><computeroutput>void luaV_finishOp (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00806">806</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a8ccb90ee001013b54a5005df64c7359d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a8ccb90ee001013b54a5005df64c7359d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1a190116824dc13c5d37a6b2962f425a0d"/>    <section>
+    <title>luaV_finishset()</title>
+<indexterm><primary>luaV_finishset</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>luaV_finishset</secondary></indexterm>
+<para><computeroutput>void luaV_finishset (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_struct_t_value">TValue</link> * t, <link linkend="_struct_t_value">TValue</link> * key, <link linkend="_struct_t_value">TValue</link> * val, const <link linkend="_struct_t_value">TValue</link> * slot)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00330">330</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a190116824dc13c5d37a6b2962f425a0d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a190116824dc13c5d37a6b2962f425a0d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1a3a9a9378ccdbd0ea4cba6555673dccf9"/>    <section>
+    <title>luaV_flttointeger()</title>
+<indexterm><primary>luaV_flttointeger</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>luaV_flttointeger</secondary></indexterm>
+<para><computeroutput>int luaV_flttointeger (<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> n, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> * p, <link linkend="_lvm_8h_1a1639065f78212a54317141b2703061c0">F2Imod</link> mode)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00121">121</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a3a9a9378ccdbd0ea4cba6555673dccf9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1a8815b6d106992c5713900b20a0da5e29"/>    <section>
+    <title>luaV_idiv()</title>
+<indexterm><primary>luaV_idiv</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>luaV_idiv</secondary></indexterm>
+<para><computeroutput><link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> luaV_idiv (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> m, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> n)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00716">716</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a8815b6d106992c5713900b20a0da5e29_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a8815b6d106992c5713900b20a0da5e29_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1a03d32b640c60651c78bc5ae0f2bc0549"/>    <section>
+    <title>luaV_lessequal()</title>
+<indexterm><primary>luaV_lessequal</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>luaV_lessequal</secondary></indexterm>
+<para><computeroutput>int luaV_lessequal (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_struct_t_value">TValue</link> * l, const <link linkend="_struct_t_value">TValue</link> * r)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00557">557</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a03d32b640c60651c78bc5ae0f2bc0549_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a03d32b640c60651c78bc5ae0f2bc0549_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1a82cf4e4e2322eef8c4c53b98669e2ada"/>    <section>
+    <title>luaV_lessthan()</title>
+<indexterm><primary>luaV_lessthan</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>luaV_lessthan</secondary></indexterm>
+<para><computeroutput>int luaV_lessthan (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_struct_t_value">TValue</link> * l, const <link linkend="_struct_t_value">TValue</link> * r)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00535">535</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a82cf4e4e2322eef8c4c53b98669e2ada_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a82cf4e4e2322eef8c4c53b98669e2ada_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1af1241d1650e114f39843626fd879d3d6"/>    <section>
+    <title>luaV_mod()</title>
+<indexterm><primary>luaV_mod</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>luaV_mod</secondary></indexterm>
+<para><computeroutput><link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> luaV_mod (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> m, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> n)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00736">736</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_af1241d1650e114f39843626fd879d3d6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_af1241d1650e114f39843626fd879d3d6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1ac0162e10dc7e235089eb3cbef4addca7"/>    <section>
+    <title>luaV_modf()</title>
+<indexterm><primary>luaV_modf</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>luaV_modf</secondary></indexterm>
+<para><computeroutput><link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> luaV_modf (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> m, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> n)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00754">754</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_ac0162e10dc7e235089eb3cbef4addca7_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1aae23b597659b2aae680f1d0a0b39ab3b"/>    <section>
+    <title>luaV_objlen()</title>
+<indexterm><primary>luaV_objlen</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>luaV_objlen</secondary></indexterm>
+<para><computeroutput>void luaV_objlen (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> ra, const <link linkend="_struct_t_value">TValue</link> * rb)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00681">681</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_aae23b597659b2aae680f1d0a0b39ab3b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_aae23b597659b2aae680f1d0a0b39ab3b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1ade6c9565152d0bb1f6116a90ea2c867a"/>    <section>
+    <title>luaV_shiftl()</title>
+<indexterm><primary>luaV_shiftl</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>luaV_shiftl</secondary></indexterm>
+<para><computeroutput><link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> luaV_shiftl (<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> x, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> y)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00769">769</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_ade6c9565152d0bb1f6116a90ea2c867a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1a924f46c2bf450e137210ca19b4461747"/>    <section>
+    <title>luaV_tointeger()</title>
+<indexterm><primary>luaV_tointeger</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>luaV_tointeger</secondary></indexterm>
+<para><computeroutput>int luaV_tointeger (const <link linkend="_struct_t_value">TValue</link> * obj, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> * p, <link linkend="_lvm_8h_1a1639065f78212a54317141b2703061c0">F2Imod</link> mode)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00152">152</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a924f46c2bf450e137210ca19b4461747_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a924f46c2bf450e137210ca19b4461747_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1aed793e2bcd34f922ab591e317e57d375"/>    <section>
+    <title>luaV_tointegerns()</title>
+<indexterm><primary>luaV_tointegerns</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>luaV_tointegerns</secondary></indexterm>
+<para><computeroutput>int luaV_tointegerns (const <link linkend="_struct_t_value">TValue</link> * obj, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> * p, <link linkend="_lvm_8h_1a1639065f78212a54317141b2703061c0">F2Imod</link> mode)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00137">137</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_aed793e2bcd34f922ab591e317e57d375_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_aed793e2bcd34f922ab591e317e57d375_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1adf13f75d26fb8674d228c32803abe382"/>    <section>
+    <title>luaV_tonumber_()</title>
+<indexterm><primary>luaV_tonumber_</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>luaV_tonumber_</secondary></indexterm>
+<para><computeroutput>int luaV_tonumber_ (const <link linkend="_struct_t_value">TValue</link> * obj, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> * n)</computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00103">103</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_adf13f75d26fb8674d228c32803abe382_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lvm_8c_1a4bcc07915cc8b4d397b6d411e4d2723c"/>    <section>
+    <title>pushclosure()</title>
+<indexterm><primary>pushclosure</primary><secondary>lvm.c</secondary></indexterm>
+<indexterm><primary>lvm.c</primary><secondary>pushclosure</secondary></indexterm>
+<para><computeroutput>static void pushclosure (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_proto">Proto</link> * p, <link linkend="_struct_up_val">UpVal</link> ** encup, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> base, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> ra)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lvm_8c_source">lvm.c</link> 第 <link linkend="_lvm_8c_source_1l00785">785</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a4bcc07915cc8b4d397b6d411e4d2723c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lvm_8c_a4bcc07915cc8b4d397b6d411e4d2723c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+</section>

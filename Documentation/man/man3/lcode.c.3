@@ -1,0 +1,786 @@
+.TH "D:/gitworkspace/lua/src/lcode.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lcode.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <limits\&.h>\fP
+.br
+\fC#include <math\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lcode\&.h'\fP
+.br
+\fC#include 'ldebug\&.h'\fP
+.br
+\fC#include 'ldo\&.h'\fP
+.br
+\fC#include 'lgc\&.h'\fP
+.br
+\fC#include 'llex\&.h'\fP
+.br
+\fC#include 'lmem\&.h'\fP
+.br
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'lopcodes\&.h'\fP
+.br
+\fC#include 'lparser\&.h'\fP
+.br
+\fC#include 'lstring\&.h'\fP
+.br
+\fC#include 'ltable\&.h'\fP
+.br
+\fC#include 'lvm\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBlcode_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_CORE\fP"
+.br
+.ti -1c
+.RI "#define \fBMAXREGS\fP   255"
+.br
+.ti -1c
+.RI "#define \fBhasjumps\fP(e)   ((e)\->t != (e)\->f)"
+.br
+.ti -1c
+.RI "#define \fBMAXIWTHABS\fP   120"
+.br
+.ti -1c
+.RI "#define \fBLIMLINEDIFF\fP   0x80"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static int \fBcodesJ\fP (\fBFuncState\fP *fs, \fBOpCode\fP o, int sj, int k)"
+.br
+.ti -1c
+.RI "\fBl_noret\fP \fBluaK_semerror\fP (\fBLexState\fP *ls, const char *msg)"
+.br
+.ti -1c
+.RI "static int \fBtonumeral\fP (const \fBexpdesc\fP *e, \fBTValue\fP *v)"
+.br
+.ti -1c
+.RI "static \fBTValue\fP * \fBconst2val\fP (\fBFuncState\fP *fs, const \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "int \fBluaK_exp2const\fP (\fBFuncState\fP *fs, const \fBexpdesc\fP *e, \fBTValue\fP *v)"
+.br
+.ti -1c
+.RI "static \fBInstruction\fP * \fBpreviousinstruction\fP (\fBFuncState\fP *fs)"
+.br
+.ti -1c
+.RI "void \fBluaK_nil\fP (\fBFuncState\fP *fs, int from, int n)"
+.br
+.ti -1c
+.RI "static int \fBgetjump\fP (\fBFuncState\fP *fs, int pc)"
+.br
+.ti -1c
+.RI "static void \fBfixjump\fP (\fBFuncState\fP *fs, int pc, int dest)"
+.br
+.ti -1c
+.RI "void \fBluaK_concat\fP (\fBFuncState\fP *fs, int *l1, int l2)"
+.br
+.ti -1c
+.RI "int \fBluaK_jump\fP (\fBFuncState\fP *fs)"
+.br
+.ti -1c
+.RI "void \fBluaK_ret\fP (\fBFuncState\fP *fs, int first, int nret)"
+.br
+.ti -1c
+.RI "static int \fBcondjump\fP (\fBFuncState\fP *fs, \fBOpCode\fP op, int A, int B, int C, int k)"
+.br
+.ti -1c
+.RI "int \fBluaK_getlabel\fP (\fBFuncState\fP *fs)"
+.br
+.ti -1c
+.RI "static \fBInstruction\fP * \fBgetjumpcontrol\fP (\fBFuncState\fP *fs, int pc)"
+.br
+.ti -1c
+.RI "static int \fBpatchtestreg\fP (\fBFuncState\fP *fs, int node, int reg)"
+.br
+.ti -1c
+.RI "static void \fBremovevalues\fP (\fBFuncState\fP *fs, int list)"
+.br
+.ti -1c
+.RI "static void \fBpatchlistaux\fP (\fBFuncState\fP *fs, int list, int vtarget, int reg, int dtarget)"
+.br
+.ti -1c
+.RI "void \fBluaK_patchlist\fP (\fBFuncState\fP *fs, int list, int target)"
+.br
+.ti -1c
+.RI "void \fBluaK_patchtohere\fP (\fBFuncState\fP *fs, int list)"
+.br
+.ti -1c
+.RI "static void \fBsavelineinfo\fP (\fBFuncState\fP *fs, \fBProto\fP *f, int line)"
+.br
+.ti -1c
+.RI "static void \fBremovelastlineinfo\fP (\fBFuncState\fP *fs)"
+.br
+.ti -1c
+.RI "static void \fBremovelastinstruction\fP (\fBFuncState\fP *fs)"
+.br
+.ti -1c
+.RI "int \fBluaK_code\fP (\fBFuncState\fP *fs, \fBInstruction\fP i)"
+.br
+.ti -1c
+.RI "int \fBluaK_codeABCk\fP (\fBFuncState\fP *fs, \fBOpCode\fP o, int a, int b, int c, int k)"
+.br
+.ti -1c
+.RI "int \fBluaK_codeABx\fP (\fBFuncState\fP *fs, \fBOpCode\fP o, int a, unsigned int bc)"
+.br
+.ti -1c
+.RI "int \fBluaK_codeAsBx\fP (\fBFuncState\fP *fs, \fBOpCode\fP o, int a, int bc)"
+.br
+.ti -1c
+.RI "static int \fBcodeextraarg\fP (\fBFuncState\fP *fs, int a)"
+.br
+.ti -1c
+.RI "static int \fBluaK_codek\fP (\fBFuncState\fP *fs, int reg, int k)"
+.br
+.ti -1c
+.RI "void \fBluaK_checkstack\fP (\fBFuncState\fP *fs, int n)"
+.br
+.ti -1c
+.RI "void \fBluaK_reserveregs\fP (\fBFuncState\fP *fs, int n)"
+.br
+.ti -1c
+.RI "static void \fBfreereg\fP (\fBFuncState\fP *fs, int reg)"
+.br
+.ti -1c
+.RI "static void \fBfreeregs\fP (\fBFuncState\fP *fs, int r1, int r2)"
+.br
+.ti -1c
+.RI "static void \fBfreeexp\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "static void \fBfreeexps\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e1, \fBexpdesc\fP *e2)"
+.br
+.ti -1c
+.RI "static int \fBaddk\fP (\fBFuncState\fP *fs, \fBTValue\fP *key, \fBTValue\fP *v)"
+.br
+.ti -1c
+.RI "static int \fBstringK\fP (\fBFuncState\fP *fs, \fBTString\fP *s)"
+.br
+.ti -1c
+.RI "static int \fBluaK_intK\fP (\fBFuncState\fP *fs, \fBlua_Integer\fP n)"
+.br
+.ti -1c
+.RI "static int \fBluaK_numberK\fP (\fBFuncState\fP *fs, \fBlua_Number\fP r)"
+.br
+.ti -1c
+.RI "static int \fBboolF\fP (\fBFuncState\fP *fs)"
+.br
+.ti -1c
+.RI "static int \fBboolT\fP (\fBFuncState\fP *fs)"
+.br
+.ti -1c
+.RI "static int \fBnilK\fP (\fBFuncState\fP *fs)"
+.br
+.ti -1c
+.RI "static int \fBfitsC\fP (\fBlua_Integer\fP i)"
+.br
+.ti -1c
+.RI "static int \fBfitsBx\fP (\fBlua_Integer\fP i)"
+.br
+.ti -1c
+.RI "void \fBluaK_int\fP (\fBFuncState\fP *fs, int reg, \fBlua_Integer\fP i)"
+.br
+.ti -1c
+.RI "static void \fBluaK_float\fP (\fBFuncState\fP *fs, int reg, \fBlua_Number\fP f)"
+.br
+.ti -1c
+.RI "static void \fBconst2exp\fP (\fBTValue\fP *v, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "void \fBluaK_setreturns\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e, int nresults)"
+.br
+.ti -1c
+.RI "static void \fBstr2K\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "void \fBluaK_setoneret\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "void \fBluaK_dischargevars\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "static void \fBdischarge2reg\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e, int reg)"
+.br
+.ti -1c
+.RI "static void \fBdischarge2anyreg\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "static int \fBcode_loadbool\fP (\fBFuncState\fP *fs, int A, \fBOpCode\fP op)"
+.br
+.ti -1c
+.RI "static int \fBneed_value\fP (\fBFuncState\fP *fs, int list)"
+.br
+.ti -1c
+.RI "static void \fBexp2reg\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e, int reg)"
+.br
+.ti -1c
+.RI "void \fBluaK_exp2nextreg\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "int \fBluaK_exp2anyreg\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "void \fBluaK_exp2anyregup\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "void \fBluaK_exp2val\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "static int \fBluaK_exp2K\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "int \fBluaK_exp2RK\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "static void \fBcodeABRK\fP (\fBFuncState\fP *fs, \fBOpCode\fP o, int a, int b, \fBexpdesc\fP *ec)"
+.br
+.ti -1c
+.RI "void \fBluaK_storevar\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *var, \fBexpdesc\fP *ex)"
+.br
+.ti -1c
+.RI "void \fBluaK_self\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e, \fBexpdesc\fP *key)"
+.br
+.ti -1c
+.RI "static void \fBnegatecondition\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "static int \fBjumponcond\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e, int \fBcond\fP)"
+.br
+.ti -1c
+.RI "void \fBluaK_goiftrue\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "void \fBluaK_goiffalse\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "static void \fBcodenot\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "static int \fBisKstr\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "int \fBluaK_isKint\fP (\fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "static int \fBisCint\fP (\fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "static int \fBisSCint\fP (\fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "static int \fBisSCnumber\fP (\fBexpdesc\fP *e, int *pi, int *isfloat)"
+.br
+.ti -1c
+.RI "void \fBluaK_indexed\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *t, \fBexpdesc\fP *k)"
+.br
+.ti -1c
+.RI "static int \fBvalidop\fP (int op, \fBTValue\fP *v1, \fBTValue\fP *v2)"
+.br
+.ti -1c
+.RI "static int \fBconstfolding\fP (\fBFuncState\fP *fs, int op, \fBexpdesc\fP *e1, const \fBexpdesc\fP *e2)"
+.br
+.ti -1c
+.RI "static void \fBcodeunexpval\fP (\fBFuncState\fP *fs, \fBOpCode\fP op, \fBexpdesc\fP *e, int line)"
+.br
+.ti -1c
+.RI "static void \fBfinishbinexpval\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e1, \fBexpdesc\fP *e2, \fBOpCode\fP op, int v2, int flip, int line, \fBOpCode\fP mmop, \fBTMS\fP event)"
+.br
+.ti -1c
+.RI "static void \fBcodebinexpval\fP (\fBFuncState\fP *fs, \fBOpCode\fP op, \fBexpdesc\fP *e1, \fBexpdesc\fP *e2, int line)"
+.br
+.ti -1c
+.RI "static void \fBcodebini\fP (\fBFuncState\fP *fs, \fBOpCode\fP op, \fBexpdesc\fP *e1, \fBexpdesc\fP *e2, int flip, int line, \fBTMS\fP event)"
+.br
+.ti -1c
+.RI "static int \fBfinishbinexpneg\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e1, \fBexpdesc\fP *e2, \fBOpCode\fP op, int line, \fBTMS\fP event)"
+.br
+.ti -1c
+.RI "static void \fBswapexps\fP (\fBexpdesc\fP *e1, \fBexpdesc\fP *e2)"
+.br
+.ti -1c
+.RI "static void \fBcodearith\fP (\fBFuncState\fP *fs, \fBBinOpr\fP opr, \fBexpdesc\fP *e1, \fBexpdesc\fP *e2, int flip, int line)"
+.br
+.ti -1c
+.RI "static void \fBcodecommutative\fP (\fBFuncState\fP *fs, \fBBinOpr\fP op, \fBexpdesc\fP *e1, \fBexpdesc\fP *e2, int line)"
+.br
+.ti -1c
+.RI "static void \fBcodebitwise\fP (\fBFuncState\fP *fs, \fBBinOpr\fP opr, \fBexpdesc\fP *e1, \fBexpdesc\fP *e2, int line)"
+.br
+.ti -1c
+.RI "static void \fBcodeorder\fP (\fBFuncState\fP *fs, \fBOpCode\fP op, \fBexpdesc\fP *e1, \fBexpdesc\fP *e2)"
+.br
+.ti -1c
+.RI "static void \fBcodeeq\fP (\fBFuncState\fP *fs, \fBBinOpr\fP opr, \fBexpdesc\fP *e1, \fBexpdesc\fP *e2)"
+.br
+.ti -1c
+.RI "void \fBluaK_prefix\fP (\fBFuncState\fP *fs, \fBUnOpr\fP op, \fBexpdesc\fP *e, int line)"
+.br
+.ti -1c
+.RI "void \fBluaK_infix\fP (\fBFuncState\fP *fs, \fBBinOpr\fP op, \fBexpdesc\fP *v)"
+.br
+.ti -1c
+.RI "static void \fBcodeconcat\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e1, \fBexpdesc\fP *e2, int line)"
+.br
+.ti -1c
+.RI "void \fBluaK_posfix\fP (\fBFuncState\fP *fs, \fBBinOpr\fP opr, \fBexpdesc\fP *e1, \fBexpdesc\fP *e2, int line)"
+.br
+.ti -1c
+.RI "void \fBluaK_fixline\fP (\fBFuncState\fP *fs, int line)"
+.br
+.ti -1c
+.RI "void \fBluaK_settablesize\fP (\fBFuncState\fP *fs, int pc, int ra, int asize, int hsize)"
+.br
+.ti -1c
+.RI "void \fBluaK_setlist\fP (\fBFuncState\fP *fs, int base, int nelems, int tostore)"
+.br
+.ti -1c
+.RI "static int \fBfinaltarget\fP (\fBInstruction\fP *code, int i)"
+.br
+.ti -1c
+.RI "void \fBluaK_finish\fP (\fBFuncState\fP *fs)"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define hasjumps(e)   ((e)\->t != (e)\->f)"
+
+.PP
+在文件 lcode\&.c 第 37 行定义\&.
+.SS "#define lcode_c"
+
+.PP
+在文件 lcode\&.c 第 7 行定义\&.
+.SS "#define LIMLINEDIFF   0x80"
+
+.PP
+在文件 lcode\&.c 第 327 行定义\&.
+.SS "#define LUA_CORE"
+
+.PP
+在文件 lcode\&.c 第 8 行定义\&.
+.SS "#define MAXIWTHABS   120"
+
+.PP
+在文件 lcode\&.c 第 322 行定义\&.
+.SS "#define MAXREGS   255"
+
+.PP
+在文件 lcode\&.c 第 34 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static int addk (\fBFuncState\fP * fs, \fBTValue\fP * key, \fBTValue\fP * v)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 549 行定义\&.
+.SS "static int boolF (\fBFuncState\fP * fs)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 612 行定义\&.
+.SS "static int boolT (\fBFuncState\fP * fs)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 622 行定义\&.
+.SS "static int code_loadbool (\fBFuncState\fP * fs, int A, \fBOpCode\fP op)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 874 行定义\&.
+.SS "static void codeABRK (\fBFuncState\fP * fs, \fBOpCode\fP o, int a, int b, \fBexpdesc\fP * ec)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1021 行定义\&.
+.SS "static void codearith (\fBFuncState\fP * fs, \fBBinOpr\fP opr, \fBexpdesc\fP * e1, \fBexpdesc\fP * e2, int flip, int line)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1426 行定义\&.
+.SS "static void codebinexpval (\fBFuncState\fP * fs, \fBOpCode\fP op, \fBexpdesc\fP * e1, \fBexpdesc\fP * e2, int line)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1374 行定义\&.
+.SS "static void codebini (\fBFuncState\fP * fs, \fBOpCode\fP op, \fBexpdesc\fP * e1, \fBexpdesc\fP * e2, int flip, int line, \fBTMS\fP event)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1386 行定义\&.
+.SS "static void codebitwise (\fBFuncState\fP * fs, \fBBinOpr\fP opr, \fBexpdesc\fP * e1, \fBexpdesc\fP * e2, int line)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1466 行定义\&.
+.SS "static void codecommutative (\fBFuncState\fP * fs, \fBBinOpr\fP op, \fBexpdesc\fP * e1, \fBexpdesc\fP * e2, int line)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1448 行定义\&.
+.SS "static void codeconcat (\fBFuncState\fP * fs, \fBexpdesc\fP * e1, \fBexpdesc\fP * e2, int line)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1622 行定义\&.
+.SS "static void codeeq (\fBFuncState\fP * fs, \fBBinOpr\fP opr, \fBexpdesc\fP * e1, \fBexpdesc\fP * e2)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1522 行定义\&.
+.SS "static int codeextraarg (\fBFuncState\fP * fs, int a)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 448 行定义\&.
+.SS "static void codenot (\fBFuncState\fP * fs, \fBexpdesc\fP * e)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1169 行定义\&.
+.SS "static void codeorder (\fBFuncState\fP * fs, \fBOpCode\fP op, \fBexpdesc\fP * e1, \fBexpdesc\fP * e2)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1492 行定义\&.
+.SS "static int codesJ (\fBFuncState\fP * fs, \fBOpCode\fP o, int sj, int k)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 437 行定义\&.
+.SS "static void codeunexpval (\fBFuncState\fP * fs, \fBOpCode\fP op, \fBexpdesc\fP * e, int line)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1341 行定义\&.
+.SS "static int condjump (\fBFuncState\fP * fs, \fBOpCode\fP op, int A, int B, int C, int k)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 221 行定义\&.
+.SS "static void const2exp (\fBTValue\fP * v, \fBexpdesc\fP * e)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 679 行定义\&.
+.SS "static \fBTValue\fP* const2val (\fBFuncState\fP * fs, const \fBexpdesc\fP * e)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 73 行定义\&.
+.SS "static int constfolding (\fBFuncState\fP * fs, int op, \fBexpdesc\fP * e1, const \fBexpdesc\fP * e2)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1315 行定义\&.
+.SS "static void discharge2anyreg (\fBFuncState\fP * fs, \fBexpdesc\fP * e)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 866 行定义\&.
+.SS "static void discharge2reg (\fBFuncState\fP * fs, \fBexpdesc\fP * e, int reg)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 812 行定义\&.
+.SS "static void exp2reg (\fBFuncState\fP * fs, \fBexpdesc\fP * e, int reg)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 900 行定义\&.
+.SS "static int finaltarget (\fBInstruction\fP * code, int i)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1769 行定义\&.
+.SS "static int finishbinexpneg (\fBFuncState\fP * fs, \fBexpdesc\fP * e1, \fBexpdesc\fP * e2, \fBOpCode\fP op, int line, \fBTMS\fP event)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1398 行定义\&.
+.SS "static void finishbinexpval (\fBFuncState\fP * fs, \fBexpdesc\fP * e1, \fBexpdesc\fP * e2, \fBOpCode\fP op, int v2, int flip, int line, \fBOpCode\fP mmop, \fBTMS\fP event)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1356 行定义\&.
+.SS "static int fitsBx (\fBlua_Integer\fP i)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 654 行定义\&.
+.SS "static int fitsC (\fBlua_Integer\fP i)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 646 行定义\&.
+.SS "static void fixjump (\fBFuncState\fP * fs, int pc, int dest)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 166 行定义\&.
+.SS "static void freeexp (\fBFuncState\fP * fs, \fBexpdesc\fP * e)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 525 行定义\&.
+.SS "static void freeexps (\fBFuncState\fP * fs, \fBexpdesc\fP * e1, \fBexpdesc\fP * e2)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 535 行定义\&.
+.SS "static void freereg (\fBFuncState\fP * fs, int reg)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 499 行定义\&.
+.SS "static void freeregs (\fBFuncState\fP * fs, int r1, int r2)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 510 行定义\&.
+.SS "static int getjump (\fBFuncState\fP * fs, int pc)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 153 行定义\&.
+.SS "static \fBInstruction\fP* getjumpcontrol (\fBFuncState\fP * fs, int pc)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 242 行定义\&.
+.SS "static int isCint (\fBexpdesc\fP * e)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1220 行定义\&.
+.SS "static int isKstr (\fBFuncState\fP * fs, \fBexpdesc\fP * e)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1203 行定义\&.
+.SS "static int isSCint (\fBexpdesc\fP * e)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1229 行定义\&.
+.SS "static int isSCnumber (\fBexpdesc\fP * e, int * pi, int * isfloat)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1238 行定义\&.
+.SS "static int jumponcond (\fBFuncState\fP * fs, \fBexpdesc\fP * e, int cond)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1098 行定义\&.
+.SS "void luaK_checkstack (\fBFuncState\fP * fs, int n)"
+
+.PP
+在文件 lcode\&.c 第 474 行定义\&.
+.SS "int luaK_code (\fBFuncState\fP * fs, \fBInstruction\fP i)"
+
+.PP
+在文件 lcode\&.c 第 390 行定义\&.
+.SS "int luaK_codeABCk (\fBFuncState\fP * fs, \fBOpCode\fP o, int a, int b, int c, int k)"
+
+.PP
+在文件 lcode\&.c 第 405 行定义\&.
+.SS "int luaK_codeABx (\fBFuncState\fP * fs, \fBOpCode\fP o, int a, unsigned int bc)"
+
+.PP
+在文件 lcode\&.c 第 416 行定义\&.
+.SS "int luaK_codeAsBx (\fBFuncState\fP * fs, \fBOpCode\fP o, int a, int bc)"
+
+.PP
+在文件 lcode\&.c 第 426 行定义\&.
+.SS "static int luaK_codek (\fBFuncState\fP * fs, int reg, int k)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 459 行定义\&.
+.SS "void luaK_concat (\fBFuncState\fP * fs, int * l1, int l2)"
+
+.PP
+在文件 lcode\&.c 第 180 行定义\&.
+.SS "void luaK_dischargevars (\fBFuncState\fP * fs, \fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 759 行定义\&.
+.SS "int luaK_exp2anyreg (\fBFuncState\fP * fs, \fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 940 行定义\&.
+.SS "void luaK_exp2anyregup (\fBFuncState\fP * fs, \fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 959 行定义\&.
+.SS "int luaK_exp2const (\fBFuncState\fP * fs, const \fBexpdesc\fP * e, \fBTValue\fP * v)"
+
+.PP
+在文件 lcode\&.c 第 83 行定义\&.
+.SS "static int luaK_exp2K (\fBFuncState\fP * fs, \fBexpdesc\fP * e)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 981 行定义\&.
+.SS "void luaK_exp2nextreg (\fBFuncState\fP * fs, \fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 928 行定义\&.
+.SS "int luaK_exp2RK (\fBFuncState\fP * fs, \fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 1011 行定义\&.
+.SS "void luaK_exp2val (\fBFuncState\fP * fs, \fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 969 行定义\&.
+.SS "void luaK_finish (\fBFuncState\fP * fs)"
+
+.PP
+在文件 lcode\&.c 第 1786 行定义\&.
+.SS "void luaK_fixline (\fBFuncState\fP * fs, int line)"
+
+.PP
+在文件 lcode\&.c 第 1726 行定义\&.
+.SS "static void luaK_float (\fBFuncState\fP * fs, int reg, \fBlua_Number\fP f)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 667 行定义\&.
+.SS "int luaK_getlabel (\fBFuncState\fP * fs)"
+
+.PP
+在文件 lcode\&.c 第 231 行定义\&.
+.SS "void luaK_goiffalse (\fBFuncState\fP * fs, \fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 1143 行定义\&.
+.SS "void luaK_goiftrue (\fBFuncState\fP * fs, \fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 1116 行定义\&.
+.SS "void luaK_indexed (\fBFuncState\fP * fs, \fBexpdesc\fP * t, \fBexpdesc\fP * k)"
+
+.PP
+在文件 lcode\&.c 第 1261 行定义\&.
+.SS "void luaK_infix (\fBFuncState\fP * fs, \fBBinOpr\fP op, \fBexpdesc\fP * v)"
+
+.PP
+在文件 lcode\&.c 第 1574 行定义\&.
+.SS "void luaK_int (\fBFuncState\fP * fs, int reg, \fBlua_Integer\fP i)"
+
+.PP
+在文件 lcode\&.c 第 659 行定义\&.
+.SS "static int luaK_intK (\fBFuncState\fP * fs, \fBlua_Integer\fP n)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 592 行定义\&.
+.SS "int luaK_isKint (\fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 1211 行定义\&.
+.SS "int luaK_jump (\fBFuncState\fP * fs)"
+
+.PP
+在文件 lcode\&.c 第 198 行定义\&.
+.SS "void luaK_nil (\fBFuncState\fP * fs, int from, int n)"
+
+.PP
+在文件 lcode\&.c 第 130 行定义\&.
+.SS "static int luaK_numberK (\fBFuncState\fP * fs, \fBlua_Number\fP r)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 602 行定义\&.
+.SS "void luaK_patchlist (\fBFuncState\fP * fs, int list, int target)"
+
+.PP
+在文件 lcode\&.c 第 305 行定义\&.
+.SS "void luaK_patchtohere (\fBFuncState\fP * fs, int list)"
+
+.PP
+在文件 lcode\&.c 第 311 行定义\&.
+.SS "void luaK_posfix (\fBFuncState\fP * fs, \fBBinOpr\fP opr, \fBexpdesc\fP * e1, \fBexpdesc\fP * e2, int line)"
+
+.PP
+在文件 lcode\&.c 第 1642 行定义\&.
+.SS "void luaK_prefix (\fBFuncState\fP * fs, \fBUnOpr\fP op, \fBexpdesc\fP * e, int line)"
+
+.PP
+在文件 lcode\&.c 第 1553 行定义\&.
+.SS "void luaK_reserveregs (\fBFuncState\fP * fs, int n)"
+
+.PP
+在文件 lcode\&.c 第 488 行定义\&.
+.SS "void luaK_ret (\fBFuncState\fP * fs, int first, int nret)"
+
+.PP
+在文件 lcode\&.c 第 206 行定义\&.
+.SS "void luaK_self (\fBFuncState\fP * fs, \fBexpdesc\fP * e, \fBexpdesc\fP * key)"
+
+.PP
+在文件 lcode\&.c 第 1068 行定义\&.
+.SS "\fBl_noret\fP luaK_semerror (\fBLexState\fP * ls, const char * msg)"
+
+.PP
+在文件 lcode\&.c 第 45 行定义\&.
+.SS "void luaK_setlist (\fBFuncState\fP * fs, int base, int nelems, int tostore)"
+
+.PP
+在文件 lcode\&.c 第 1750 行定义\&.
+.SS "void luaK_setoneret (\fBFuncState\fP * fs, \fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 741 行定义\&.
+.SS "void luaK_setreturns (\fBFuncState\fP * fs, \fBexpdesc\fP * e, int nresults)"
+
+.PP
+在文件 lcode\&.c 第 708 行定义\&.
+.SS "void luaK_settablesize (\fBFuncState\fP * fs, int pc, int ra, int asize, int hsize)"
+
+.PP
+在文件 lcode\&.c 第 1732 行定义\&.
+.SS "void luaK_storevar (\fBFuncState\fP * fs, \fBexpdesc\fP * var, \fBexpdesc\fP * ex)"
+
+.PP
+在文件 lcode\&.c 第 1031 行定义\&.
+.SS "static int need_value (\fBFuncState\fP * fs, int list)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 884 行定义\&.
+.SS "static void negatecondition (\fBFuncState\fP * fs, \fBexpdesc\fP * e)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1084 行定义\&.
+.SS "static int nilK (\fBFuncState\fP * fs)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 632 行定义\&.
+.SS "static void patchlistaux (\fBFuncState\fP * fs, int list, int vtarget, int reg, int dtarget)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 287 行定义\&.
+.SS "static int patchtestreg (\fBFuncState\fP * fs, int node, int reg)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 258 行定义\&.
+.SS "static \fBInstruction\fP* previousinstruction (\fBFuncState\fP * fs)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 115 行定义\&.
+.SS "static void removelastinstruction (\fBFuncState\fP * fs)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 380 行定义\&.
+.SS "static void removelastlineinfo (\fBFuncState\fP * fs)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 361 行定义\&.
+.SS "static void removevalues (\fBFuncState\fP * fs, int list)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 276 行定义\&.
+.SS "static void savelineinfo (\fBFuncState\fP * fs, \fBProto\fP * f, int line)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 337 行定义\&.
+.SS "static void str2K (\fBFuncState\fP * fs, \fBexpdesc\fP * e)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 724 行定义\&.
+.SS "static int stringK (\fBFuncState\fP * fs, \fBTString\fP * s)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 579 行定义\&.
+.SS "static void swapexps (\fBexpdesc\fP * e1, \fBexpdesc\fP * e2)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1417 行定义\&.
+.SS "static int tonumeral (const \fBexpdesc\fP * e, \fBTValue\fP * v)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 55 行定义\&.
+.SS "static int validop (int op, \fBTValue\fP * v1, \fBTValue\fP * v2)\fC [static]\fP"
+
+.PP
+在文件 lcode\&.c 第 1297 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

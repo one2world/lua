@@ -1,0 +1,851 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_ldo_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/ldo.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/ldo.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;setjmp.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;lapi.h&quot;
+#include &quot;ldebug.h&quot;
+#include &quot;ldo.h&quot;
+#include &quot;lfunc.h&quot;
+#include &quot;lgc.h&quot;
+#include &quot;lmem.h&quot;
+#include &quot;lobject.h&quot;
+#include &quot;lopcodes.h&quot;
+#include &quot;lparser.h&quot;
+#include &quot;lstate.h&quot;
+#include &quot;lstring.h&quot;
+#include &quot;ltable.h&quot;
+#include &quot;ltm.h&quot;
+#include &quot;lundump.h&quot;
+#include &quot;lvm.h&quot;
+#include &quot;lzio.h&quot;
+</programlisting>ldo.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>结构体    </title>
+        <itemizedlist>
+            <listitem><para>struct <link linkend="_structlua__longjmp">lua_longjmp</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_s_parser">SParser</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_ldo_8c_1abf47d19189f0d7b1e0f84faf66d435d2">ldo_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_ldo_8c_1abf0b3947b59218777a8e928a10be205b">LUA_CORE</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_ldo_8c_1aacf011339715413692751d7e59960e78">errorstatus</link>(s)   ((s) &gt; <link linkend="_lua_8h_1ab69f4bd0c0693d4c8fcfc0ebaeb2806b">LUA_YIELD</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ldo_8c_1a6063bddfdb6aa25b0d11e89227653b6d">LUAI_THROW</link>(L,  c)   longjmp((c)-&gt;b, 1)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ldo_8c_1ad7040aa6a328fda34b33b749d3f502c8">LUAI_TRY</link>(L,  c,  a)   if (setjmp((c)-&gt;b) == 0) { a }</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ldo_8c_1a885acd5de75c1203f3aec71cd6dba84f">luai_jmpbuf</link>   jmp_buf</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ldo_8c_1a13ef7d7c1a1a2c2deafbfc4e6bccaf2e">ERRORSTACKSIZE</link>   (<link linkend="_luaconf_8h_1ad7b065ae58f10bfa5800866b84de5f1e">LUAI_MAXSTACK</link> + 200)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ldo_8c_1a6d23415e0632f518f78ab3e4bf2ea7dc">next_ci</link>(L)   (L-&gt;ci-&gt;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link> ? L-&gt;ci-&gt;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link> : <link linkend="_lstate_8h_1aad92caaae77beaadf1d10954133eb53e">luaE_extendCI</link>(L))</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>void <link linkend="_ldo_8c_1a2a5656cf723dffe2e9b5314260bd8896">luaD_seterrorobj</link> (<link linkend="_structlua___state">lua_State</link> *L, int errcode, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> oldtop)</para>
+</listitem>
+            <listitem><para><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> <link linkend="_ldo_8c_1a2b46d9db5b9ca3d5402a0c2ac640a6b0">luaD_throw</link> (<link linkend="_structlua___state">lua_State</link> *L, int errcode)</para>
+</listitem>
+            <listitem><para>int <link linkend="_ldo_8c_1ab0872b1738a995ecbf1cdc8a9bc0fdf6">luaD_rawrunprotected</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_ldo_8h_1a078cb45ebb3f039a69795174f45d204c">Pfunc</link> f, void *ud)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldo_8c_1abe8cdd4f21dcfe427288c98e02070795">correctstack</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> oldstack, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> newstack)</para>
+</listitem>
+            <listitem><para>int <link linkend="_ldo_8c_1a75b8b0016e9182d4fd9f71c1a7238e8a">luaD_reallocstack</link> (<link linkend="_structlua___state">lua_State</link> *L, int newsize, int raiseerror)</para>
+</listitem>
+            <listitem><para>int <link linkend="_ldo_8c_1a728937587ac9d9e316bd410991f11221">luaD_growstack</link> (<link linkend="_structlua___state">lua_State</link> *L, int n, int raiseerror)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ldo_8c_1ac2956ef8f7aba184c6591001f2017a54">stackinuse</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>void <link linkend="_ldo_8c_1a219aa86777779dccae2c1bf9008db70a">luaD_shrinkstack</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>void <link linkend="_ldo_8c_1a4dd006aa3210fdc854d0441e2a98c9af">luaD_inctop</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>void <link linkend="_ldo_8c_1aa74dd2ed1bf68092213c0cd69d3a8aab">luaD_hook</link> (<link linkend="_structlua___state">lua_State</link> *L, int event, int line, int ftransfer, int ntransfer)</para>
+</listitem>
+            <listitem><para>void <link linkend="_ldo_8c_1a5f30116d7e47e3db1fd226e22e903d08">luaD_hookcall</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_call_info">CallInfo</link> *ci)</para>
+</listitem>
+            <listitem><para>static <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> <link linkend="_ldo_8c_1a096689d5ccf9f37298692b4c1fedf0b6">rethook</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_call_info">CallInfo</link> *ci, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> firstres, int nres)</para>
+</listitem>
+            <listitem><para>void <link linkend="_ldo_8c_1ac468380c26188a69262776f07bdf7780">luaD_tryfuncTM</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> func)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldo_8c_1adfdcfe680efe0b6fd458a515aace0796">moveresults</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> res, int nres, int wanted)</para>
+</listitem>
+            <listitem><para>void <link linkend="_ldo_8c_1a93ef0e89dcfdd64224670aa54d7e4f5b">luaD_poscall</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_call_info">CallInfo</link> *ci, int nres)</para>
+</listitem>
+            <listitem><para>void <link linkend="_ldo_8c_1a1e02e896afbe22d3a4f25ea65fd0c339">luaD_pretailcall</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_call_info">CallInfo</link> *ci, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> func, int narg1)</para>
+</listitem>
+            <listitem><para>void <link linkend="_ldo_8c_1a9a82cbe1919eb0104a7249d6d7764061">luaD_call</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> func, int nresults)</para>
+</listitem>
+            <listitem><para>void <link linkend="_ldo_8c_1a61c0a0185ef5ae1493dad10027f4db7e">luaD_callnoyield</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> func, int nResults)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldo_8c_1a03174ea718a42ddef337dfb648ce4996">finishCcall</link> (<link linkend="_structlua___state">lua_State</link> *L, int status)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldo_8c_1a3baab9d298c0c32cb74a9a079d7244de">unroll</link> (<link linkend="_structlua___state">lua_State</link> *L, void *ud)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_call_info">CallInfo</link> * <link linkend="_ldo_8c_1a5688fb12458a47b8a42cdd5aa4f543a0">findpcall</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ldo_8c_1a8f3e3ff2aa0a4a251774a476cb0036ea">recover</link> (<link linkend="_structlua___state">lua_State</link> *L, int status)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ldo_8c_1a8a351e424df030a908f2db9eec0b4f30">resume_error</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *msg, int narg)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldo_8c_1abd7632c715de5db6e7797b7fa3f7010f">resume</link> (<link linkend="_structlua___state">lua_State</link> *L, void *ud)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_ldo_8c_1ad07756c576e4e989a7ca417c1d691d2a">lua_resume</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structlua___state">lua_State</link> *from, int nargs, int *nresults)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_ldo_8c_1a490ddb801dda485ec5a94236d82477d2">lua_isyieldable</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_ldo_8c_1a40d0ec26d9da8d2913c90158a788d019">lua_yieldk</link> (<link linkend="_structlua___state">lua_State</link> *L, int nresults, <link linkend="_lua_8h_1a0c565e13b66764da08aa2c68fe4365f0">lua_KContext</link> ctx, <link linkend="_lua_8h_1a4bfd58d9192edfdcb7238de00bd0202c">lua_KFunction</link> k)</para>
+</listitem>
+            <listitem><para>int <link linkend="_ldo_8c_1a1ad7f845cc62b110e3fcc0ae187d7c85">luaD_pcall</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_ldo_8h_1a078cb45ebb3f039a69795174f45d204c">Pfunc</link> func, void *u, ptrdiff_t old_top, ptrdiff_t ef)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldo_8c_1a47f3a8ae373112059c6cf957958c70a6">checkmode</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *mode, const char *x)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldo_8c_1a14df0fa118ab124dfcc6d227bdd38ca5">f_parser</link> (<link linkend="_structlua___state">lua_State</link> *L, void *ud)</para>
+</listitem>
+            <listitem><para>int <link linkend="_ldo_8c_1a451f5a18e45a63e1da2eed7d8a2060f5">luaD_protectedparser</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17">ZIO</link> *z, const char *name, const char *mode)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_ldo_8c_1a13ef7d7c1a1a2c2deafbfc4e6bccaf2e"/>    <section>
+    <title>ERRORSTACKSIZE</title>
+<indexterm><primary>ERRORSTACKSIZE</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>ERRORSTACKSIZE</secondary></indexterm>
+<para><computeroutput>#define ERRORSTACKSIZE   (<link linkend="_luaconf_8h_1ad7b065ae58f10bfa5800866b84de5f1e">LUAI_MAXSTACK</link> + 200)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00182">182</link> 行定义.</para>
+    </section><anchor xml:id="_ldo_8c_1aacf011339715413692751d7e59960e78"/>    <section>
+    <title>errorstatus</title>
+<indexterm><primary>errorstatus</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>errorstatus</secondary></indexterm>
+<para><computeroutput>#define errorstatus( s)   ((s) &gt; <link linkend="_lua_8h_1ab69f4bd0c0693d4c8fcfc0ebaeb2806b">LUA_YIELD</link>)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00038">38</link> 行定义.</para>
+    </section><anchor xml:id="_ldo_8c_1abf47d19189f0d7b1e0f84faf66d435d2"/>    <section>
+    <title>ldo_c</title>
+<indexterm><primary>ldo_c</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>ldo_c</secondary></indexterm>
+<para><computeroutput>#define ldo_c</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_ldo_8c_1abf0b3947b59218777a8e928a10be205b"/>    <section>
+    <title>LUA_CORE</title>
+<indexterm><primary>LUA_CORE</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>LUA_CORE</secondary></indexterm>
+<para><computeroutput>#define LUA_CORE</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00008">8</link> 行定义.</para>
+    </section><anchor xml:id="_ldo_8c_1a885acd5de75c1203f3aec71cd6dba84f"/>    <section>
+    <title>luai_jmpbuf</title>
+<indexterm><primary>luai_jmpbuf</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>luai_jmpbuf</secondary></indexterm>
+<para><computeroutput>#define luai_jmpbuf   jmp_buf</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00075">75</link> 行定义.</para>
+    </section><anchor xml:id="_ldo_8c_1a6063bddfdb6aa25b0d11e89227653b6d"/>    <section>
+    <title>LUAI_THROW</title>
+<indexterm><primary>LUAI_THROW</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>LUAI_THROW</secondary></indexterm>
+<para><computeroutput>#define LUAI_THROW( L,  c)   longjmp((c)-&gt;b, 1)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00073">73</link> 行定义.</para>
+    </section><anchor xml:id="_ldo_8c_1ad7040aa6a328fda34b33b749d3f502c8"/>    <section>
+    <title>LUAI_TRY</title>
+<indexterm><primary>LUAI_TRY</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>LUAI_TRY</secondary></indexterm>
+<para><computeroutput>#define LUAI_TRY( L,  c,  a)   if (setjmp((c)-&gt;b) == 0) { a }</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00074">74</link> 行定义.</para>
+    </section><anchor xml:id="_ldo_8c_1a6d23415e0632f518f78ab3e4bf2ea7dc"/>    <section>
+    <title>next_ci</title>
+<indexterm><primary>next_ci</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>next_ci</secondary></indexterm>
+<para><computeroutput>#define next_ci( L)   (L-&gt;ci-&gt;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link> ? L-&gt;ci-&gt;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link> : <link linkend="_lstate_8h_1aad92caaae77beaadf1d10954133eb53e">luaE_extendCI</link>(L))</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00424">424</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_ldo_8c_1a47f3a8ae373112059c6cf957958c70a6"/>    <section>
+    <title>checkmode()</title>
+<indexterm><primary>checkmode</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>checkmode</secondary></indexterm>
+<para><computeroutput>static void checkmode (<link linkend="_structlua___state">lua_State</link> * L, const char * mode, const char * x)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00777">777</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a47f3a8ae373112059c6cf957958c70a6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a47f3a8ae373112059c6cf957958c70a6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1abe8cdd4f21dcfe427288c98e02070795"/>    <section>
+    <title>correctstack()</title>
+<indexterm><primary>correctstack</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>correctstack</secondary></indexterm>
+<para><computeroutput>static void correctstack (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> oldstack, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> newstack)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00164">164</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_abe8cdd4f21dcfe427288c98e02070795_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a14df0fa118ab124dfcc6d227bdd38ca5"/>    <section>
+    <title>f_parser()</title>
+<indexterm><primary>f_parser</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>f_parser</secondary></indexterm>
+<para><computeroutput>static void f_parser (<link linkend="_structlua___state">lua_State</link> * L, void * ud)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00786">786</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a14df0fa118ab124dfcc6d227bdd38ca5_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a14df0fa118ab124dfcc6d227bdd38ca5_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a5688fb12458a47b8a42cdd5aa4f543a0"/>    <section>
+    <title>findpcall()</title>
+<indexterm><primary>findpcall</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>findpcall</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_call_info">CallInfo</link>* findpcall (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00583">583</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a5688fb12458a47b8a42cdd5aa4f543a0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a03174ea718a42ddef337dfb648ce4996"/>    <section>
+    <title>finishCcall()</title>
+<indexterm><primary>finishCcall</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>finishCcall</secondary></indexterm>
+<para><computeroutput>static void finishCcall (<link linkend="_structlua___state">lua_State</link> * L, int status)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00534">534</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a03174ea718a42ddef337dfb648ce4996_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a03174ea718a42ddef337dfb648ce4996_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a490ddb801dda485ec5a94236d82477d2"/>    <section>
+    <title>lua_isyieldable()</title>
+<indexterm><primary>lua_isyieldable</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>lua_isyieldable</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_isyieldable (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00701">701</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a490ddb801dda485ec5a94236d82477d2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1ad07756c576e4e989a7ca417c1d691d2a"/>    <section>
+    <title>lua_resume()</title>
+<indexterm><primary>lua_resume</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>lua_resume</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_resume (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structlua___state">lua_State</link> * from, int nargs, int * nresults)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00661">661</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_ad07756c576e4e989a7ca417c1d691d2a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_ad07756c576e4e989a7ca417c1d691d2a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a40d0ec26d9da8d2913c90158a788d019"/>    <section>
+    <title>lua_yieldk()</title>
+<indexterm><primary>lua_yieldk</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>lua_yieldk</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_yieldk (<link linkend="_structlua___state">lua_State</link> * L, int nresults, <link linkend="_lua_8h_1a0c565e13b66764da08aa2c68fe4365f0">lua_KContext</link> ctx, <link linkend="_lua_8h_1a4bfd58d9192edfdcb7238de00bd0202c">lua_KFunction</link> k)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00706">706</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a40d0ec26d9da8d2913c90158a788d019_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a9a82cbe1919eb0104a7249d6d7764061"/>    <section>
+    <title>luaD_call()</title>
+<indexterm><primary>luaD_call</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>luaD_call</secondary></indexterm>
+<para><computeroutput>void luaD_call (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> func, int nresults)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00457">457</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a9a82cbe1919eb0104a7249d6d7764061_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a9a82cbe1919eb0104a7249d6d7764061_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a61c0a0185ef5ae1493dad10027f4db7e"/>    <section>
+    <title>luaD_callnoyield()</title>
+<indexterm><primary>luaD_callnoyield</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>luaD_callnoyield</secondary></indexterm>
+<para><computeroutput>void luaD_callnoyield (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> func, int nResults)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00519">519</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a61c0a0185ef5ae1493dad10027f4db7e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a61c0a0185ef5ae1493dad10027f4db7e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a728937587ac9d9e316bd410991f11221"/>    <section>
+    <title>luaD_growstack()</title>
+<indexterm><primary>luaD_growstack</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>luaD_growstack</secondary></indexterm>
+<para><computeroutput>int luaD_growstack (<link linkend="_structlua___state">lua_State</link> * L, int n, int raiseerror)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00209">209</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a728937587ac9d9e316bd410991f11221_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a728937587ac9d9e316bd410991f11221_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1aa74dd2ed1bf68092213c0cd69d3a8aab"/>    <section>
+    <title>luaD_hook()</title>
+<indexterm><primary>luaD_hook</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>luaD_hook</secondary></indexterm>
+<para><computeroutput>void luaD_hook (<link linkend="_structlua___state">lua_State</link> * L, int event, int line, int ftransfer, int ntransfer)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00274">274</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_aa74dd2ed1bf68092213c0cd69d3a8aab_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a5f30116d7e47e3db1fd226e22e903d08"/>    <section>
+    <title>luaD_hookcall()</title>
+<indexterm><primary>luaD_hookcall</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>luaD_hookcall</secondary></indexterm>
+<para><computeroutput>void luaD_hookcall (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_call_info">CallInfo</link> * ci)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00313">313</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a5f30116d7e47e3db1fd226e22e903d08_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a5f30116d7e47e3db1fd226e22e903d08_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a4dd006aa3210fdc854d0441e2a98c9af"/>    <section>
+    <title>luaD_inctop()</title>
+<indexterm><primary>luaD_inctop</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>luaD_inctop</secondary></indexterm>
+<para><computeroutput>void luaD_inctop (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00261">261</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a4dd006aa3210fdc854d0441e2a98c9af_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a1ad7f845cc62b110e3fcc0ae187d7c85"/>    <section>
+    <title>luaD_pcall()</title>
+<indexterm><primary>luaD_pcall</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>luaD_pcall</secondary></indexterm>
+<para><computeroutput>int luaD_pcall (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_ldo_8h_1a078cb45ebb3f039a69795174f45d204c">Pfunc</link> func, void * u, ptrdiff_t old_top, ptrdiff_t ef)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00742">742</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a1ad7f845cc62b110e3fcc0ae187d7c85_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a1ad7f845cc62b110e3fcc0ae187d7c85_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a93ef0e89dcfdd64224670aa54d7e4f5b"/>    <section>
+    <title>luaD_poscall()</title>
+<indexterm><primary>luaD_poscall</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>luaD_poscall</secondary></indexterm>
+<para><computeroutput>void luaD_poscall (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_call_info">CallInfo</link> * ci, int nres)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00414">414</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a93ef0e89dcfdd64224670aa54d7e4f5b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a93ef0e89dcfdd64224670aa54d7e4f5b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a1e02e896afbe22d3a4f25ea65fd0c339"/>    <section>
+    <title>luaD_pretailcall()</title>
+<indexterm><primary>luaD_pretailcall</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>luaD_pretailcall</secondary></indexterm>
+<para><computeroutput>void luaD_pretailcall (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_call_info">CallInfo</link> * ci, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> func, int narg1)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00432">432</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a1e02e896afbe22d3a4f25ea65fd0c339_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a451f5a18e45a63e1da2eed7d8a2060f5"/>    <section>
+    <title>luaD_protectedparser()</title>
+<indexterm><primary>luaD_protectedparser</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>luaD_protectedparser</secondary></indexterm>
+<para><computeroutput>int luaD_protectedparser (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17">ZIO</link> * z, const char * name, const char * mode)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00803">803</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a451f5a18e45a63e1da2eed7d8a2060f5_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a451f5a18e45a63e1da2eed7d8a2060f5_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1ab0872b1738a995ecbf1cdc8a9bc0fdf6"/>    <section>
+    <title>luaD_rawrunprotected()</title>
+<indexterm><primary>luaD_rawrunprotected</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>luaD_rawrunprotected</secondary></indexterm>
+<para><computeroutput>int luaD_rawrunprotected (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_ldo_8h_1a078cb45ebb3f039a69795174f45d204c">Pfunc</link> f, void * ud)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00141">141</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_ab0872b1738a995ecbf1cdc8a9bc0fdf6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a75b8b0016e9182d4fd9f71c1a7238e8a"/>    <section>
+    <title>luaD_reallocstack()</title>
+<indexterm><primary>luaD_reallocstack</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>luaD_reallocstack</secondary></indexterm>
+<para><computeroutput>int luaD_reallocstack (<link linkend="_structlua___state">lua_State</link> * L, int newsize, int raiseerror)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00185">185</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a75b8b0016e9182d4fd9f71c1a7238e8a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a75b8b0016e9182d4fd9f71c1a7238e8a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a2a5656cf723dffe2e9b5314260bd8896"/>    <section>
+    <title>luaD_seterrorobj()</title>
+<indexterm><primary>luaD_seterrorobj</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>luaD_seterrorobj</secondary></indexterm>
+<para><computeroutput>void luaD_seterrorobj (<link linkend="_structlua___state">lua_State</link> * L, int errcode, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> oldtop)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00091">91</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a2a5656cf723dffe2e9b5314260bd8896_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a219aa86777779dccae2c1bf9008db70a"/>    <section>
+    <title>luaD_shrinkstack()</title>
+<indexterm><primary>luaD_shrinkstack</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>luaD_shrinkstack</secondary></indexterm>
+<para><computeroutput>void luaD_shrinkstack (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00246">246</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a219aa86777779dccae2c1bf9008db70a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a219aa86777779dccae2c1bf9008db70a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a2b46d9db5b9ca3d5402a0c2ac640a6b0"/>    <section>
+    <title>luaD_throw()</title>
+<indexterm><primary>luaD_throw</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>luaD_throw</secondary></indexterm>
+<para><computeroutput><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> luaD_throw (<link linkend="_structlua___state">lua_State</link> * L, int errcode)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00114">114</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a2b46d9db5b9ca3d5402a0c2ac640a6b0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a2b46d9db5b9ca3d5402a0c2ac640a6b0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1ac468380c26188a69262776f07bdf7780"/>    <section>
+    <title>luaD_tryfuncTM()</title>
+<indexterm><primary>luaD_tryfuncTM</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>luaD_tryfuncTM</secondary></indexterm>
+<para><computeroutput>void luaD_tryfuncTM (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> func)</computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00354">354</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_ac468380c26188a69262776f07bdf7780_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_ac468380c26188a69262776f07bdf7780_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1adfdcfe680efe0b6fd458a515aace0796"/>    <section>
+    <title>moveresults()</title>
+<indexterm><primary>moveresults</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>moveresults</secondary></indexterm>
+<para><computeroutput>static void moveresults (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> res, int nres, int wanted)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00372">372</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_adfdcfe680efe0b6fd458a515aace0796_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_adfdcfe680efe0b6fd458a515aace0796_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a8f3e3ff2aa0a4a251774a476cb0036ea"/>    <section>
+    <title>recover()</title>
+<indexterm><primary>recover</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>recover</secondary></indexterm>
+<para><computeroutput>static int recover (<link linkend="_structlua___state">lua_State</link> * L, int status)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00598">598</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a8f3e3ff2aa0a4a251774a476cb0036ea_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a8f3e3ff2aa0a4a251774a476cb0036ea_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1abd7632c715de5db6e7797b7fa3f7010f"/>    <section>
+    <title>resume()</title>
+<indexterm><primary>resume</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>resume</secondary></indexterm>
+<para><computeroutput>static void resume (<link linkend="_structlua___state">lua_State</link> * L, void * ud)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00636">636</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_abd7632c715de5db6e7797b7fa3f7010f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_abd7632c715de5db6e7797b7fa3f7010f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a8a351e424df030a908f2db9eec0b4f30"/>    <section>
+    <title>resume_error()</title>
+<indexterm><primary>resume_error</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>resume_error</secondary></indexterm>
+<para><computeroutput>static int resume_error (<link linkend="_structlua___state">lua_State</link> * L, const char * msg, int narg)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00620">620</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a8a351e424df030a908f2db9eec0b4f30_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a8a351e424df030a908f2db9eec0b4f30_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a096689d5ccf9f37298692b4c1fedf0b6"/>    <section>
+    <title>rethook()</title>
+<indexterm><primary>rethook</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>rethook</secondary></indexterm>
+<para><computeroutput>static <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> rethook (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_call_info">CallInfo</link> * ci, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> firstres, int nres)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00326">326</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a096689d5ccf9f37298692b4c1fedf0b6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a096689d5ccf9f37298692b4c1fedf0b6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1ac2956ef8f7aba184c6591001f2017a54"/>    <section>
+    <title>stackinuse()</title>
+<indexterm><primary>stackinuse</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>stackinuse</secondary></indexterm>
+<para><computeroutput>static int stackinuse (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00235">235</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_ac2956ef8f7aba184c6591001f2017a54_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldo_8c_1a3baab9d298c0c32cb74a9a079d7244de"/>    <section>
+    <title>unroll()</title>
+<indexterm><primary>unroll</primary><secondary>ldo.c</secondary></indexterm>
+<indexterm><primary>ldo.c</primary><secondary>unroll</secondary></indexterm>
+<para><computeroutput>static void unroll (<link linkend="_structlua___state">lua_State</link> * L, void * ud)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldo_8c_source">ldo.c</link> 第 <link linkend="_ldo_8c_source_1l00564">564</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a3baab9d298c0c32cb74a9a079d7244de_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldo_8c_a3baab9d298c0c32cb74a9a079d7244de_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+</section>

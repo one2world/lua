@@ -1,0 +1,854 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_loadlib_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/loadlib.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/loadlib.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;lauxlib.h&quot;
+#include &quot;lualib.h&quot;
+</programlisting>loadlib.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_loadlib_8c_1a204928807a3aea44a5765758cec7e49a">loadlib_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_loadlib_8c_1a884b19ad6094d6238c4072a8064aeb12">LUA_LIB</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_loadlib_8c_1ad598457446eb8bed37166e57d94deecc">LUA_IGMARK</link>   &quot;-&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_loadlib_8c_1a612c9af4dd9a58765226bcdddb380c7d">LUA_CSUBSEP</link>   <link linkend="_luaconf_8h_1a2e611ade620cc30a6f0c306ae39d27d8">LUA_DIRSEP</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_loadlib_8c_1a6c20d5257fe758acbee718f58ec054f8">LUA_LSUBSEP</link>   <link linkend="_luaconf_8h_1a2e611ade620cc30a6f0c306ae39d27d8">LUA_DIRSEP</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_loadlib_8c_1ae484759202e13c0121badd902b707955">LUA_POF</link>   &quot;luaopen_&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_loadlib_8c_1addb93481df7869f7e8c6f85ad7ed3e53">LUA_OFSEP</link>   &quot;_&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_loadlib_8c_1af0b680e98ad7c321efb7b5e46f7e69c4">LIB_FAIL</link>   &quot;open&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_loadlib_8c_1aaf2f653c673bdd616a05f1643e1784ab">setprogdir</link>(L)   ((void)0)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_loadlib_8c_1af0b680e98ad7c321efb7b5e46f7e69c4">LIB_FAIL</link>   &quot;absent&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_loadlib_8c_1ae5b5e1b4773252e50831be85fbf40777">DLMSG</link>   &quot;dynamic libraries not enabled; <link linkend="_lparser_8c_1a2c856a5873c90f45525cf0d9abebbfde">check</link> your Lua installation&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_loadlib_8c_1aafc06e5218aa84669dd7d3a2c6a94046">LUA_PATH_VAR</link>   &quot;LUA_PATH&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_loadlib_8c_1adb8da8be231c0a4a2395949f78d092c5">LUA_CPATH_VAR</link>   &quot;LUA_CPATH&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_loadlib_8c_1a3a24a5a8d141a252b170da80f26a1f2f">ERRLIB</link>   1</para>
+</listitem>
+            <listitem><para>#define <link linkend="_loadlib_8c_1a51529ffe3184e16719bcb031a03c8f6f">ERRFUNC</link>   2</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>类型定义    </title>
+        <itemizedlist>
+            <listitem><para>typedef void(* <link linkend="_loadlib_8c_1a68da1d6d858100a545e5fd84f65abe41">voidf</link>) (void)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static void <link linkend="_loadlib_8c_1a68916c18b947bf8d96249191f05cd050">lsys_unloadlib</link> (void *lib)</para>
+</listitem>
+            <listitem><para>static void * <link linkend="_loadlib_8c_1a4531f21ae71791d4ad7eb2d92bcf38e9">lsys_load</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *path, int seeglb)</para>
+</listitem>
+            <listitem><para>static <link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link> <link linkend="_loadlib_8c_1a69abbe6cc341f2e6b083dec021bb1312">lsys_sym</link> (<link linkend="_structlua___state">lua_State</link> *L, void *lib, const char *sym)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loadlib_8c_1a10314b90f6fd35b69745366d3f4961ce">noenv</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_loadlib_8c_1ad3773b767d767b19dc36cab61cf5c57d">setpath</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *fieldname, const char *envname, const char *dft)</para>
+</listitem>
+            <listitem><para>static void * <link linkend="_loadlib_8c_1a245afa8e0d4941d4266eee8ec83c4adc">checkclib</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *path)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_loadlib_8c_1af46f12337af79b3083dc93990be408f2">addtoclib</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *path, void *plib)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loadlib_8c_1a59926ced6bee14c7b952ef79d3520084">gctm</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loadlib_8c_1ad7ea39bad1ff41ec6a7f95c1e23722be">lookforfunc</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *path, const char *sym)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loadlib_8c_1aac7e69bc5b4403e49e2609425f0fb7b0">ll_loadlib</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loadlib_8c_1afb05ec3460e3f9ccfb9450d2c3e22e5c">readable</link> (const char *filename)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_loadlib_8c_1a063c12494c1e3f3049273e78bd553453">getnextfilename</link> (char **path, char *end)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_loadlib_8c_1a8c34f770d4f7748069b3b26c070e2473">pusherrornotfound</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *path)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_loadlib_8c_1a9aa5433859d896c2db1a7af366e04b65">searchpath</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *name, const char *path, const char *sep, const char *dirsep)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loadlib_8c_1a3e9eb01c860846336b6f50d6c77448a2">ll_searchpath</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_loadlib_8c_1af8f7333f1a59f3d7aab8c9b79b7a4ab2">findfile</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *name, const char *pname, const char *dirsep)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loadlib_8c_1abe3af664b33d2158ef6526094c84bb17">checkload</link> (<link linkend="_structlua___state">lua_State</link> *L, int stat, const char *filename)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loadlib_8c_1a8b2f1d86fe37c0829143579a6b568243">searcher_Lua</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loadlib_8c_1a91ac5b5231cf039af46226806dcc3884">loadfunc</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *filename, const char *modname)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loadlib_8c_1a9a915ea950c831cee2f1e7b0a3bd9005">searcher_C</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loadlib_8c_1a1ec05cd98a045c271aeda9f9c6041e1c">searcher_Croot</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loadlib_8c_1a68e1957952958cc41d9ede92dabda1c6">searcher_preload</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_loadlib_8c_1aeea4101591c7cab25273f4dfe7d811d6">findloader</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *name)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_loadlib_8c_1a136874f5faa236dc52fb50109281e157">ll_require</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_loadlib_8c_1a8fc66c8b852ee2960dc20797521d1d9e">createsearcherstable</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_loadlib_8c_1a5988b4ef518a60291ed34e836f549b34">createclibstable</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link> int <link linkend="_loadlib_8c_1ab732e1ec253c9b8dc0c2ce4d74cb0083">luaopen_package</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>变量    </title>
+        <itemizedlist>
+            <listitem><para>static const char *const <link linkend="_loadlib_8c_1a7bbde96feb9b84c7c149acd2773a1158">CLIBS</link> = &quot;_CLIBS&quot;</para>
+</listitem>
+            <listitem><para>static const <link linkend="_structlua_l___reg">luaL_Reg</link> <link linkend="_loadlib_8c_1affe9983330951f9d54e6d1e60c39f0b2">pk_funcs</link> []</para>
+</listitem>
+            <listitem><para>static const <link linkend="_structlua_l___reg">luaL_Reg</link> <link linkend="_loadlib_8c_1a31e112bcc81318116cc6473f5f015e17">ll_funcs</link> []</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_loadlib_8c_1ae5b5e1b4773252e50831be85fbf40777"/>    <section>
+    <title>DLMSG</title>
+<indexterm><primary>DLMSG</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>DLMSG</secondary></indexterm>
+<para><computeroutput>#define DLMSG   &quot;dynamic libraries not enabled; <link linkend="_lparser_8c_1a2c856a5873c90f45525cf0d9abebbfde">check</link> your Lua installation&quot;</computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00235">235</link> 行定义.</para>
+    </section><anchor xml:id="_loadlib_8c_1a51529ffe3184e16719bcb031a03c8f6f"/>    <section>
+    <title>ERRFUNC</title>
+<indexterm><primary>ERRFUNC</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>ERRFUNC</secondary></indexterm>
+<para><computeroutput>#define ERRFUNC   2</computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00375">375</link> 行定义.</para>
+    </section><anchor xml:id="_loadlib_8c_1a3a24a5a8d141a252b170da80f26a1f2f"/>    <section>
+    <title>ERRLIB</title>
+<indexterm><primary>ERRLIB</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>ERRLIB</secondary></indexterm>
+<para><computeroutput>#define ERRLIB   1</computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00374">374</link> 行定义.</para>
+    </section><anchor xml:id="_loadlib_8c_1af0b680e98ad7c321efb7b5e46f7e69c4"/>    <section>
+    <title>LIB_FAIL<computeroutput>[1/2]</computeroutput></title>
+<indexterm><primary>LIB_FAIL</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>LIB_FAIL</secondary></indexterm>
+<para><computeroutput>#define LIB_FAIL   &quot;open&quot;</computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00232">232</link> 行定义.</para>
+    </section><anchor xml:id="_loadlib_8c_1af0b680e98ad7c321efb7b5e46f7e69c4"/>    <section>
+    <title>LIB_FAIL<computeroutput>[2/2]</computeroutput></title>
+<indexterm><primary>LIB_FAIL</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>LIB_FAIL</secondary></indexterm>
+<para><computeroutput>#define LIB_FAIL   &quot;absent&quot;</computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00232">232</link> 行定义.</para>
+    </section><anchor xml:id="_loadlib_8c_1a204928807a3aea44a5765758cec7e49a"/>    <section>
+    <title>loadlib_c</title>
+<indexterm><primary>loadlib_c</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>loadlib_c</secondary></indexterm>
+<para><computeroutput>#define loadlib_c</computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00011">11</link> 行定义.</para>
+    </section><anchor xml:id="_loadlib_8c_1adb8da8be231c0a4a2395949f78d092c5"/>    <section>
+    <title>LUA_CPATH_VAR</title>
+<indexterm><primary>LUA_CPATH_VAR</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>LUA_CPATH_VAR</secondary></indexterm>
+<para><computeroutput>#define LUA_CPATH_VAR   &quot;LUA_CPATH&quot;</computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00275">275</link> 行定义.</para>
+    </section><anchor xml:id="_loadlib_8c_1a612c9af4dd9a58765226bcdddb380c7d"/>    <section>
+    <title>LUA_CSUBSEP</title>
+<indexterm><primary>LUA_CSUBSEP</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>LUA_CSUBSEP</secondary></indexterm>
+<para><computeroutput>#define LUA_CSUBSEP   <link linkend="_luaconf_8h_1a2e611ade620cc30a6f0c306ae39d27d8">LUA_DIRSEP</link></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00043">43</link> 行定义.</para>
+    </section><anchor xml:id="_loadlib_8c_1ad598457446eb8bed37166e57d94deecc"/>    <section>
+    <title>LUA_IGMARK</title>
+<indexterm><primary>LUA_IGMARK</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>LUA_IGMARK</secondary></indexterm>
+<para><computeroutput>#define LUA_IGMARK   &quot;-&quot;</computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00032">32</link> 行定义.</para>
+    </section><anchor xml:id="_loadlib_8c_1a884b19ad6094d6238c4072a8064aeb12"/>    <section>
+    <title>LUA_LIB</title>
+<indexterm><primary>LUA_LIB</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>LUA_LIB</secondary></indexterm>
+<para><computeroutput>#define LUA_LIB</computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00012">12</link> 行定义.</para>
+    </section><anchor xml:id="_loadlib_8c_1a6c20d5257fe758acbee718f58ec054f8"/>    <section>
+    <title>LUA_LSUBSEP</title>
+<indexterm><primary>LUA_LSUBSEP</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>LUA_LSUBSEP</secondary></indexterm>
+<para><computeroutput>#define LUA_LSUBSEP   <link linkend="_luaconf_8h_1a2e611ade620cc30a6f0c306ae39d27d8">LUA_DIRSEP</link></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00047">47</link> 行定义.</para>
+    </section><anchor xml:id="_loadlib_8c_1addb93481df7869f7e8c6f85ad7ed3e53"/>    <section>
+    <title>LUA_OFSEP</title>
+<indexterm><primary>LUA_OFSEP</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>LUA_OFSEP</secondary></indexterm>
+<para><computeroutput>#define LUA_OFSEP   &quot;_&quot;</computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00055">55</link> 行定义.</para>
+    </section><anchor xml:id="_loadlib_8c_1aafc06e5218aa84669dd7d3a2c6a94046"/>    <section>
+    <title>LUA_PATH_VAR</title>
+<indexterm><primary>LUA_PATH_VAR</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>LUA_PATH_VAR</secondary></indexterm>
+<para><computeroutput>#define LUA_PATH_VAR   &quot;LUA_PATH&quot;</computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00271">271</link> 行定义.</para>
+    </section><anchor xml:id="_loadlib_8c_1ae484759202e13c0121badd902b707955"/>    <section>
+    <title>LUA_POF</title>
+<indexterm><primary>LUA_POF</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>LUA_POF</secondary></indexterm>
+<para><computeroutput>#define LUA_POF   &quot;luaopen_&quot;</computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00052">52</link> 行定义.</para>
+    </section><anchor xml:id="_loadlib_8c_1aaf2f653c673bdd616a05f1643e1784ab"/>    <section>
+    <title>setprogdir</title>
+<indexterm><primary>setprogdir</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>setprogdir</secondary></indexterm>
+<para><computeroutput>#define setprogdir( L)   ((void)0)</computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00067">67</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>类型定义说明</title>
+<anchor xml:id="_loadlib_8c_1a68da1d6d858100a545e5fd84f65abe41"/>    <section>
+    <title>voidf</title>
+<indexterm><primary>voidf</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>voidf</secondary></indexterm>
+<para><computeroutput>typedef void(* voidf) (void)</computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00074">74</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_loadlib_8c_1af46f12337af79b3083dc93990be408f2"/>    <section>
+    <title>addtoclib()</title>
+<indexterm><primary>addtoclib</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>addtoclib</secondary></indexterm>
+<para><computeroutput>static void addtoclib (<link linkend="_structlua___state">lua_State</link> * L, const char * path, void * plib)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00347">347</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_af46f12337af79b3083dc93990be408f2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_af46f12337af79b3083dc93990be408f2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1a245afa8e0d4941d4266eee8ec83c4adc"/>    <section>
+    <title>checkclib()</title>
+<indexterm><primary>checkclib</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>checkclib</secondary></indexterm>
+<para><computeroutput>static void* checkclib (<link linkend="_structlua___state">lua_State</link> * L, const char * path)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00333">333</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a245afa8e0d4941d4266eee8ec83c4adc_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a245afa8e0d4941d4266eee8ec83c4adc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1abe3af664b33d2158ef6526094c84bb17"/>    <section>
+    <title>checkload()</title>
+<indexterm><primary>checkload</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>checkload</secondary></indexterm>
+<para><computeroutput>static int checkload (<link linkend="_structlua___state">lua_State</link> * L, int stat, const char * filename)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00532">532</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_abe3af664b33d2158ef6526094c84bb17_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_abe3af664b33d2158ef6526094c84bb17_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1a5988b4ef518a60291ed34e836f549b34"/>    <section>
+    <title>createclibstable()</title>
+<indexterm><primary>createclibstable</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>createclibstable</secondary></indexterm>
+<para><computeroutput>static void createclibstable (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00727">727</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a5988b4ef518a60291ed34e836f549b34_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a5988b4ef518a60291ed34e836f549b34_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1a8fc66c8b852ee2960dc20797521d1d9e"/>    <section>
+    <title>createsearcherstable()</title>
+<indexterm><primary>createsearcherstable</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>createsearcherstable</secondary></indexterm>
+<para><computeroutput>static void createsearcherstable (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00707">707</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a8fc66c8b852ee2960dc20797521d1d9e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a8fc66c8b852ee2960dc20797521d1d9e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1af8f7333f1a59f3d7aab8c9b79b7a4ab2"/>    <section>
+    <title>findfile()</title>
+<indexterm><primary>findfile</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>findfile</secondary></indexterm>
+<para><computeroutput>static const char* findfile (<link linkend="_structlua___state">lua_State</link> * L, const char * name, const char * pname, const char * dirsep)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00520">520</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_af8f7333f1a59f3d7aab8c9b79b7a4ab2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_af8f7333f1a59f3d7aab8c9b79b7a4ab2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1aeea4101591c7cab25273f4dfe7d811d6"/>    <section>
+    <title>findloader()</title>
+<indexterm><primary>findloader</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>findloader</secondary></indexterm>
+<para><computeroutput>static void findloader (<link linkend="_structlua___state">lua_State</link> * L, const char * name)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00622">622</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_aeea4101591c7cab25273f4dfe7d811d6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_aeea4101591c7cab25273f4dfe7d811d6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1a59926ced6bee14c7b952ef79d3520084"/>    <section>
+    <title>gctm()</title>
+<indexterm><primary>gctm</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>gctm</secondary></indexterm>
+<para><computeroutput>static int gctm (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00361">361</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a59926ced6bee14c7b952ef79d3520084_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a59926ced6bee14c7b952ef79d3520084_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1a063c12494c1e3f3049273e78bd553453"/>    <section>
+    <title>getnextfilename()</title>
+<indexterm><primary>getnextfilename</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>getnextfilename</secondary></indexterm>
+<para><computeroutput>static const char* getnextfilename (char ** path, char * end)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00445">445</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a063c12494c1e3f3049273e78bd553453_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1aac7e69bc5b4403e49e2609425f0fb7b0"/>    <section>
+    <title>ll_loadlib()</title>
+<indexterm><primary>ll_loadlib</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>ll_loadlib</secondary></indexterm>
+<para><computeroutput>static int ll_loadlib (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00409">409</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_aac7e69bc5b4403e49e2609425f0fb7b0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1a136874f5faa236dc52fb50109281e157"/>    <section>
+    <title>ll_require()</title>
+<indexterm><primary>ll_require</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>ll_require</secondary></indexterm>
+<para><computeroutput>static int ll_require (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00654">654</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a136874f5faa236dc52fb50109281e157_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1a3e9eb01c860846336b6f50d6c77448a2"/>    <section>
+    <title>ll_searchpath()</title>
+<indexterm><primary>ll_searchpath</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>ll_searchpath</secondary></indexterm>
+<para><computeroutput>static int ll_searchpath (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00506">506</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a3e9eb01c860846336b6f50d6c77448a2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1a91ac5b5231cf039af46226806dcc3884"/>    <section>
+    <title>loadfunc()</title>
+<indexterm><primary>loadfunc</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>loadfunc</secondary></indexterm>
+<para><computeroutput>static int loadfunc (<link linkend="_structlua___state">lua_State</link> * L, const char * filename, const char * modname)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00560">560</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a91ac5b5231cf039af46226806dcc3884_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a91ac5b5231cf039af46226806dcc3884_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1ad7ea39bad1ff41ec6a7f95c1e23722be"/>    <section>
+    <title>lookforfunc()</title>
+<indexterm><primary>lookforfunc</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>lookforfunc</secondary></indexterm>
+<para><computeroutput>static int lookforfunc (<link linkend="_structlua___state">lua_State</link> * L, const char * path, const char * sym)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00388">388</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_ad7ea39bad1ff41ec6a7f95c1e23722be_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_ad7ea39bad1ff41ec6a7f95c1e23722be_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1a4531f21ae71791d4ad7eb2d92bcf38e9"/>    <section>
+    <title>lsys_load()</title>
+<indexterm><primary>lsys_load</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>lsys_load</secondary></indexterm>
+<para><computeroutput>static void * lsys_load (<link linkend="_structlua___state">lua_State</link> * L, const char * path, int seeglb)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00243">243</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a4531f21ae71791d4ad7eb2d92bcf38e9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1a69abbe6cc341f2e6b083dec021bb1312"/>    <section>
+    <title>lsys_sym()</title>
+<indexterm><primary>lsys_sym</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>lsys_sym</secondary></indexterm>
+<para><computeroutput>static <link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link> lsys_sym (<link linkend="_structlua___state">lua_State</link> * L, void * lib, const char * sym)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00250">250</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a69abbe6cc341f2e6b083dec021bb1312_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1a68916c18b947bf8d96249191f05cd050"/>    <section>
+    <title>lsys_unloadlib()</title>
+<indexterm><primary>lsys_unloadlib</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>lsys_unloadlib</secondary></indexterm>
+<para><computeroutput>static void lsys_unloadlib (void * lib)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00238">238</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a68916c18b947bf8d96249191f05cd050_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1ab732e1ec253c9b8dc0c2ce4d74cb0083"/>    <section>
+    <title>luaopen_package()</title>
+<indexterm><primary>luaopen_package</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>luaopen_package</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link> int luaopen_package (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00736">736</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_ab732e1ec253c9b8dc0c2ce4d74cb0083_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1a10314b90f6fd35b69745366d3f4961ce"/>    <section>
+    <title>noenv()</title>
+<indexterm><primary>noenv</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>noenv</secondary></indexterm>
+<para><computeroutput>static int noenv (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00283">283</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a10314b90f6fd35b69745366d3f4961ce_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a10314b90f6fd35b69745366d3f4961ce_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1a8c34f770d4f7748069b3b26c070e2473"/>    <section>
+    <title>pusherrornotfound()</title>
+<indexterm><primary>pusherrornotfound</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>pusherrornotfound</secondary></indexterm>
+<para><computeroutput>static void pusherrornotfound (<link linkend="_structlua___state">lua_State</link> * L, const char * path)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00469">469</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a8c34f770d4f7748069b3b26c070e2473_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a8c34f770d4f7748069b3b26c070e2473_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1afb05ec3460e3f9ccfb9450d2c3e22e5c"/>    <section>
+    <title>readable()</title>
+<indexterm><primary>readable</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>readable</secondary></indexterm>
+<para><computeroutput>static int readable (const char * filename)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00432">432</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_afb05ec3460e3f9ccfb9450d2c3e22e5c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1a9a915ea950c831cee2f1e7b0a3bd9005"/>    <section>
+    <title>searcher_C()</title>
+<indexterm><primary>searcher_C</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>searcher_C</secondary></indexterm>
+<para><computeroutput>static int searcher_C (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00578">578</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a9a915ea950c831cee2f1e7b0a3bd9005_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a9a915ea950c831cee2f1e7b0a3bd9005_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1a1ec05cd98a045c271aeda9f9c6041e1c"/>    <section>
+    <title>searcher_Croot()</title>
+<indexterm><primary>searcher_Croot</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>searcher_Croot</secondary></indexterm>
+<para><computeroutput>static int searcher_Croot (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00586">586</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a1ec05cd98a045c271aeda9f9c6041e1c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a1ec05cd98a045c271aeda9f9c6041e1c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1a8b2f1d86fe37c0829143579a6b568243"/>    <section>
+    <title>searcher_Lua()</title>
+<indexterm><primary>searcher_Lua</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>searcher_Lua</secondary></indexterm>
+<para><computeroutput>static int searcher_Lua (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00543">543</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a8b2f1d86fe37c0829143579a6b568243_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a8b2f1d86fe37c0829143579a6b568243_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1a68e1957952958cc41d9ede92dabda1c6"/>    <section>
+    <title>searcher_preload()</title>
+<indexterm><primary>searcher_preload</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>searcher_preload</secondary></indexterm>
+<para><computeroutput>static int searcher_preload (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00608">608</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a68e1957952958cc41d9ede92dabda1c6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a68e1957952958cc41d9ede92dabda1c6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1a9aa5433859d896c2db1a7af366e04b65"/>    <section>
+    <title>searchpath()</title>
+<indexterm><primary>searchpath</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>searchpath</secondary></indexterm>
+<para><computeroutput>static const char* searchpath (<link linkend="_structlua___state">lua_State</link> * L, const char * name, const char * path, const char * sep, const char * dirsep)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00479">479</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a9aa5433859d896c2db1a7af366e04b65_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_a9aa5433859d896c2db1a7af366e04b65_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_loadlib_8c_1ad3773b767d767b19dc36cab61cf5c57d"/>    <section>
+    <title>setpath()</title>
+<indexterm><primary>setpath</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>setpath</secondary></indexterm>
+<para><computeroutput>static void setpath (<link linkend="_structlua___state">lua_State</link> * L, const char * fieldname, const char * envname, const char * dft)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00295">295</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_ad3773b767d767b19dc36cab61cf5c57d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="loadlib_8c_ad3773b767d767b19dc36cab61cf5c57d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+<section>
+<title>变量说明</title>
+<anchor xml:id="_loadlib_8c_1a7bbde96feb9b84c7c149acd2773a1158"/>    <section>
+    <title>CLIBS</title>
+<indexterm><primary>CLIBS</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>CLIBS</secondary></indexterm>
+<para><computeroutput>const char* const CLIBS = &quot;_CLIBS&quot;<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00062">62</link> 行定义.</para>
+    </section><anchor xml:id="_loadlib_8c_1a31e112bcc81318116cc6473f5f015e17"/>    <section>
+    <title>ll_funcs</title>
+<indexterm><primary>ll_funcs</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>ll_funcs</secondary></indexterm>
+<para><computeroutput>const <link linkend="_structlua_l___reg">luaL_Reg</link> ll_funcs[]<computeroutput>[static]</computeroutput></computeroutput></para><emphasis role="strong">初始值:</emphasis><programlisting>=&#32;{
+&#32;&#32;{<emphasis role="stringliteral">&quot;require&quot;</emphasis>,&#32;<link linkend="_loadlib_8c_1a136874f5faa236dc52fb50109281e157">ll_require</link>},
+&#32;&#32;{NULL,&#32;NULL}
+}
+</programlisting><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00701">701</link> 行定义.</para>
+    </section><anchor xml:id="_loadlib_8c_1affe9983330951f9d54e6d1e60c39f0b2"/>    <section>
+    <title>pk_funcs</title>
+<indexterm><primary>pk_funcs</primary><secondary>loadlib.c</secondary></indexterm>
+<indexterm><primary>loadlib.c</primary><secondary>pk_funcs</secondary></indexterm>
+<para><computeroutput>const <link linkend="_structlua_l___reg">luaL_Reg</link> pk_funcs[]<computeroutput>[static]</computeroutput></computeroutput></para><emphasis role="strong">初始值:</emphasis><programlisting>=&#32;{
+&#32;&#32;{<emphasis role="stringliteral">&quot;loadlib&quot;</emphasis>,&#32;<link linkend="_loadlib_8c_1aac7e69bc5b4403e49e2609425f0fb7b0">ll_loadlib</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;searchpath&quot;</emphasis>,&#32;<link linkend="_loadlib_8c_1a3e9eb01c860846336b6f50d6c77448a2">ll_searchpath</link>},
+&#32;&#32;
+&#32;&#32;{<emphasis role="stringliteral">&quot;preload&quot;</emphasis>,&#32;NULL},
+&#32;&#32;{<emphasis role="stringliteral">&quot;cpath&quot;</emphasis>,&#32;NULL},
+&#32;&#32;{<emphasis role="stringliteral">&quot;path&quot;</emphasis>,&#32;NULL},
+&#32;&#32;{<emphasis role="stringliteral">&quot;searchers&quot;</emphasis>,&#32;NULL},
+&#32;&#32;{<emphasis role="stringliteral">&quot;loaded&quot;</emphasis>,&#32;NULL},
+&#32;&#32;{NULL,&#32;NULL}
+}
+</programlisting><para>
+在文件 <link linkend="_loadlib_8c_source">loadlib.c</link> 第 <link linkend="_loadlib_8c_source_1l00688">688</link> 行定义.</para>
+</section>
+</section>
+</section>

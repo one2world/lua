@@ -1,0 +1,432 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_ltablib_8c_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/ltablib.c</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;ltablib.c&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Library&#32;for&#32;Table&#32;Manipulation</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+<anchor xml:id="_ltablib_8c_source_1l00007"/><link linkend="_ltablib_8c_1a140da27fde6d0c6ba8c94f2464c570cb">00007</link> <emphasis role="preprocessor">#define&#32;ltablib_c</emphasis>
+<anchor xml:id="_ltablib_8c_source_1l00008"/><link linkend="_ltablib_8c_1a884b19ad6094d6238c4072a8064aeb12">00008</link> <emphasis role="preprocessor">#define&#32;LUA_LIB</emphasis>
+00009 
+00010 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lprefix_8h">lprefix.h</link>&quot;</emphasis>
+00011 
+00012 
+00013 <emphasis role="preprocessor">#include&#32;&lt;limits.h&gt;</emphasis>
+00014 <emphasis role="preprocessor">#include&#32;&lt;stddef.h&gt;</emphasis>
+00015 <emphasis role="preprocessor">#include&#32;&lt;string.h&gt;</emphasis>
+00016 
+00017 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lua_8h">lua.h</link>&quot;</emphasis>
+00018 
+00019 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lauxlib_8h">lauxlib.h</link>&quot;</emphasis>
+00020 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lualib_8h">lualib.h</link>&quot;</emphasis>
+00021 
+00022 
+00023 <emphasis role="comment">/*</emphasis>
+00024 <emphasis role="comment">**&#32;Operations&#32;that&#32;an&#32;object&#32;must&#32;define&#32;to&#32;mimic&#32;a&#32;table</emphasis>
+00025 <emphasis role="comment">**&#32;(some&#32;functions&#32;only&#32;need&#32;some&#32;of&#32;them)</emphasis>
+00026 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ltablib_8c_source_1l00027"/><link linkend="_ltablib_8c_1a8fb9ba58986555b9e428a842d0786557">00027</link> <emphasis role="preprocessor">#define&#32;TAB_R&#32;&#32;&#32;1&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;read&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_ltablib_8c_source_1l00028"/><link linkend="_ltablib_8c_1ab9cf0e51aee67f8818580144a1ba7593">00028</link> <emphasis role="preprocessor">#define&#32;TAB_W&#32;&#32;&#32;2&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;write&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_ltablib_8c_source_1l00029"/><link linkend="_ltablib_8c_1a3f436d4e584aa1bb0bcee72e95cbdd50">00029</link> <emphasis role="preprocessor">#define&#32;TAB_L&#32;&#32;&#32;4&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;length&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_ltablib_8c_source_1l00030"/><link linkend="_ltablib_8c_1a7c8b26f7b00c98971c1c7c2706798ac5">00030</link> <emphasis role="preprocessor">#define&#32;TAB_RW&#32;&#32;(TAB_R&#32;|&#32;TAB_W)&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;read/write&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00031 
+00032 
+<anchor xml:id="_ltablib_8c_source_1l00033"/><link linkend="_ltablib_8c_1a5666aa0172909d01d18bac7d35c7e5ee">00033</link> <emphasis role="preprocessor">#define&#32;aux_getn(L,n,w)&#32;(checktab(L,&#32;n,&#32;(w)&#32;|&#32;TAB_L),&#32;luaL_len(L,&#32;n))</emphasis>
+00034 
+00035 
+<anchor xml:id="_ltablib_8c_source_1l00036"/><link linkend="_ltablib_8c_1a641ec2ebb32db79b3eb9d972ad4997ea">00036</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ltablib_8c_1a641ec2ebb32db79b3eb9d972ad4997ea">checkfield</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*key,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n)&#32;{
+00037 &#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;key);
+00038 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;(<link linkend="_lapi_8c_1a52944e714d1c64bda7b83f511c14b2d3">lua_rawget</link>(L,&#32;-n)&#32;!=&#32;<link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">LUA_TNIL</link>);
+00039 }
+00040 
+00041 
+00042 <emphasis role="comment">/*</emphasis>
+00043 <emphasis role="comment">**&#32;Check&#32;that&#32;&apos;arg&apos;&#32;either&#32;is&#32;a&#32;table&#32;or&#32;can&#32;behave&#32;like&#32;one&#32;(that&#32;is,</emphasis>
+00044 <emphasis role="comment">**&#32;has&#32;a&#32;metatable&#32;with&#32;the&#32;required&#32;metamethods)</emphasis>
+00045 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ltablib_8c_source_1l00046"/><link linkend="_ltablib_8c_1abe77aa6d8b3f0a5102aba10fa05d31c2">00046</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ltablib_8c_1abe77aa6d8b3f0a5102aba10fa05d31c2">checktab</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg,&#32;<emphasis role="keywordtype">int</emphasis>&#32;what)&#32;{
+00047 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lapi_8c_1a652b273947f0656686f998d8e90cd3ea">lua_type</link>(L,&#32;arg)&#32;!=&#32;<link linkend="_lua_8h_1a31620fd8da5b655b7879e16a116ec31a">LUA_TTABLE</link>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;is&#32;it&#32;not&#32;a&#32;table?&#32;*/</emphasis>
+00048 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;n&#32;=&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;number&#32;of&#32;elements&#32;to&#32;pop&#32;*/</emphasis>
+00049 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lapi_8c_1a4caa9ca5e47a30bd45e33d83bf2d6d6e">lua_getmetatable</link>(L,&#32;arg)&#32;&amp;&amp;&#32;&#32;<emphasis role="comment">/*&#32;must&#32;have&#32;metatable&#32;*/</emphasis>
+00050 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(!(what&#32;&amp;&#32;<link linkend="_ltablib_8c_1a8fb9ba58986555b9e428a842d0786557">TAB_R</link>)&#32;||&#32;<link linkend="_ltablib_8c_1a641ec2ebb32db79b3eb9d972ad4997ea">checkfield</link>(L,&#32;<emphasis role="stringliteral">&quot;__index&quot;</emphasis>,&#32;++n))&#32;&amp;&amp;
+00051 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(!(what&#32;&amp;&#32;<link linkend="_ltablib_8c_1ab9cf0e51aee67f8818580144a1ba7593">TAB_W</link>)&#32;||&#32;<link linkend="_ltablib_8c_1a641ec2ebb32db79b3eb9d972ad4997ea">checkfield</link>(L,&#32;<emphasis role="stringliteral">&quot;__newindex&quot;</emphasis>,&#32;++n))&#32;&amp;&amp;
+00052 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(!(what&#32;&amp;&#32;<link linkend="_ltablib_8c_1a3f436d4e584aa1bb0bcee72e95cbdd50">TAB_L</link>)&#32;||&#32;<link linkend="_ltablib_8c_1a641ec2ebb32db79b3eb9d972ad4997ea">checkfield</link>(L,&#32;<emphasis role="stringliteral">&quot;__len&quot;</emphasis>,&#32;++n)))&#32;{
+00053 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;n);&#32;&#32;<emphasis role="comment">/*&#32;pop&#32;metatable&#32;and&#32;tested&#32;metamethods&#32;*/</emphasis>
+00054 &#32;&#32;&#32;&#32;}
+00055 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00056 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a0f8f78c4edc5cbf890690b3cf9615dc8">luaL_checktype</link>(L,&#32;arg,&#32;<link linkend="_lua_8h_1a31620fd8da5b655b7879e16a116ec31a">LUA_TTABLE</link>);&#32;&#32;<emphasis role="comment">/*&#32;force&#32;an&#32;error&#32;*/</emphasis>
+00057 &#32;&#32;}
+00058 }
+00059 
+00060 
+<anchor xml:id="_ltablib_8c_source_1l00061"/><link linkend="_ltablib_8c_1a214ed6966e2b1b4c376ab0de0d09032e">00061</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ltablib_8c_1a214ed6966e2b1b4c376ab0de0d09032e">tinsert</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00062 &#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;e&#32;=&#32;<link linkend="_ltablib_8c_1a5666aa0172909d01d18bac7d35c7e5ee">aux_getn</link>(L,&#32;1,&#32;<link linkend="_ltablib_8c_1a7c8b26f7b00c98971c1c7c2706798ac5">TAB_RW</link>)&#32;+&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;first&#32;empty&#32;element&#32;*/</emphasis>
+00063 &#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;pos;&#32;&#32;<emphasis role="comment">/*&#32;where&#32;to&#32;insert&#32;new&#32;element&#32;*/</emphasis>
+00064 &#32;&#32;<emphasis role="keywordflow">switch</emphasis>&#32;(<link linkend="_lapi_8c_1afbb08ecb69421875494105d4de68e5bf">lua_gettop</link>(L))&#32;{
+00065 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;2:&#32;{&#32;&#32;<emphasis role="comment">/*&#32;called&#32;with&#32;only&#32;2&#32;arguments&#32;*/</emphasis>
+00066 &#32;&#32;&#32;&#32;&#32;&#32;pos&#32;=&#32;e;&#32;&#32;<emphasis role="comment">/*&#32;insert&#32;new&#32;element&#32;at&#32;the&#32;end&#32;*/</emphasis>
+00067 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00068 &#32;&#32;&#32;&#32;}
+00069 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;3:&#32;{
+00070 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;i;
+00071 &#32;&#32;&#32;&#32;&#32;&#32;pos&#32;=&#32;<link linkend="_lauxlib_8c_1aa15bea412c49bfdee1f3dbff096ce7d2">luaL_checkinteger</link>(L,&#32;2);&#32;&#32;<emphasis role="comment">/*&#32;2nd&#32;argument&#32;is&#32;the&#32;position&#32;*/</emphasis>
+00072 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;check&#32;whether&#32;&apos;pos&apos;&#32;is&#32;in&#32;[1,&#32;e]&#32;*/</emphasis>
+00073 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a48ce6cd86a7448e97f258097a7abc44d">luaL_argcheck</link>(L,&#32;(<link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link>)pos&#32;-&#32;1u&#32;&lt;&#32;(<link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link>)e,&#32;2,
+00074 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;position&#32;out&#32;of&#32;bounds&quot;</emphasis>);
+00075 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;e;&#32;i&#32;&gt;&#32;pos;&#32;i--)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;move&#32;up&#32;elements&#32;*/</emphasis>
+00076 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a631ebda324b6a0f382ab6b9314917384">lua_geti</link>(L,&#32;1,&#32;i&#32;-&#32;1);
+00077 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a3f995c6cbc03d4cdebb2a6fc6fa11e59">lua_seti</link>(L,&#32;1,&#32;i);&#32;&#32;<emphasis role="comment">/*&#32;t[i]&#32;=&#32;t[i&#32;-&#32;1]&#32;*/</emphasis>
+00078 &#32;&#32;&#32;&#32;&#32;&#32;}
+00079 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00080 &#32;&#32;&#32;&#32;}
+00081 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">default</emphasis>:&#32;{
+00082 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;wrong&#32;number&#32;of&#32;arguments&#32;to&#32;&apos;insert&apos;&quot;</emphasis>);
+00083 &#32;&#32;&#32;&#32;}
+00084 &#32;&#32;}
+00085 &#32;&#32;<link linkend="_lapi_8c_1a3f995c6cbc03d4cdebb2a6fc6fa11e59">lua_seti</link>(L,&#32;1,&#32;pos);&#32;&#32;<emphasis role="comment">/*&#32;t[pos]&#32;=&#32;v&#32;*/</emphasis>
+00086 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;
+00087 }
+00088 
+00089 
+<anchor xml:id="_ltablib_8c_source_1l00090"/><link linkend="_ltablib_8c_1ad8c41fe887a472709c6fdf075ba39d56">00090</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ltablib_8c_1ad8c41fe887a472709c6fdf075ba39d56">tremove</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00091 &#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;size&#32;=&#32;<link linkend="_ltablib_8c_1a5666aa0172909d01d18bac7d35c7e5ee">aux_getn</link>(L,&#32;1,&#32;<link linkend="_ltablib_8c_1a7c8b26f7b00c98971c1c7c2706798ac5">TAB_RW</link>);
+00092 &#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;pos&#32;=&#32;<link linkend="_lauxlib_8c_1ab10ff110a5ba19b4385947de7834ee3c">luaL_optinteger</link>(L,&#32;2,&#32;size);
+00093 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(pos&#32;!=&#32;size)&#32;&#32;<emphasis role="comment">/*&#32;validate&#32;&apos;pos&apos;&#32;if&#32;given&#32;*/</emphasis>
+00094 &#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;check&#32;whether&#32;&apos;pos&apos;&#32;is&#32;in&#32;[1,&#32;size&#32;+&#32;1]&#32;*/</emphasis>
+00095 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a48ce6cd86a7448e97f258097a7abc44d">luaL_argcheck</link>(L,&#32;(<link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link>)pos&#32;-&#32;1u&#32;&lt;=&#32;(<link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link>)size,&#32;1,
+00096 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;position&#32;out&#32;of&#32;bounds&quot;</emphasis>);
+00097 &#32;&#32;<link linkend="_lapi_8c_1a631ebda324b6a0f382ab6b9314917384">lua_geti</link>(L,&#32;1,&#32;pos);&#32;&#32;<emphasis role="comment">/*&#32;result&#32;=&#32;t[pos]&#32;*/</emphasis>
+00098 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(&#32;;&#32;pos&#32;&lt;&#32;size;&#32;pos++)&#32;{
+00099 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a631ebda324b6a0f382ab6b9314917384">lua_geti</link>(L,&#32;1,&#32;pos&#32;+&#32;1);
+00100 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a3f995c6cbc03d4cdebb2a6fc6fa11e59">lua_seti</link>(L,&#32;1,&#32;pos);&#32;&#32;<emphasis role="comment">/*&#32;t[pos]&#32;=&#32;t[pos&#32;+&#32;1]&#32;*/</emphasis>
+00101 &#32;&#32;}
+00102 &#32;&#32;<link linkend="_lapi_8c_1a1b4cd0d80f51e5545a97ca6c28c03c50">lua_pushnil</link>(L);
+00103 &#32;&#32;<link linkend="_lapi_8c_1a3f995c6cbc03d4cdebb2a6fc6fa11e59">lua_seti</link>(L,&#32;1,&#32;pos);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;entry&#32;t[pos]&#32;*/</emphasis>
+00104 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00105 }
+00106 
+00107 
+00108 <emphasis role="comment">/*</emphasis>
+00109 <emphasis role="comment">**&#32;Copy&#32;elements&#32;(1[f],&#32;...,&#32;1[e])&#32;into&#32;(tt[t],&#32;tt[t+1],&#32;...).&#32;Whenever</emphasis>
+00110 <emphasis role="comment">**&#32;possible,&#32;copy&#32;in&#32;increasing&#32;order,&#32;which&#32;is&#32;better&#32;for&#32;rehashing.</emphasis>
+00111 <emphasis role="comment">**&#32;&quot;possible&quot;&#32;means&#32;destination&#32;after&#32;original&#32;range,&#32;or&#32;smaller</emphasis>
+00112 <emphasis role="comment">**&#32;than&#32;origin,&#32;or&#32;copying&#32;to&#32;another&#32;table.</emphasis>
+00113 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ltablib_8c_source_1l00114"/><link linkend="_ltablib_8c_1a2206b11cc9a180fbc33aabb81308fd74">00114</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ltablib_8c_1a2206b11cc9a180fbc33aabb81308fd74">tmove</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00115 &#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;f&#32;=&#32;<link linkend="_lauxlib_8c_1aa15bea412c49bfdee1f3dbff096ce7d2">luaL_checkinteger</link>(L,&#32;2);
+00116 &#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;e&#32;=&#32;<link linkend="_lauxlib_8c_1aa15bea412c49bfdee1f3dbff096ce7d2">luaL_checkinteger</link>(L,&#32;3);
+00117 &#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;t&#32;=&#32;<link linkend="_lauxlib_8c_1aa15bea412c49bfdee1f3dbff096ce7d2">luaL_checkinteger</link>(L,&#32;4);
+00118 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;tt&#32;=&#32;!<link linkend="_lua_8h_1af51702bb75a31bb4a279953ee386d533">lua_isnoneornil</link>(L,&#32;5)&#32;?&#32;5&#32;:&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;destination&#32;table&#32;*/</emphasis>
+00119 &#32;&#32;<link linkend="_ltablib_8c_1abe77aa6d8b3f0a5102aba10fa05d31c2">checktab</link>(L,&#32;1,&#32;<link linkend="_ltablib_8c_1a8fb9ba58986555b9e428a842d0786557">TAB_R</link>);
+00120 &#32;&#32;<link linkend="_ltablib_8c_1abe77aa6d8b3f0a5102aba10fa05d31c2">checktab</link>(L,&#32;tt,&#32;<link linkend="_ltablib_8c_1ab9cf0e51aee67f8818580144a1ba7593">TAB_W</link>);
+00121 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(e&#32;&gt;=&#32;f)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;otherwise,&#32;nothing&#32;to&#32;move&#32;*/</emphasis>
+00122 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;n,&#32;i;
+00123 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a48ce6cd86a7448e97f258097a7abc44d">luaL_argcheck</link>(L,&#32;f&#32;&gt;&#32;0&#32;||&#32;e&#32;&lt;&#32;LUA_MAXINTEGER&#32;+&#32;f,&#32;3,
+00124 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;too&#32;many&#32;elements&#32;to&#32;move&quot;</emphasis>);
+00125 &#32;&#32;&#32;&#32;n&#32;=&#32;e&#32;-&#32;f&#32;+&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;number&#32;of&#32;elements&#32;to&#32;move&#32;*/</emphasis>
+00126 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a48ce6cd86a7448e97f258097a7abc44d">luaL_argcheck</link>(L,&#32;t&#32;&lt;=&#32;LUA_MAXINTEGER&#32;-&#32;n&#32;+&#32;1,&#32;4,
+00127 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;destination&#32;wrap&#32;around&quot;</emphasis>);
+00128 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(t&#32;&gt;&#32;e&#32;||&#32;t&#32;&lt;=&#32;f&#32;||&#32;(tt&#32;!=&#32;1&#32;&amp;&amp;&#32;!<link linkend="_lapi_8c_1a5fbae51f515549d4657d0efc676defee">lua_compare</link>(L,&#32;1,&#32;tt,&#32;<link linkend="_lua_8h_1ac03b3a20eb47ae78f0ba9de673dbbc18">LUA_OPEQ</link>)))&#32;{
+00129 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;0;&#32;i&#32;&lt;&#32;n;&#32;i++)&#32;{
+00130 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a631ebda324b6a0f382ab6b9314917384">lua_geti</link>(L,&#32;1,&#32;f&#32;+&#32;i);
+00131 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a3f995c6cbc03d4cdebb2a6fc6fa11e59">lua_seti</link>(L,&#32;tt,&#32;t&#32;+&#32;i);
+00132 &#32;&#32;&#32;&#32;&#32;&#32;}
+00133 &#32;&#32;&#32;&#32;}
+00134 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00135 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;n&#32;-&#32;1;&#32;i&#32;&gt;=&#32;0;&#32;i--)&#32;{
+00136 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a631ebda324b6a0f382ab6b9314917384">lua_geti</link>(L,&#32;1,&#32;f&#32;+&#32;i);
+00137 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a3f995c6cbc03d4cdebb2a6fc6fa11e59">lua_seti</link>(L,&#32;tt,&#32;t&#32;+&#32;i);
+00138 &#32;&#32;&#32;&#32;&#32;&#32;}
+00139 &#32;&#32;&#32;&#32;}
+00140 &#32;&#32;}
+00141 &#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;tt);&#32;&#32;<emphasis role="comment">/*&#32;return&#32;destination&#32;table&#32;*/</emphasis>
+00142 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00143 }
+00144 
+00145 
+<anchor xml:id="_ltablib_8c_source_1l00146"/><link linkend="_ltablib_8c_1a598479e00f1b316a182b1582012df5d0">00146</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ltablib_8c_1a598479e00f1b316a182b1582012df5d0">addfield</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;*b,&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;i)&#32;{
+00147 &#32;&#32;<link linkend="_lapi_8c_1a631ebda324b6a0f382ab6b9314917384">lua_geti</link>(L,&#32;1,&#32;i);
+00148 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_lapi_8c_1a9f20233199a414b04c1c4b43f5d040f3">lua_isstring</link>(L,&#32;-1))
+00149 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;invalid&#32;value&#32;(%s)&#32;at&#32;index&#32;%d&#32;in&#32;table&#32;for&#32;&apos;concat&apos;&quot;</emphasis>,
+00150 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a2bee94954917c5bccb05d6578f3c675b">luaL_typename</link>(L,&#32;-1),&#32;i);
+00151 &#32;&#32;<link linkend="_lauxlib_8c_1a59a8ac34826fee305ad56101d97aee18">luaL_addvalue</link>(b);
+00152 }
+00153 
+00154 
+<anchor xml:id="_ltablib_8c_source_1l00155"/><link linkend="_ltablib_8c_1add6973c515a288f41265aca8e0ae6412">00155</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ltablib_8c_1add6973c515a288f41265aca8e0ae6412">tconcat</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00156 &#32;&#32;<link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;b;
+00157 &#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;last&#32;=&#32;<link linkend="_ltablib_8c_1a5666aa0172909d01d18bac7d35c7e5ee">aux_getn</link>(L,&#32;1,&#32;<link linkend="_ltablib_8c_1a8fb9ba58986555b9e428a842d0786557">TAB_R</link>);
+00158 &#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;lsep;
+00159 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*sep&#32;=&#32;<link linkend="_lauxlib_8c_1a78e227b41b881001dc0e95a263690816">luaL_optlstring</link>(L,&#32;2,&#32;<emphasis role="stringliteral">&quot;&quot;</emphasis>,&#32;&amp;lsep);
+00160 &#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;i&#32;=&#32;<link linkend="_lauxlib_8c_1ab10ff110a5ba19b4385947de7834ee3c">luaL_optinteger</link>(L,&#32;3,&#32;1);
+00161 &#32;&#32;last&#32;=&#32;<link linkend="_lauxlib_8c_1ab10ff110a5ba19b4385947de7834ee3c">luaL_optinteger</link>(L,&#32;4,&#32;last);
+00162 &#32;&#32;<link linkend="_lauxlib_8c_1a0830ef75e335f6d7590b0e058f82a5eb">luaL_buffinit</link>(L,&#32;&amp;b);
+00163 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(;&#32;i&#32;&lt;&#32;last;&#32;i++)&#32;{
+00164 &#32;&#32;&#32;&#32;<link linkend="_ltablib_8c_1a598479e00f1b316a182b1582012df5d0">addfield</link>(L,&#32;&amp;b,&#32;i);
+00165 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a0d56993399c45ae61ebb9b448dc30538">luaL_addlstring</link>(&amp;b,&#32;sep,&#32;lsep);
+00166 &#32;&#32;}
+00167 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(i&#32;==&#32;last)&#32;&#32;<emphasis role="comment">/*&#32;add&#32;last&#32;value&#32;(if&#32;interval&#32;was&#32;not&#32;empty)&#32;*/</emphasis>
+00168 &#32;&#32;&#32;&#32;<link linkend="_ltablib_8c_1a598479e00f1b316a182b1582012df5d0">addfield</link>(L,&#32;&amp;b,&#32;i);
+00169 &#32;&#32;<link linkend="_lauxlib_8c_1a3a1f80033814e2057583a7d24cee23b4">luaL_pushresult</link>(&amp;b);
+00170 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00171 }
+00172 
+00173 
+00174 <emphasis role="comment">/*</emphasis>
+00175 <emphasis role="comment">**&#32;{======================================================</emphasis>
+00176 <emphasis role="comment">**&#32;Pack/unpack</emphasis>
+00177 <emphasis role="comment">**&#32;=======================================================</emphasis>
+00178 <emphasis role="comment">*/</emphasis>
+00179 
+<anchor xml:id="_ltablib_8c_source_1l00180"/><link linkend="_ltablib_8c_1a33b59fd5ba7dbaddc6109c692a9d5dd0">00180</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ltablib_8c_1a33b59fd5ba7dbaddc6109c692a9d5dd0">tpack</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00181 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i;
+00182 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;n&#32;=&#32;<link linkend="_lapi_8c_1afbb08ecb69421875494105d4de68e5bf">lua_gettop</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;number&#32;of&#32;elements&#32;to&#32;pack&#32;*/</emphasis>
+00183 &#32;&#32;<link linkend="_lapi_8c_1a7f93e3baf3101cad59ec61b7744a55d8">lua_createtable</link>(L,&#32;n,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;create&#32;result&#32;table&#32;*/</emphasis>
+00184 &#32;&#32;<link linkend="_lua_8h_1a1ba55afa0e7f756a4599e86cf46d92e0">lua_insert</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;put&#32;it&#32;at&#32;index&#32;1&#32;*/</emphasis>
+00185 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;n;&#32;i&#32;&gt;=&#32;1;&#32;i--)&#32;&#32;<emphasis role="comment">/*&#32;assign&#32;elements&#32;*/</emphasis>
+00186 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a3f995c6cbc03d4cdebb2a6fc6fa11e59">lua_seti</link>(L,&#32;1,&#32;i);
+00187 &#32;&#32;<link linkend="_lapi_8c_1adcec46ff05dfee9a3c4c05828b40c213">lua_pushinteger</link>(L,&#32;n);
+00188 &#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;1,&#32;<emphasis role="stringliteral">&quot;n&quot;</emphasis>);&#32;&#32;<emphasis role="comment">/*&#32;t.n&#32;=&#32;number&#32;of&#32;elements&#32;*/</emphasis>
+00189 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;return&#32;table&#32;*/</emphasis>
+00190 }
+00191 
+00192 
+<anchor xml:id="_ltablib_8c_source_1l00193"/><link linkend="_ltablib_8c_1ae37fc20bd47c2a4385a87a12090f4e9b">00193</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ltablib_8c_1ae37fc20bd47c2a4385a87a12090f4e9b">tunpack</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00194 &#32;&#32;<link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link>&#32;n;
+00195 &#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;i&#32;=&#32;<link linkend="_lauxlib_8c_1ab10ff110a5ba19b4385947de7834ee3c">luaL_optinteger</link>(L,&#32;2,&#32;1);
+00196 &#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;e&#32;=&#32;<link linkend="_lauxlib_8h_1aca033280b0176012ef290131876f706e">luaL_opt</link>(L,&#32;<link linkend="_lauxlib_8c_1aa15bea412c49bfdee1f3dbff096ce7d2">luaL_checkinteger</link>,&#32;3,&#32;<link linkend="_lauxlib_8c_1aa525c1b6aa90c90d684ef64cf2215e21">luaL_len</link>(L,&#32;1));
+00197 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(i&#32;&gt;&#32;e)&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;empty&#32;range&#32;*/</emphasis>
+00198 &#32;&#32;n&#32;=&#32;(<link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link>)e&#32;-&#32;i;&#32;&#32;<emphasis role="comment">/*&#32;number&#32;of&#32;elements&#32;minus&#32;1&#32;(avoid&#32;overflows)&#32;*/</emphasis>
+00199 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(n&#32;&gt;=&#32;(<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>)INT_MAX&#32;&#32;||&#32;!<link linkend="_lapi_8c_1a1d762b92d5d82d6fa9f54ccf5c89d6a2">lua_checkstack</link>(L,&#32;(<emphasis role="keywordtype">int</emphasis>)(++n)))
+00200 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;too&#32;many&#32;results&#32;to&#32;unpack&quot;</emphasis>);
+00201 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(;&#32;i&#32;&lt;&#32;e;&#32;i++)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;push&#32;arg[i..e&#32;-&#32;1]&#32;(to&#32;avoid&#32;overflows)&#32;*/</emphasis>
+00202 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a631ebda324b6a0f382ab6b9314917384">lua_geti</link>(L,&#32;1,&#32;i);
+00203 &#32;&#32;}
+00204 &#32;&#32;<link linkend="_lapi_8c_1a631ebda324b6a0f382ab6b9314917384">lua_geti</link>(L,&#32;1,&#32;e);&#32;&#32;<emphasis role="comment">/*&#32;push&#32;last&#32;element&#32;*/</emphasis>
+00205 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;(<emphasis role="keywordtype">int</emphasis>)n;
+00206 }
+00207 
+00208 <emphasis role="comment">/*&#32;}======================================================&#32;*/</emphasis>
+00209 
+00210 
+00211 
+00212 <emphasis role="comment">/*</emphasis>
+00213 <emphasis role="comment">**&#32;{======================================================</emphasis>
+00214 <emphasis role="comment">**&#32;Quicksort</emphasis>
+00215 <emphasis role="comment">**&#32;(based&#32;on&#32;&apos;Algorithms&#32;in&#32;MODULA-3&apos;,&#32;Robert&#32;Sedgewick;</emphasis>
+00216 <emphasis role="comment">**&#32;&#32;Addison-Wesley,&#32;1993.)</emphasis>
+00217 <emphasis role="comment">**&#32;=======================================================</emphasis>
+00218 <emphasis role="comment">*/</emphasis>
+00219 
+00220 
+00221 <emphasis role="comment">/*&#32;type&#32;for&#32;array&#32;indices&#32;*/</emphasis>
+<anchor xml:id="_ltablib_8c_source_1l00222"/><link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">00222</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link>;
+00223 
+00224 
+00225 <emphasis role="comment">/*</emphasis>
+00226 <emphasis role="comment">**&#32;Produce&#32;a&#32;&quot;random&quot;&#32;&apos;unsigned&#32;int&apos;&#32;to&#32;randomize&#32;pivot&#32;choice.&#32;This</emphasis>
+00227 <emphasis role="comment">**&#32;macro&#32;is&#32;used&#32;only&#32;when&#32;&apos;sort&apos;&#32;detects&#32;a&#32;big&#32;imbalance&#32;in&#32;the&#32;result</emphasis>
+00228 <emphasis role="comment">**&#32;of&#32;a&#32;partition.&#32;(If&#32;you&#32;don&apos;t&#32;want/need&#32;this&#32;&quot;randomness&quot;,&#32;~0&#32;is&#32;a</emphasis>
+00229 <emphasis role="comment">**&#32;good&#32;choice.)</emphasis>
+00230 <emphasis role="comment">*/</emphasis>
+00231 <emphasis role="preprocessor">#if&#32;!defined(l_randomizePivot)&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00232 
+00233 <emphasis role="preprocessor">#include&#32;&lt;time.h&gt;</emphasis>
+00234 
+00235 <emphasis role="comment">/*&#32;size&#32;of&#32;&apos;e&apos;&#32;measured&#32;in&#32;number&#32;of&#32;&apos;unsigned&#32;int&apos;s&#32;*/</emphasis>
+<anchor xml:id="_ltablib_8c_source_1l00236"/><link linkend="_ltablib_8c_1a8978688d79ae6bceddeb55c8ad3f1c8f">00236</link> <emphasis role="preprocessor">#define&#32;sof(e)&#32;&#32;&#32;&#32;&#32;&#32;(sizeof(e)&#32;/&#32;sizeof(unsigned&#32;int))</emphasis>
+00237 
+00238 <emphasis role="comment">/*</emphasis>
+00239 <emphasis role="comment">**&#32;Use&#32;&apos;time&apos;&#32;and&#32;&apos;clock&apos;&#32;as&#32;sources&#32;of&#32;&quot;randomness&quot;.&#32;Because&#32;we&#32;don&apos;t</emphasis>
+00240 <emphasis role="comment">**&#32;know&#32;the&#32;types&#32;&apos;clock_t&apos;&#32;and&#32;&apos;time_t&apos;,&#32;we&#32;cannot&#32;cast&#32;them&#32;to</emphasis>
+00241 <emphasis role="comment">**&#32;anything&#32;without&#32;risking&#32;overflows.&#32;A&#32;safe&#32;way&#32;to&#32;use&#32;their&#32;values</emphasis>
+00242 <emphasis role="comment">**&#32;is&#32;to&#32;copy&#32;them&#32;to&#32;an&#32;array&#32;of&#32;a&#32;known&#32;type&#32;and&#32;use&#32;the&#32;array&#32;values.</emphasis>
+00243 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ltablib_8c_source_1l00244"/><link linkend="_ltablib_8c_1a7b43760283a5fa4a2d6104c5caf19902">00244</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ltablib_8c_1a7b43760283a5fa4a2d6104c5caf19902">l_randomizePivot</link>&#32;(<emphasis role="keywordtype">void</emphasis>)&#32;{
+00245 &#32;&#32;clock_t&#32;c&#32;=&#32;clock();
+00246 &#32;&#32;time_t&#32;t&#32;=&#32;time(NULL);
+00247 &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;buff[<link linkend="_ltablib_8c_1a8978688d79ae6bceddeb55c8ad3f1c8f">sof</link>(c)&#32;+&#32;<link linkend="_ltablib_8c_1a8978688d79ae6bceddeb55c8ad3f1c8f">sof</link>(t)];
+00248 &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;i,&#32;rnd&#32;=&#32;0;
+00249 &#32;&#32;memcpy(buff,&#32;&amp;c,&#32;<link linkend="_ltablib_8c_1a8978688d79ae6bceddeb55c8ad3f1c8f">sof</link>(c)&#32;*&#32;<emphasis role="keyword">sizeof</emphasis>(<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>));
+00250 &#32;&#32;memcpy(buff&#32;+&#32;<link linkend="_ltablib_8c_1a8978688d79ae6bceddeb55c8ad3f1c8f">sof</link>(c),&#32;&amp;t,&#32;<link linkend="_ltablib_8c_1a8978688d79ae6bceddeb55c8ad3f1c8f">sof</link>(t)&#32;*&#32;<emphasis role="keyword">sizeof</emphasis>(<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>));
+00251 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;0;&#32;i&#32;&lt;&#32;<link linkend="_ltablib_8c_1a8978688d79ae6bceddeb55c8ad3f1c8f">sof</link>(buff);&#32;i++)
+00252 &#32;&#32;&#32;&#32;rnd&#32;+=&#32;buff[i];
+00253 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;rnd;
+00254 }
+00255 
+00256 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00257 
+00258 
+00259 <emphasis role="comment">/*&#32;arrays&#32;larger&#32;than&#32;&apos;RANLIMIT&apos;&#32;may&#32;use&#32;randomized&#32;pivots&#32;*/</emphasis>
+<anchor xml:id="_ltablib_8c_source_1l00260"/><link linkend="_ltablib_8c_1aeb8c42b2dbafa2030e261ba804a7b530">00260</link> <emphasis role="preprocessor">#define&#32;RANLIMIT&#32;&#32;&#32;&#32;100u</emphasis>
+00261 
+00262 
+<anchor xml:id="_ltablib_8c_source_1l00263"/><link linkend="_ltablib_8c_1a66d39e7dbcc639daedcc8618fd2a18e1">00263</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ltablib_8c_1a66d39e7dbcc639daedcc8618fd2a18e1">set2</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link>&#32;i,&#32;<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link>&#32;j)&#32;{
+00264 &#32;&#32;<link linkend="_lapi_8c_1a3f995c6cbc03d4cdebb2a6fc6fa11e59">lua_seti</link>(L,&#32;1,&#32;i);
+00265 &#32;&#32;<link linkend="_lapi_8c_1a3f995c6cbc03d4cdebb2a6fc6fa11e59">lua_seti</link>(L,&#32;1,&#32;j);
+00266 }
+00267 
+00268 
+00269 <emphasis role="comment">/*</emphasis>
+00270 <emphasis role="comment">**&#32;Return&#32;true&#32;iff&#32;value&#32;at&#32;stack&#32;index&#32;&apos;a&apos;&#32;is&#32;less&#32;than&#32;the&#32;value&#32;at</emphasis>
+00271 <emphasis role="comment">**&#32;index&#32;&apos;b&apos;&#32;(according&#32;to&#32;the&#32;order&#32;of&#32;the&#32;sort).</emphasis>
+00272 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ltablib_8c_source_1l00273"/><link linkend="_ltablib_8c_1ae92f4625e74d1876b2ca2a4ced74c807">00273</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ltablib_8c_1ae92f4625e74d1876b2ca2a4ced74c807">sort_comp</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;a,&#32;<emphasis role="keywordtype">int</emphasis>&#32;b)&#32;{
+00274 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lua_8h_1a86d737d7002e7e94023765397c6eef20">lua_isnil</link>(L,&#32;2))&#32;&#32;<emphasis role="comment">/*&#32;no&#32;function?&#32;*/</emphasis>
+00275 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lapi_8c_1a5fbae51f515549d4657d0efc676defee">lua_compare</link>(L,&#32;a,&#32;b,&#32;<link linkend="_lua_8h_1a0386da34771797273cad6b7a4b2ce53e">LUA_OPLT</link>);&#32;&#32;<emphasis role="comment">/*&#32;a&#32;&lt;&#32;b&#32;*/</emphasis>
+00276 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;function&#32;*/</emphasis>
+00277 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;res;
+00278 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;2);&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;push&#32;function&#32;*/</emphasis>
+00279 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;a-1);&#32;&#32;<emphasis role="comment">/*&#32;-1&#32;to&#32;compensate&#32;function&#32;*/</emphasis>
+00280 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;b-2);&#32;&#32;<emphasis role="comment">/*&#32;-2&#32;to&#32;compensate&#32;function&#32;and&#32;&apos;a&apos;&#32;*/</emphasis>
+00281 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a89cbf40f871b6fae2dd2df814c7ac1ba">lua_call</link>(L,&#32;2,&#32;1);&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;call&#32;function&#32;*/</emphasis>
+00282 &#32;&#32;&#32;&#32;res&#32;=&#32;<link linkend="_lapi_8c_1a444aee9aa56b0b06175ee3c7bcf7927c">lua_toboolean</link>(L,&#32;-1);&#32;&#32;<emphasis role="comment">/*&#32;get&#32;result&#32;*/</emphasis>
+00283 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;pop&#32;result&#32;*/</emphasis>
+00284 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;res;
+00285 &#32;&#32;}
+00286 }
+00287 
+00288 
+00289 <emphasis role="comment">/*</emphasis>
+00290 <emphasis role="comment">**&#32;Does&#32;the&#32;partition:&#32;Pivot&#32;P&#32;is&#32;at&#32;the&#32;top&#32;of&#32;the&#32;stack.</emphasis>
+00291 <emphasis role="comment">**&#32;precondition:&#32;a[lo]&#32;&lt;=&#32;P&#32;==&#32;a[up-1]&#32;&lt;=&#32;a[up],</emphasis>
+00292 <emphasis role="comment">**&#32;so&#32;it&#32;only&#32;needs&#32;to&#32;do&#32;the&#32;partition&#32;from&#32;lo&#32;+&#32;1&#32;to&#32;up&#32;-&#32;2.</emphasis>
+00293 <emphasis role="comment">**&#32;Pos-condition:&#32;a[lo&#32;..&#32;i&#32;-&#32;1]&#32;&lt;=&#32;a[i]&#32;==&#32;P&#32;&lt;=&#32;a[i&#32;+&#32;1&#32;..&#32;up]</emphasis>
+00294 <emphasis role="comment">**&#32;returns&#32;&apos;i&apos;.</emphasis>
+00295 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ltablib_8c_source_1l00296"/><link linkend="_ltablib_8c_1a1d53059f696e353656cd98be725ffbd2">00296</link> <emphasis role="keyword">static</emphasis>&#32;<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link>&#32;<link linkend="_ltablib_8c_1a1d53059f696e353656cd98be725ffbd2">partition</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link>&#32;lo,&#32;<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link>&#32;up)&#32;{
+00297 &#32;&#32;<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link>&#32;i&#32;=&#32;lo;&#32;&#32;<emphasis role="comment">/*&#32;will&#32;be&#32;incremented&#32;before&#32;first&#32;use&#32;*/</emphasis>
+00298 &#32;&#32;<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link>&#32;j&#32;=&#32;up&#32;-&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;will&#32;be&#32;decremented&#32;before&#32;first&#32;use&#32;*/</emphasis>
+00299 &#32;&#32;<emphasis role="comment">/*&#32;loop&#32;invariant:&#32;a[lo&#32;..&#32;i]&#32;&lt;=&#32;P&#32;&lt;=&#32;a[j&#32;..&#32;up]&#32;*/</emphasis>
+00300 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(;;)&#32;{
+00301 &#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;next&#32;loop:&#32;repeat&#32;++i&#32;while&#32;a[i]&#32;&lt;&#32;P&#32;*/</emphasis>
+00302 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;((<emphasis role="keywordtype">void</emphasis>)<link linkend="_lapi_8c_1a631ebda324b6a0f382ab6b9314917384">lua_geti</link>(L,&#32;1,&#32;++i),&#32;<link linkend="_ltablib_8c_1ae92f4625e74d1876b2ca2a4ced74c807">sort_comp</link>(L,&#32;-1,&#32;-2))&#32;{
+00303 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(i&#32;==&#32;up&#32;-&#32;1)&#32;&#32;<emphasis role="comment">/*&#32;a[i]&#32;&lt;&#32;P&#32;&#32;but&#32;a[up&#32;-&#32;1]&#32;==&#32;P&#32;&#32;??&#32;*/</emphasis>
+00304 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;invalid&#32;order&#32;function&#32;for&#32;sorting&quot;</emphasis>);
+00305 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;a[i]&#32;*/</emphasis>
+00306 &#32;&#32;&#32;&#32;}
+00307 &#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;after&#32;the&#32;loop,&#32;a[i]&#32;&gt;=&#32;P&#32;and&#32;a[lo&#32;..&#32;i&#32;-&#32;1]&#32;&lt;&#32;P&#32;*/</emphasis>
+00308 &#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;next&#32;loop:&#32;repeat&#32;--j&#32;while&#32;P&#32;&lt;&#32;a[j]&#32;*/</emphasis>
+00309 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;((<emphasis role="keywordtype">void</emphasis>)<link linkend="_lapi_8c_1a631ebda324b6a0f382ab6b9314917384">lua_geti</link>(L,&#32;1,&#32;--j),&#32;<link linkend="_ltablib_8c_1ae92f4625e74d1876b2ca2a4ced74c807">sort_comp</link>(L,&#32;-3,&#32;-1))&#32;{
+00310 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(j&#32;&lt;&#32;i)&#32;&#32;<emphasis role="comment">/*&#32;j&#32;&lt;&#32;i&#32;&#32;but&#32;&#32;a[j]&#32;&gt;&#32;P&#32;??&#32;*/</emphasis>
+00311 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;invalid&#32;order&#32;function&#32;for&#32;sorting&quot;</emphasis>);
+00312 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;a[j]&#32;*/</emphasis>
+00313 &#32;&#32;&#32;&#32;}
+00314 &#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;after&#32;the&#32;loop,&#32;a[j]&#32;&lt;=&#32;P&#32;and&#32;a[j&#32;+&#32;1&#32;..&#32;up]&#32;&gt;=&#32;P&#32;*/</emphasis>
+00315 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(j&#32;&lt;&#32;i)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;no&#32;elements&#32;out&#32;of&#32;place?&#32;*/</emphasis>
+00316 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;a[lo&#32;..&#32;i&#32;-&#32;1]&#32;&lt;=&#32;P&#32;&lt;=&#32;a[j&#32;+&#32;1&#32;..&#32;i&#32;..&#32;up]&#32;*/</emphasis>
+00317 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;pop&#32;a[j]&#32;*/</emphasis>
+00318 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;swap&#32;pivot&#32;(a[up&#32;-&#32;1])&#32;with&#32;a[i]&#32;to&#32;satisfy&#32;pos-condition&#32;*/</emphasis>
+00319 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_ltablib_8c_1a66d39e7dbcc639daedcc8618fd2a18e1">set2</link>(L,&#32;up&#32;-&#32;1,&#32;i);
+00320 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;i;
+00321 &#32;&#32;&#32;&#32;}
+00322 &#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;otherwise,&#32;swap&#32;a[i]&#32;-&#32;a[j]&#32;to&#32;restore&#32;invariant&#32;and&#32;repeat&#32;*/</emphasis>
+00323 &#32;&#32;&#32;&#32;<link linkend="_ltablib_8c_1a66d39e7dbcc639daedcc8618fd2a18e1">set2</link>(L,&#32;i,&#32;j);
+00324 &#32;&#32;}
+00325 }
+00326 
+00327 
+00328 <emphasis role="comment">/*</emphasis>
+00329 <emphasis role="comment">**&#32;Choose&#32;an&#32;element&#32;in&#32;the&#32;middle&#32;(2nd-3th&#32;quarters)&#32;of&#32;[lo,up]</emphasis>
+00330 <emphasis role="comment">**&#32;&quot;randomized&quot;&#32;by&#32;&apos;rnd&apos;</emphasis>
+00331 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ltablib_8c_source_1l00332"/><link linkend="_ltablib_8c_1ac4b80d03308e70f2f401c2153ebffa4e">00332</link> <emphasis role="keyword">static</emphasis>&#32;<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link>&#32;<link linkend="_ltablib_8c_1ac4b80d03308e70f2f401c2153ebffa4e">choosePivot</link>&#32;(<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link>&#32;lo,&#32;<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link>&#32;up,&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;rnd)&#32;{
+00333 &#32;&#32;<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link>&#32;r4&#32;=&#32;(up&#32;-&#32;lo)&#32;/&#32;4;&#32;&#32;<emphasis role="comment">/*&#32;range/4&#32;*/</emphasis>
+00334 &#32;&#32;<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link>&#32;p&#32;=&#32;rnd&#32;%&#32;(r4&#32;*&#32;2)&#32;+&#32;(lo&#32;+&#32;r4);
+00335 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(lo&#32;+&#32;r4&#32;&lt;=&#32;p&#32;&amp;&amp;&#32;p&#32;&lt;=&#32;up&#32;-&#32;r4);
+00336 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;p;
+00337 }
+00338 
+00339 
+00340 <emphasis role="comment">/*</emphasis>
+00341 <emphasis role="comment">**&#32;Quicksort&#32;algorithm&#32;(recursive&#32;function)</emphasis>
+00342 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ltablib_8c_source_1l00343"/><link linkend="_ltablib_8c_1a151c51c8905acb3db7d6f1e58265b709">00343</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ltablib_8c_1a151c51c8905acb3db7d6f1e58265b709">auxsort</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link>&#32;lo,&#32;<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link>&#32;up,
+00344 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;rnd)&#32;{
+00345 &#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;(lo&#32;&lt;&#32;up)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;loop&#32;for&#32;tail&#32;recursion&#32;*/</emphasis>
+00346 &#32;&#32;&#32;&#32;<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link>&#32;p;&#32;&#32;<emphasis role="comment">/*&#32;Pivot&#32;index&#32;*/</emphasis>
+00347 &#32;&#32;&#32;&#32;<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link>&#32;n;&#32;&#32;<emphasis role="comment">/*&#32;to&#32;be&#32;used&#32;later&#32;*/</emphasis>
+00348 &#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;sort&#32;elements&#32;&apos;lo&apos;,&#32;&apos;p&apos;,&#32;and&#32;&apos;up&apos;&#32;*/</emphasis>
+00349 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a631ebda324b6a0f382ab6b9314917384">lua_geti</link>(L,&#32;1,&#32;lo);
+00350 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a631ebda324b6a0f382ab6b9314917384">lua_geti</link>(L,&#32;1,&#32;up);
+00351 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_ltablib_8c_1ae92f4625e74d1876b2ca2a4ced74c807">sort_comp</link>(L,&#32;-1,&#32;-2))&#32;&#32;<emphasis role="comment">/*&#32;a[up]&#32;&lt;&#32;a[lo]?&#32;*/</emphasis>
+00352 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_ltablib_8c_1a66d39e7dbcc639daedcc8618fd2a18e1">set2</link>(L,&#32;lo,&#32;up);&#32;&#32;<emphasis role="comment">/*&#32;swap&#32;a[lo]&#32;-&#32;a[up]&#32;*/</emphasis>
+00353 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00354 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;2);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;both&#32;values&#32;*/</emphasis>
+00355 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(up&#32;-&#32;lo&#32;==&#32;1)&#32;&#32;<emphasis role="comment">/*&#32;only&#32;2&#32;elements?&#32;*/</emphasis>
+00356 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;already&#32;sorted&#32;*/</emphasis>
+00357 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(up&#32;-&#32;lo&#32;&lt;&#32;<link linkend="_ltablib_8c_1aeb8c42b2dbafa2030e261ba804a7b530">RANLIMIT</link>&#32;||&#32;rnd&#32;==&#32;0)&#32;&#32;<emphasis role="comment">/*&#32;small&#32;interval&#32;or&#32;no&#32;randomize?&#32;*/</emphasis>
+00358 &#32;&#32;&#32;&#32;&#32;&#32;p&#32;=&#32;(lo&#32;+&#32;up)/2;&#32;&#32;<emphasis role="comment">/*&#32;middle&#32;element&#32;is&#32;a&#32;good&#32;pivot&#32;*/</emphasis>
+00359 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;&#32;<emphasis role="comment">/*&#32;for&#32;larger&#32;intervals,&#32;it&#32;is&#32;worth&#32;a&#32;random&#32;pivot&#32;*/</emphasis>
+00360 &#32;&#32;&#32;&#32;&#32;&#32;p&#32;=&#32;<link linkend="_ltablib_8c_1ac4b80d03308e70f2f401c2153ebffa4e">choosePivot</link>(lo,&#32;up,&#32;rnd);
+00361 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a631ebda324b6a0f382ab6b9314917384">lua_geti</link>(L,&#32;1,&#32;p);
+00362 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a631ebda324b6a0f382ab6b9314917384">lua_geti</link>(L,&#32;1,&#32;lo);
+00363 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_ltablib_8c_1ae92f4625e74d1876b2ca2a4ced74c807">sort_comp</link>(L,&#32;-2,&#32;-1))&#32;&#32;<emphasis role="comment">/*&#32;a[p]&#32;&lt;&#32;a[lo]?&#32;*/</emphasis>
+00364 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_ltablib_8c_1a66d39e7dbcc639daedcc8618fd2a18e1">set2</link>(L,&#32;p,&#32;lo);&#32;&#32;<emphasis role="comment">/*&#32;swap&#32;a[p]&#32;-&#32;a[lo]&#32;*/</emphasis>
+00365 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00366 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;a[lo]&#32;*/</emphasis>
+00367 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a631ebda324b6a0f382ab6b9314917384">lua_geti</link>(L,&#32;1,&#32;up);
+00368 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_ltablib_8c_1ae92f4625e74d1876b2ca2a4ced74c807">sort_comp</link>(L,&#32;-1,&#32;-2))&#32;&#32;<emphasis role="comment">/*&#32;a[up]&#32;&lt;&#32;a[p]?&#32;*/</emphasis>
+00369 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_ltablib_8c_1a66d39e7dbcc639daedcc8618fd2a18e1">set2</link>(L,&#32;p,&#32;up);&#32;&#32;<emphasis role="comment">/*&#32;swap&#32;a[up]&#32;-&#32;a[p]&#32;*/</emphasis>
+00370 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00371 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;2);
+00372 &#32;&#32;&#32;&#32;}
+00373 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(up&#32;-&#32;lo&#32;==&#32;2)&#32;&#32;<emphasis role="comment">/*&#32;only&#32;3&#32;elements?&#32;*/</emphasis>
+00374 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;already&#32;sorted&#32;*/</emphasis>
+00375 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a631ebda324b6a0f382ab6b9314917384">lua_geti</link>(L,&#32;1,&#32;p);&#32;&#32;<emphasis role="comment">/*&#32;get&#32;middle&#32;element&#32;(Pivot)&#32;*/</emphasis>
+00376 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;-1);&#32;&#32;<emphasis role="comment">/*&#32;push&#32;Pivot&#32;*/</emphasis>
+00377 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a631ebda324b6a0f382ab6b9314917384">lua_geti</link>(L,&#32;1,&#32;up&#32;-&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;push&#32;a[up&#32;-&#32;1]&#32;*/</emphasis>
+00378 &#32;&#32;&#32;&#32;<link linkend="_ltablib_8c_1a66d39e7dbcc639daedcc8618fd2a18e1">set2</link>(L,&#32;p,&#32;up&#32;-&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;swap&#32;Pivot&#32;(a[p])&#32;with&#32;a[up&#32;-&#32;1]&#32;*/</emphasis>
+00379 &#32;&#32;&#32;&#32;p&#32;=&#32;<link linkend="_ltablib_8c_1a1d53059f696e353656cd98be725ffbd2">partition</link>(L,&#32;lo,&#32;up);
+00380 &#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;a[lo&#32;..&#32;p&#32;-&#32;1]&#32;&lt;=&#32;a[p]&#32;==&#32;P&#32;&lt;=&#32;a[p&#32;+&#32;1&#32;..&#32;up]&#32;*/</emphasis>
+00381 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(p&#32;-&#32;lo&#32;&lt;&#32;up&#32;-&#32;p)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;lower&#32;interval&#32;is&#32;smaller?&#32;*/</emphasis>
+00382 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_ltablib_8c_1a151c51c8905acb3db7d6f1e58265b709">auxsort</link>(L,&#32;lo,&#32;p&#32;-&#32;1,&#32;rnd);&#32;&#32;<emphasis role="comment">/*&#32;call&#32;recursively&#32;for&#32;lower&#32;interval&#32;*/</emphasis>
+00383 &#32;&#32;&#32;&#32;&#32;&#32;n&#32;=&#32;p&#32;-&#32;lo;&#32;&#32;<emphasis role="comment">/*&#32;size&#32;of&#32;smaller&#32;interval&#32;*/</emphasis>
+00384 &#32;&#32;&#32;&#32;&#32;&#32;lo&#32;=&#32;p&#32;+&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;tail&#32;call&#32;for&#32;[p&#32;+&#32;1&#32;..&#32;up]&#32;(upper&#32;interval)&#32;*/</emphasis>
+00385 &#32;&#32;&#32;&#32;}
+00386 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00387 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_ltablib_8c_1a151c51c8905acb3db7d6f1e58265b709">auxsort</link>(L,&#32;p&#32;+&#32;1,&#32;up,&#32;rnd);&#32;&#32;<emphasis role="comment">/*&#32;call&#32;recursively&#32;for&#32;upper&#32;interval&#32;*/</emphasis>
+00388 &#32;&#32;&#32;&#32;&#32;&#32;n&#32;=&#32;up&#32;-&#32;p;&#32;&#32;<emphasis role="comment">/*&#32;size&#32;of&#32;smaller&#32;interval&#32;*/</emphasis>
+00389 &#32;&#32;&#32;&#32;&#32;&#32;up&#32;=&#32;p&#32;-&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;tail&#32;call&#32;for&#32;[lo&#32;..&#32;p&#32;-&#32;1]&#32;&#32;(lower&#32;interval)&#32;*/</emphasis>
+00390 &#32;&#32;&#32;&#32;}
+00391 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;((up&#32;-&#32;lo)&#32;/&#32;128&#32;&gt;&#32;n)&#32;<emphasis role="comment">/*&#32;partition&#32;too&#32;imbalanced?&#32;*/</emphasis>
+00392 &#32;&#32;&#32;&#32;&#32;&#32;rnd&#32;=&#32;<link linkend="_ltablib_8c_1a7b43760283a5fa4a2d6104c5caf19902">l_randomizePivot</link>();&#32;&#32;<emphasis role="comment">/*&#32;try&#32;a&#32;new&#32;randomization&#32;*/</emphasis>
+00393 &#32;&#32;}&#32;&#32;<emphasis role="comment">/*&#32;tail&#32;call&#32;auxsort(L,&#32;lo,&#32;up,&#32;rnd)&#32;*/</emphasis>
+00394 }
+00395 
+00396 
+<anchor xml:id="_ltablib_8c_source_1l00397"/><link linkend="_ltablib_8c_1ae7d3f892e2605bf102dce63de388e626">00397</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ltablib_8c_1ae7d3f892e2605bf102dce63de388e626">sort</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00398 &#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;n&#32;=&#32;<link linkend="_ltablib_8c_1a5666aa0172909d01d18bac7d35c7e5ee">aux_getn</link>(L,&#32;1,&#32;<link linkend="_ltablib_8c_1a7c8b26f7b00c98971c1c7c2706798ac5">TAB_RW</link>);
+00399 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(n&#32;&gt;&#32;1)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;non-trivial&#32;interval?&#32;*/</emphasis>
+00400 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a48ce6cd86a7448e97f258097a7abc44d">luaL_argcheck</link>(L,&#32;n&#32;&lt;&#32;INT_MAX,&#32;1,&#32;<emphasis role="stringliteral">&quot;array&#32;too&#32;big&quot;</emphasis>);
+00401 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_lua_8h_1af51702bb75a31bb4a279953ee386d533">lua_isnoneornil</link>(L,&#32;2))&#32;&#32;<emphasis role="comment">/*&#32;is&#32;there&#32;a&#32;2nd&#32;argument?&#32;*/</emphasis>
+00402 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a0f8f78c4edc5cbf890690b3cf9615dc8">luaL_checktype</link>(L,&#32;2,&#32;<link linkend="_lua_8h_1adaa7fa6e2561c1bc428ba8d265171494">LUA_TFUNCTION</link>);&#32;&#32;<emphasis role="comment">/*&#32;must&#32;be&#32;a&#32;function&#32;*/</emphasis>
+00403 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1adaa30f0d34786144c94644039d1d1b6e">lua_settop</link>(L,&#32;2);&#32;&#32;<emphasis role="comment">/*&#32;make&#32;sure&#32;there&#32;are&#32;two&#32;arguments&#32;*/</emphasis>
+00404 &#32;&#32;&#32;&#32;<link linkend="_ltablib_8c_1a151c51c8905acb3db7d6f1e58265b709">auxsort</link>(L,&#32;1,&#32;(<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link>)n,&#32;0);
+00405 &#32;&#32;}
+00406 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;
+00407 }
+00408 
+00409 <emphasis role="comment">/*&#32;}======================================================&#32;*/</emphasis>
+00410 
+00411 
+<anchor xml:id="_ltablib_8c_source_1l00412"/><link linkend="_ltablib_8c_1ae420818215325a443b1066512a76ef5d">00412</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_structlua_l___reg">luaL_Reg</link>&#32;<link linkend="_ltablib_8c_1ae420818215325a443b1066512a76ef5d">tab_funcs</link>[]&#32;=&#32;{
+00413 &#32;&#32;{<emphasis role="stringliteral">&quot;concat&quot;</emphasis>,&#32;<link linkend="_ltablib_8c_1add6973c515a288f41265aca8e0ae6412">tconcat</link>},
+00414 &#32;&#32;{<emphasis role="stringliteral">&quot;insert&quot;</emphasis>,&#32;<link linkend="_ltablib_8c_1a214ed6966e2b1b4c376ab0de0d09032e">tinsert</link>},
+00415 &#32;&#32;{<emphasis role="stringliteral">&quot;pack&quot;</emphasis>,&#32;<link linkend="_ltablib_8c_1a33b59fd5ba7dbaddc6109c692a9d5dd0">tpack</link>},
+00416 &#32;&#32;{<emphasis role="stringliteral">&quot;unpack&quot;</emphasis>,&#32;<link linkend="_ltablib_8c_1ae37fc20bd47c2a4385a87a12090f4e9b">tunpack</link>},
+00417 &#32;&#32;{<emphasis role="stringliteral">&quot;remove&quot;</emphasis>,&#32;<link linkend="_ltablib_8c_1ad8c41fe887a472709c6fdf075ba39d56">tremove</link>},
+00418 &#32;&#32;{<emphasis role="stringliteral">&quot;move&quot;</emphasis>,&#32;<link linkend="_ltablib_8c_1a2206b11cc9a180fbc33aabb81308fd74">tmove</link>},
+00419 &#32;&#32;{<emphasis role="stringliteral">&quot;sort&quot;</emphasis>,&#32;<link linkend="_ltablib_8c_1ae7d3f892e2605bf102dce63de388e626">sort</link>},
+00420 &#32;&#32;{NULL,&#32;NULL}
+00421 };
+00422 
+00423 
+<anchor xml:id="_ltablib_8c_source_1l00424"/><link linkend="_lualib_8h_1a3010f48526cfc95537c1192011374eb3">00424</link> <link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ltablib_8c_1acfb66f04d8d0ea06cb1c4c059b9e142b">luaopen_table</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00425 &#32;&#32;<link linkend="_lauxlib_8h_1a5088ff720ec66200d83eb78467b77239">luaL_newlib</link>(L,&#32;<link linkend="_ltablib_8c_1ae420818215325a443b1066512a76ef5d">tab_funcs</link>);
+00426 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00427 }
+00428 
+</programlisting></section>

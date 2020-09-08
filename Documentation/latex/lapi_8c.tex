@@ -1,0 +1,1244 @@
+\hypertarget{lapi_8c}{}\doxysection{D\+:/gitworkspace/lua/src/lapi.c 文件参考}
+\label{lapi_8c}\index{D:/gitworkspace/lua/src/lapi.c@{D:/gitworkspace/lua/src/lapi.c}}
+{\ttfamily \#include \char`\"{}lprefix.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$limits.\+h$>$}\newline
+{\ttfamily \#include $<$stdarg.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}lua.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lapi.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ldebug.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ldo.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lfunc.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lgc.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lmem.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lobject.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lstate.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lstring.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ltable.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ltm.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lundump.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lvm.\+h\char`\"{}}\newline
+\doxysubsection*{结构体}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{struct_call_s}{CallS}}
+\end{DoxyCompactItemize}
+\doxysubsection*{宏定义}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{lapi_8c_a6f4862161259fd87002d41735b0ccfa8}{lapi\+\_\+c}}
+\item 
+\#define \mbox{\hyperlink{lapi_8c_abf0b3947b59218777a8e928a10be205b}{L\+U\+A\+\_\+\+C\+O\+RE}}
+\item 
+\#define \mbox{\hyperlink{lapi_8c_aa414c9c792a81e37b5380c323b107194}{isvalid}}(L,  o)~(!\mbox{\hyperlink{lobject_8h_a39af019fafa202841da3bf7c427bf090}{ttisnil}}(o) $\vert$$\vert$ o != \&\mbox{\hyperlink{lstate_8h_a103db2de6edf3420c6c6c9a282562406}{G}}(L)-\/$>$nilvalue)
+\item 
+\#define \mbox{\hyperlink{lapi_8c_a23aaf36182310f7e0108a065732710a2}{ispseudo}}(i)~((i) $<$= \mbox{\hyperlink{lua_8h_a3524c2bbc8fcf847dc083246b62945dd}{L\+U\+A\+\_\+\+R\+E\+G\+I\+S\+T\+R\+Y\+I\+N\+D\+EX}})
+\item 
+\#define \mbox{\hyperlink{lapi_8c_aa8693ff1ffbbabc73472cd938dbd8086}{isupvalue}}(i)~((i) $<$ \mbox{\hyperlink{lua_8h_a3524c2bbc8fcf847dc083246b62945dd}{L\+U\+A\+\_\+\+R\+E\+G\+I\+S\+T\+R\+Y\+I\+N\+D\+EX}})
+\item 
+\#define \mbox{\hyperlink{lapi_8c_a6b76ec051caca9db7e44638873044e98}{checkresults}}(L,  na,  nr)
+\end{DoxyCompactItemize}
+\doxysubsection*{函数}
+\begin{DoxyCompactItemize}
+\item 
+static \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$ \mbox{\hyperlink{lapi_8c_a7c66797ff8396fc9258bb9fc08e959d8}{index2value}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+static \mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}} \mbox{\hyperlink{lapi_8c_a7acfd65878b2f2c7529c788ce08d1949}{index2stack}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a1d762b92d5d82d6fa9f54ccf5c89d6a2}{lua\+\_\+checkstack}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int n)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_ae27bb8d0218710bbbfefc1f573839d6d}{lua\+\_\+xmove}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$from, \mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$to, int n)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_a878b7e392e78661a374cf1c3073029b9}{lua\+\_\+\+C\+Function}} \mbox{\hyperlink{lapi_8c_a90bf785da77985164dbe2eb0d64bf82e}{lua\+\_\+atpanic}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{lua_8h_a878b7e392e78661a374cf1c3073029b9}{lua\+\_\+\+C\+Function}} panicf)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} \mbox{\hyperlink{lapi_8c_a173602b148e6a610676e866fb7874ff1}{lua\+\_\+version}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a32821b04960f1c1223132349d04911c1}{lua\+\_\+absindex}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_afbb08ecb69421875494105d4de68e5bf}{lua\+\_\+gettop}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_adaa30f0d34786144c94644039d1d1b6e}{lua\+\_\+settop}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+static void \mbox{\hyperlink{lapi_8c_a2c07d0a193ad3ae19b4682ed92973c70}{reverse}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}} from, \mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}} to)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_af680e24129c0e021b4fbb7700cf185dc}{lua\+\_\+rotate}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx, int n)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_a111bd3fa34fe656f415edae5e343e13e}{lua\+\_\+copy}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int fromidx, int toidx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_a602f61a9b583d69dc1c72c8970bd65e8}{lua\+\_\+pushvalue}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a652b273947f0656686f998d8e90cd3ea}{lua\+\_\+type}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} const char $\ast$ \mbox{\hyperlink{lapi_8c_a7d64f87addab440bbda96bb088816e17}{lua\+\_\+typename}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int t)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a3b922032c9fe2930399186a3647cc3ad}{lua\+\_\+iscfunction}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_aba53e83eb1fff94b5ed96203bb52d8ae}{lua\+\_\+isinteger}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a99451f234bf085c9c46c3d17a5aef905}{lua\+\_\+isnumber}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a9f20233199a414b04c1c4b43f5d040f3}{lua\+\_\+isstring}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_aa8a1dab86cfb4e0f9a4d1f699af0041b}{lua\+\_\+isuserdata}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_ace66ea78ced7fda0b367f45d09d10d83}{lua\+\_\+rawequal}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int index1, int index2)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_a08501a34884feca01759dec174d69c88}{lua\+\_\+arith}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int op)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a5fbae51f515549d4657d0efc676defee}{lua\+\_\+compare}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int index1, int index2, int op)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} size\+\_\+t \mbox{\hyperlink{lapi_8c_ab9c2fb9e2b2c7dad7474dd4b6f1bbcd0}{lua\+\_\+stringtonumber}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$s)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} \mbox{\hyperlink{lapi_8c_a375da41304604b0cba0b8c798499e673}{lua\+\_\+tonumberx}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx, int $\ast$pisnum)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} \mbox{\hyperlink{lapi_8c_af81c9a68425546e1f8c6354728c95170}{lua\+\_\+tointegerx}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx, int $\ast$pisnum)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a444aee9aa56b0b06175ee3c7bcf7927c}{lua\+\_\+toboolean}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} const char $\ast$ \mbox{\hyperlink{lapi_8c_a3fc7dbcac3f2610f3d687ec15343bd3f}{lua\+\_\+tolstring}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx, size\+\_\+t $\ast$len)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_a2357bdcd9af1aaef0a6895a9c3b7eccf}{lua\+\_\+\+Unsigned}} \mbox{\hyperlink{lapi_8c_a161e2baf3d7a6a84499f6a9010cf12c8}{lua\+\_\+rawlen}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_a878b7e392e78661a374cf1c3073029b9}{lua\+\_\+\+C\+Function}} \mbox{\hyperlink{lapi_8c_ae790897a3311d599299895612986d850}{lua\+\_\+tocfunction}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+static void $\ast$ \mbox{\hyperlink{lapi_8c_ae98ecd8a638f53798949d5966c0cbed4}{touserdata}} (const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$o)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void $\ast$ \mbox{\hyperlink{lapi_8c_a0444ddf13e5618bca969e4b3b47bc0cc}{lua\+\_\+touserdata}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} \mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$ \mbox{\hyperlink{lapi_8c_ad1dcea410edb5c5595fc070f8bf2e9a0}{lua\+\_\+tothread}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} const void $\ast$ \mbox{\hyperlink{lapi_8c_a5b533fe96cb52b5415896d41daad374a}{lua\+\_\+topointer}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_a1b4cd0d80f51e5545a97ca6c28c03c50}{lua\+\_\+pushnil}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_a328625a03fbb5548f27b1af10f109f6a}{lua\+\_\+pushnumber}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} n)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_adcec46ff05dfee9a3c4c05828b40c213}{lua\+\_\+pushinteger}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} n)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} const char $\ast$ \mbox{\hyperlink{lapi_8c_a2c325311534c23450cdf11931a8db0ae}{lua\+\_\+pushlstring}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$s, size\+\_\+t len)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} const char $\ast$ \mbox{\hyperlink{lapi_8c_a771d300f2e64b2197d1df9bf31660ebf}{lua\+\_\+pushstring}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$s)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} const char $\ast$ \mbox{\hyperlink{lapi_8c_a426c9cb1d582be3e43060c4772854e5a}{lua\+\_\+pushvfstring}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$fmt, va\+\_\+list argp)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} const char $\ast$ \mbox{\hyperlink{lapi_8c_ab190c226d38b289e6ca57683a9d4e0f0}{lua\+\_\+pushfstring}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$fmt,...)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_a142802b91cdd22516b54599f51e101e4}{lua\+\_\+pushcclosure}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{lua_8h_a878b7e392e78661a374cf1c3073029b9}{lua\+\_\+\+C\+Function}} fn, int n)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_a56bbb7479265e38da2e2596e6ec25faa}{lua\+\_\+pushboolean}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int b)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_a85e3e3d32b068aef62426828a104b561}{lua\+\_\+pushlightuserdata}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, void $\ast$p)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a4175aeea9aa6dbf096ecfca7b190fa4a}{lua\+\_\+pushthread}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{lapi_8c_a1b28b3a312121ffb29541632648b9f78}{auxgetstr}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$t, const char $\ast$k)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a8185a9c46d5930205f95beee4991e9f0}{lua\+\_\+getglobal}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$name)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_aa572dbc6e86f796a3e82ffcae4478aeb}{lua\+\_\+gettable}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a8b47f1b5685c3f8018ba926abb99af24}{lua\+\_\+getfield}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx, const char $\ast$k)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a631ebda324b6a0f382ab6b9314917384}{lua\+\_\+geti}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} n)
+\item 
+static int \mbox{\hyperlink{lapi_8c_a33830676158a2e9fde44f07109035425}{finishrawget}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$val)
+\item 
+static \mbox{\hyperlink{struct_table}{Table}} $\ast$ \mbox{\hyperlink{lapi_8c_a4ebfbcdc1a7a4f0332d4dd532a817212}{gettable}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a52944e714d1c64bda7b83f511c14b2d3}{lua\+\_\+rawget}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_af8e4dc545cc83927d901d2f242489320}{lua\+\_\+rawgeti}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} n)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_acf10870c7165e0e440eb14827a52de93}{lua\+\_\+rawgetp}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx, const void $\ast$p)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_a7f93e3baf3101cad59ec61b7744a55d8}{lua\+\_\+createtable}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int narray, int nrec)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a4caa9ca5e47a30bd45e33d83bf2d6d6e}{lua\+\_\+getmetatable}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int objindex)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a57c21a629f94ee0acc21a25d83bfaeba}{lua\+\_\+getiuservalue}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx, int n)
+\item 
+static void \mbox{\hyperlink{lapi_8c_a0667fbf88666853554967226d9a3df4d}{auxsetstr}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$t, const char $\ast$k)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_aecf388efaede9d97581335998dfa243b}{lua\+\_\+setglobal}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$name)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_a4ca492cf3d2194aec9a6292708bf66c8}{lua\+\_\+settable}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_a3f2f542ee6728d82e51b1c302f9606df}{lua\+\_\+setfield}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx, const char $\ast$k)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_a3f995c6cbc03d4cdebb2a6fc6fa11e59}{lua\+\_\+seti}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} n)
+\item 
+static void \mbox{\hyperlink{lapi_8c_af95fcf06d620f6a244caf0097e610a07}{aux\+\_\+rawset}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx, \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$key, int n)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_afb2d27f421677ef40425f9054ae216a7}{lua\+\_\+rawset}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_aef5ff7d32a6e275fa0b8305f013bee9d}{lua\+\_\+rawsetp}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx, const void $\ast$p)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_a757fd16e7e09280e2d4e4f9f77ba1099}{lua\+\_\+rawseti}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} n)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a15719ea4119bdf5b3f2a406534431a7e}{lua\+\_\+setmetatable}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int objindex)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a7383d0f43ccf69b414217a32d3947a49}{lua\+\_\+setiuservalue}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx, int n)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_ac5fef99e413a94e396b70b8263704ad3}{lua\+\_\+callk}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int nargs, int nresults, \mbox{\hyperlink{lua_8h_a0c565e13b66764da08aa2c68fe4365f0}{lua\+\_\+\+K\+Context}} ctx, \mbox{\hyperlink{lua_8h_a4bfd58d9192edfdcb7238de00bd0202c}{lua\+\_\+\+K\+Function}} k)
+\item 
+static void \mbox{\hyperlink{lapi_8c_ac3926c93fb08234f9f47e24653124910}{f\+\_\+call}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, void $\ast$ud)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a624df4cb2312b762c4fb528ecc889385}{lua\+\_\+pcallk}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int nargs, int nresults, int errfunc, \mbox{\hyperlink{lua_8h_a0c565e13b66764da08aa2c68fe4365f0}{lua\+\_\+\+K\+Context}} ctx, \mbox{\hyperlink{lua_8h_a4bfd58d9192edfdcb7238de00bd0202c}{lua\+\_\+\+K\+Function}} k)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_aa7a94c45f3eec251e5b258d7482ffe87}{lua\+\_\+load}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{lua_8h_a4081d57135fee907807ba5070d528fdf}{lua\+\_\+\+Reader}} \mbox{\hyperlink{luac_8c_ac64ec302cf2670111b2a8fcd9756f7f7}{reader}}, void $\ast$data, const char $\ast$chunkname, const char $\ast$mode)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a68295f56f04fd0d5c0adfb1793a04b4c}{lua\+\_\+dump}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{lua_8h_a855729196d7066b2da21178284868a8d}{lua\+\_\+\+Writer}} \mbox{\hyperlink{luac_8c_a85d6a36e2c08a094c859d9a0a2348f49}{writer}}, void $\ast$data, int strip)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_aadea4b6f60174a1334ebde560968a615}{lua\+\_\+status}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_aa93573057f708d826613186a9d40c87d}{lua\+\_\+gc}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int what,...)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_a6ba7b91143fe8a03910420d800de8e97}{lua\+\_\+error}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int \mbox{\hyperlink{lapi_8c_aa8bf464b98335a075732200ad91ce1de}{lua\+\_\+next}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_a5101545bcd4222abe101836b7931bdf9}{lua\+\_\+toclose}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_a1de3afee1daece63d455f23818c883d9}{lua\+\_\+concat}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int n)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_a28bdc8c01771ec2524b329a409a08040}{lua\+\_\+len}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_a2fee348bffcc82b15c626b27f66a748b}{lua\+\_\+\+Alloc}} \mbox{\hyperlink{lapi_8c_a3dbff8747b32b799cf63603c46da06cc}{lua\+\_\+getallocf}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, void $\ast$$\ast$ud)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_ac890276f9590df6a4d6aabdad9c558f0}{lua\+\_\+setallocf}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{lua_8h_a2fee348bffcc82b15c626b27f66a748b}{lua\+\_\+\+Alloc}} f, void $\ast$ud)
+\item 
+void \mbox{\hyperlink{lapi_8c_a708d3ea569d1e7174f06281ecba5a091}{lua\+\_\+setwarnf}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{lua_8h_a01be53d7e053b2703a9a0ee91aff4974}{lua\+\_\+\+Warn\+Function}} f, void $\ast$ud)
+\item 
+void \mbox{\hyperlink{lapi_8c_a383441029934d459d9b7cd89d3c851e8}{lua\+\_\+warning}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$msg, int tocont)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void $\ast$ \mbox{\hyperlink{lapi_8c_a9c09a58b86c71e997d7ccabb67f18c12}{lua\+\_\+newuserdatauv}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, size\+\_\+t size, int nuvalue)
+\item 
+static const char $\ast$ \mbox{\hyperlink{lapi_8c_aa300a4cd32bcefdee8e1457e0e4fbacb}{aux\+\_\+upvalue}} (\mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$fi, int n, \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$$\ast$val, \mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$owner)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} const char $\ast$ \mbox{\hyperlink{lapi_8c_afd5e7d6995dc52a5cb9e370ee3a710e6}{lua\+\_\+getupvalue}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int funcindex, int n)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} const char $\ast$ \mbox{\hyperlink{lapi_8c_a6e2e5717e848fca56335a64739a8f2c0}{lua\+\_\+setupvalue}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int funcindex, int n)
+\item 
+static \mbox{\hyperlink{struct_up_val}{Up\+Val}} $\ast$$\ast$ \mbox{\hyperlink{lapi_8c_afe9a3b06ff27bba372b28ad108c9c3e8}{getupvalref}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int fidx, int n, \mbox{\hyperlink{struct_l_closure}{L\+Closure}} $\ast$$\ast$pf)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void $\ast$ \mbox{\hyperlink{lapi_8c_af20e3a68caf3e24d35318baf952c5567}{lua\+\_\+upvalueid}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int fidx, int n)
+\item 
+\mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void \mbox{\hyperlink{lapi_8c_a9ce27da3bd8232ac4a0d383e924a0c7a}{lua\+\_\+upvaluejoin}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int fidx1, int n1, int fidx2, int n2)
+\end{DoxyCompactItemize}
+\doxysubsection*{变量}
+\begin{DoxyCompactItemize}
+\item 
+const char \mbox{\hyperlink{lapi_8c_acbf4dc2e5f80547c7f54f41a179258b2}{lua\+\_\+ident}} \mbox{[}$\,$\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{宏定义说明}
+\mbox{\Hypertarget{lapi_8c_a6b76ec051caca9db7e44638873044e98}\label{lapi_8c_a6b76ec051caca9db7e44638873044e98}} 
+\index{lapi.c@{lapi.c}!checkresults@{checkresults}}
+\index{checkresults@{checkresults}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{checkresults}{checkresults}}
+{\footnotesize\ttfamily \#define checkresults(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{na,  }\item[{}]{nr }\end{DoxyParamCaption})}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{     \mbox{\hyperlink{llimits_8h_ad7a42e1cc11f94e1f06ed80814fcb606}{api\_check}}(L, (nr) == \mbox{\hyperlink{lua_8h_ace3545adc11664c2f2b152fbe8b6283c}{LUA\_MULTRET}} || (L-\/>ci-\/>top -\/ L-\/>top >= (nr) -\/ (na)), \(\backslash\)}
+\DoxyCodeLine{    \textcolor{stringliteral}{"{}results from function overflow current stack size"{}})}
+
+\end{DoxyCode}
+
+
+在文件 lapi.\+c 第 958 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a23aaf36182310f7e0108a065732710a2}\label{lapi_8c_a23aaf36182310f7e0108a065732710a2}} 
+\index{lapi.c@{lapi.c}!ispseudo@{ispseudo}}
+\index{ispseudo@{ispseudo}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{ispseudo}{ispseudo}}
+{\footnotesize\ttfamily \#define ispseudo(\begin{DoxyParamCaption}\item[{}]{i }\end{DoxyParamCaption})~((i) $<$= \mbox{\hyperlink{lua_8h_a3524c2bbc8fcf847dc083246b62945dd}{L\+U\+A\+\_\+\+R\+E\+G\+I\+S\+T\+R\+Y\+I\+N\+D\+EX}})}
+
+
+
+在文件 lapi.\+c 第 50 行定义.
+
+\mbox{\Hypertarget{lapi_8c_aa8693ff1ffbbabc73472cd938dbd8086}\label{lapi_8c_aa8693ff1ffbbabc73472cd938dbd8086}} 
+\index{lapi.c@{lapi.c}!isupvalue@{isupvalue}}
+\index{isupvalue@{isupvalue}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{isupvalue}{isupvalue}}
+{\footnotesize\ttfamily \#define isupvalue(\begin{DoxyParamCaption}\item[{}]{i }\end{DoxyParamCaption})~((i) $<$ \mbox{\hyperlink{lua_8h_a3524c2bbc8fcf847dc083246b62945dd}{L\+U\+A\+\_\+\+R\+E\+G\+I\+S\+T\+R\+Y\+I\+N\+D\+EX}})}
+
+
+
+在文件 lapi.\+c 第 53 行定义.
+
+\mbox{\Hypertarget{lapi_8c_aa414c9c792a81e37b5380c323b107194}\label{lapi_8c_aa414c9c792a81e37b5380c323b107194}} 
+\index{lapi.c@{lapi.c}!isvalid@{isvalid}}
+\index{isvalid@{isvalid}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{isvalid}{isvalid}}
+{\footnotesize\ttfamily \#define isvalid(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{o }\end{DoxyParamCaption})~(!\mbox{\hyperlink{lobject_8h_a39af019fafa202841da3bf7c427bf090}{ttisnil}}(o) $\vert$$\vert$ o != \&\mbox{\hyperlink{lstate_8h_a103db2de6edf3420c6c6c9a282562406}{G}}(L)-\/$>$nilvalue)}
+
+
+
+在文件 lapi.\+c 第 46 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a6f4862161259fd87002d41735b0ccfa8}\label{lapi_8c_a6f4862161259fd87002d41735b0ccfa8}} 
+\index{lapi.c@{lapi.c}!lapi\_c@{lapi\_c}}
+\index{lapi\_c@{lapi\_c}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lapi\_c}{lapi\_c}}
+{\footnotesize\ttfamily \#define lapi\+\_\+c}
+
+
+
+在文件 lapi.\+c 第 7 行定义.
+
+\mbox{\Hypertarget{lapi_8c_abf0b3947b59218777a8e928a10be205b}\label{lapi_8c_abf0b3947b59218777a8e928a10be205b}} 
+\index{lapi.c@{lapi.c}!LUA\_CORE@{LUA\_CORE}}
+\index{LUA\_CORE@{LUA\_CORE}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{LUA\_CORE}{LUA\_CORE}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+C\+O\+RE}
+
+
+
+在文件 lapi.\+c 第 8 行定义.
+
+
+
+\doxysubsection{函数说明}
+\mbox{\Hypertarget{lapi_8c_af95fcf06d620f6a244caf0097e610a07}\label{lapi_8c_af95fcf06d620f6a244caf0097e610a07}} 
+\index{lapi.c@{lapi.c}!aux\_rawset@{aux\_rawset}}
+\index{aux\_rawset@{aux\_rawset}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{aux\_rawset()}{aux\_rawset()}}
+{\footnotesize\ttfamily static void aux\+\_\+rawset (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx,  }\item[{\mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{key,  }\item[{int}]{n }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lapi.\+c 第 854 行定义.
+
+\mbox{\Hypertarget{lapi_8c_aa300a4cd32bcefdee8e1457e0e4fbacb}\label{lapi_8c_aa300a4cd32bcefdee8e1457e0e4fbacb}} 
+\index{lapi.c@{lapi.c}!aux\_upvalue@{aux\_upvalue}}
+\index{aux\_upvalue@{aux\_upvalue}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{aux\_upvalue()}{aux\_upvalue()}}
+{\footnotesize\ttfamily static const char$\ast$ aux\+\_\+upvalue (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{fi,  }\item[{int}]{n,  }\item[{\mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$$\ast$}]{val,  }\item[{\mbox{\hyperlink{struct_g_c_object}{G\+C\+Object}} $\ast$$\ast$}]{owner }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lapi.\+c 第 1312 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a1b28b3a312121ffb29541632648b9f78}\label{lapi_8c_a1b28b3a312121ffb29541632648b9f78}} 
+\index{lapi.c@{lapi.c}!auxgetstr@{auxgetstr}}
+\index{auxgetstr@{auxgetstr}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{auxgetstr()}{auxgetstr()}}
+{\footnotesize\ttfamily static int auxgetstr (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{t,  }\item[{const char $\ast$}]{k }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lapi.\+c 第 609 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a0667fbf88666853554967226d9a3df4d}\label{lapi_8c_a0667fbf88666853554967226d9a3df4d}} 
+\index{lapi.c@{lapi.c}!auxsetstr@{auxsetstr}}
+\index{auxsetstr@{auxsetstr}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{auxsetstr()}{auxsetstr()}}
+{\footnotesize\ttfamily static void auxsetstr (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{t,  }\item[{const char $\ast$}]{k }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lapi.\+c 第 788 行定义.
+
+\mbox{\Hypertarget{lapi_8c_ac3926c93fb08234f9f47e24653124910}\label{lapi_8c_ac3926c93fb08234f9f47e24653124910}} 
+\index{lapi.c@{lapi.c}!f\_call@{f\_call}}
+\index{f\_call@{f\_call}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{f\_call()}{f\_call()}}
+{\footnotesize\ttfamily static void f\+\_\+call (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{void $\ast$}]{ud }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lapi.\+c 第 995 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a33830676158a2e9fde44f07109035425}\label{lapi_8c_a33830676158a2e9fde44f07109035425}} 
+\index{lapi.c@{lapi.c}!finishrawget@{finishrawget}}
+\index{finishrawget@{finishrawget}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{finishrawget()}{finishrawget()}}
+{\footnotesize\ttfamily static int finishrawget (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{val }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lapi.\+c 第 673 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a4ebfbcdc1a7a4f0332d4dd532a817212}\label{lapi_8c_a4ebfbcdc1a7a4f0332d4dd532a817212}} 
+\index{lapi.c@{lapi.c}!gettable@{gettable}}
+\index{gettable@{gettable}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{gettable()}{gettable()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{struct_table}{Table}}$\ast$ gettable (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lapi.\+c 第 684 行定义.
+
+\mbox{\Hypertarget{lapi_8c_afe9a3b06ff27bba372b28ad108c9c3e8}\label{lapi_8c_afe9a3b06ff27bba372b28ad108c9c3e8}} 
+\index{lapi.c@{lapi.c}!getupvalref@{getupvalref}}
+\index{getupvalref@{getupvalref}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{getupvalref()}{getupvalref()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{struct_up_val}{Up\+Val}}$\ast$$\ast$ getupvalref (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{fidx,  }\item[{int}]{n,  }\item[{\mbox{\hyperlink{struct_l_closure}{L\+Closure}} $\ast$$\ast$}]{pf }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lapi.\+c 第 1372 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a7acfd65878b2f2c7529c788ce08d1949}\label{lapi_8c_a7acfd65878b2f2c7529c788ce08d1949}} 
+\index{lapi.c@{lapi.c}!index2stack@{index2stack}}
+\index{index2stack@{index2stack}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{index2stack()}{index2stack()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}} index2stack (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lapi.\+c 第 83 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a7c66797ff8396fc9258bb9fc08e959d8}\label{lapi_8c_a7c66797ff8396fc9258bb9fc08e959d8}} 
+\index{lapi.c@{lapi.c}!index2value@{index2value}}
+\index{index2value@{index2value}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{index2value()}{index2value()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{struct_t_value}{T\+Value}}$\ast$ index2value (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lapi.\+c 第 56 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a32821b04960f1c1223132349d04911c1}\label{lapi_8c_a32821b04960f1c1223132349d04911c1}} 
+\index{lapi.c@{lapi.c}!lua\_absindex@{lua\_absindex}}
+\index{lua\_absindex@{lua\_absindex}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_absindex()}{lua\_absindex()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+absindex (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 160 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a08501a34884feca01759dec174d69c88}\label{lapi_8c_a08501a34884feca01759dec174d69c88}} 
+\index{lapi.c@{lapi.c}!lua\_arith@{lua\_arith}}
+\index{lua\_arith@{lua\_arith}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_arith()}{lua\_arith()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+arith (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{op }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 308 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a90bf785da77985164dbe2eb0d64bf82e}\label{lapi_8c_a90bf785da77985164dbe2eb0d64bf82e}} 
+\index{lapi.c@{lapi.c}!lua\_atpanic@{lua\_atpanic}}
+\index{lua\_atpanic@{lua\_atpanic}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_atpanic()}{lua\_atpanic()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_a878b7e392e78661a374cf1c3073029b9}{lua\+\_\+\+C\+Function}} lua\+\_\+atpanic (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{lua_8h_a878b7e392e78661a374cf1c3073029b9}{lua\+\_\+\+C\+Function}}}]{panicf }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 135 行定义.
+
+\mbox{\Hypertarget{lapi_8c_ac5fef99e413a94e396b70b8263704ad3}\label{lapi_8c_ac5fef99e413a94e396b70b8263704ad3}} 
+\index{lapi.c@{lapi.c}!lua\_callk@{lua\_callk}}
+\index{lua\_callk@{lua\_callk}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_callk()}{lua\_callk()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+callk (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{nargs,  }\item[{int}]{nresults,  }\item[{\mbox{\hyperlink{lua_8h_a0c565e13b66764da08aa2c68fe4365f0}{lua\+\_\+\+K\+Context}}}]{ctx,  }\item[{\mbox{\hyperlink{lua_8h_a4bfd58d9192edfdcb7238de00bd0202c}{lua\+\_\+\+K\+Function}}}]{k }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 963 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a1d762b92d5d82d6fa9f54ccf5c89d6a2}\label{lapi_8c_a1d762b92d5d82d6fa9f54ccf5c89d6a2}} 
+\index{lapi.c@{lapi.c}!lua\_checkstack@{lua\_checkstack}}
+\index{lua\_checkstack@{lua\_checkstack}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_checkstack()}{lua\_checkstack()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+checkstack (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 98 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a5fbae51f515549d4657d0efc676defee}\label{lapi_8c_a5fbae51f515549d4657d0efc676defee}} 
+\index{lapi.c@{lapi.c}!lua\_compare@{lua\_compare}}
+\index{lua\_compare@{lua\_compare}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_compare()}{lua\_compare()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+compare (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{index1,  }\item[{int}]{index2,  }\item[{int}]{op }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 324 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a1de3afee1daece63d455f23818c883d9}\label{lapi_8c_a1de3afee1daece63d455f23818c883d9}} 
+\index{lapi.c@{lapi.c}!lua\_concat@{lua\_concat}}
+\index{lua\_concat@{lua\_concat}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_concat()}{lua\_concat()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+concat (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 1238 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a111bd3fa34fe656f415edae5e343e13e}\label{lapi_8c_a111bd3fa34fe656f415edae5e343e13e}} 
+\index{lapi.c@{lapi.c}!lua\_copy@{lua\_copy}}
+\index{lua\_copy@{lua\_copy}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_copy()}{lua\_copy()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+copy (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{fromidx,  }\item[{int}]{toidx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 228 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a7f93e3baf3101cad59ec61b7744a55d8}\label{lapi_8c_a7f93e3baf3101cad59ec61b7744a55d8}} 
+\index{lapi.c@{lapi.c}!lua\_createtable@{lua\_createtable}}
+\index{lua\_createtable@{lua\_createtable}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_createtable()}{lua\_createtable()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+createtable (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{narray,  }\item[{int}]{nrec }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 721 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a68295f56f04fd0d5c0adfb1793a04b4c}\label{lapi_8c_a68295f56f04fd0d5c0adfb1793a04b4c}} 
+\index{lapi.c@{lapi.c}!lua\_dump@{lua\_dump}}
+\index{lua\_dump@{lua\_dump}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_dump()}{lua\_dump()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+dump (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{lua_8h_a855729196d7066b2da21178284868a8d}{lua\+\_\+\+Writer}}}]{writer,  }\item[{void $\ast$}]{data,  }\item[{int}]{strip }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 1070 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a6ba7b91143fe8a03910420d800de8e97}\label{lapi_8c_a6ba7b91143fe8a03910420d800de8e97}} 
+\index{lapi.c@{lapi.c}!lua\_error@{lua\_error}}
+\index{lua\_error@{lua\_error}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_error()}{lua\_error()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+error (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 1196 行定义.
+
+\mbox{\Hypertarget{lapi_8c_aa93573057f708d826613186a9d40c87d}\label{lapi_8c_aa93573057f708d826613186a9d40c87d}} 
+\index{lapi.c@{lapi.c}!lua\_gc@{lua\_gc}}
+\index{lua\_gc@{lua\_gc}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_gc()}{lua\_gc()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+gc (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{what,  }\item[{}]{... }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 1093 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a3dbff8747b32b799cf63603c46da06cc}\label{lapi_8c_a3dbff8747b32b799cf63603c46da06cc}} 
+\index{lapi.c@{lapi.c}!lua\_getallocf@{lua\_getallocf}}
+\index{lua\_getallocf@{lua\_getallocf}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_getallocf()}{lua\_getallocf()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_a2fee348bffcc82b15c626b27f66a748b}{lua\+\_\+\+Alloc}} lua\+\_\+getallocf (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{void $\ast$$\ast$}]{ud }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 1264 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a8b47f1b5685c3f8018ba926abb99af24}\label{lapi_8c_a8b47f1b5685c3f8018ba926abb99af24}} 
+\index{lapi.c@{lapi.c}!lua\_getfield@{lua\_getfield}}
+\index{lua\_getfield@{lua\_getfield}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_getfield()}{lua\_getfield()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+getfield (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx,  }\item[{const char $\ast$}]{k }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 648 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a8185a9c46d5930205f95beee4991e9f0}\label{lapi_8c_a8185a9c46d5930205f95beee4991e9f0}} 
+\index{lapi.c@{lapi.c}!lua\_getglobal@{lua\_getglobal}}
+\index{lua\_getglobal@{lua\_getglobal}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_getglobal()}{lua\_getglobal()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+getglobal (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{name }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 626 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a631ebda324b6a0f382ab6b9314917384}\label{lapi_8c_a631ebda324b6a0f382ab6b9314917384}} 
+\index{lapi.c@{lapi.c}!lua\_geti@{lua\_geti}}
+\index{lua\_geti@{lua\_geti}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_geti()}{lua\_geti()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+geti (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 654 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a57c21a629f94ee0acc21a25d83bfaeba}\label{lapi_8c_a57c21a629f94ee0acc21a25d83bfaeba}} 
+\index{lapi.c@{lapi.c}!lua\_getiuservalue@{lua\_getiuservalue}}
+\index{lua\_getiuservalue@{lua\_getiuservalue}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_getiuservalue()}{lua\_getiuservalue()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+getiuservalue (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx,  }\item[{int}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 761 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a4caa9ca5e47a30bd45e33d83bf2d6d6e}\label{lapi_8c_a4caa9ca5e47a30bd45e33d83bf2d6d6e}} 
+\index{lapi.c@{lapi.c}!lua\_getmetatable@{lua\_getmetatable}}
+\index{lua\_getmetatable@{lua\_getmetatable}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_getmetatable()}{lua\_getmetatable()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+getmetatable (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{objindex }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 734 行定义.
+
+\mbox{\Hypertarget{lapi_8c_aa572dbc6e86f796a3e82ffcae4478aeb}\label{lapi_8c_aa572dbc6e86f796a3e82ffcae4478aeb}} 
+\index{lapi.c@{lapi.c}!lua\_gettable@{lua\_gettable}}
+\index{lua\_gettable@{lua\_gettable}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_gettable()}{lua\_gettable()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+gettable (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 633 行定义.
+
+\mbox{\Hypertarget{lapi_8c_afbb08ecb69421875494105d4de68e5bf}\label{lapi_8c_afbb08ecb69421875494105d4de68e5bf}} 
+\index{lapi.c@{lapi.c}!lua\_gettop@{lua\_gettop}}
+\index{lua\_gettop@{lua\_gettop}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_gettop()}{lua\_gettop()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+gettop (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 167 行定义.
+
+\mbox{\Hypertarget{lapi_8c_afd5e7d6995dc52a5cb9e370ee3a710e6}\label{lapi_8c_afd5e7d6995dc52a5cb9e370ee3a710e6}} 
+\index{lapi.c@{lapi.c}!lua\_getupvalue@{lua\_getupvalue}}
+\index{lua\_getupvalue@{lua\_getupvalue}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_getupvalue()}{lua\_getupvalue()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} const char$\ast$ lua\+\_\+getupvalue (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{funcindex,  }\item[{int}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 1339 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a3b922032c9fe2930399186a3647cc3ad}\label{lapi_8c_a3b922032c9fe2930399186a3647cc3ad}} 
+\index{lapi.c@{lapi.c}!lua\_iscfunction@{lua\_iscfunction}}
+\index{lua\_iscfunction@{lua\_iscfunction}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_iscfunction()}{lua\_iscfunction()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+iscfunction (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 270 行定义.
+
+\mbox{\Hypertarget{lapi_8c_aba53e83eb1fff94b5ed96203bb52d8ae}\label{lapi_8c_aba53e83eb1fff94b5ed96203bb52d8ae}} 
+\index{lapi.c@{lapi.c}!lua\_isinteger@{lua\_isinteger}}
+\index{lua\_isinteger@{lua\_isinteger}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_isinteger()}{lua\_isinteger()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+isinteger (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 276 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a99451f234bf085c9c46c3d17a5aef905}\label{lapi_8c_a99451f234bf085c9c46c3d17a5aef905}} 
+\index{lapi.c@{lapi.c}!lua\_isnumber@{lua\_isnumber}}
+\index{lua\_isnumber@{lua\_isnumber}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_isnumber()}{lua\_isnumber()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+isnumber (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 282 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a9f20233199a414b04c1c4b43f5d040f3}\label{lapi_8c_a9f20233199a414b04c1c4b43f5d040f3}} 
+\index{lapi.c@{lapi.c}!lua\_isstring@{lua\_isstring}}
+\index{lua\_isstring@{lua\_isstring}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_isstring()}{lua\_isstring()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+isstring (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 289 行定义.
+
+\mbox{\Hypertarget{lapi_8c_aa8a1dab86cfb4e0f9a4d1f699af0041b}\label{lapi_8c_aa8a1dab86cfb4e0f9a4d1f699af0041b}} 
+\index{lapi.c@{lapi.c}!lua\_isuserdata@{lua\_isuserdata}}
+\index{lua\_isuserdata@{lua\_isuserdata}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_isuserdata()}{lua\_isuserdata()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+isuserdata (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 295 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a28bdc8c01771ec2524b329a409a08040}\label{lapi_8c_a28bdc8c01771ec2524b329a409a08040}} 
+\index{lapi.c@{lapi.c}!lua\_len@{lua\_len}}
+\index{lua\_len@{lua\_len}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_len()}{lua\_len()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+len (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 1254 行定义.
+
+\mbox{\Hypertarget{lapi_8c_aa7a94c45f3eec251e5b258d7482ffe87}\label{lapi_8c_aa7a94c45f3eec251e5b258d7482ffe87}} 
+\index{lapi.c@{lapi.c}!lua\_load@{lua\_load}}
+\index{lua\_load@{lua\_load}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_load()}{lua\_load()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+load (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{lua_8h_a4081d57135fee907807ba5070d528fdf}{lua\+\_\+\+Reader}}}]{reader,  }\item[{void $\ast$}]{data,  }\item[{const char $\ast$}]{chunkname,  }\item[{const char $\ast$}]{mode }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 1046 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a9c09a58b86c71e997d7ccabb67f18c12}\label{lapi_8c_a9c09a58b86c71e997d7ccabb67f18c12}} 
+\index{lapi.c@{lapi.c}!lua\_newuserdatauv@{lua\_newuserdatauv}}
+\index{lua\_newuserdatauv@{lua\_newuserdatauv}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_newuserdatauv()}{lua\_newuserdatauv()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void$\ast$ lua\+\_\+newuserdatauv (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{size\+\_\+t}]{size,  }\item[{int}]{nuvalue }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 1298 行定义.
+
+\mbox{\Hypertarget{lapi_8c_aa8bf464b98335a075732200ad91ce1de}\label{lapi_8c_aa8bf464b98335a075732200ad91ce1de}} 
+\index{lapi.c@{lapi.c}!lua\_next@{lua\_next}}
+\index{lua\_next@{lua\_next}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_next()}{lua\_next()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+next (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 1205 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a624df4cb2312b762c4fb528ecc889385}\label{lapi_8c_a624df4cb2312b762c4fb528ecc889385}} 
+\index{lapi.c@{lapi.c}!lua\_pcallk@{lua\_pcallk}}
+\index{lua\_pcallk@{lua\_pcallk}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_pcallk()}{lua\_pcallk()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+pcallk (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{nargs,  }\item[{int}]{nresults,  }\item[{int}]{errfunc,  }\item[{\mbox{\hyperlink{lua_8h_a0c565e13b66764da08aa2c68fe4365f0}{lua\+\_\+\+K\+Context}}}]{ctx,  }\item[{\mbox{\hyperlink{lua_8h_a4bfd58d9192edfdcb7238de00bd0202c}{lua\+\_\+\+K\+Function}}}]{k }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 1002 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a56bbb7479265e38da2e2596e6ec25faa}\label{lapi_8c_a56bbb7479265e38da2e2596e6ec25faa}} 
+\index{lapi.c@{lapi.c}!lua\_pushboolean@{lua\_pushboolean}}
+\index{lua\_pushboolean@{lua\_pushboolean}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_pushboolean()}{lua\_pushboolean()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+pushboolean (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{b }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 575 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a142802b91cdd22516b54599f51e101e4}\label{lapi_8c_a142802b91cdd22516b54599f51e101e4}} 
+\index{lapi.c@{lapi.c}!lua\_pushcclosure@{lua\_pushcclosure}}
+\index{lua\_pushcclosure@{lua\_pushcclosure}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_pushcclosure()}{lua\_pushcclosure()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+pushcclosure (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{lua_8h_a878b7e392e78661a374cf1c3073029b9}{lua\+\_\+\+C\+Function}}}]{fn,  }\item[{int}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 550 行定义.
+
+\mbox{\Hypertarget{lapi_8c_ab190c226d38b289e6ca57683a9d4e0f0}\label{lapi_8c_ab190c226d38b289e6ca57683a9d4e0f0}} 
+\index{lapi.c@{lapi.c}!lua\_pushfstring@{lua\_pushfstring}}
+\index{lua\_pushfstring@{lua\_pushfstring}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_pushfstring()}{lua\_pushfstring()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} const char$\ast$ lua\+\_\+pushfstring (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{fmt,  }\item[{}]{... }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 537 行定义.
+
+\mbox{\Hypertarget{lapi_8c_adcec46ff05dfee9a3c4c05828b40c213}\label{lapi_8c_adcec46ff05dfee9a3c4c05828b40c213}} 
+\index{lapi.c@{lapi.c}!lua\_pushinteger@{lua\_pushinteger}}
+\index{lua\_pushinteger@{lua\_pushinteger}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_pushinteger()}{lua\_pushinteger()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+pushinteger (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 484 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a85e3e3d32b068aef62426828a104b561}\label{lapi_8c_a85e3e3d32b068aef62426828a104b561}} 
+\index{lapi.c@{lapi.c}!lua\_pushlightuserdata@{lua\_pushlightuserdata}}
+\index{lua\_pushlightuserdata@{lua\_pushlightuserdata}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_pushlightuserdata()}{lua\_pushlightuserdata()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+pushlightuserdata (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{void $\ast$}]{p }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 586 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a2c325311534c23450cdf11931a8db0ae}\label{lapi_8c_a2c325311534c23450cdf11931a8db0ae}} 
+\index{lapi.c@{lapi.c}!lua\_pushlstring@{lua\_pushlstring}}
+\index{lua\_pushlstring@{lua\_pushlstring}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_pushlstring()}{lua\_pushlstring()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} const char$\ast$ lua\+\_\+pushlstring (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{s,  }\item[{size\+\_\+t}]{len }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 497 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a1b4cd0d80f51e5545a97ca6c28c03c50}\label{lapi_8c_a1b4cd0d80f51e5545a97ca6c28c03c50}} 
+\index{lapi.c@{lapi.c}!lua\_pushnil@{lua\_pushnil}}
+\index{lua\_pushnil@{lua\_pushnil}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_pushnil()}{lua\_pushnil()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+pushnil (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 468 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a328625a03fbb5548f27b1af10f109f6a}\label{lapi_8c_a328625a03fbb5548f27b1af10f109f6a}} 
+\index{lapi.c@{lapi.c}!lua\_pushnumber@{lua\_pushnumber}}
+\index{lua\_pushnumber@{lua\_pushnumber}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_pushnumber()}{lua\_pushnumber()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+pushnumber (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}}}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 476 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a771d300f2e64b2197d1df9bf31660ebf}\label{lapi_8c_a771d300f2e64b2197d1df9bf31660ebf}} 
+\index{lapi.c@{lapi.c}!lua\_pushstring@{lua\_pushstring}}
+\index{lua\_pushstring@{lua\_pushstring}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_pushstring()}{lua\_pushstring()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} const char$\ast$ lua\+\_\+pushstring (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{s }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 509 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a4175aeea9aa6dbf096ecfca7b190fa4a}\label{lapi_8c_a4175aeea9aa6dbf096ecfca7b190fa4a}} 
+\index{lapi.c@{lapi.c}!lua\_pushthread@{lua\_pushthread}}
+\index{lua\_pushthread@{lua\_pushthread}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_pushthread()}{lua\_pushthread()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+pushthread (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 594 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a602f61a9b583d69dc1c72c8970bd65e8}\label{lapi_8c_a602f61a9b583d69dc1c72c8970bd65e8}} 
+\index{lapi.c@{lapi.c}!lua\_pushvalue@{lua\_pushvalue}}
+\index{lua\_pushvalue@{lua\_pushvalue}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_pushvalue()}{lua\_pushvalue()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+pushvalue (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 243 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a426c9cb1d582be3e43060c4772854e5a}\label{lapi_8c_a426c9cb1d582be3e43060c4772854e5a}} 
+\index{lapi.c@{lapi.c}!lua\_pushvfstring@{lua\_pushvfstring}}
+\index{lua\_pushvfstring@{lua\_pushvfstring}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_pushvfstring()}{lua\_pushvfstring()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} const char$\ast$ lua\+\_\+pushvfstring (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{fmt,  }\item[{va\+\_\+list}]{argp }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 526 行定义.
+
+\mbox{\Hypertarget{lapi_8c_ace66ea78ced7fda0b367f45d09d10d83}\label{lapi_8c_ace66ea78ced7fda0b367f45d09d10d83}} 
+\index{lapi.c@{lapi.c}!lua\_rawequal@{lua\_rawequal}}
+\index{lua\_rawequal@{lua\_rawequal}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_rawequal()}{lua\_rawequal()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+rawequal (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{index1,  }\item[{int}]{index2 }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 301 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a52944e714d1c64bda7b83f511c14b2d3}\label{lapi_8c_a52944e714d1c64bda7b83f511c14b2d3}} 
+\index{lapi.c@{lapi.c}!lua\_rawget@{lua\_rawget}}
+\index{lua\_rawget@{lua\_rawget}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_rawget()}{lua\_rawget()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+rawget (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 691 行定义.
+
+\mbox{\Hypertarget{lapi_8c_af8e4dc545cc83927d901d2f242489320}\label{lapi_8c_af8e4dc545cc83927d901d2f242489320}} 
+\index{lapi.c@{lapi.c}!lua\_rawgeti@{lua\_rawgeti}}
+\index{lua\_rawgeti@{lua\_rawgeti}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_rawgeti()}{lua\_rawgeti()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+rawgeti (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 703 行定义.
+
+\mbox{\Hypertarget{lapi_8c_acf10870c7165e0e440eb14827a52de93}\label{lapi_8c_acf10870c7165e0e440eb14827a52de93}} 
+\index{lapi.c@{lapi.c}!lua\_rawgetp@{lua\_rawgetp}}
+\index{lua\_rawgetp@{lua\_rawgetp}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_rawgetp()}{lua\_rawgetp()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+rawgetp (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx,  }\item[{const void $\ast$}]{p }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 711 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a161e2baf3d7a6a84499f6a9010cf12c8}\label{lapi_8c_a161e2baf3d7a6a84499f6a9010cf12c8}} 
+\index{lapi.c@{lapi.c}!lua\_rawlen@{lua\_rawlen}}
+\index{lua\_rawlen@{lua\_rawlen}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_rawlen()}{lua\_rawlen()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_a2357bdcd9af1aaef0a6895a9c3b7eccf}{lua\+\_\+\+Unsigned}} lua\+\_\+rawlen (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 397 行定义.
+
+\mbox{\Hypertarget{lapi_8c_afb2d27f421677ef40425f9054ae216a7}\label{lapi_8c_afb2d27f421677ef40425f9054ae216a7}} 
+\index{lapi.c@{lapi.c}!lua\_rawset@{lua\_rawset}}
+\index{lua\_rawset@{lua\_rawset}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_rawset()}{lua\_rawset()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+rawset (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 869 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a757fd16e7e09280e2d4e4f9f77ba1099}\label{lapi_8c_a757fd16e7e09280e2d4e4f9f77ba1099}} 
+\index{lapi.c@{lapi.c}!lua\_rawseti@{lua\_rawseti}}
+\index{lua\_rawseti@{lua\_rawseti}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_rawseti()}{lua\_rawseti()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+rawseti (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 881 行定义.
+
+\mbox{\Hypertarget{lapi_8c_aef5ff7d32a6e275fa0b8305f013bee9d}\label{lapi_8c_aef5ff7d32a6e275fa0b8305f013bee9d}} 
+\index{lapi.c@{lapi.c}!lua\_rawsetp@{lua\_rawsetp}}
+\index{lua\_rawsetp@{lua\_rawsetp}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_rawsetp()}{lua\_rawsetp()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+rawsetp (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx,  }\item[{const void $\ast$}]{p }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 874 行定义.
+
+\mbox{\Hypertarget{lapi_8c_af680e24129c0e021b4fbb7700cf185dc}\label{lapi_8c_af680e24129c0e021b4fbb7700cf185dc}} 
+\index{lapi.c@{lapi.c}!lua\_rotate@{lua\_rotate}}
+\index{lua\_rotate@{lua\_rotate}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_rotate()}{lua\_rotate()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+rotate (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx,  }\item[{int}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 214 行定义.
+
+\mbox{\Hypertarget{lapi_8c_ac890276f9590df6a4d6aabdad9c558f0}\label{lapi_8c_ac890276f9590df6a4d6aabdad9c558f0}} 
+\index{lapi.c@{lapi.c}!lua\_setallocf@{lua\_setallocf}}
+\index{lua\_setallocf@{lua\_setallocf}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_setallocf()}{lua\_setallocf()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+setallocf (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{lua_8h_a2fee348bffcc82b15c626b27f66a748b}{lua\+\_\+\+Alloc}}}]{f,  }\item[{void $\ast$}]{ud }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 1274 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a3f2f542ee6728d82e51b1c302f9606df}\label{lapi_8c_a3f2f542ee6728d82e51b1c302f9606df}} 
+\index{lapi.c@{lapi.c}!lua\_setfield@{lua\_setfield}}
+\index{lua\_setfield@{lua\_setfield}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_setfield()}{lua\_setfield()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+setfield (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx,  }\item[{const char $\ast$}]{k }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 829 行定义.
+
+\mbox{\Hypertarget{lapi_8c_aecf388efaede9d97581335998dfa243b}\label{lapi_8c_aecf388efaede9d97581335998dfa243b}} 
+\index{lapi.c@{lapi.c}!lua\_setglobal@{lua\_setglobal}}
+\index{lua\_setglobal@{lua\_setglobal}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_setglobal()}{lua\_setglobal()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+setglobal (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{name }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 806 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a3f995c6cbc03d4cdebb2a6fc6fa11e59}\label{lapi_8c_a3f995c6cbc03d4cdebb2a6fc6fa11e59}} 
+\index{lapi.c@{lapi.c}!lua\_seti@{lua\_seti}}
+\index{lua\_seti@{lua\_seti}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_seti()}{lua\_seti()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+seti (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 835 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a7383d0f43ccf69b414217a32d3947a49}\label{lapi_8c_a7383d0f43ccf69b414217a32d3947a49}} 
+\index{lapi.c@{lapi.c}!lua\_setiuservalue@{lua\_setiuservalue}}
+\index{lua\_setiuservalue@{lua\_setiuservalue}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_setiuservalue()}{lua\_setiuservalue()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+setiuservalue (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx,  }\item[{int}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 933 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a15719ea4119bdf5b3f2a406534431a7e}\label{lapi_8c_a15719ea4119bdf5b3f2a406534431a7e}} 
+\index{lapi.c@{lapi.c}!lua\_setmetatable@{lua\_setmetatable}}
+\index{lua\_setmetatable@{lua\_setmetatable}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_setmetatable()}{lua\_setmetatable()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+setmetatable (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{objindex }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 893 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a4ca492cf3d2194aec9a6292708bf66c8}\label{lapi_8c_a4ca492cf3d2194aec9a6292708bf66c8}} 
+\index{lapi.c@{lapi.c}!lua\_settable@{lua\_settable}}
+\index{lua\_settable@{lua\_settable}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_settable()}{lua\_settable()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+settable (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 813 行定义.
+
+\mbox{\Hypertarget{lapi_8c_adaa30f0d34786144c94644039d1d1b6e}\label{lapi_8c_adaa30f0d34786144c94644039d1d1b6e}} 
+\index{lapi.c@{lapi.c}!lua\_settop@{lua\_settop}}
+\index{lua\_settop@{lua\_settop}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_settop()}{lua\_settop()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+settop (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 172 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a6e2e5717e848fca56335a64739a8f2c0}\label{lapi_8c_a6e2e5717e848fca56335a64739a8f2c0}} 
+\index{lapi.c@{lapi.c}!lua\_setupvalue@{lua\_setupvalue}}
+\index{lua\_setupvalue@{lua\_setupvalue}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_setupvalue()}{lua\_setupvalue()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} const char$\ast$ lua\+\_\+setupvalue (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{funcindex,  }\item[{int}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 1353 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a708d3ea569d1e7174f06281ecba5a091}\label{lapi_8c_a708d3ea569d1e7174f06281ecba5a091}} 
+\index{lapi.c@{lapi.c}!lua\_setwarnf@{lua\_setwarnf}}
+\index{lua\_setwarnf@{lua\_setwarnf}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_setwarnf()}{lua\_setwarnf()}}
+{\footnotesize\ttfamily void lua\+\_\+setwarnf (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{lua_8h_a01be53d7e053b2703a9a0ee91aff4974}{lua\+\_\+\+Warn\+Function}}}]{f,  }\item[{void $\ast$}]{ud }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 1282 行定义.
+
+\mbox{\Hypertarget{lapi_8c_aadea4b6f60174a1334ebde560968a615}\label{lapi_8c_aadea4b6f60174a1334ebde560968a615}} 
+\index{lapi.c@{lapi.c}!lua\_status@{lua\_status}}
+\index{lua\_status@{lua\_status}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_status()}{lua\_status()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+status (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 1085 行定义.
+
+\mbox{\Hypertarget{lapi_8c_ab9c2fb9e2b2c7dad7474dd4b6f1bbcd0}\label{lapi_8c_ab9c2fb9e2b2c7dad7474dd4b6f1bbcd0}} 
+\index{lapi.c@{lapi.c}!lua\_stringtonumber@{lua\_stringtonumber}}
+\index{lua\_stringtonumber@{lua\_stringtonumber}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_stringtonumber()}{lua\_stringtonumber()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} size\+\_\+t lua\+\_\+stringtonumber (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{s }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 344 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a444aee9aa56b0b06175ee3c7bcf7927c}\label{lapi_8c_a444aee9aa56b0b06175ee3c7bcf7927c}} 
+\index{lapi.c@{lapi.c}!lua\_toboolean@{lua\_toboolean}}
+\index{lua\_toboolean@{lua\_toboolean}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_toboolean()}{lua\_toboolean()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+toboolean (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 372 行定义.
+
+\mbox{\Hypertarget{lapi_8c_ae790897a3311d599299895612986d850}\label{lapi_8c_ae790897a3311d599299895612986d850}} 
+\index{lapi.c@{lapi.c}!lua\_tocfunction@{lua\_tocfunction}}
+\index{lua\_tocfunction@{lua\_tocfunction}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_tocfunction()}{lua\_tocfunction()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_a878b7e392e78661a374cf1c3073029b9}{lua\+\_\+\+C\+Function}} lua\+\_\+tocfunction (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 409 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a5101545bcd4222abe101836b7931bdf9}\label{lapi_8c_a5101545bcd4222abe101836b7931bdf9}} 
+\index{lapi.c@{lapi.c}!lua\_toclose@{lua\_toclose}}
+\index{lua\_toclose@{lua\_toclose}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_toclose()}{lua\_toclose()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+toclose (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 1222 行定义.
+
+\mbox{\Hypertarget{lapi_8c_af81c9a68425546e1f8c6354728c95170}\label{lapi_8c_af81c9a68425546e1f8c6354728c95170}} 
+\index{lapi.c@{lapi.c}!lua\_tointegerx@{lua\_tointegerx}}
+\index{lua\_tointegerx@{lua\_tointegerx}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_tointegerx()}{lua\_tointegerx()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} lua\+\_\+tointegerx (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx,  }\item[{int $\ast$}]{pisnum }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 362 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a3fc7dbcac3f2610f3d687ec15343bd3f}\label{lapi_8c_a3fc7dbcac3f2610f3d687ec15343bd3f}} 
+\index{lapi.c@{lapi.c}!lua\_tolstring@{lua\_tolstring}}
+\index{lua\_tolstring@{lua\_tolstring}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_tolstring()}{lua\_tolstring()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} const char$\ast$ lua\+\_\+tolstring (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx,  }\item[{size\+\_\+t $\ast$}]{len }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 378 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a375da41304604b0cba0b8c798499e673}\label{lapi_8c_a375da41304604b0cba0b8c798499e673}} 
+\index{lapi.c@{lapi.c}!lua\_tonumberx@{lua\_tonumberx}}
+\index{lua\_tonumberx@{lua\_tonumberx}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_tonumberx()}{lua\_tonumberx()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} lua\+\_\+tonumberx (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx,  }\item[{int $\ast$}]{pisnum }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 352 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a5b533fe96cb52b5415896d41daad374a}\label{lapi_8c_a5b533fe96cb52b5415896d41daad374a}} 
+\index{lapi.c@{lapi.c}!lua\_topointer@{lua\_topointer}}
+\index{lua\_topointer@{lua\_topointer}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_topointer()}{lua\_topointer()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} const void$\ast$ lua\+\_\+topointer (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 446 行定义.
+
+\mbox{\Hypertarget{lapi_8c_ad1dcea410edb5c5595fc070f8bf2e9a0}\label{lapi_8c_ad1dcea410edb5c5595fc070f8bf2e9a0}} 
+\index{lapi.c@{lapi.c}!lua\_tothread@{lua\_tothread}}
+\index{lua\_tothread@{lua\_tothread}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_tothread()}{lua\_tothread()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} \mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}}$\ast$ lua\+\_\+tothread (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 433 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a0444ddf13e5618bca969e4b3b47bc0cc}\label{lapi_8c_a0444ddf13e5618bca969e4b3b47bc0cc}} 
+\index{lapi.c@{lapi.c}!lua\_touserdata@{lua\_touserdata}}
+\index{lua\_touserdata@{lua\_touserdata}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_touserdata()}{lua\_touserdata()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void$\ast$ lua\+\_\+touserdata (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 427 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a652b273947f0656686f998d8e90cd3ea}\label{lapi_8c_a652b273947f0656686f998d8e90cd3ea}} 
+\index{lapi.c@{lapi.c}!lua\_type@{lua\_type}}
+\index{lua\_type@{lua\_type}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_type()}{lua\_type()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} int lua\+\_\+type (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 257 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a7d64f87addab440bbda96bb088816e17}\label{lapi_8c_a7d64f87addab440bbda96bb088816e17}} 
+\index{lapi.c@{lapi.c}!lua\_typename@{lua\_typename}}
+\index{lua\_typename@{lua\_typename}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_typename()}{lua\_typename()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} const char$\ast$ lua\+\_\+typename (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{t }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 263 行定义.
+
+\mbox{\Hypertarget{lapi_8c_af20e3a68caf3e24d35318baf952c5567}\label{lapi_8c_af20e3a68caf3e24d35318baf952c5567}} 
+\index{lapi.c@{lapi.c}!lua\_upvalueid@{lua\_upvalueid}}
+\index{lua\_upvalueid@{lua\_upvalueid}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_upvalueid()}{lua\_upvalueid()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void$\ast$ lua\+\_\+upvalueid (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{fidx,  }\item[{int}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 1383 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a9ce27da3bd8232ac4a0d383e924a0c7a}\label{lapi_8c_a9ce27da3bd8232ac4a0d383e924a0c7a}} 
+\index{lapi.c@{lapi.c}!lua\_upvaluejoin@{lua\_upvaluejoin}}
+\index{lua\_upvaluejoin@{lua\_upvaluejoin}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_upvaluejoin()}{lua\_upvaluejoin()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+upvaluejoin (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{fidx1,  }\item[{int}]{n1,  }\item[{int}]{fidx2,  }\item[{int}]{n2 }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 1402 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a173602b148e6a610676e866fb7874ff1}\label{lapi_8c_a173602b148e6a610676e866fb7874ff1}} 
+\index{lapi.c@{lapi.c}!lua\_version@{lua\_version}}
+\index{lua\_version@{lua\_version}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_version()}{lua\_version()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} lua\+\_\+version (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 145 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a383441029934d459d9b7cd89d3c851e8}\label{lapi_8c_a383441029934d459d9b7cd89d3c851e8}} 
+\index{lapi.c@{lapi.c}!lua\_warning@{lua\_warning}}
+\index{lua\_warning@{lua\_warning}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_warning()}{lua\_warning()}}
+{\footnotesize\ttfamily void lua\+\_\+warning (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{msg,  }\item[{int}]{tocont }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 1290 行定义.
+
+\mbox{\Hypertarget{lapi_8c_ae27bb8d0218710bbbfefc1f573839d6d}\label{lapi_8c_ae27bb8d0218710bbbfefc1f573839d6d}} 
+\index{lapi.c@{lapi.c}!lua\_xmove@{lua\_xmove}}
+\index{lua\_xmove@{lua\_xmove}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_xmove()}{lua\_xmove()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_af88575eb79fdd88b1cce4533ab5cbe69}{L\+U\+A\+\_\+\+A\+PI}} void lua\+\_\+xmove (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{from,  }\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{to,  }\item[{int}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lapi.\+c 第 119 行定义.
+
+\mbox{\Hypertarget{lapi_8c_a2c07d0a193ad3ae19b4682ed92973c70}\label{lapi_8c_a2c07d0a193ad3ae19b4682ed92973c70}} 
+\index{lapi.c@{lapi.c}!reverse@{reverse}}
+\index{reverse@{reverse}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{reverse()}{reverse()}}
+{\footnotesize\ttfamily static void reverse (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}}}]{from,  }\item[{\mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}}}]{to }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lapi.\+c 第 200 行定义.
+
+\mbox{\Hypertarget{lapi_8c_ae98ecd8a638f53798949d5966c0cbed4}\label{lapi_8c_ae98ecd8a638f53798949d5966c0cbed4}} 
+\index{lapi.c@{lapi.c}!touserdata@{touserdata}}
+\index{touserdata@{touserdata}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{touserdata()}{touserdata()}}
+{\footnotesize\ttfamily static void$\ast$ touserdata (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{o }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lapi.\+c 第 418 行定义.
+
+
+
+\doxysubsection{变量说明}
+\mbox{\Hypertarget{lapi_8c_acbf4dc2e5f80547c7f54f41a179258b2}\label{lapi_8c_acbf4dc2e5f80547c7f54f41a179258b2}} 
+\index{lapi.c@{lapi.c}!lua\_ident@{lua\_ident}}
+\index{lua\_ident@{lua\_ident}!lapi.c@{lapi.c}}
+\doxysubsubsection{\texorpdfstring{lua\_ident}{lua\_ident}}
+{\footnotesize\ttfamily const char lua\+\_\+ident\mbox{[}$\,$\mbox{]}}
+
+{\bfseries 初始值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=}
+\DoxyCodeLine{  \textcolor{stringliteral}{"{}\$LuaVersion: "{}} \mbox{\hyperlink{lua_8h_a5126fa04dbeee0b9118c769beadcd62d}{LUA\_COPYRIGHT}} \textcolor{stringliteral}{"{} \$"{}}}
+\DoxyCodeLine{  \textcolor{stringliteral}{"{}\$LuaAuthors: "{}} \mbox{\hyperlink{lua_8h_ab6ff0964a416a9a7c1e90337c965f102}{LUA\_AUTHORS}} \textcolor{stringliteral}{"{} \$"{}}}
+
+\end{DoxyCode}
+
+
+在文件 lapi.\+c 第 35 行定义.
+

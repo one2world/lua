@@ -1,0 +1,398 @@
+.TH "D:/gitworkspace/lua/src/luaconf.h" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/luaconf.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <limits\&.h>\fP
+.br
+\fC#include <stddef\&.h>\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBLUAI_MAXCSTACK\fP   2000"
+.br
+.ti -1c
+.RI "#define \fBLUAI_IS32INT\fP   ((UINT_MAX >> 30) >= 3)"
+.br
+.ti -1c
+.RI "#define \fBLUA_INT_INT\fP   1"
+.br
+.ti -1c
+.RI "#define \fBLUA_INT_LONG\fP   2"
+.br
+.ti -1c
+.RI "#define \fBLUA_INT_LONGLONG\fP   3"
+.br
+.ti -1c
+.RI "#define \fBLUA_FLOAT_FLOAT\fP   1"
+.br
+.ti -1c
+.RI "#define \fBLUA_FLOAT_DOUBLE\fP   2"
+.br
+.ti -1c
+.RI "#define \fBLUA_FLOAT_LONGDOUBLE\fP   3"
+.br
+.ti -1c
+.RI "#define \fBLUA_INT_TYPE\fP   \fBLUA_INT_LONGLONG\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_FLOAT_TYPE\fP   \fBLUA_FLOAT_DOUBLE\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_PATH_SEP\fP   ';'"
+.br
+.ti -1c
+.RI "#define \fBLUA_PATH_MARK\fP   '?'"
+.br
+.ti -1c
+.RI "#define \fBLUA_EXEC_DIR\fP   '!'"
+.br
+.ti -1c
+.RI "#define \fBLUA_VDIR\fP   \fBLUA_VERSION_MAJOR\fP '\&.' \fBLUA_VERSION_MINOR\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_ROOT\fP   '/usr/local/'"
+.br
+.ti -1c
+.RI "#define \fBLUA_LDIR\fP   \fBLUA_ROOT\fP 'share/lua/' LUA_VDIR '/'"
+.br
+.ti -1c
+.RI "#define \fBLUA_CDIR\fP   \fBLUA_ROOT\fP 'lib/lua/' LUA_VDIR '/'"
+.br
+.ti -1c
+.RI "#define \fBLUA_PATH_DEFAULT\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_CPATH_DEFAULT\fP   		\fBLUA_CDIR\fP'?\&.so;' LUA_CDIR'loadall\&.so;' '\&./?\&.so'"
+.br
+.ti -1c
+.RI "#define \fBLUA_DIRSEP\fP   '/'"
+.br
+.ti -1c
+.RI "#define \fBLUA_API\fP   extern"
+.br
+.ti -1c
+.RI "#define \fBLUALIB_API\fP   \fBLUA_API\fP"
+.br
+.ti -1c
+.RI "#define \fBLUAMOD_API\fP   \fBLUA_API\fP"
+.br
+.ti -1c
+.RI "#define \fBLUAI_FUNC\fP   extern"
+.br
+.ti -1c
+.RI "#define \fBLUAI_DDEC\fP(dec)   \fBLUAI_FUNC\fP dec"
+.br
+.ti -1c
+.RI "#define \fBLUAI_DDEF\fP   /* empty */"
+.br
+.ti -1c
+.RI "#define \fBl_floor\fP(x)   (\fBl_mathop\fP(floor)(x))"
+.br
+.ti -1c
+.RI "#define \fBlua_number2str\fP(s,  sz,  n)   	\fBl_sprintf\fP((s), sz, \fBLUA_NUMBER_FMT\fP, (\fBLUAI_UACNUMBER\fP)(n))"
+.br
+.ti -1c
+.RI "#define \fBlua_numbertointeger\fP(n,  p)"
+.br
+.ti -1c
+.RI "#define \fBLUA_NUMBER\fP   double"
+.br
+.ti -1c
+.RI "#define \fBl_floatatt\fP(n)   (DBL_##n)"
+.br
+.ti -1c
+.RI "#define \fBLUAI_UACNUMBER\fP   double"
+.br
+.ti -1c
+.RI "#define \fBLUA_NUMBER_FRMLEN\fP   ''"
+.br
+.ti -1c
+.RI "#define \fBLUA_NUMBER_FMT\fP   '%\&.14g'"
+.br
+.ti -1c
+.RI "#define \fBl_mathop\fP(op)   op"
+.br
+.ti -1c
+.RI "#define \fBlua_str2number\fP(s,  p)   strtod((s), (p))"
+.br
+.ti -1c
+.RI "#define \fBLUA_INTEGER_FMT\fP   '%' LUA_INTEGER_FRMLEN 'd'"
+.br
+.ti -1c
+.RI "#define \fBLUAI_UACINT\fP   LUA_INTEGER"
+.br
+.ti -1c
+.RI "#define \fBlua_integer2str\fP(s,  sz,  n)   	\fBl_sprintf\fP((s), sz, \fBLUA_INTEGER_FMT\fP, (\fBLUAI_UACINT\fP)(n))"
+.br
+.ti -1c
+.RI "#define \fBLUA_UNSIGNED\fP   unsigned \fBLUAI_UACINT\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_UNSIGNEDBITS\fP   (sizeof(\fBLUA_UNSIGNED\fP) * CHAR_BIT)"
+.br
+.ti -1c
+.RI "#define \fBl_sprintf\fP(s,  sz,  f,  i)   snprintf(s,sz,f,i)"
+.br
+.ti -1c
+.RI "#define \fBlua_strx2number\fP(s,  p)   \fBlua_str2number\fP(s,p)"
+.br
+.ti -1c
+.RI "#define \fBlua_pointer2str\fP(buff,  sz,  p)   \fBl_sprintf\fP(buff,sz,'%p',p)"
+.br
+.ti -1c
+.RI "#define \fBlua_number2strx\fP(L,  b,  sz,  f,  n)   	((void)L, \fBl_sprintf\fP(b,sz,f,(\fBLUAI_UACNUMBER\fP)(n)))"
+.br
+.ti -1c
+.RI "#define \fBLUA_KCONTEXT\fP   ptrdiff_t"
+.br
+.ti -1c
+.RI "#define \fBlua_getlocaledecpoint\fP()   (localeconv()\->decimal_point[0])"
+.br
+.ti -1c
+.RI "#define \fBLUAI_MAXSTACK\fP   15000"
+.br
+.ti -1c
+.RI "#define \fBLUA_EXTRASPACE\fP   (sizeof(void *))"
+.br
+.ti -1c
+.RI "#define \fBLUA_IDSIZE\fP   60"
+.br
+.ti -1c
+.RI "#define \fBLUAL_BUFFERSIZE\fP   ((int)(16 * sizeof(void*) * sizeof(\fBlua_Number\fP)))"
+.br
+.ti -1c
+.RI "#define \fBLUAI_MAXALIGN\fP   \fBlua_Number\fP n; double u; void *s; \fBlua_Integer\fP i; long l"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define l_floatatt(n)   (DBL_##n)"
+
+.PP
+在文件 luaconf\&.h 第 471 行定义\&.
+.SS "#define l_floor(x)   (\fBl_mathop\fP(floor)(x))"
+
+.PP
+在文件 luaconf\&.h 第 414 行定义\&.
+.SS "#define l_mathop(op)   op"
+
+.PP
+在文件 luaconf\&.h 第 478 行定义\&.
+.SS "#define l_sprintf(s, sz, f, i)   snprintf(s,sz,f,i)"
+
+.PP
+在文件 luaconf\&.h 第 600 行定义\&.
+.SS "#define LUA_API   extern"
+
+.PP
+在文件 luaconf\&.h 第 292 行定义\&.
+.SS "#define LUA_CDIR   \fBLUA_ROOT\fP 'lib/lua/' LUA_VDIR '/'"
+
+.PP
+在文件 luaconf\&.h 第 232 行定义\&.
+.SS "#define LUA_CPATH_DEFAULT   		\fBLUA_CDIR\fP'?\&.so;' LUA_CDIR'loadall\&.so;' '\&./?\&.so'"
+
+.PP
+在文件 luaconf\&.h 第 242 行定义\&.
+.SS "#define LUA_DIRSEP   '/'"
+
+.PP
+在文件 luaconf\&.h 第 259 行定义\&.
+.SS "#define LUA_EXEC_DIR   '!'"
+
+.PP
+在文件 luaconf\&.h 第 190 行定义\&.
+.SS "#define LUA_EXTRASPACE   (sizeof(void *))"
+
+.PP
+在文件 luaconf\&.h 第 735 行定义\&.
+.SS "#define LUA_FLOAT_DOUBLE   2"
+
+.PP
+在文件 luaconf\&.h 第 136 行定义\&.
+.SS "#define LUA_FLOAT_FLOAT   1"
+
+.PP
+在文件 luaconf\&.h 第 135 行定义\&.
+.SS "#define LUA_FLOAT_LONGDOUBLE   3"
+
+.PP
+在文件 luaconf\&.h 第 137 行定义\&.
+.SS "#define LUA_FLOAT_TYPE   \fBLUA_FLOAT_DOUBLE\fP"
+
+.PP
+在文件 luaconf\&.h 第 168 行定义\&.
+.SS "#define lua_getlocaledecpoint()   (localeconv()\->decimal_point[0])"
+
+.PP
+在文件 luaconf\&.h 第 674 行定义\&.
+.SS "#define LUA_IDSIZE   60"
+
+.PP
+在文件 luaconf\&.h 第 743 行定义\&.
+.SS "#define LUA_INT_INT   1"
+
+.PP
+在文件 luaconf\&.h 第 130 行定义\&.
+.SS "#define LUA_INT_LONG   2"
+
+.PP
+在文件 luaconf\&.h 第 131 行定义\&.
+.SS "#define LUA_INT_LONGLONG   3"
+
+.PP
+在文件 luaconf\&.h 第 132 行定义\&.
+.SS "#define LUA_INT_TYPE   \fBLUA_INT_LONGLONG\fP"
+
+.PP
+在文件 luaconf\&.h 第 164 行定义\&.
+.SS "#define lua_integer2str(s, sz, n)   	\fBl_sprintf\fP((s), sz, \fBLUA_INTEGER_FMT\fP, (\fBLUAI_UACINT\fP)(n))"
+
+.PP
+在文件 luaconf\&.h 第 513 行定义\&.
+.SS "#define LUA_INTEGER_FMT   '%' LUA_INTEGER_FRMLEN 'd'"
+
+.PP
+在文件 luaconf\&.h 第 509 行定义\&.
+.SS "#define LUA_KCONTEXT   ptrdiff_t"
+
+.PP
+在文件 luaconf\&.h 第 656 行定义\&.
+.SS "#define LUA_LDIR   \fBLUA_ROOT\fP 'share/lua/' LUA_VDIR '/'"
+
+.PP
+在文件 luaconf\&.h 第 231 行定义\&.
+.SS "#define LUA_NUMBER   double"
+
+.PP
+在文件 luaconf\&.h 第 469 行定义\&.
+.SS "#define lua_number2str(s, sz, n)   	\fBl_sprintf\fP((s), sz, \fBLUA_NUMBER_FMT\fP, (\fBLUAI_UACNUMBER\fP)(n))"
+
+.PP
+在文件 luaconf\&.h 第 416 行定义\&.
+.SS "#define lua_number2strx(L, b, sz, f, n)   	((void)L, \fBl_sprintf\fP(b,sz,f,(\fBLUAI_UACNUMBER\fP)(n)))"
+
+.PP
+在文件 luaconf\&.h 第 631 行定义\&.
+.SS "#define LUA_NUMBER_FMT   '%\&.14g'"
+
+.PP
+在文件 luaconf\&.h 第 476 行定义\&.
+.SS "#define LUA_NUMBER_FRMLEN   ''"
+
+.PP
+在文件 luaconf\&.h 第 475 行定义\&.
+.SS "#define lua_numbertointeger(n, p)"
+\fB值:\fP
+.PP
+.nf
+  ((n) >= (LUA_NUMBER)(LUA_MININTEGER) && \
+   (n) < -(LUA_NUMBER)(LUA_MININTEGER) && \
+      (*(p) = (LUA_INTEGER)(n), 1))
+.fi
+.PP
+在文件 luaconf\&.h 第 428 行定义\&.
+.SS "#define LUA_PATH_DEFAULT"
+\fB值:\fP
+.PP
+.nf
+     LUA_LDIR"?\&.lua;"  LUA_LDIR"?/init\&.lua;" \
+        LUA_CDIR"?\&.lua;"  LUA_CDIR"?/init\&.lua;" \
+        "\&./?\&.lua;" "\&./?/init\&.lua"
+.fi
+.PP
+在文件 luaconf\&.h 第 235 行定义\&.
+.SS "#define LUA_PATH_MARK   '?'"
+
+.PP
+在文件 luaconf\&.h 第 189 行定义\&.
+.SS "#define LUA_PATH_SEP   ';'"
+
+.PP
+在文件 luaconf\&.h 第 188 行定义\&.
+.SS "#define lua_pointer2str(buff, sz, p)   \fBl_sprintf\fP(buff,sz,'%p',p)"
+
+.PP
+在文件 luaconf\&.h 第 621 行定义\&.
+.SS "#define LUA_ROOT   '/usr/local/'"
+
+.PP
+在文件 luaconf\&.h 第 230 行定义\&.
+.SS "#define lua_str2number(s, p)   strtod((s), (p))"
+
+.PP
+在文件 luaconf\&.h 第 480 行定义\&.
+.SS "#define lua_strx2number(s, p)   \fBlua_str2number\fP(s,p)"
+
+.PP
+在文件 luaconf\&.h 第 613 行定义\&.
+.SS "#define LUA_UNSIGNED   unsigned \fBLUAI_UACINT\fP"
+
+.PP
+在文件 luaconf\&.h 第 520 行定义\&.
+.SS "#define LUA_UNSIGNEDBITS   (sizeof(\fBLUA_UNSIGNED\fP) * CHAR_BIT)"
+
+.PP
+在文件 luaconf\&.h 第 523 行定义\&.
+.SS "#define LUA_VDIR   \fBLUA_VERSION_MAJOR\fP '\&.' \fBLUA_VERSION_MINOR\fP"
+
+.PP
+在文件 luaconf\&.h 第 203 行定义\&.
+.SS "#define LUAI_DDEC(dec)   \fBLUAI_FUNC\fP dec"
+
+.PP
+在文件 luaconf\&.h 第 325 行定义\&.
+.SS "#define LUAI_DDEF   /* empty */"
+
+.PP
+在文件 luaconf\&.h 第 326 行定义\&.
+.SS "#define LUAI_FUNC   extern"
+
+.PP
+在文件 luaconf\&.h 第 322 行定义\&.
+.SS "#define LUAI_IS32INT   ((UINT_MAX >> 30) >= 3)"
+
+.PP
+在文件 luaconf\&.h 第 91 行定义\&.
+.SS "#define LUAI_MAXALIGN   \fBlua_Number\fP n; double u; void *s; \fBlua_Integer\fP i; long l"
+
+.PP
+在文件 luaconf\&.h 第 756 行定义\&.
+.SS "#define LUAI_MAXCSTACK   2000"
+
+.PP
+在文件 luaconf\&.h 第 50 行定义\&.
+.SS "#define LUAI_MAXSTACK   15000"
+
+.PP
+在文件 luaconf\&.h 第 726 行定义\&.
+.SS "#define LUAI_UACINT   LUA_INTEGER"
+
+.PP
+在文件 luaconf\&.h 第 511 行定义\&.
+.SS "#define LUAI_UACNUMBER   double"
+
+.PP
+在文件 luaconf\&.h 第 473 行定义\&.
+.SS "#define LUAL_BUFFERSIZE   ((int)(16 * sizeof(void*) * sizeof(\fBlua_Number\fP)))"
+
+.PP
+在文件 luaconf\&.h 第 749 行定义\&.
+.SS "#define LUALIB_API   \fBLUA_API\fP"
+
+.PP
+在文件 luaconf\&.h 第 300 行定义\&.
+.SS "#define LUAMOD_API   \fBLUA_API\fP"
+
+.PP
+在文件 luaconf\&.h 第 301 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

@@ -1,0 +1,261 @@
+.TH "D:/gitworkspace/lua/src/ltablib.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/ltablib.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <limits\&.h>\fP
+.br
+\fC#include <stddef\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lauxlib\&.h'\fP
+.br
+\fC#include 'lualib\&.h'\fP
+.br
+\fC#include <time\&.h>\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBltablib_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_LIB\fP"
+.br
+.ti -1c
+.RI "#define \fBTAB_R\fP   1			/* read */"
+.br
+.ti -1c
+.RI "#define \fBTAB_W\fP   2			/* write */"
+.br
+.ti -1c
+.RI "#define \fBTAB_L\fP   4			/* length */"
+.br
+.ti -1c
+.RI "#define \fBTAB_RW\fP   (\fBTAB_R\fP | \fBTAB_W\fP)		/* read/write */"
+.br
+.ti -1c
+.RI "#define \fBaux_getn\fP(L,  n,  w)   (\fBchecktab\fP(L, n, (w) | \fBTAB_L\fP), \fBluaL_len\fP(L, n))"
+.br
+.ti -1c
+.RI "#define \fBsof\fP(e)   (sizeof(e) / sizeof(unsigned int))"
+.br
+.ti -1c
+.RI "#define \fBRANLIMIT\fP   100u"
+.br
+.in -1c
+.SS "类型定义"
+
+.in +1c
+.ti -1c
+.RI "typedef unsigned int \fBIdxT\fP"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static int \fBcheckfield\fP (\fBlua_State\fP *L, const char *key, int n)"
+.br
+.ti -1c
+.RI "static void \fBchecktab\fP (\fBlua_State\fP *L, int arg, int what)"
+.br
+.ti -1c
+.RI "static int \fBtinsert\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBtremove\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBtmove\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBaddfield\fP (\fBlua_State\fP *L, \fBluaL_Buffer\fP *b, \fBlua_Integer\fP i)"
+.br
+.ti -1c
+.RI "static int \fBtconcat\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBtpack\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBtunpack\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static unsigned int \fBl_randomizePivot\fP (void)"
+.br
+.ti -1c
+.RI "static void \fBset2\fP (\fBlua_State\fP *L, \fBIdxT\fP i, \fBIdxT\fP j)"
+.br
+.ti -1c
+.RI "static int \fBsort_comp\fP (\fBlua_State\fP *L, int a, int b)"
+.br
+.ti -1c
+.RI "static \fBIdxT\fP \fBpartition\fP (\fBlua_State\fP *L, \fBIdxT\fP lo, \fBIdxT\fP up)"
+.br
+.ti -1c
+.RI "static \fBIdxT\fP \fBchoosePivot\fP (\fBIdxT\fP lo, \fBIdxT\fP up, unsigned int rnd)"
+.br
+.ti -1c
+.RI "static void \fBauxsort\fP (\fBlua_State\fP *L, \fBIdxT\fP lo, \fBIdxT\fP up, unsigned int rnd)"
+.br
+.ti -1c
+.RI "static int \fBsort\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAMOD_API\fP int \fBluaopen_table\fP (\fBlua_State\fP *L)"
+.br
+.in -1c
+.SS "变量"
+
+.in +1c
+.ti -1c
+.RI "static const \fBluaL_Reg\fP \fBtab_funcs\fP []"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define aux_getn(L, n, w)   (\fBchecktab\fP(L, n, (w) | \fBTAB_L\fP), \fBluaL_len\fP(L, n))"
+
+.PP
+在文件 ltablib\&.c 第 33 行定义\&.
+.SS "#define ltablib_c"
+
+.PP
+在文件 ltablib\&.c 第 7 行定义\&.
+.SS "#define LUA_LIB"
+
+.PP
+在文件 ltablib\&.c 第 8 行定义\&.
+.SS "#define RANLIMIT   100u"
+
+.PP
+在文件 ltablib\&.c 第 260 行定义\&.
+.SS "#define sof(e)   (sizeof(e) / sizeof(unsigned int))"
+
+.PP
+在文件 ltablib\&.c 第 236 行定义\&.
+.SS "#define TAB_L   4			/* length */"
+
+.PP
+在文件 ltablib\&.c 第 29 行定义\&.
+.SS "#define TAB_R   1			/* read */"
+
+.PP
+在文件 ltablib\&.c 第 27 行定义\&.
+.SS "#define TAB_RW   (\fBTAB_R\fP | \fBTAB_W\fP)		/* read/write */"
+
+.PP
+在文件 ltablib\&.c 第 30 行定义\&.
+.SS "#define TAB_W   2			/* write */"
+
+.PP
+在文件 ltablib\&.c 第 28 行定义\&.
+.SH "类型定义说明"
+.PP 
+.SS "typedef unsigned int \fBIdxT\fP"
+
+.PP
+在文件 ltablib\&.c 第 222 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static void addfield (\fBlua_State\fP * L, \fBluaL_Buffer\fP * b, \fBlua_Integer\fP i)\fC [static]\fP"
+
+.PP
+在文件 ltablib\&.c 第 146 行定义\&.
+.SS "static void auxsort (\fBlua_State\fP * L, \fBIdxT\fP lo, \fBIdxT\fP up, unsigned int rnd)\fC [static]\fP"
+
+.PP
+在文件 ltablib\&.c 第 343 行定义\&.
+.SS "static int checkfield (\fBlua_State\fP * L, const char * key, int n)\fC [static]\fP"
+
+.PP
+在文件 ltablib\&.c 第 36 行定义\&.
+.SS "static void checktab (\fBlua_State\fP * L, int arg, int what)\fC [static]\fP"
+
+.PP
+在文件 ltablib\&.c 第 46 行定义\&.
+.SS "static \fBIdxT\fP choosePivot (\fBIdxT\fP lo, \fBIdxT\fP up, unsigned int rnd)\fC [static]\fP"
+
+.PP
+在文件 ltablib\&.c 第 332 行定义\&.
+.SS "static unsigned int l_randomizePivot (void)\fC [static]\fP"
+
+.PP
+在文件 ltablib\&.c 第 244 行定义\&.
+.SS "\fBLUAMOD_API\fP int luaopen_table (\fBlua_State\fP * L)"
+
+.PP
+在文件 ltablib\&.c 第 424 行定义\&.
+.SS "static \fBIdxT\fP partition (\fBlua_State\fP * L, \fBIdxT\fP lo, \fBIdxT\fP up)\fC [static]\fP"
+
+.PP
+在文件 ltablib\&.c 第 296 行定义\&.
+.SS "static void set2 (\fBlua_State\fP * L, \fBIdxT\fP i, \fBIdxT\fP j)\fC [static]\fP"
+
+.PP
+在文件 ltablib\&.c 第 263 行定义\&.
+.SS "static int sort (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ltablib\&.c 第 397 行定义\&.
+.SS "static int sort_comp (\fBlua_State\fP * L, int a, int b)\fC [static]\fP"
+
+.PP
+在文件 ltablib\&.c 第 273 行定义\&.
+.SS "static int tconcat (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ltablib\&.c 第 155 行定义\&.
+.SS "static int tinsert (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ltablib\&.c 第 61 行定义\&.
+.SS "static int tmove (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ltablib\&.c 第 114 行定义\&.
+.SS "static int tpack (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ltablib\&.c 第 180 行定义\&.
+.SS "static int tremove (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ltablib\&.c 第 90 行定义\&.
+.SS "static int tunpack (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ltablib\&.c 第 193 行定义\&.
+.SH "变量说明"
+.PP 
+.SS "const \fBluaL_Reg\fP tab_funcs[]\fC [static]\fP"
+\fB初始值:\fP
+.PP
+.nf
+= {
+  {"concat", tconcat},
+  {"insert", tinsert},
+  {"pack", tpack},
+  {"unpack", tunpack},
+  {"remove", tremove},
+  {"move", tmove},
+  {"sort", sort},
+  {NULL, NULL}
+}
+.fi
+.PP
+在文件 ltablib\&.c 第 412 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

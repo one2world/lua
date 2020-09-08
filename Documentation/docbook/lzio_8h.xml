@@ -1,0 +1,218 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lzio_8h" xml:lang="zh">
+<title>D:/gitworkspace/lua/lzio.h 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lzio.h</primary></indexterm>
+<programlisting>#include &quot;lua.h&quot;
+#include &quot;lmem.h&quot;
+</programlisting>lzio.h 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lzio_8h__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lzio_8h__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>结构体    </title>
+        <itemizedlist>
+            <listitem><para>struct <link linkend="_struct_mbuffer">Mbuffer</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_zio">Zio</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lzio_8h_1a8341bdc72db5a2f045e18440f9523008">EOZ</link>   (-1)			/* end of stream */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lzio_8h_1aecca8ea1e6dc0c97b458f77c0e3491de">zgetc</link>(z)   (((z)-&gt;n--)&gt;0 ?  <link linkend="_llimits_8h_1aa0c49a2b32329cc39df5ccafd1f720e0">cast_uchar</link>(*(z)-&gt;p++) : <link linkend="_lzio_8h_1a407faec289b7559f210ac784e11a59bb">luaZ_fill</link>(z))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lzio_8h_1a22367cbe48563efa737ffee3f2774ae2">luaZ_initbuffer</link>(L,  buff)   ((buff)-&gt;buffer = NULL, (buff)-&gt;buffsize = 0)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lzio_8h_1aa51f632cb0519368a65ada80b71ea1e3">luaZ_buffer</link>(buff)   ((buff)-&gt;buffer)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lzio_8h_1a072ede62ba384b9d5fdedbb80eaf3ee1">luaZ_sizebuffer</link>(buff)   ((buff)-&gt;buffsize)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lzio_8h_1a26c3aeb9ce93f8559b0a596cf7bb1031">luaZ_bufflen</link>(buff)   ((buff)-&gt;n)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lzio_8h_1ab9e4cabf75529d0c2f5a809f49a25281">luaZ_buffremove</link>(buff,  i)   ((buff)-&gt;n -= (i))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lzio_8h_1a53c928283083a162c79e0152048affe2">luaZ_resetbuffer</link>(buff)   ((buff)-&gt;n = 0)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lzio_8h_1ab158420acf019b3a45e8ae6e65b51fdb">luaZ_resizebuffer</link>(L,  buff,  size)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lzio_8h_1a549577e88246e83e4578cabd2ea030ca">luaZ_freebuffer</link>(L,  buff)   <link linkend="_lzio_8h_1ab158420acf019b3a45e8ae6e65b51fdb">luaZ_resizebuffer</link>(L, buff, 0)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>类型定义    </title>
+        <itemizedlist>
+            <listitem><para>typedef struct <link linkend="_struct_zio">Zio</link> <link linkend="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17">ZIO</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_mbuffer">Mbuffer</link> <link linkend="_lzio_8h_1a0e88c2a527fb0ef0af49d0b8f34a0be9">Mbuffer</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lzio_8h_1a182323feac5ab7363dbf654d87f057d5">luaZ_init</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17">ZIO</link> *z, <link linkend="_lua_8h_1a4081d57135fee907807ba5070d528fdf">lua_Reader</link> reader, void *data)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> size_t <link linkend="_lzio_8h_1a1f10428fa224047cec9e9b1756a0b733">luaZ_read</link> (<link linkend="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17">ZIO</link> *z, void *b, size_t n)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> int <link linkend="_lzio_8h_1a407faec289b7559f210ac784e11a59bb">luaZ_fill</link> (<link linkend="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17">ZIO</link> *z)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lzio_8h_1a8341bdc72db5a2f045e18440f9523008"/>    <section>
+    <title>EOZ</title>
+<indexterm><primary>EOZ</primary><secondary>lzio.h</secondary></indexterm>
+<indexterm><primary>lzio.h</primary><secondary>EOZ</secondary></indexterm>
+<para><computeroutput>#define EOZ   (-1)			/* end of stream */</computeroutput></para><para>
+在文件 <link linkend="_lzio_8h_source">lzio.h</link> 第 <link linkend="_lzio_8h_source_1l00016">16</link> 行定义.</para>
+    </section><anchor xml:id="_lzio_8h_1aa51f632cb0519368a65ada80b71ea1e3"/>    <section>
+    <title>luaZ_buffer</title>
+<indexterm><primary>luaZ_buffer</primary><secondary>lzio.h</secondary></indexterm>
+<indexterm><primary>lzio.h</primary><secondary>luaZ_buffer</secondary></indexterm>
+<para><computeroutput>#define luaZ_buffer( buff)   ((buff)-&gt;buffer)</computeroutput></para><para>
+在文件 <link linkend="_lzio_8h_source">lzio.h</link> 第 <link linkend="_lzio_8h_source_1l00031">31</link> 行定义.</para>
+    </section><anchor xml:id="_lzio_8h_1a26c3aeb9ce93f8559b0a596cf7bb1031"/>    <section>
+    <title>luaZ_bufflen</title>
+<indexterm><primary>luaZ_bufflen</primary><secondary>lzio.h</secondary></indexterm>
+<indexterm><primary>lzio.h</primary><secondary>luaZ_bufflen</secondary></indexterm>
+<para><computeroutput>#define luaZ_bufflen( buff)   ((buff)-&gt;n)</computeroutput></para><para>
+在文件 <link linkend="_lzio_8h_source">lzio.h</link> 第 <link linkend="_lzio_8h_source_1l00033">33</link> 行定义.</para>
+    </section><anchor xml:id="_lzio_8h_1ab9e4cabf75529d0c2f5a809f49a25281"/>    <section>
+    <title>luaZ_buffremove</title>
+<indexterm><primary>luaZ_buffremove</primary><secondary>lzio.h</secondary></indexterm>
+<indexterm><primary>lzio.h</primary><secondary>luaZ_buffremove</secondary></indexterm>
+<para><computeroutput>#define luaZ_buffremove( buff,  i)   ((buff)-&gt;n -= (i))</computeroutput></para><para>
+在文件 <link linkend="_lzio_8h_source">lzio.h</link> 第 <link linkend="_lzio_8h_source_1l00035">35</link> 行定义.</para>
+    </section><anchor xml:id="_lzio_8h_1a549577e88246e83e4578cabd2ea030ca"/>    <section>
+    <title>luaZ_freebuffer</title>
+<indexterm><primary>luaZ_freebuffer</primary><secondary>lzio.h</secondary></indexterm>
+<indexterm><primary>lzio.h</primary><secondary>luaZ_freebuffer</secondary></indexterm>
+<para><computeroutput>#define luaZ_freebuffer( L,  buff)   <link linkend="_lzio_8h_1ab158420acf019b3a45e8ae6e65b51fdb">luaZ_resizebuffer</link>(L, buff, 0)</computeroutput></para><para>
+在文件 <link linkend="_lzio_8h_source">lzio.h</link> 第 <link linkend="_lzio_8h_source_1l00044">44</link> 行定义.</para>
+    </section><anchor xml:id="_lzio_8h_1a22367cbe48563efa737ffee3f2774ae2"/>    <section>
+    <title>luaZ_initbuffer</title>
+<indexterm><primary>luaZ_initbuffer</primary><secondary>lzio.h</secondary></indexterm>
+<indexterm><primary>lzio.h</primary><secondary>luaZ_initbuffer</secondary></indexterm>
+<para><computeroutput>#define luaZ_initbuffer( L,  buff)   ((buff)-&gt;buffer = NULL, (buff)-&gt;buffsize = 0)</computeroutput></para><para>
+在文件 <link linkend="_lzio_8h_source">lzio.h</link> 第 <link linkend="_lzio_8h_source_1l00029">29</link> 行定义.</para>
+    </section><anchor xml:id="_lzio_8h_1a53c928283083a162c79e0152048affe2"/>    <section>
+    <title>luaZ_resetbuffer</title>
+<indexterm><primary>luaZ_resetbuffer</primary><secondary>lzio.h</secondary></indexterm>
+<indexterm><primary>lzio.h</primary><secondary>luaZ_resetbuffer</secondary></indexterm>
+<para><computeroutput>#define luaZ_resetbuffer( buff)   ((buff)-&gt;n = 0)</computeroutput></para><para>
+在文件 <link linkend="_lzio_8h_source">lzio.h</link> 第 <link linkend="_lzio_8h_source_1l00036">36</link> 行定义.</para>
+    </section><anchor xml:id="_lzio_8h_1ab158420acf019b3a45e8ae6e65b51fdb"/>    <section>
+    <title>luaZ_resizebuffer</title>
+<indexterm><primary>luaZ_resizebuffer</primary><secondary>lzio.h</secondary></indexterm>
+<indexterm><primary>lzio.h</primary><secondary>luaZ_resizebuffer</secondary></indexterm>
+<para><computeroutput>#define luaZ_resizebuffer( L,  buff,  size)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;((buff)-&gt;buffer&#32;=&#32;<link linkend="_lmem_8h_1a5904278d180acc29faf199e1d76f3e85">luaM_reallocvchar</link>(L,&#32;(buff)-&gt;buffer,&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(buff)-&gt;buffsize,&#32;size),&#32;\
+&#32;&#32;&#32;&#32;(buff)-&gt;buffsize&#32;=&#32;size)
+</programlisting><para>
+在文件 <link linkend="_lzio_8h_source">lzio.h</link> 第 <link linkend="_lzio_8h_source_1l00039">39</link> 行定义.</para>
+    </section><anchor xml:id="_lzio_8h_1a072ede62ba384b9d5fdedbb80eaf3ee1"/>    <section>
+    <title>luaZ_sizebuffer</title>
+<indexterm><primary>luaZ_sizebuffer</primary><secondary>lzio.h</secondary></indexterm>
+<indexterm><primary>lzio.h</primary><secondary>luaZ_sizebuffer</secondary></indexterm>
+<para><computeroutput>#define luaZ_sizebuffer( buff)   ((buff)-&gt;buffsize)</computeroutput></para><para>
+在文件 <link linkend="_lzio_8h_source">lzio.h</link> 第 <link linkend="_lzio_8h_source_1l00032">32</link> 行定义.</para>
+    </section><anchor xml:id="_lzio_8h_1aecca8ea1e6dc0c97b458f77c0e3491de"/>    <section>
+    <title>zgetc</title>
+<indexterm><primary>zgetc</primary><secondary>lzio.h</secondary></indexterm>
+<indexterm><primary>lzio.h</primary><secondary>zgetc</secondary></indexterm>
+<para><computeroutput>#define zgetc( z)   (((z)-&gt;n--)&gt;0 ?  <link linkend="_llimits_8h_1aa0c49a2b32329cc39df5ccafd1f720e0">cast_uchar</link>(*(z)-&gt;p++) : <link linkend="_lzio_8h_1a407faec289b7559f210ac784e11a59bb">luaZ_fill</link>(z))</computeroutput></para><para>
+在文件 <link linkend="_lzio_8h_source">lzio.h</link> 第 <link linkend="_lzio_8h_source_1l00020">20</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>类型定义说明</title>
+<anchor xml:id="_lzio_8h_1a0e88c2a527fb0ef0af49d0b8f34a0be9"/>    <section>
+    <title>Mbuffer</title>
+<indexterm><primary>Mbuffer</primary><secondary>lzio.h</secondary></indexterm>
+<indexterm><primary>lzio.h</primary><secondary>Mbuffer</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_mbuffer">Mbuffer</link> <link linkend="_struct_mbuffer">Mbuffer</link></computeroutput></para>    </section><anchor xml:id="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17"/>    <section>
+    <title>ZIO</title>
+<indexterm><primary>ZIO</primary><secondary>lzio.h</secondary></indexterm>
+<indexterm><primary>lzio.h</primary><secondary>ZIO</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_zio">Zio</link> <link linkend="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17">ZIO</link></computeroutput></para><para>
+在文件 <link linkend="_lzio_8h_source">lzio.h</link> 第 <link linkend="_lzio_8h_source_1l00001">1</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lzio_8h_1a407faec289b7559f210ac784e11a59bb"/>    <section>
+    <title>luaZ_fill()</title>
+<indexterm><primary>luaZ_fill</primary><secondary>lzio.h</secondary></indexterm>
+<indexterm><primary>lzio.h</primary><secondary>luaZ_fill</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> int luaZ_fill (<link linkend="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17">ZIO</link> * z)</computeroutput></para><para>
+在文件 <link linkend="_lzio_8c_source">lzio.c</link> 第 <link linkend="_lzio_8c_source_1l00023">23</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lzio_8h_a407faec289b7559f210ac784e11a59bb_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lzio_8h_1a182323feac5ab7363dbf654d87f057d5"/>    <section>
+    <title>luaZ_init()</title>
+<indexterm><primary>luaZ_init</primary><secondary>lzio.h</secondary></indexterm>
+<indexterm><primary>lzio.h</primary><secondary>luaZ_init</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaZ_init (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17">ZIO</link> * z, <link linkend="_lua_8h_1a4081d57135fee907807ba5070d528fdf">lua_Reader</link> reader, void * data)</computeroutput></para><para>
+在文件 <link linkend="_lzio_8c_source">lzio.c</link> 第 <link linkend="_lzio_8c_source_1l00038">38</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lzio_8h_a182323feac5ab7363dbf654d87f057d5_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lzio_8h_1a1f10428fa224047cec9e9b1756a0b733"/>    <section>
+    <title>luaZ_read()</title>
+<indexterm><primary>luaZ_read</primary><secondary>lzio.h</secondary></indexterm>
+<indexterm><primary>lzio.h</primary><secondary>luaZ_read</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> size_t luaZ_read (<link linkend="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17">ZIO</link> * z, void * b, size_t n)</computeroutput></para><para>
+在文件 <link linkend="_lzio_8c_source">lzio.c</link> 第 <link linkend="_lzio_8c_source_1l00048">48</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lzio_8h_a1f10428fa224047cec9e9b1756a0b733_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lzio_8h_a1f10428fa224047cec9e9b1756a0b733_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+</section>

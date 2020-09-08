@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_ldo_8h_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/ldo.h</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;ldo.h&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Stack&#32;and&#32;Call&#32;structure&#32;of&#32;Lua</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+00007 <emphasis role="preprocessor">#ifndef&#32;ldo_h</emphasis>
+00008 <emphasis role="preprocessor">#define&#32;ldo_h</emphasis>
+00009 
+00010 
+00011 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lobject_8h">lobject.h</link>&quot;</emphasis>
+00012 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lstate_8h">lstate.h</link>&quot;</emphasis>
+00013 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lzio_8h">lzio.h</link>&quot;</emphasis>
+00014 
+00015 
+00016 <emphasis role="comment">/*</emphasis>
+00017 <emphasis role="comment">**&#32;Macro&#32;to&#32;check&#32;stack&#32;size&#32;and&#32;grow&#32;stack&#32;if&#32;needed.&#32;&#32;Parameters</emphasis>
+00018 <emphasis role="comment">**&#32;&apos;pre&apos;/&apos;pos&apos;&#32;allow&#32;the&#32;macro&#32;to&#32;preserve&#32;a&#32;pointer&#32;into&#32;the</emphasis>
+00019 <emphasis role="comment">**&#32;stack&#32;across&#32;reallocations,&#32;doing&#32;the&#32;work&#32;only&#32;when&#32;needed.</emphasis>
+00020 <emphasis role="comment">**&#32;It&#32;also&#32;allows&#32;the&#32;running&#32;of&#32;one&#32;GC&#32;step&#32;when&#32;the&#32;stack&#32;is</emphasis>
+00021 <emphasis role="comment">**&#32;reallocated.</emphasis>
+00022 <emphasis role="comment">**&#32;&apos;condmovestack&apos;&#32;is&#32;used&#32;in&#32;heavy&#32;tests&#32;to&#32;force&#32;a&#32;stack&#32;reallocation</emphasis>
+00023 <emphasis role="comment">**&#32;at&#32;every&#32;check.</emphasis>
+00024 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldo_8h_source_1l00025"/><link linkend="_ldo_8h_1acb25d187c7a97397acc30a95b20d80af">00025</link> <emphasis role="preprocessor">#define&#32;luaD_checkstackaux(L,n,pre,pos)&#32;&#32;\</emphasis>
+00026 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;if&#32;(L-&gt;stack_last&#32;-&#32;L-&gt;top&#32;&lt;=&#32;(n))&#32;\</emphasis>
+00027 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;{&#32;pre;&#32;luaD_growstack(L,&#32;n,&#32;1);&#32;pos;&#32;}&#32;\</emphasis>
+00028 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;else&#32;{&#32;condmovestack(L,pre,pos);&#32;}</emphasis>
+00029 
+00030 <emphasis role="comment">/*&#32;In&#32;general,&#32;&apos;pre&apos;/&apos;pos&apos;&#32;are&#32;empty&#32;(nothing&#32;to&#32;save)&#32;*/</emphasis>
+<anchor xml:id="_ldo_8h_source_1l00031"/><link linkend="_ldo_8h_1ab1500a6449b9cdf335e3c7ce23aa85d7">00031</link> <emphasis role="preprocessor">#define&#32;luaD_checkstack(L,n)&#32;&#32;&#32;&#32;luaD_checkstackaux(L,n,(void)0,(void)0)</emphasis>
+00032 
+00033 
+00034 
+<anchor xml:id="_ldo_8h_source_1l00035"/><link linkend="_ldo_8h_1a3534573bbeec89c6dbdb3eae5a54f9b9">00035</link> <emphasis role="preprocessor">#define&#32;savestack(L,p)&#32;&#32;&#32;&#32;&#32;&#32;((char&#32;*)(p)&#32;-&#32;(char&#32;*)L-&gt;stack)</emphasis>
+<anchor xml:id="_ldo_8h_source_1l00036"/><link linkend="_ldo_8h_1a3fbde7f289e6bf661575e9b802da9e78">00036</link> <emphasis role="preprocessor">#define&#32;restorestack(L,n)&#32;&#32;&#32;((StkId)((char&#32;*)L-&gt;stack&#32;+&#32;(n)))</emphasis>
+00037 
+00038 
+00039 <emphasis role="comment">/*&#32;macro&#32;to&#32;check&#32;stack&#32;size,&#32;preserving&#32;&apos;p&apos;&#32;*/</emphasis>
+<anchor xml:id="_ldo_8h_source_1l00040"/><link linkend="_ldo_8h_1a9c4fce4aed370d62391e1d18577640a3">00040</link> <emphasis role="preprocessor">#define&#32;checkstackGCp(L,n,p)&#32;&#32;\</emphasis>
+00041 <emphasis role="preprocessor">&#32;&#32;luaD_checkstackaux(L,&#32;n,&#32;\</emphasis>
+00042 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;ptrdiff_t&#32;t__&#32;=&#32;savestack(L,&#32;p);&#32;&#32;</emphasis><emphasis role="comment">/*&#32;save&#32;&apos;p&apos;&#32;*/</emphasis><emphasis role="preprocessor">&#32;\</emphasis>
+00043 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;luaC_checkGC(L),&#32;&#32;</emphasis><emphasis role="comment">/*&#32;stack&#32;grow&#32;uses&#32;memory&#32;*/</emphasis><emphasis role="preprocessor">&#32;\</emphasis>
+00044 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;p&#32;=&#32;restorestack(L,&#32;t__))&#32;&#32;</emphasis><emphasis role="comment">/*&#32;&apos;pos&apos;&#32;part:&#32;restore&#32;&apos;p&apos;&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00045 
+00046 
+00047 <emphasis role="comment">/*&#32;macro&#32;to&#32;check&#32;stack&#32;size&#32;and&#32;GC&#32;*/</emphasis>
+<anchor xml:id="_ldo_8h_source_1l00048"/><link linkend="_ldo_8h_1abbdddc5d9d41c1b75a9a803cd42d7610">00048</link> <emphasis role="preprocessor">#define&#32;checkstackGC(L,fsize)&#32;&#32;\</emphasis>
+00049 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;luaD_checkstackaux(L,&#32;(fsize),&#32;luaC_checkGC(L),&#32;(void)0)</emphasis>
+00050 
+00051 
+00052 <emphasis role="comment">/*&#32;type&#32;of&#32;protected&#32;functions,&#32;to&#32;be&#32;ran&#32;by&#32;&apos;runprotected&apos;&#32;*/</emphasis>
+<anchor xml:id="_ldo_8h_source_1l00053"/><link linkend="_ldo_8h_1a078cb45ebb3f039a69795174f45d204c">00053</link> <emphasis role="keyword">typedef</emphasis>&#32;void&#32;(*<link linkend="_ldo_8h_1a078cb45ebb3f039a69795174f45d204c">Pfunc</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*ud);
+00054 
+00055 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldo_8h_1a1cb94c83c7ff13f34638523d7500a0bf">luaD_seterrorobj</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;errcode,&#32;<link linkend="_union_stack_value">StkId</link>&#32;oldtop);
+00056 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldo_8h_1a5dffa85d966f14d3f3464db580f5b3fa">luaD_protectedparser</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_zio">ZIO</link>&#32;*<link linkend="_struct_s_parser_1aac4353da38192628b7fa7814e9be2a61">z</link>,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_struct_s_parser_1a8f8f80d37794cde9472343e4487ba3eb">name</link>,
+00057 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_struct_s_parser_1ab62d2d8aca22822634772a595416fd41">mode</link>);
+00058 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldo_8h_1a060cfb719bf195b2e3dc8dd643a4ff88">luaD_hook</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;event,&#32;<emphasis role="keywordtype">int</emphasis>&#32;line,
+00059 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;fTransfer,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nTransfer);
+00060 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldo_8h_1a6c91c75f4177f4d5f7d45e934d4a8a02">luaD_hookcall</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*ci);
+00061 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldo_8h_1abbd9301c7c295f311e093efb35fdacd9">luaD_pretailcall</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*ci,&#32;<link linkend="_union_stack_value">StkId</link>&#32;func,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n);
+00062 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldo_8h_1a4797364de1dd297aac52f9c10565523f">luaD_call</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_union_stack_value">StkId</link>&#32;func,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nResults);
+00063 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldo_8h_1a5315637506edcbdd30e9271e75416ae1">luaD_callnoyield</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_union_stack_value">StkId</link>&#32;func,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nResults);
+00064 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldo_8h_1a268f7b272a8a41be16ffd601532ad9c7">luaD_tryfuncTM</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_union_stack_value">StkId</link>&#32;func);
+00065 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldo_8h_1ad1087faa52e2bb98c00806ea1ac198a6">luaD_pcall</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_ldo_8h_1a078cb45ebb3f039a69795174f45d204c">Pfunc</link>&#32;func,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*u,
+00066 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;ptrdiff_t&#32;oldtop,&#32;ptrdiff_t&#32;ef);
+00067 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldo_8h_1aad708050f55765598080827d799e60fb">luaD_poscall</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*ci,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nres);
+00068 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldo_8h_1a5746aab4e55af0e04b32445e4673e7a9">luaD_reallocstack</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;newsize,&#32;<emphasis role="keywordtype">int</emphasis>&#32;raiseerror);
+00069 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldo_8h_1a65231426ec94e3bca44e117d7198604a">luaD_growstack</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n,&#32;<emphasis role="keywordtype">int</emphasis>&#32;raiseerror);
+00070 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldo_8h_1a14e1a8d3ba0e5f6d55decb8b48826750">luaD_shrinkstack</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00071 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldo_8h_1add74ee2069a98380598ae06b509db9a6">luaD_inctop</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00072 
+00073 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_ldo_8h_1a3bfc211173876f40cde6808e408cd305">luaD_throw</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;errcode);
+00074 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldo_8h_1a73f5a10f0554f95bde20c7b9ace4397a">luaD_rawrunprotected</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_ldo_8h_1a078cb45ebb3f039a69795174f45d204c">Pfunc</link>&#32;f,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*ud);
+00075 
+00076 <emphasis role="preprocessor">#endif</emphasis>
+00077 
+</programlisting></section>

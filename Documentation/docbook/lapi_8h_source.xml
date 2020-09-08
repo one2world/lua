@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lapi_8h_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/lapi.h</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;lapi.h&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Auxiliary&#32;functions&#32;from&#32;Lua&#32;API</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+00007 <emphasis role="preprocessor">#ifndef&#32;lapi_h</emphasis>
+00008 <emphasis role="preprocessor">#define&#32;lapi_h</emphasis>
+00009 
+00010 
+00011 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_llimits_8h">llimits.h</link>&quot;</emphasis>
+00012 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lstate_8h">lstate.h</link>&quot;</emphasis>
+00013 
+00014 
+00015 <emphasis role="comment">/*&#32;Increments&#32;&apos;L-&gt;top&apos;,&#32;checking&#32;for&#32;stack&#32;overflows&#32;*/</emphasis>
+<anchor xml:id="_lapi_8h_source_1l00016"/><link linkend="_lapi_8h_1afe4a5994dd3704ec53de77f9fd121915">00016</link> <emphasis role="preprocessor">#define&#32;api_incr_top(L)&#32;&#32;&#32;{L-&gt;top++;&#32;api_check(L,&#32;L-&gt;top&#32;&lt;=&#32;L-&gt;ci-&gt;top,&#32;\</emphasis>
+00017 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&quot;stack&#32;overflow&quot;);}</emphasis>
+00018 
+00019 
+00020 <emphasis role="comment">/*</emphasis>
+00021 <emphasis role="comment">**&#32;If&#32;a&#32;call&#32;returns&#32;too&#32;many&#32;multiple&#32;returns,&#32;the&#32;callee&#32;may&#32;not&#32;have</emphasis>
+00022 <emphasis role="comment">**&#32;stack&#32;space&#32;to&#32;accommodate&#32;all&#32;results.&#32;In&#32;this&#32;case,&#32;this&#32;macro</emphasis>
+00023 <emphasis role="comment">**&#32;increases&#32;its&#32;stack&#32;space&#32;(&apos;L-&gt;ci-&gt;top&apos;).</emphasis>
+00024 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lapi_8h_source_1l00025"/><link linkend="_lapi_8h_1afd1f4a36958642707b7598a48c507599">00025</link> <emphasis role="preprocessor">#define&#32;adjustresults(L,nres)&#32;\</emphasis>
+00026 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;{&#32;if&#32;((nres)&#32;&lt;=&#32;LUA_MULTRET&#32;&amp;&amp;&#32;L-&gt;ci-&gt;top&#32;&lt;&#32;L-&gt;top)&#32;L-&gt;ci-&gt;top&#32;=&#32;L-&gt;top;&#32;}</emphasis>
+00027 
+00028 
+00029 <emphasis role="comment">/*&#32;Ensure&#32;the&#32;stack&#32;has&#32;at&#32;least&#32;&apos;n&apos;&#32;elements&#32;*/</emphasis>
+<anchor xml:id="_lapi_8h_source_1l00030"/><link linkend="_lapi_8h_1a9785915283c3f0a0ec90f1b6be32b2c2">00030</link> <emphasis role="preprocessor">#define&#32;api_checknelems(L,n)&#32;&#32;&#32;&#32;api_check(L,&#32;(n)&#32;&lt;&#32;(L-&gt;top&#32;-&#32;L-&gt;ci-&gt;func),&#32;\</emphasis>
+00031 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&quot;not&#32;enough&#32;elements&#32;in&#32;the&#32;stack&quot;)</emphasis>
+00032 
+00033 
+00034 <emphasis role="comment">/*</emphasis>
+00035 <emphasis role="comment">**&#32;To&#32;reduce&#32;the&#32;overhead&#32;of&#32;returning&#32;from&#32;C&#32;functions,&#32;the&#32;presence&#32;of</emphasis>
+00036 <emphasis role="comment">**&#32;to-be-closed&#32;variables&#32;in&#32;these&#32;functions&#32;is&#32;coded&#32;in&#32;the&#32;CallInfo&apos;s</emphasis>
+00037 <emphasis role="comment">**&#32;field&#32;&apos;nresults&apos;,&#32;in&#32;a&#32;way&#32;that&#32;functions&#32;with&#32;no&#32;to-be-closed&#32;variables</emphasis>
+00038 <emphasis role="comment">**&#32;with&#32;zero,&#32;one,&#32;or&#32;&quot;all&quot;&#32;wanted&#32;results&#32;have&#32;no&#32;overhead.&#32;Functions</emphasis>
+00039 <emphasis role="comment">**&#32;with&#32;other&#32;number&#32;of&#32;wanted&#32;results,&#32;as&#32;well&#32;as&#32;functions&#32;with</emphasis>
+00040 <emphasis role="comment">**&#32;variables&#32;to&#32;be&#32;closed,&#32;have&#32;an&#32;extra&#32;check.</emphasis>
+00041 <emphasis role="comment">*/</emphasis>
+00042 
+<anchor xml:id="_lapi_8h_source_1l00043"/><link linkend="_lapi_8h_1a5707387c1d9df9ae5bea729c1109ddf6">00043</link> <emphasis role="preprocessor">#define&#32;hastocloseCfunc(n)&#32;&#32;((n)&#32;&lt;&#32;LUA_MULTRET)</emphasis>
+00044 
+<anchor xml:id="_lapi_8h_source_1l00045"/><link linkend="_lapi_8h_1a605e47ad8af5d2c7a821081dc37ddc90">00045</link> <emphasis role="preprocessor">#define&#32;codeNresults(n)&#32;&#32;&#32;&#32;&#32;(-(n)&#32;-&#32;3)</emphasis>
+00046 
+00047 <emphasis role="preprocessor">#endif</emphasis>
+</programlisting></section>

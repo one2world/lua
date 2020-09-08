@@ -1,0 +1,599 @@
+.TH "D:/gitworkspace/lua/src/lauxlib.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lauxlib.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <errno\&.h>\fP
+.br
+\fC#include <stdarg\&.h>\fP
+.br
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lauxlib\&.h'\fP
+.br
+
+.SS "结构体"
+
+.in +1c
+.ti -1c
+.RI "struct \fBUBox\fP"
+.br
+.ti -1c
+.RI "struct \fBLoadF\fP"
+.br
+.ti -1c
+.RI "struct \fBLoadS\fP"
+.br
+.in -1c
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBlauxlib_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_LIB\fP"
+.br
+.ti -1c
+.RI "#define \fBMAX_SIZET\fP   ((size_t)(~(size_t)0))"
+.br
+.ti -1c
+.RI "#define \fBLEVELS1\fP   10	/* size of the first part of the stack */"
+.br
+.ti -1c
+.RI "#define \fBLEVELS2\fP   11	/* size of the second part of the stack */"
+.br
+.ti -1c
+.RI "#define \fBl_inspectstat\fP(stat,  what)   /* no op */"
+.br
+.ti -1c
+.RI "#define \fBbuffonstack\fP(B)   ((B)\->b != (B)\->init\&.b)"
+.br
+.ti -1c
+.RI "#define \fBfreelist\fP   0"
+.br
+.in -1c
+.SS "类型定义"
+
+.in +1c
+.ti -1c
+.RI "typedef struct \fBUBox\fP \fBUBox\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBLoadF\fP \fBLoadF\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBLoadS\fP \fBLoadS\fP"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static int \fBfindfield\fP (\fBlua_State\fP *L, int objidx, int level)"
+.br
+.ti -1c
+.RI "static int \fBpushglobalfuncname\fP (\fBlua_State\fP *L, \fBlua_Debug\fP *ar)"
+.br
+.ti -1c
+.RI "static void \fBpushfuncname\fP (\fBlua_State\fP *L, \fBlua_Debug\fP *ar)"
+.br
+.ti -1c
+.RI "static int \fBlastlevel\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP void \fBluaL_traceback\fP (\fBlua_State\fP *L, \fBlua_State\fP *L1, const char *msg, int level)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP int \fBluaL_argerror\fP (\fBlua_State\fP *L, int arg, const char *extramsg)"
+.br
+.ti -1c
+.RI "int \fBluaL_typeerror\fP (\fBlua_State\fP *L, int arg, const char *tname)"
+.br
+.ti -1c
+.RI "static void \fBtag_error\fP (\fBlua_State\fP *L, int arg, int tag)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP void \fBluaL_where\fP (\fBlua_State\fP *L, int level)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP int \fBluaL_error\fP (\fBlua_State\fP *L, const char *fmt,\&.\&.\&.)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP int \fBluaL_fileresult\fP (\fBlua_State\fP *L, int stat, const char *fname)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP int \fBluaL_execresult\fP (\fBlua_State\fP *L, int stat)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP int \fBluaL_newmetatable\fP (\fBlua_State\fP *L, const char *tname)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP void \fBluaL_setmetatable\fP (\fBlua_State\fP *L, const char *tname)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP void * \fBluaL_testudata\fP (\fBlua_State\fP *L, int ud, const char *tname)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP void * \fBluaL_checkudata\fP (\fBlua_State\fP *L, int ud, const char *tname)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP int \fBluaL_checkoption\fP (\fBlua_State\fP *L, int arg, const char *def, const char *const lst[])"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP void \fBluaL_checkstack\fP (\fBlua_State\fP *L, int space, const char *msg)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP void \fBluaL_checktype\fP (\fBlua_State\fP *L, int arg, int t)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP void \fBluaL_checkany\fP (\fBlua_State\fP *L, int arg)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP const char * \fBluaL_checklstring\fP (\fBlua_State\fP *L, int arg, size_t *len)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP const char * \fBluaL_optlstring\fP (\fBlua_State\fP *L, int arg, const char *def, size_t *len)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP \fBlua_Number\fP \fBluaL_checknumber\fP (\fBlua_State\fP *L, int arg)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP \fBlua_Number\fP \fBluaL_optnumber\fP (\fBlua_State\fP *L, int arg, \fBlua_Number\fP def)"
+.br
+.ti -1c
+.RI "static void \fBinterror\fP (\fBlua_State\fP *L, int arg)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP \fBlua_Integer\fP \fBluaL_checkinteger\fP (\fBlua_State\fP *L, int arg)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP \fBlua_Integer\fP \fBluaL_optinteger\fP (\fBlua_State\fP *L, int arg, \fBlua_Integer\fP def)"
+.br
+.ti -1c
+.RI "static void * \fBresizebox\fP (\fBlua_State\fP *L, int idx, size_t newsize)"
+.br
+.ti -1c
+.RI "static int \fBboxgc\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBnewbox\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static size_t \fBnewbuffsize\fP (\fBluaL_Buffer\fP *B, size_t sz)"
+.br
+.ti -1c
+.RI "static char * \fBprepbuffsize\fP (\fBluaL_Buffer\fP *B, size_t sz, int boxidx)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP char * \fBluaL_prepbuffsize\fP (\fBluaL_Buffer\fP *B, size_t sz)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP void \fBluaL_addlstring\fP (\fBluaL_Buffer\fP *B, const char *s, size_t l)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP void \fBluaL_addstring\fP (\fBluaL_Buffer\fP *B, const char *s)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP void \fBluaL_pushresult\fP (\fBluaL_Buffer\fP *B)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP void \fBluaL_pushresultsize\fP (\fBluaL_Buffer\fP *B, size_t sz)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP void \fBluaL_addvalue\fP (\fBluaL_Buffer\fP *B)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP void \fBluaL_buffinit\fP (\fBlua_State\fP *L, \fBluaL_Buffer\fP *B)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP char * \fBluaL_buffinitsize\fP (\fBlua_State\fP *L, \fBluaL_Buffer\fP *B, size_t sz)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP int \fBluaL_ref\fP (\fBlua_State\fP *L, int t)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP void \fBluaL_unref\fP (\fBlua_State\fP *L, int t, int ref)"
+.br
+.ti -1c
+.RI "static const char * \fBgetF\fP (\fBlua_State\fP *L, void *ud, size_t *size)"
+.br
+.ti -1c
+.RI "static int \fBerrfile\fP (\fBlua_State\fP *L, const char *what, int fnameindex)"
+.br
+.ti -1c
+.RI "static int \fBskipBOM\fP (\fBLoadF\fP *lf)"
+.br
+.ti -1c
+.RI "static int \fBskipcomment\fP (\fBLoadF\fP *lf, int *cp)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP int \fBluaL_loadfilex\fP (\fBlua_State\fP *L, const char *filename, const char *mode)"
+.br
+.ti -1c
+.RI "static const char * \fBgetS\fP (\fBlua_State\fP *L, void *ud, size_t *size)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP int \fBluaL_loadbufferx\fP (\fBlua_State\fP *L, const char *buff, size_t size, const char *name, const char *mode)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP int \fBluaL_loadstring\fP (\fBlua_State\fP *L, const char *s)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP int \fBluaL_getmetafield\fP (\fBlua_State\fP *L, int obj, const char *event)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP int \fBluaL_callmeta\fP (\fBlua_State\fP *L, int obj, const char *event)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP \fBlua_Integer\fP \fBluaL_len\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP const char * \fBluaL_tolstring\fP (\fBlua_State\fP *L, int idx, size_t *len)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP void \fBluaL_setfuncs\fP (\fBlua_State\fP *L, const \fBluaL_Reg\fP *l, int nup)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP int \fBluaL_getsubtable\fP (\fBlua_State\fP *L, int idx, const char *fname)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP void \fBluaL_requiref\fP (\fBlua_State\fP *L, const char *modname, \fBlua_CFunction\fP openf, int glb)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP void \fBluaL_addgsub\fP (\fBluaL_Buffer\fP *b, const char *s, const char *p, const char *r)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP const char * \fBluaL_gsub\fP (\fBlua_State\fP *L, const char *s, const char *p, const char *r)"
+.br
+.ti -1c
+.RI "static void * \fBl_alloc\fP (void *ud, void *ptr, size_t osize, size_t nsize)"
+.br
+.ti -1c
+.RI "static int \fBpanic\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBwarnf\fP (void *ud, const char *message, int tocont)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP \fBlua_State\fP * \fBluaL_newstate\fP (void)"
+.br
+.ti -1c
+.RI "\fBLUALIB_API\fP void \fBluaL_checkversion_\fP (\fBlua_State\fP *L, \fBlua_Number\fP ver, size_t sz)"
+.br
+.in -1c
+.SS "变量"
+
+.in +1c
+.ti -1c
+.RI "static const \fBluaL_Reg\fP \fBboxmt\fP []"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define buffonstack(B)   ((B)\->b != (B)\->init\&.b)"
+
+.PP
+在文件 lauxlib\&.c 第 513 行定义\&.
+.SS "#define freelist   0"
+
+.PP
+在文件 lauxlib\&.c 第 641 行定义\&.
+.SS "#define l_inspectstat(stat, what)   /* no op */"
+
+.PP
+在文件 lauxlib\&.c 第 278 行定义\&.
+.SS "#define lauxlib_c"
+
+.PP
+在文件 lauxlib\&.c 第 7 行定义\&.
+.SS "#define LEVELS1   10	/* size of the first part of the stack */"
+
+.PP
+在文件 lauxlib\&.c 第 43 行定义\&.
+.SS "#define LEVELS2   11	/* size of the second part of the stack */"
+
+.PP
+在文件 lauxlib\&.c 第 44 行定义\&.
+.SS "#define LUA_LIB"
+
+.PP
+在文件 lauxlib\&.c 第 8 行定义\&.
+.SS "#define MAX_SIZET   ((size_t)(~(size_t)0))"
+
+.PP
+在文件 lauxlib\&.c 第 32 行定义\&.
+.SH "类型定义说明"
+.PP 
+.SS "typedef struct \fBLoadF\fP \fBLoadF\fP"
+
+.SS "typedef struct \fBLoadS\fP \fBLoadS\fP"
+
+.SS "typedef struct \fBUBox\fP \fBUBox\fP"
+
+.SH "函数说明"
+.PP 
+.SS "static int boxgc (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lauxlib\&.c 第 486 行定义\&.
+.SS "static int errfile (\fBlua_State\fP * L, const char * what, int fnameindex)\fC [static]\fP"
+
+.PP
+在文件 lauxlib\&.c 第 709 行定义\&.
+.SS "static int findfield (\fBlua_State\fP * L, int objidx, int level)\fC [static]\fP"
+
+.PP
+在文件 lauxlib\&.c 第 52 行定义\&.
+.SS "static const char* getF (\fBlua_State\fP * L, void * ud, size_t * size)\fC [static]\fP"
+
+.PP
+在文件 lauxlib\&.c 第 691 行定义\&.
+.SS "static const char* getS (\fBlua_State\fP * L, void * ud, size_t * size)\fC [static]\fP"
+
+.PP
+在文件 lauxlib\&.c 第 794 行定义\&.
+.SS "static void interror (\fBlua_State\fP * L, int arg)\fC [static]\fP"
+
+.PP
+在文件 lauxlib\&.c 第 434 行定义\&.
+.SS "static void* l_alloc (void * ud, void * ptr, size_t osize, size_t nsize)\fC [static]\fP"
+
+.PP
+在文件 lauxlib\&.c 第 986 行定义\&.
+.SS "static int lastlevel (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lauxlib\&.c 第 116 行定义\&.
+.SS "\fBLUALIB_API\fP void luaL_addgsub (\fBluaL_Buffer\fP * b, const char * s, const char * p, const char * r)"
+
+.PP
+在文件 lauxlib\&.c 第 963 行定义\&.
+.SS "\fBLUALIB_API\fP void luaL_addlstring (\fBluaL_Buffer\fP * B, const char * s, size_t l)"
+
+.PP
+在文件 lauxlib\&.c 第 568 行定义\&.
+.SS "\fBLUALIB_API\fP void luaL_addstring (\fBluaL_Buffer\fP * B, const char * s)"
+
+.PP
+在文件 lauxlib\&.c 第 577 行定义\&.
+.SS "\fBLUALIB_API\fP void luaL_addvalue (\fBluaL_Buffer\fP * B)"
+
+.PP
+在文件 lauxlib\&.c 第 607 行定义\&.
+.SS "\fBLUALIB_API\fP int luaL_argerror (\fBlua_State\fP * L, int arg, const char * extramsg)"
+
+.PP
+在文件 lauxlib\&.c 第 175 行定义\&.
+.SS "\fBLUALIB_API\fP void luaL_buffinit (\fBlua_State\fP * L, \fBluaL_Buffer\fP * B)"
+
+.PP
+在文件 lauxlib\&.c 第 618 行定义\&.
+.SS "\fBLUALIB_API\fP char* luaL_buffinitsize (\fBlua_State\fP * L, \fBluaL_Buffer\fP * B, size_t sz)"
+
+.PP
+在文件 lauxlib\&.c 第 626 行定义\&.
+.SS "\fBLUALIB_API\fP int luaL_callmeta (\fBlua_State\fP * L, int obj, const char * event)"
+
+.PP
+在文件 lauxlib\&.c 第 837 行定义\&.
+.SS "\fBLUALIB_API\fP void luaL_checkany (\fBlua_State\fP * L, int arg)"
+
+.PP
+在文件 lauxlib\&.c 第 396 行定义\&.
+.SS "\fBLUALIB_API\fP \fBlua_Integer\fP luaL_checkinteger (\fBlua_State\fP * L, int arg)"
+
+.PP
+在文件 lauxlib\&.c 第 442 行定义\&.
+.SS "\fBLUALIB_API\fP const char* luaL_checklstring (\fBlua_State\fP * L, int arg, size_t * len)"
+
+.PP
+在文件 lauxlib\&.c 第 402 行定义\&.
+.SS "\fBLUALIB_API\fP \fBlua_Number\fP luaL_checknumber (\fBlua_State\fP * L, int arg)"
+
+.PP
+在文件 lauxlib\&.c 第 420 行定义\&.
+.SS "\fBLUALIB_API\fP int luaL_checkoption (\fBlua_State\fP * L, int arg, const char * def, const char *const lst[])"
+
+.PP
+在文件 lauxlib\&.c 第 360 行定义\&.
+.SS "\fBLUALIB_API\fP void luaL_checkstack (\fBlua_State\fP * L, int space, const char * msg)"
+
+.PP
+在文件 lauxlib\&.c 第 380 行定义\&.
+.SS "\fBLUALIB_API\fP void luaL_checktype (\fBlua_State\fP * L, int arg, int t)"
+
+.PP
+在文件 lauxlib\&.c 第 390 行定义\&.
+.SS "\fBLUALIB_API\fP void* luaL_checkudata (\fBlua_State\fP * L, int ud, const char * tname)"
+
+.PP
+在文件 lauxlib\&.c 第 345 行定义\&.
+.SS "\fBLUALIB_API\fP void luaL_checkversion_ (\fBlua_State\fP * L, \fBlua_Number\fP ver, size_t sz)"
+
+.PP
+在文件 lauxlib\&.c 第 1049 行定义\&.
+.SS "\fBLUALIB_API\fP int luaL_error (\fBlua_State\fP * L, const char * fmt,  \&.\&.\&.)"
+
+.PP
+在文件 lauxlib\&.c 第 234 行定义\&.
+.SS "\fBLUALIB_API\fP int luaL_execresult (\fBlua_State\fP * L, int stat)"
+
+.PP
+在文件 lauxlib\&.c 第 285 行定义\&.
+.SS "\fBLUALIB_API\fP int luaL_fileresult (\fBlua_State\fP * L, int stat, const char * fname)"
+
+.PP
+在文件 lauxlib\&.c 第 245 行定义\&.
+.SS "\fBLUALIB_API\fP int luaL_getmetafield (\fBlua_State\fP * L, int obj, const char * event)"
+
+.PP
+在文件 lauxlib\&.c 第 821 行定义\&.
+.SS "\fBLUALIB_API\fP int luaL_getsubtable (\fBlua_State\fP * L, int idx, const char * fname)"
+
+.PP
+在文件 lauxlib\&.c 第 923 行定义\&.
+.SS "\fBLUALIB_API\fP const char* luaL_gsub (\fBlua_State\fP * L, const char * s, const char * p, const char * r)"
+
+.PP
+在文件 lauxlib\&.c 第 976 行定义\&.
+.SS "\fBLUALIB_API\fP \fBlua_Integer\fP luaL_len (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lauxlib\&.c 第 847 行定义\&.
+.SS "\fBLUALIB_API\fP int luaL_loadbufferx (\fBlua_State\fP * L, const char * buff, size_t size, const char * name, const char * mode)"
+
+.PP
+在文件 lauxlib\&.c 第 804 行定义\&.
+.SS "\fBLUALIB_API\fP int luaL_loadfilex (\fBlua_State\fP * L, const char * filename, const char * mode)"
+
+.PP
+在文件 lauxlib\&.c 第 752 行定义\&.
+.SS "\fBLUALIB_API\fP int luaL_loadstring (\fBlua_State\fP * L, const char * s)"
+
+.PP
+在文件 lauxlib\&.c 第 813 行定义\&.
+.SS "\fBLUALIB_API\fP int luaL_newmetatable (\fBlua_State\fP * L, const char * tname)"
+
+.PP
+在文件 lauxlib\&.c 第 311 行定义\&.
+.SS "\fBLUALIB_API\fP \fBlua_State\fP* luaL_newstate (void)"
+
+.PP
+在文件 lauxlib\&.c 第 1035 行定义\&.
+.SS "\fBLUALIB_API\fP \fBlua_Integer\fP luaL_optinteger (\fBlua_State\fP * L, int arg, \fBlua_Integer\fP def)"
+
+.PP
+在文件 lauxlib\&.c 第 452 行定义\&.
+.SS "\fBLUALIB_API\fP const char* luaL_optlstring (\fBlua_State\fP * L, int arg, const char * def, size_t * len)"
+
+.PP
+在文件 lauxlib\&.c 第 409 行定义\&.
+.SS "\fBLUALIB_API\fP \fBlua_Number\fP luaL_optnumber (\fBlua_State\fP * L, int arg, \fBlua_Number\fP def)"
+
+.PP
+在文件 lauxlib\&.c 第 429 行定义\&.
+.SS "\fBLUALIB_API\fP char* luaL_prepbuffsize (\fBluaL_Buffer\fP * B, size_t sz)"
+
+.PP
+在文件 lauxlib\&.c 第 563 行定义\&.
+.SS "\fBLUALIB_API\fP void luaL_pushresult (\fBluaL_Buffer\fP * B)"
+
+.PP
+在文件 lauxlib\&.c 第 582 行定义\&.
+.SS "\fBLUALIB_API\fP void luaL_pushresultsize (\fBluaL_Buffer\fP * B, size_t sz)"
+
+.PP
+在文件 lauxlib\&.c 第 592 行定义\&.
+.SS "\fBLUALIB_API\fP int luaL_ref (\fBlua_State\fP * L, int t)"
+
+.PP
+在文件 lauxlib\&.c 第 644 行定义\&.
+.SS "\fBLUALIB_API\fP void luaL_requiref (\fBlua_State\fP * L, const char * modname, \fBlua_CFunction\fP openf, int glb)"
+
+.PP
+在文件 lauxlib\&.c 第 943 行定义\&.
+.SS "\fBLUALIB_API\fP void luaL_setfuncs (\fBlua_State\fP * L, const \fBluaL_Reg\fP * l, int nup)"
+
+.PP
+在文件 lauxlib\&.c 第 902 行定义\&.
+.SS "\fBLUALIB_API\fP void luaL_setmetatable (\fBlua_State\fP * L, const char * tname)"
+
+.PP
+在文件 lauxlib\&.c 第 324 行定义\&.
+.SS "\fBLUALIB_API\fP void* luaL_testudata (\fBlua_State\fP * L, int ud, const char * tname)"
+
+.PP
+在文件 lauxlib\&.c 第 330 行定义\&.
+.SS "\fBLUALIB_API\fP const char* luaL_tolstring (\fBlua_State\fP * L, int idx, size_t * len)"
+
+.PP
+在文件 lauxlib\&.c 第 859 行定义\&.
+.SS "\fBLUALIB_API\fP void luaL_traceback (\fBlua_State\fP * L, \fBlua_State\fP * L1, const char * msg, int level)"
+
+.PP
+在文件 lauxlib\&.c 第 131 行定义\&.
+.SS "int luaL_typeerror (\fBlua_State\fP * L, int arg, const char * tname)"
+
+.PP
+在文件 lauxlib\&.c 第 193 行定义\&.
+.SS "\fBLUALIB_API\fP void luaL_unref (\fBlua_State\fP * L, int t, int ref)"
+
+.PP
+在文件 lauxlib\&.c 第 665 行定义\&.
+.SS "\fBLUALIB_API\fP void luaL_where (\fBlua_State\fP * L, int level)"
+
+.PP
+在文件 lauxlib\&.c 第 216 行定义\&.
+.SS "static void newbox (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lauxlib\&.c 第 499 行定义\&.
+.SS "static size_t newbuffsize (\fBluaL_Buffer\fP * B, size_t sz)\fC [static]\fP"
+
+.PP
+在文件 lauxlib\&.c 第 520 行定义\&.
+.SS "static int panic (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lauxlib\&.c 第 997 行定义\&.
+.SS "static char* prepbuffsize (\fBluaL_Buffer\fP * B, size_t sz, int boxidx)\fC [static]\fP"
+
+.PP
+在文件 lauxlib\&.c 第 535 行定义\&.
+.SS "static void pushfuncname (\fBlua_State\fP * L, \fBlua_Debug\fP * ar)\fC [static]\fP"
+
+.PP
+在文件 lauxlib\&.c 第 100 行定义\&.
+.SS "static int pushglobalfuncname (\fBlua_State\fP * L, \fBlua_Debug\fP * ar)\fC [static]\fP"
+
+.PP
+在文件 lauxlib\&.c 第 79 行定义\&.
+.SS "static void* resizebox (\fBlua_State\fP * L, int idx, size_t newsize)\fC [static]\fP"
+
+.PP
+在文件 lauxlib\&.c 第 473 行定义\&.
+.SS "static int skipBOM (\fBLoadF\fP * lf)\fC [static]\fP"
+
+.PP
+在文件 lauxlib\&.c 第 718 行定义\&.
+.SS "static int skipcomment (\fBLoadF\fP * lf, int * cp)\fC [static]\fP"
+
+.PP
+在文件 lauxlib\&.c 第 739 行定义\&.
+.SS "static void tag_error (\fBlua_State\fP * L, int arg, int tag)\fC [static]\fP"
+
+.PP
+在文件 lauxlib\&.c 第 207 行定义\&.
+.SS "static void warnf (void * ud, const char * message, int tocont)\fC [static]\fP"
+
+.PP
+在文件 lauxlib\&.c 第 1012 行定义\&.
+.SH "变量说明"
+.PP 
+.SS "const \fBluaL_Reg\fP boxmt[]\fC [static]\fP"
+\fB初始值:\fP
+.PP
+.nf
+= {  
+  {"__gc", boxgc},
+  {"__close", boxgc},
+  {NULL, NULL}
+}
+.fi
+.PP
+在文件 lauxlib\&.c 第 492 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lstring_8h_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/lstring.h</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;lstring.h&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;String&#32;table&#32;(keep&#32;all&#32;strings&#32;handled&#32;by&#32;Lua)</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+00007 <emphasis role="preprocessor">#ifndef&#32;lstring_h</emphasis>
+00008 <emphasis role="preprocessor">#define&#32;lstring_h</emphasis>
+00009 
+00010 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lgc_8h">lgc.h</link>&quot;</emphasis>
+00011 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lobject_8h">lobject.h</link>&quot;</emphasis>
+00012 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lstate_8h">lstate.h</link>&quot;</emphasis>
+00013 
+00014 
+00015 <emphasis role="comment">/*</emphasis>
+00016 <emphasis role="comment">**&#32;Memory-allocation&#32;error&#32;message&#32;must&#32;be&#32;preallocated&#32;(it&#32;cannot</emphasis>
+00017 <emphasis role="comment">**&#32;be&#32;created&#32;after&#32;memory&#32;is&#32;exhausted)</emphasis>
+00018 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstring_8h_source_1l00019"/><link linkend="_lstring_8h_1a36d62c6c0c5a33c2f29cf26ff9137cbf">00019</link> <emphasis role="preprocessor">#define&#32;MEMERRMSG&#32;&#32;&#32;&#32;&#32;&#32;&#32;&quot;not&#32;enough&#32;memory&quot;</emphasis>
+00020 
+00021 
+00022 <emphasis role="comment">/*</emphasis>
+00023 <emphasis role="comment">**&#32;Size&#32;of&#32;a&#32;TString:&#32;Size&#32;of&#32;the&#32;header&#32;plus&#32;space&#32;for&#32;the&#32;string</emphasis>
+00024 <emphasis role="comment">**&#32;itself&#32;(including&#32;final&#32;&apos;\0&apos;).</emphasis>
+00025 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstring_8h_source_1l00026"/><link linkend="_lstring_8h_1a160d701eba216310b09be7447f47794d">00026</link> <emphasis role="preprocessor">#define&#32;sizelstring(l)&#32;&#32;(offsetof(TString,&#32;contents)&#32;+&#32;((l)&#32;+&#32;1)&#32;*&#32;sizeof(char))</emphasis>
+00027 
+<anchor xml:id="_lstring_8h_source_1l00028"/><link linkend="_lstring_8h_1a1cd2754b136ed096325a76c6d16a82f5">00028</link> <emphasis role="preprocessor">#define&#32;luaS_newliteral(L,&#32;s)&#32;&#32;&#32;(luaS_newlstr(L,&#32;&quot;&quot;&#32;s,&#32;\</emphasis>
+00029 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(sizeof(s)/sizeof(char))-1))</emphasis>
+00030 
+00031 
+00032 <emphasis role="comment">/*</emphasis>
+00033 <emphasis role="comment">**&#32;test&#32;whether&#32;a&#32;string&#32;is&#32;a&#32;reserved&#32;word</emphasis>
+00034 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstring_8h_source_1l00035"/><link linkend="_lstring_8h_1a7b490cd8212260e1cf975f59a16fb745">00035</link> <emphasis role="preprocessor">#define&#32;isreserved(s)&#32;&#32;&#32;((s)-&gt;tt&#32;==&#32;LUA_VSHRSTR&#32;&amp;&amp;&#32;(s)-&gt;extra&#32;&gt;&#32;0)</emphasis>
+00036 
+00037 
+00038 <emphasis role="comment">/*</emphasis>
+00039 <emphasis role="comment">**&#32;equality&#32;for&#32;short&#32;strings,&#32;which&#32;are&#32;always&#32;internalized</emphasis>
+00040 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstring_8h_source_1l00041"/><link linkend="_lstring_8h_1add3806315bf73de7d3138c019ed7c0ce">00041</link> <emphasis role="preprocessor">#define&#32;eqshrstr(a,b)&#32;&#32;&#32;check_exp((a)-&gt;tt&#32;==&#32;LUA_VSHRSTR,&#32;(a)&#32;==&#32;(b))</emphasis>
+00042 
+00043 
+00044 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lstring_8h_1a37602b681f80916f4740da5f1368e65f">luaS_hash</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*str,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;l,
+00045 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;seed,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;step);
+00046 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lstring_8h_1aaa383bdce27b05699fb1bc432220abbf">luaS_hashlongstr</link>&#32;(<link linkend="_struct_t_string">TString</link>&#32;*ts);
+00047 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lstring_8h_1a11b7f1ae66d3102d667159acefc3d643">luaS_eqlngstr</link>&#32;(<link linkend="_struct_t_string">TString</link>&#32;*a,&#32;<link linkend="_struct_t_string">TString</link>&#32;*b);
+00048 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstring_8h_1a44d549eb0ace165927a896f37330e2cd">luaS_resize</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;newsize);
+00049 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstring_8h_1adf6ce45154f1aabbdec670cef4d9a955">luaS_clearcache</link>&#32;(<link linkend="_structglobal___state">global_State</link>&#32;*g);
+00050 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstring_8h_1a83805363ffda500e327df43007dc0208">luaS_init</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00051 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstring_8h_1a187dea46b6f3964a1eb7446627ef3fdc">luaS_remove</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_t_string">TString</link>&#32;*ts);
+00052 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_struct_udata">Udata</link>&#32;*<link linkend="_lstring_8h_1ad3da18d682039022687b2e3a7f5225f5">luaS_newudata</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;s,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nuvalue);
+00053 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_struct_t_string">TString</link>&#32;*<link linkend="_lstring_8h_1a248e72694b9116b07b2e7f4a9a3a5331">luaS_newlstr</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*str,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;l);
+00054 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_struct_t_string">TString</link>&#32;*<link linkend="_lstring_8h_1a6929da8cfde3e74a0d51a6467909ef9d">luaS_new</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*str);
+00055 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_struct_t_string">TString</link>&#32;*<link linkend="_lstring_8h_1ab2f7b029336ac9813aa287a840e2453f">luaS_createlngstrobj</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;l);
+00056 
+00057 
+00058 <emphasis role="preprocessor">#endif</emphasis>
+</programlisting></section>

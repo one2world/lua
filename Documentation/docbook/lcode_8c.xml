@@ -1,0 +1,2492 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lcode_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/lcode.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lcode.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;limits.h&gt;
+#include &lt;math.h&gt;
+#include &lt;stdlib.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;lcode.h&quot;
+#include &quot;ldebug.h&quot;
+#include &quot;ldo.h&quot;
+#include &quot;lgc.h&quot;
+#include &quot;llex.h&quot;
+#include &quot;lmem.h&quot;
+#include &quot;lobject.h&quot;
+#include &quot;lopcodes.h&quot;
+#include &quot;lparser.h&quot;
+#include &quot;lstring.h&quot;
+#include &quot;ltable.h&quot;
+#include &quot;lvm.h&quot;
+</programlisting>lcode.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lcode_8c_1aea04ff04f275dadd5678a39d6547cbe5">lcode_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lcode_8c_1abf0b3947b59218777a8e928a10be205b">LUA_CORE</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lcode_8c_1ab6ff7e20147df29e6e4710cc162be79a">MAXREGS</link>   255</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lcode_8c_1a6e8fdabe5b5f88f7a3e018459b83d10e">hasjumps</link>(e)   ((e)-&gt;t != (e)-&gt;f)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lcode_8c_1ad5413b8b64cce6bf8cab6fa1e54d2464">MAXIWTHABS</link>   120</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lcode_8c_1a8b6f0f419e73b43c908762a1f1f9ac3d">LIMLINEDIFF</link>   0x80</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static int <link linkend="_lcode_8c_1abafb16fe7dcc694c958e9dafeb2ad277">codesJ</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> o, int sj, int k)</para>
+</listitem>
+            <listitem><para><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> <link linkend="_lcode_8c_1abe3b325f24edb9acdca694951cbcb4d8">luaK_semerror</link> (<link linkend="_struct_lex_state">LexState</link> *ls, const char *msg)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1afc00b6e7519fadb094edd29e9019eefc">tonumeral</link> (const <link linkend="_structexpdesc">expdesc</link> *e, <link linkend="_struct_t_value">TValue</link> *v)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_t_value">TValue</link> * <link linkend="_lcode_8c_1a73505708162792e73d66a9a0307f2b48">const2val</link> (<link linkend="_struct_func_state">FuncState</link> *fs, const <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lcode_8c_1ae610aa01273d82b5603702ad3a3825a3">luaK_exp2const</link> (<link linkend="_struct_func_state">FuncState</link> *fs, const <link linkend="_structexpdesc">expdesc</link> *e, <link linkend="_struct_t_value">TValue</link> *v)</para>
+</listitem>
+            <listitem><para>static <link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link> * <link linkend="_lcode_8c_1a2d946f6d31e46b2607bd69d89ca1a9ce">previousinstruction</link> (<link linkend="_struct_func_state">FuncState</link> *fs)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1a625d410137e33fbd9593426c6e74bcf1">luaK_nil</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int from, int n)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1ac74dd95e53d610cf12e752f3075fe450">getjump</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int pc)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1a90b203d73d5f6e3ffb85079e746b028d">fixjump</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int pc, int dest)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1a99718e3c19e193690f60b7595bee952e">luaK_concat</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int *l1, int l2)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lcode_8c_1a01cb8acfbbf9911a63956cbe3fe1bdb6">luaK_jump</link> (<link linkend="_struct_func_state">FuncState</link> *fs)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1af04e0d7f5a543cbdc60d5ad981333bcf">luaK_ret</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int first, int nret)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1a5ca879c3a79630e5af194a82971f7ab2">condjump</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> op, int A, int B, int C, int k)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lcode_8c_1afd70025e040dde0ef167df148de201b0">luaK_getlabel</link> (<link linkend="_struct_func_state">FuncState</link> *fs)</para>
+</listitem>
+            <listitem><para>static <link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link> * <link linkend="_lcode_8c_1a755e9c104abc7fa7bb87437964b19628">getjumpcontrol</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int pc)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1ac7ce05b875db5d3bdca16012f3bcad8e">patchtestreg</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int node, int reg)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1a76e8dc6a6f33ee6f3c88c22933bc5c29">removevalues</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int list)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1a83e8d2f1641cfd3ed1c465f07f383c5e">patchlistaux</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int list, int vtarget, int reg, int dtarget)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1a4db596b358989fa68a43b6f697fc9a09">luaK_patchlist</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int list, int target)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1a5748ad3c940c7916a2586fab6181a197">luaK_patchtohere</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int list)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1acd1138478ae0364e0d3eaace189d2614">savelineinfo</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_struct_proto">Proto</link> *f, int line)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1a2d0840aab23ac3d53ba8821ad4eb1b8f">removelastlineinfo</link> (<link linkend="_struct_func_state">FuncState</link> *fs)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1af8da5ca36e18a59d8881a56b982ebae6">removelastinstruction</link> (<link linkend="_struct_func_state">FuncState</link> *fs)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lcode_8c_1a7250af995defa0d720b40e35695775da">luaK_code</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link> i)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lcode_8c_1a7f8d052466e2665575f464a55f90a509">luaK_codeABCk</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> o, int a, int b, int c, int k)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lcode_8c_1a3fb5006a069fadbcb2ec7dde4740ad10">luaK_codeABx</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> o, int a, unsigned int bc)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lcode_8c_1a0cebf3e6a7318f6f9b8ebd96b1d1ed70">luaK_codeAsBx</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> o, int a, int bc)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1ab4119f5c8d10ac76a119cf70bb25c5b9">codeextraarg</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int a)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1a946579be848f1f4a532e57533f0a9919">luaK_codek</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int reg, int k)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1afd941e61245bcb4d05bd3ba5b4ffec3b">luaK_checkstack</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int n)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1af1190942fb7a557b056ac8bbaa0024a1">luaK_reserveregs</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int n)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1a3331999888f54df141bd050408863d72">freereg</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int reg)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1ae1246635c52f314e973ba1dc527f565a">freeregs</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int r1, int r2)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1a9d534bd7aa79921e7339c9c1106acea9">freeexp</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1a2afdd34342361dc25c3b44f45c87558d">freeexps</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e1, <link linkend="_structexpdesc">expdesc</link> *e2)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1ada05641e97457834344a5b3d2187bd45">addk</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_struct_t_value">TValue</link> *key, <link linkend="_struct_t_value">TValue</link> *v)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1a7dfe719b62474bd7657147866e202e9a">stringK</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_struct_t_string">TString</link> *s)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1a6154c1594ec12080f2393950eb2b98e3">luaK_intK</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> n)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1aa55d8b442bf4ee8c1c4838e4deec9a56">luaK_numberK</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> r)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1a6265a2a98b8fd0c973f82dd6aa11c814">boolF</link> (<link linkend="_struct_func_state">FuncState</link> *fs)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1a34c4676c9334bf58d12b1d0223897e31">boolT</link> (<link linkend="_struct_func_state">FuncState</link> *fs)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1a96b95ed8f53ee7aba7c6e81a27df6d63">nilK</link> (<link linkend="_struct_func_state">FuncState</link> *fs)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1a3447d4fe8de721e03288feb166a7ede0">fitsC</link> (<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> i)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1a04beeab4c7c24c3b850206137e7f61f3">fitsBx</link> (<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> i)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1a2fff5f96536d86c8d5df7bdf2ea4d317">luaK_int</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int reg, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> i)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1a463a7c61f87515bd9ce739e51ffdac53">luaK_float</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int reg, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> f)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1ad595e6cb1e482df9d3e8cb0ba97316b1">const2exp</link> (<link linkend="_struct_t_value">TValue</link> *v, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1aa088b6c0fff724b3d4c76830416da244">luaK_setreturns</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e, int nresults)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1ad8d97d1b9538e4e8412654930d56e5ed">str2K</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1a80466f0e006b20a0c0c04f6bcc5b656d">luaK_setoneret</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1a982df0963fcf2227c3a5c96163d8ef03">luaK_dischargevars</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1a961993a449bc9612ac966652646ffad6">discharge2reg</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e, int reg)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1a42950f3fd3e5bf08697d861e865119a1">discharge2anyreg</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1ab947c67ef18474ab26abc6f1a81c3dfd">code_loadbool</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int A, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> op)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1af4b1d063270645304b0642c1f1d79cb3">need_value</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int list)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1aa89e7af4e4f692877eab94959920c493">exp2reg</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e, int reg)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1a252b7ff26ed24db991e8a11275bcf75c">luaK_exp2nextreg</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lcode_8c_1ad2850d253ee1400e3e00e5a0d26d596d">luaK_exp2anyreg</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1ad975c434bb45ed1baff91522069c4f11">luaK_exp2anyregup</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1a214015f257d752c11c44ba82460a603a">luaK_exp2val</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1a0d67ef87afbe99966e5679b596c6a466">luaK_exp2K</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lcode_8c_1a8a1a4f8416bf829386d17267ba2636b6">luaK_exp2RK</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1a84976cfe36717c59f9cb63b39beba091">codeABRK</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> o, int a, int b, <link linkend="_structexpdesc">expdesc</link> *ec)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1a31c85ce631d5ee0a691cb58a1bd360be">luaK_storevar</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *var, <link linkend="_structexpdesc">expdesc</link> *ex)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1a38f9aab7679b62f5902d9adf5c502ea1">luaK_self</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e, <link linkend="_structexpdesc">expdesc</link> *key)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1a70d4b286b84e3322bb81af111b5c3a77">negatecondition</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1a15ef9c2dfe9851aaea34aae8e849b43e">jumponcond</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e, int <link linkend="_lparser_8c_1a24002c50a108445d916457eb3c21d5e1">cond</link>)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1a7d4ea6b61d0c157feca2afa59a9f877e">luaK_goiftrue</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1a61d509689d21bb8b1fe8681a03ccbe58">luaK_goiffalse</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1adf2b3a04b610027f57d8ebd6a9ec2a12">codenot</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1a41e037c7df7ee9df97d2731772061c3f">isKstr</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lcode_8c_1a3eb85bb37542cd67b33cbf85fec9bf48">luaK_isKint</link> (<link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1abccebacd6d7d253aa6f7f1063f340a1d">isCint</link> (<link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1a3cf85f67771eb8781afdc02625d389c1">isSCint</link> (<link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1af0849f886c6299a2556da1228e2f9b18">isSCnumber</link> (<link linkend="_structexpdesc">expdesc</link> *e, int *pi, int *isfloat)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1af9e8e4c1ab85deb3fe8fdbc39d25c6d9">luaK_indexed</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *t, <link linkend="_structexpdesc">expdesc</link> *k)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1acff3899ba144ce35344d2c781d4a04cc">validop</link> (int op, <link linkend="_struct_t_value">TValue</link> *v1, <link linkend="_struct_t_value">TValue</link> *v2)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1a690b5c3cf2d262aaef28188ecc62d1b2">constfolding</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int op, <link linkend="_structexpdesc">expdesc</link> *e1, const <link linkend="_structexpdesc">expdesc</link> *e2)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1aeb34b4c711a24f0c833d265a67ca9383">codeunexpval</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> op, <link linkend="_structexpdesc">expdesc</link> *e, int line)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1a01a145e647812f1f883b3f3807e47e86">finishbinexpval</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e1, <link linkend="_structexpdesc">expdesc</link> *e2, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> op, int v2, int flip, int line, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> mmop, <link linkend="_ltm_8h_1a69e345ae253d250b61a03f1d6871c8d1">TMS</link> event)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1af18af1f6b975aea02c8c7be45a80d0c7">codebinexpval</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> op, <link linkend="_structexpdesc">expdesc</link> *e1, <link linkend="_structexpdesc">expdesc</link> *e2, int line)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1a94ae37fabbb4863d4d782b58a7335106">codebini</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> op, <link linkend="_structexpdesc">expdesc</link> *e1, <link linkend="_structexpdesc">expdesc</link> *e2, int flip, int line, <link linkend="_ltm_8h_1a69e345ae253d250b61a03f1d6871c8d1">TMS</link> event)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1a143564608b873128e8af05828f8c3e36">finishbinexpneg</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e1, <link linkend="_structexpdesc">expdesc</link> *e2, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> op, int line, <link linkend="_ltm_8h_1a69e345ae253d250b61a03f1d6871c8d1">TMS</link> event)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1a5cb5734345361c95cee8e08306f36821">swapexps</link> (<link linkend="_structexpdesc">expdesc</link> *e1, <link linkend="_structexpdesc">expdesc</link> *e2)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1ab10806c569e8a861c7efcf845b36c8bc">codearith</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_lcode_8h_1ae9a305c1104efedfc54af8d08b942c83">BinOpr</link> opr, <link linkend="_structexpdesc">expdesc</link> *e1, <link linkend="_structexpdesc">expdesc</link> *e2, int flip, int line)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1a0639238e21aa55ffe24f15b16d220372">codecommutative</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_lcode_8h_1ae9a305c1104efedfc54af8d08b942c83">BinOpr</link> op, <link linkend="_structexpdesc">expdesc</link> *e1, <link linkend="_structexpdesc">expdesc</link> *e2, int line)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1ad84321345dde4a0ee416c6e77aa9f79a">codebitwise</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_lcode_8h_1ae9a305c1104efedfc54af8d08b942c83">BinOpr</link> opr, <link linkend="_structexpdesc">expdesc</link> *e1, <link linkend="_structexpdesc">expdesc</link> *e2, int line)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1add743403f3f3e4f3478075841a65db0d">codeorder</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> op, <link linkend="_structexpdesc">expdesc</link> *e1, <link linkend="_structexpdesc">expdesc</link> *e2)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1ae4fe1997f80682df6f176c52bd3d3898">codeeq</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_lcode_8h_1ae9a305c1104efedfc54af8d08b942c83">BinOpr</link> opr, <link linkend="_structexpdesc">expdesc</link> *e1, <link linkend="_structexpdesc">expdesc</link> *e2)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1a3fc6858944504885353a652022d15a4b">luaK_prefix</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_lcode_8h_1a36fd1054d39d6fc3373303522a7ef534">UnOpr</link> op, <link linkend="_structexpdesc">expdesc</link> *e, int line)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1a07039dc526d35d6db3f1a29c7304fe89">luaK_infix</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_lcode_8h_1ae9a305c1104efedfc54af8d08b942c83">BinOpr</link> op, <link linkend="_structexpdesc">expdesc</link> *v)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lcode_8c_1a57739bb8f355074018a62ee86f8f5c36">codeconcat</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e1, <link linkend="_structexpdesc">expdesc</link> *e2, int line)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1a21e9443ce3d06694c2f9ea497052fab4">luaK_posfix</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_lcode_8h_1ae9a305c1104efedfc54af8d08b942c83">BinOpr</link> opr, <link linkend="_structexpdesc">expdesc</link> *e1, <link linkend="_structexpdesc">expdesc</link> *e2, int line)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1ab17c57ffa1dc5c51f0d67a4ae8a5f073">luaK_fixline</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int line)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1aa59fc2dadbee774d0cdf1196d047d7e1">luaK_settablesize</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int pc, int ra, int asize, int hsize)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1adf5e140580f1f4ca545b7cfd471e3166">luaK_setlist</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int base, int nelems, int tostore)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lcode_8c_1ada56905cd28223efbcc6568614d477cd">finaltarget</link> (<link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link> *code, int i)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lcode_8c_1aae9456e48d7a5b94358d310b80b1589f">luaK_finish</link> (<link linkend="_struct_func_state">FuncState</link> *fs)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lcode_8c_1a6e8fdabe5b5f88f7a3e018459b83d10e"/>    <section>
+    <title>hasjumps</title>
+<indexterm><primary>hasjumps</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>hasjumps</secondary></indexterm>
+<para><computeroutput>#define hasjumps( e)   ((e)-&gt;t != (e)-&gt;f)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00037">37</link> 行定义.</para>
+    </section><anchor xml:id="_lcode_8c_1aea04ff04f275dadd5678a39d6547cbe5"/>    <section>
+    <title>lcode_c</title>
+<indexterm><primary>lcode_c</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>lcode_c</secondary></indexterm>
+<para><computeroutput>#define lcode_c</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_lcode_8c_1a8b6f0f419e73b43c908762a1f1f9ac3d"/>    <section>
+    <title>LIMLINEDIFF</title>
+<indexterm><primary>LIMLINEDIFF</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>LIMLINEDIFF</secondary></indexterm>
+<para><computeroutput>#define LIMLINEDIFF   0x80</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00327">327</link> 行定义.</para>
+    </section><anchor xml:id="_lcode_8c_1abf0b3947b59218777a8e928a10be205b"/>    <section>
+    <title>LUA_CORE</title>
+<indexterm><primary>LUA_CORE</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>LUA_CORE</secondary></indexterm>
+<para><computeroutput>#define LUA_CORE</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00008">8</link> 行定义.</para>
+    </section><anchor xml:id="_lcode_8c_1ad5413b8b64cce6bf8cab6fa1e54d2464"/>    <section>
+    <title>MAXIWTHABS</title>
+<indexterm><primary>MAXIWTHABS</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>MAXIWTHABS</secondary></indexterm>
+<para><computeroutput>#define MAXIWTHABS   120</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00322">322</link> 行定义.</para>
+    </section><anchor xml:id="_lcode_8c_1ab6ff7e20147df29e6e4710cc162be79a"/>    <section>
+    <title>MAXREGS</title>
+<indexterm><primary>MAXREGS</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>MAXREGS</secondary></indexterm>
+<para><computeroutput>#define MAXREGS   255</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00034">34</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lcode_8c_1ada05641e97457834344a5b3d2187bd45"/>    <section>
+    <title>addk()</title>
+<indexterm><primary>addk</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>addk</secondary></indexterm>
+<para><computeroutput>static int addk (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_struct_t_value">TValue</link> * key, <link linkend="_struct_t_value">TValue</link> * v)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00549">549</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ada05641e97457834344a5b3d2187bd45_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ada05641e97457834344a5b3d2187bd45_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a6265a2a98b8fd0c973f82dd6aa11c814"/>    <section>
+    <title>boolF()</title>
+<indexterm><primary>boolF</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>boolF</secondary></indexterm>
+<para><computeroutput>static int boolF (<link linkend="_struct_func_state">FuncState</link> * fs)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00612">612</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a6265a2a98b8fd0c973f82dd6aa11c814_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a6265a2a98b8fd0c973f82dd6aa11c814_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a34c4676c9334bf58d12b1d0223897e31"/>    <section>
+    <title>boolT()</title>
+<indexterm><primary>boolT</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>boolT</secondary></indexterm>
+<para><computeroutput>static int boolT (<link linkend="_struct_func_state">FuncState</link> * fs)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00622">622</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a34c4676c9334bf58d12b1d0223897e31_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a34c4676c9334bf58d12b1d0223897e31_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1ab947c67ef18474ab26abc6f1a81c3dfd"/>    <section>
+    <title>code_loadbool()</title>
+<indexterm><primary>code_loadbool</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>code_loadbool</secondary></indexterm>
+<para><computeroutput>static int code_loadbool (<link linkend="_struct_func_state">FuncState</link> * fs, int A, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> op)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00874">874</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ab947c67ef18474ab26abc6f1a81c3dfd_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ab947c67ef18474ab26abc6f1a81c3dfd_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a84976cfe36717c59f9cb63b39beba091"/>    <section>
+    <title>codeABRK()</title>
+<indexterm><primary>codeABRK</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>codeABRK</secondary></indexterm>
+<para><computeroutput>static void codeABRK (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> o, int a, int b, <link linkend="_structexpdesc">expdesc</link> * ec)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01021">1021</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a84976cfe36717c59f9cb63b39beba091_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a84976cfe36717c59f9cb63b39beba091_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1ab10806c569e8a861c7efcf845b36c8bc"/>    <section>
+    <title>codearith()</title>
+<indexterm><primary>codearith</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>codearith</secondary></indexterm>
+<para><computeroutput>static void codearith (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_lcode_8h_1ae9a305c1104efedfc54af8d08b942c83">BinOpr</link> opr, <link linkend="_structexpdesc">expdesc</link> * e1, <link linkend="_structexpdesc">expdesc</link> * e2, int flip, int line)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01426">1426</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ab10806c569e8a861c7efcf845b36c8bc_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ab10806c569e8a861c7efcf845b36c8bc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1af18af1f6b975aea02c8c7be45a80d0c7"/>    <section>
+    <title>codebinexpval()</title>
+<indexterm><primary>codebinexpval</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>codebinexpval</secondary></indexterm>
+<para><computeroutput>static void codebinexpval (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> op, <link linkend="_structexpdesc">expdesc</link> * e1, <link linkend="_structexpdesc">expdesc</link> * e2, int line)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01374">1374</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_af18af1f6b975aea02c8c7be45a80d0c7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_af18af1f6b975aea02c8c7be45a80d0c7_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a94ae37fabbb4863d4d782b58a7335106"/>    <section>
+    <title>codebini()</title>
+<indexterm><primary>codebini</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>codebini</secondary></indexterm>
+<para><computeroutput>static void codebini (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> op, <link linkend="_structexpdesc">expdesc</link> * e1, <link linkend="_structexpdesc">expdesc</link> * e2, int flip, int line, <link linkend="_ltm_8h_1a69e345ae253d250b61a03f1d6871c8d1">TMS</link> event)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01386">1386</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a94ae37fabbb4863d4d782b58a7335106_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a94ae37fabbb4863d4d782b58a7335106_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1ad84321345dde4a0ee416c6e77aa9f79a"/>    <section>
+    <title>codebitwise()</title>
+<indexterm><primary>codebitwise</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>codebitwise</secondary></indexterm>
+<para><computeroutput>static void codebitwise (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_lcode_8h_1ae9a305c1104efedfc54af8d08b942c83">BinOpr</link> opr, <link linkend="_structexpdesc">expdesc</link> * e1, <link linkend="_structexpdesc">expdesc</link> * e2, int line)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01466">1466</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ad84321345dde4a0ee416c6e77aa9f79a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ad84321345dde4a0ee416c6e77aa9f79a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a0639238e21aa55ffe24f15b16d220372"/>    <section>
+    <title>codecommutative()</title>
+<indexterm><primary>codecommutative</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>codecommutative</secondary></indexterm>
+<para><computeroutput>static void codecommutative (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_lcode_8h_1ae9a305c1104efedfc54af8d08b942c83">BinOpr</link> op, <link linkend="_structexpdesc">expdesc</link> * e1, <link linkend="_structexpdesc">expdesc</link> * e2, int line)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01448">1448</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a0639238e21aa55ffe24f15b16d220372_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a0639238e21aa55ffe24f15b16d220372_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a57739bb8f355074018a62ee86f8f5c36"/>    <section>
+    <title>codeconcat()</title>
+<indexterm><primary>codeconcat</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>codeconcat</secondary></indexterm>
+<para><computeroutput>static void codeconcat (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e1, <link linkend="_structexpdesc">expdesc</link> * e2, int line)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01622">1622</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a57739bb8f355074018a62ee86f8f5c36_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a57739bb8f355074018a62ee86f8f5c36_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1ae4fe1997f80682df6f176c52bd3d3898"/>    <section>
+    <title>codeeq()</title>
+<indexterm><primary>codeeq</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>codeeq</secondary></indexterm>
+<para><computeroutput>static void codeeq (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_lcode_8h_1ae9a305c1104efedfc54af8d08b942c83">BinOpr</link> opr, <link linkend="_structexpdesc">expdesc</link> * e1, <link linkend="_structexpdesc">expdesc</link> * e2)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01522">1522</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ae4fe1997f80682df6f176c52bd3d3898_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ae4fe1997f80682df6f176c52bd3d3898_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1ab4119f5c8d10ac76a119cf70bb25c5b9"/>    <section>
+    <title>codeextraarg()</title>
+<indexterm><primary>codeextraarg</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>codeextraarg</secondary></indexterm>
+<para><computeroutput>static int codeextraarg (<link linkend="_struct_func_state">FuncState</link> * fs, int a)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00448">448</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ab4119f5c8d10ac76a119cf70bb25c5b9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ab4119f5c8d10ac76a119cf70bb25c5b9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1adf2b3a04b610027f57d8ebd6a9ec2a12"/>    <section>
+    <title>codenot()</title>
+<indexterm><primary>codenot</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>codenot</secondary></indexterm>
+<para><computeroutput>static void codenot (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01169">1169</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_adf2b3a04b610027f57d8ebd6a9ec2a12_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_adf2b3a04b610027f57d8ebd6a9ec2a12_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1add743403f3f3e4f3478075841a65db0d"/>    <section>
+    <title>codeorder()</title>
+<indexterm><primary>codeorder</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>codeorder</secondary></indexterm>
+<para><computeroutput>static void codeorder (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> op, <link linkend="_structexpdesc">expdesc</link> * e1, <link linkend="_structexpdesc">expdesc</link> * e2)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01492">1492</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_add743403f3f3e4f3478075841a65db0d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_add743403f3f3e4f3478075841a65db0d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1abafb16fe7dcc694c958e9dafeb2ad277"/>    <section>
+    <title>codesJ()</title>
+<indexterm><primary>codesJ</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>codesJ</secondary></indexterm>
+<para><computeroutput>static int codesJ (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> o, int sj, int k)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00437">437</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_abafb16fe7dcc694c958e9dafeb2ad277_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_abafb16fe7dcc694c958e9dafeb2ad277_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1aeb34b4c711a24f0c833d265a67ca9383"/>    <section>
+    <title>codeunexpval()</title>
+<indexterm><primary>codeunexpval</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>codeunexpval</secondary></indexterm>
+<para><computeroutput>static void codeunexpval (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> op, <link linkend="_structexpdesc">expdesc</link> * e, int line)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01341">1341</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_aeb34b4c711a24f0c833d265a67ca9383_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_aeb34b4c711a24f0c833d265a67ca9383_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a5ca879c3a79630e5af194a82971f7ab2"/>    <section>
+    <title>condjump()</title>
+<indexterm><primary>condjump</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>condjump</secondary></indexterm>
+<para><computeroutput>static int condjump (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> op, int A, int B, int C, int k)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00221">221</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a5ca879c3a79630e5af194a82971f7ab2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a5ca879c3a79630e5af194a82971f7ab2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1ad595e6cb1e482df9d3e8cb0ba97316b1"/>    <section>
+    <title>const2exp()</title>
+<indexterm><primary>const2exp</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>const2exp</secondary></indexterm>
+<para><computeroutput>static void const2exp (<link linkend="_struct_t_value">TValue</link> * v, <link linkend="_structexpdesc">expdesc</link> * e)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00679">679</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ad595e6cb1e482df9d3e8cb0ba97316b1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a73505708162792e73d66a9a0307f2b48"/>    <section>
+    <title>const2val()</title>
+<indexterm><primary>const2val</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>const2val</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_t_value">TValue</link>* const2val (<link linkend="_struct_func_state">FuncState</link> * fs, const <link linkend="_structexpdesc">expdesc</link> * e)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00073">73</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a73505708162792e73d66a9a0307f2b48_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a690b5c3cf2d262aaef28188ecc62d1b2"/>    <section>
+    <title>constfolding()</title>
+<indexterm><primary>constfolding</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>constfolding</secondary></indexterm>
+<para><computeroutput>static int constfolding (<link linkend="_struct_func_state">FuncState</link> * fs, int op, <link linkend="_structexpdesc">expdesc</link> * e1, const <link linkend="_structexpdesc">expdesc</link> * e2)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01315">1315</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a690b5c3cf2d262aaef28188ecc62d1b2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a690b5c3cf2d262aaef28188ecc62d1b2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a42950f3fd3e5bf08697d861e865119a1"/>    <section>
+    <title>discharge2anyreg()</title>
+<indexterm><primary>discharge2anyreg</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>discharge2anyreg</secondary></indexterm>
+<para><computeroutput>static void discharge2anyreg (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00866">866</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a42950f3fd3e5bf08697d861e865119a1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a42950f3fd3e5bf08697d861e865119a1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a961993a449bc9612ac966652646ffad6"/>    <section>
+    <title>discharge2reg()</title>
+<indexterm><primary>discharge2reg</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>discharge2reg</secondary></indexterm>
+<para><computeroutput>static void discharge2reg (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e, int reg)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00812">812</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a961993a449bc9612ac966652646ffad6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a961993a449bc9612ac966652646ffad6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1aa89e7af4e4f692877eab94959920c493"/>    <section>
+    <title>exp2reg()</title>
+<indexterm><primary>exp2reg</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>exp2reg</secondary></indexterm>
+<para><computeroutput>static void exp2reg (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e, int reg)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00900">900</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_aa89e7af4e4f692877eab94959920c493_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_aa89e7af4e4f692877eab94959920c493_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1ada56905cd28223efbcc6568614d477cd"/>    <section>
+    <title>finaltarget()</title>
+<indexterm><primary>finaltarget</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>finaltarget</secondary></indexterm>
+<para><computeroutput>static int finaltarget (<link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link> * code, int i)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01769">1769</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ada56905cd28223efbcc6568614d477cd_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a143564608b873128e8af05828f8c3e36"/>    <section>
+    <title>finishbinexpneg()</title>
+<indexterm><primary>finishbinexpneg</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>finishbinexpneg</secondary></indexterm>
+<para><computeroutput>static int finishbinexpneg (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e1, <link linkend="_structexpdesc">expdesc</link> * e2, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> op, int line, <link linkend="_ltm_8h_1a69e345ae253d250b61a03f1d6871c8d1">TMS</link> event)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01398">1398</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a143564608b873128e8af05828f8c3e36_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a143564608b873128e8af05828f8c3e36_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a01a145e647812f1f883b3f3807e47e86"/>    <section>
+    <title>finishbinexpval()</title>
+<indexterm><primary>finishbinexpval</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>finishbinexpval</secondary></indexterm>
+<para><computeroutput>static void finishbinexpval (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e1, <link linkend="_structexpdesc">expdesc</link> * e2, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> op, int v2, int flip, int line, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> mmop, <link linkend="_ltm_8h_1a69e345ae253d250b61a03f1d6871c8d1">TMS</link> event)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01356">1356</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a01a145e647812f1f883b3f3807e47e86_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a01a145e647812f1f883b3f3807e47e86_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a04beeab4c7c24c3b850206137e7f61f3"/>    <section>
+    <title>fitsBx()</title>
+<indexterm><primary>fitsBx</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>fitsBx</secondary></indexterm>
+<para><computeroutput>static int fitsBx (<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> i)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00654">654</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a04beeab4c7c24c3b850206137e7f61f3_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a3447d4fe8de721e03288feb166a7ede0"/>    <section>
+    <title>fitsC()</title>
+<indexterm><primary>fitsC</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>fitsC</secondary></indexterm>
+<para><computeroutput>static int fitsC (<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> i)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00646">646</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a3447d4fe8de721e03288feb166a7ede0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a90b203d73d5f6e3ffb85079e746b028d"/>    <section>
+    <title>fixjump()</title>
+<indexterm><primary>fixjump</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>fixjump</secondary></indexterm>
+<para><computeroutput>static void fixjump (<link linkend="_struct_func_state">FuncState</link> * fs, int pc, int dest)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00166">166</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a90b203d73d5f6e3ffb85079e746b028d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a90b203d73d5f6e3ffb85079e746b028d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a9d534bd7aa79921e7339c9c1106acea9"/>    <section>
+    <title>freeexp()</title>
+<indexterm><primary>freeexp</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>freeexp</secondary></indexterm>
+<para><computeroutput>static void freeexp (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00525">525</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a9d534bd7aa79921e7339c9c1106acea9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a9d534bd7aa79921e7339c9c1106acea9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a2afdd34342361dc25c3b44f45c87558d"/>    <section>
+    <title>freeexps()</title>
+<indexterm><primary>freeexps</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>freeexps</secondary></indexterm>
+<para><computeroutput>static void freeexps (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e1, <link linkend="_structexpdesc">expdesc</link> * e2)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00535">535</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a2afdd34342361dc25c3b44f45c87558d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a2afdd34342361dc25c3b44f45c87558d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a3331999888f54df141bd050408863d72"/>    <section>
+    <title>freereg()</title>
+<indexterm><primary>freereg</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>freereg</secondary></indexterm>
+<para><computeroutput>static void freereg (<link linkend="_struct_func_state">FuncState</link> * fs, int reg)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00499">499</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a3331999888f54df141bd050408863d72_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a3331999888f54df141bd050408863d72_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1ae1246635c52f314e973ba1dc527f565a"/>    <section>
+    <title>freeregs()</title>
+<indexterm><primary>freeregs</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>freeregs</secondary></indexterm>
+<para><computeroutput>static void freeregs (<link linkend="_struct_func_state">FuncState</link> * fs, int r1, int r2)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00510">510</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ae1246635c52f314e973ba1dc527f565a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ae1246635c52f314e973ba1dc527f565a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1ac74dd95e53d610cf12e752f3075fe450"/>    <section>
+    <title>getjump()</title>
+<indexterm><primary>getjump</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>getjump</secondary></indexterm>
+<para><computeroutput>static int getjump (<link linkend="_struct_func_state">FuncState</link> * fs, int pc)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00153">153</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ac74dd95e53d610cf12e752f3075fe450_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a755e9c104abc7fa7bb87437964b19628"/>    <section>
+    <title>getjumpcontrol()</title>
+<indexterm><primary>getjumpcontrol</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>getjumpcontrol</secondary></indexterm>
+<para><computeroutput>static <link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link>* getjumpcontrol (<link linkend="_struct_func_state">FuncState</link> * fs, int pc)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00242">242</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a755e9c104abc7fa7bb87437964b19628_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1abccebacd6d7d253aa6f7f1063f340a1d"/>    <section>
+    <title>isCint()</title>
+<indexterm><primary>isCint</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>isCint</secondary></indexterm>
+<para><computeroutput>static int isCint (<link linkend="_structexpdesc">expdesc</link> * e)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01220">1220</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_abccebacd6d7d253aa6f7f1063f340a1d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_abccebacd6d7d253aa6f7f1063f340a1d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a41e037c7df7ee9df97d2731772061c3f"/>    <section>
+    <title>isKstr()</title>
+<indexterm><primary>isKstr</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>isKstr</secondary></indexterm>
+<para><computeroutput>static int isKstr (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01203">1203</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a41e037c7df7ee9df97d2731772061c3f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a3cf85f67771eb8781afdc02625d389c1"/>    <section>
+    <title>isSCint()</title>
+<indexterm><primary>isSCint</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>isSCint</secondary></indexterm>
+<para><computeroutput>static int isSCint (<link linkend="_structexpdesc">expdesc</link> * e)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01229">1229</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a3cf85f67771eb8781afdc02625d389c1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a3cf85f67771eb8781afdc02625d389c1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1af0849f886c6299a2556da1228e2f9b18"/>    <section>
+    <title>isSCnumber()</title>
+<indexterm><primary>isSCnumber</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>isSCnumber</secondary></indexterm>
+<para><computeroutput>static int isSCnumber (<link linkend="_structexpdesc">expdesc</link> * e, int * pi, int * isfloat)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01238">1238</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_af0849f886c6299a2556da1228e2f9b18_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_af0849f886c6299a2556da1228e2f9b18_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a15ef9c2dfe9851aaea34aae8e849b43e"/>    <section>
+    <title>jumponcond()</title>
+<indexterm><primary>jumponcond</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>jumponcond</secondary></indexterm>
+<para><computeroutput>static int jumponcond (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e, int cond)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01098">1098</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a15ef9c2dfe9851aaea34aae8e849b43e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a15ef9c2dfe9851aaea34aae8e849b43e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1afd941e61245bcb4d05bd3ba5b4ffec3b"/>    <section>
+    <title>luaK_checkstack()</title>
+<indexterm><primary>luaK_checkstack</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_checkstack</secondary></indexterm>
+<para><computeroutput>void luaK_checkstack (<link linkend="_struct_func_state">FuncState</link> * fs, int n)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00474">474</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_afd941e61245bcb4d05bd3ba5b4ffec3b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_afd941e61245bcb4d05bd3ba5b4ffec3b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a7250af995defa0d720b40e35695775da"/>    <section>
+    <title>luaK_code()</title>
+<indexterm><primary>luaK_code</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_code</secondary></indexterm>
+<para><computeroutput>int luaK_code (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link> i)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00390">390</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a7250af995defa0d720b40e35695775da_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a7250af995defa0d720b40e35695775da_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a7f8d052466e2665575f464a55f90a509"/>    <section>
+    <title>luaK_codeABCk()</title>
+<indexterm><primary>luaK_codeABCk</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_codeABCk</secondary></indexterm>
+<para><computeroutput>int luaK_codeABCk (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> o, int a, int b, int c, int k)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00405">405</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a7f8d052466e2665575f464a55f90a509_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a7f8d052466e2665575f464a55f90a509_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a3fb5006a069fadbcb2ec7dde4740ad10"/>    <section>
+    <title>luaK_codeABx()</title>
+<indexterm><primary>luaK_codeABx</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_codeABx</secondary></indexterm>
+<para><computeroutput>int luaK_codeABx (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> o, int a, unsigned int bc)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00416">416</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a3fb5006a069fadbcb2ec7dde4740ad10_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a3fb5006a069fadbcb2ec7dde4740ad10_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a0cebf3e6a7318f6f9b8ebd96b1d1ed70"/>    <section>
+    <title>luaK_codeAsBx()</title>
+<indexterm><primary>luaK_codeAsBx</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_codeAsBx</secondary></indexterm>
+<para><computeroutput>int luaK_codeAsBx (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link> o, int a, int bc)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00426">426</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a0cebf3e6a7318f6f9b8ebd96b1d1ed70_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a0cebf3e6a7318f6f9b8ebd96b1d1ed70_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a946579be848f1f4a532e57533f0a9919"/>    <section>
+    <title>luaK_codek()</title>
+<indexterm><primary>luaK_codek</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_codek</secondary></indexterm>
+<para><computeroutput>static int luaK_codek (<link linkend="_struct_func_state">FuncState</link> * fs, int reg, int k)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00459">459</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a946579be848f1f4a532e57533f0a9919_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a946579be848f1f4a532e57533f0a9919_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a99718e3c19e193690f60b7595bee952e"/>    <section>
+    <title>luaK_concat()</title>
+<indexterm><primary>luaK_concat</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_concat</secondary></indexterm>
+<para><computeroutput>void luaK_concat (<link linkend="_struct_func_state">FuncState</link> * fs, int * l1, int l2)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00180">180</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a99718e3c19e193690f60b7595bee952e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a99718e3c19e193690f60b7595bee952e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a982df0963fcf2227c3a5c96163d8ef03"/>    <section>
+    <title>luaK_dischargevars()</title>
+<indexterm><primary>luaK_dischargevars</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_dischargevars</secondary></indexterm>
+<para><computeroutput>void luaK_dischargevars (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00759">759</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a982df0963fcf2227c3a5c96163d8ef03_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a982df0963fcf2227c3a5c96163d8ef03_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1ad2850d253ee1400e3e00e5a0d26d596d"/>    <section>
+    <title>luaK_exp2anyreg()</title>
+<indexterm><primary>luaK_exp2anyreg</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_exp2anyreg</secondary></indexterm>
+<para><computeroutput>int luaK_exp2anyreg (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00940">940</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ad2850d253ee1400e3e00e5a0d26d596d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ad2850d253ee1400e3e00e5a0d26d596d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1ad975c434bb45ed1baff91522069c4f11"/>    <section>
+    <title>luaK_exp2anyregup()</title>
+<indexterm><primary>luaK_exp2anyregup</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_exp2anyregup</secondary></indexterm>
+<para><computeroutput>void luaK_exp2anyregup (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00959">959</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ad975c434bb45ed1baff91522069c4f11_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ad975c434bb45ed1baff91522069c4f11_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1ae610aa01273d82b5603702ad3a3825a3"/>    <section>
+    <title>luaK_exp2const()</title>
+<indexterm><primary>luaK_exp2const</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_exp2const</secondary></indexterm>
+<para><computeroutput>int luaK_exp2const (<link linkend="_struct_func_state">FuncState</link> * fs, const <link linkend="_structexpdesc">expdesc</link> * e, <link linkend="_struct_t_value">TValue</link> * v)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00083">83</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ae610aa01273d82b5603702ad3a3825a3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ae610aa01273d82b5603702ad3a3825a3_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a0d67ef87afbe99966e5679b596c6a466"/>    <section>
+    <title>luaK_exp2K()</title>
+<indexterm><primary>luaK_exp2K</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_exp2K</secondary></indexterm>
+<para><computeroutput>static int luaK_exp2K (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00981">981</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a0d67ef87afbe99966e5679b596c6a466_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a0d67ef87afbe99966e5679b596c6a466_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a252b7ff26ed24db991e8a11275bcf75c"/>    <section>
+    <title>luaK_exp2nextreg()</title>
+<indexterm><primary>luaK_exp2nextreg</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_exp2nextreg</secondary></indexterm>
+<para><computeroutput>void luaK_exp2nextreg (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00928">928</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a252b7ff26ed24db991e8a11275bcf75c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a252b7ff26ed24db991e8a11275bcf75c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a8a1a4f8416bf829386d17267ba2636b6"/>    <section>
+    <title>luaK_exp2RK()</title>
+<indexterm><primary>luaK_exp2RK</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_exp2RK</secondary></indexterm>
+<para><computeroutput>int luaK_exp2RK (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01011">1011</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a8a1a4f8416bf829386d17267ba2636b6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a8a1a4f8416bf829386d17267ba2636b6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a214015f257d752c11c44ba82460a603a"/>    <section>
+    <title>luaK_exp2val()</title>
+<indexterm><primary>luaK_exp2val</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_exp2val</secondary></indexterm>
+<para><computeroutput>void luaK_exp2val (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00969">969</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a214015f257d752c11c44ba82460a603a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a214015f257d752c11c44ba82460a603a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1aae9456e48d7a5b94358d310b80b1589f"/>    <section>
+    <title>luaK_finish()</title>
+<indexterm><primary>luaK_finish</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_finish</secondary></indexterm>
+<para><computeroutput>void luaK_finish (<link linkend="_struct_func_state">FuncState</link> * fs)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01786">1786</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_aae9456e48d7a5b94358d310b80b1589f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_aae9456e48d7a5b94358d310b80b1589f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1ab17c57ffa1dc5c51f0d67a4ae8a5f073"/>    <section>
+    <title>luaK_fixline()</title>
+<indexterm><primary>luaK_fixline</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_fixline</secondary></indexterm>
+<para><computeroutput>void luaK_fixline (<link linkend="_struct_func_state">FuncState</link> * fs, int line)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01726">1726</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ab17c57ffa1dc5c51f0d67a4ae8a5f073_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ab17c57ffa1dc5c51f0d67a4ae8a5f073_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a463a7c61f87515bd9ce739e51ffdac53"/>    <section>
+    <title>luaK_float()</title>
+<indexterm><primary>luaK_float</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_float</secondary></indexterm>
+<para><computeroutput>static void luaK_float (<link linkend="_struct_func_state">FuncState</link> * fs, int reg, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> f)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00667">667</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a463a7c61f87515bd9ce739e51ffdac53_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a463a7c61f87515bd9ce739e51ffdac53_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1afd70025e040dde0ef167df148de201b0"/>    <section>
+    <title>luaK_getlabel()</title>
+<indexterm><primary>luaK_getlabel</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_getlabel</secondary></indexterm>
+<para><computeroutput>int luaK_getlabel (<link linkend="_struct_func_state">FuncState</link> * fs)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00231">231</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_afd70025e040dde0ef167df148de201b0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a61d509689d21bb8b1fe8681a03ccbe58"/>    <section>
+    <title>luaK_goiffalse()</title>
+<indexterm><primary>luaK_goiffalse</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_goiffalse</secondary></indexterm>
+<para><computeroutput>void luaK_goiffalse (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01143">1143</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a61d509689d21bb8b1fe8681a03ccbe58_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a61d509689d21bb8b1fe8681a03ccbe58_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a7d4ea6b61d0c157feca2afa59a9f877e"/>    <section>
+    <title>luaK_goiftrue()</title>
+<indexterm><primary>luaK_goiftrue</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_goiftrue</secondary></indexterm>
+<para><computeroutput>void luaK_goiftrue (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01116">1116</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a7d4ea6b61d0c157feca2afa59a9f877e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a7d4ea6b61d0c157feca2afa59a9f877e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1af9e8e4c1ab85deb3fe8fdbc39d25c6d9"/>    <section>
+    <title>luaK_indexed()</title>
+<indexterm><primary>luaK_indexed</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_indexed</secondary></indexterm>
+<para><computeroutput>void luaK_indexed (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * t, <link linkend="_structexpdesc">expdesc</link> * k)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01261">1261</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_af9e8e4c1ab85deb3fe8fdbc39d25c6d9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_af9e8e4c1ab85deb3fe8fdbc39d25c6d9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a07039dc526d35d6db3f1a29c7304fe89"/>    <section>
+    <title>luaK_infix()</title>
+<indexterm><primary>luaK_infix</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_infix</secondary></indexterm>
+<para><computeroutput>void luaK_infix (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_lcode_8h_1ae9a305c1104efedfc54af8d08b942c83">BinOpr</link> op, <link linkend="_structexpdesc">expdesc</link> * v)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01574">1574</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a07039dc526d35d6db3f1a29c7304fe89_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a07039dc526d35d6db3f1a29c7304fe89_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a2fff5f96536d86c8d5df7bdf2ea4d317"/>    <section>
+    <title>luaK_int()</title>
+<indexterm><primary>luaK_int</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_int</secondary></indexterm>
+<para><computeroutput>void luaK_int (<link linkend="_struct_func_state">FuncState</link> * fs, int reg, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> i)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00659">659</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a2fff5f96536d86c8d5df7bdf2ea4d317_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a2fff5f96536d86c8d5df7bdf2ea4d317_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a6154c1594ec12080f2393950eb2b98e3"/>    <section>
+    <title>luaK_intK()</title>
+<indexterm><primary>luaK_intK</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_intK</secondary></indexterm>
+<para><computeroutput>static int luaK_intK (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> n)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00592">592</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a6154c1594ec12080f2393950eb2b98e3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a6154c1594ec12080f2393950eb2b98e3_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a3eb85bb37542cd67b33cbf85fec9bf48"/>    <section>
+    <title>luaK_isKint()</title>
+<indexterm><primary>luaK_isKint</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_isKint</secondary></indexterm>
+<para><computeroutput>int luaK_isKint (<link linkend="_structexpdesc">expdesc</link> * e)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01211">1211</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a3eb85bb37542cd67b33cbf85fec9bf48_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a01cb8acfbbf9911a63956cbe3fe1bdb6"/>    <section>
+    <title>luaK_jump()</title>
+<indexterm><primary>luaK_jump</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_jump</secondary></indexterm>
+<para><computeroutput>int luaK_jump (<link linkend="_struct_func_state">FuncState</link> * fs)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00198">198</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a01cb8acfbbf9911a63956cbe3fe1bdb6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a01cb8acfbbf9911a63956cbe3fe1bdb6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a625d410137e33fbd9593426c6e74bcf1"/>    <section>
+    <title>luaK_nil()</title>
+<indexterm><primary>luaK_nil</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_nil</secondary></indexterm>
+<para><computeroutput>void luaK_nil (<link linkend="_struct_func_state">FuncState</link> * fs, int from, int n)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00130">130</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a625d410137e33fbd9593426c6e74bcf1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a625d410137e33fbd9593426c6e74bcf1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1aa55d8b442bf4ee8c1c4838e4deec9a56"/>    <section>
+    <title>luaK_numberK()</title>
+<indexterm><primary>luaK_numberK</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_numberK</secondary></indexterm>
+<para><computeroutput>static int luaK_numberK (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> r)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00602">602</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_aa55d8b442bf4ee8c1c4838e4deec9a56_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_aa55d8b442bf4ee8c1c4838e4deec9a56_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a4db596b358989fa68a43b6f697fc9a09"/>    <section>
+    <title>luaK_patchlist()</title>
+<indexterm><primary>luaK_patchlist</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_patchlist</secondary></indexterm>
+<para><computeroutput>void luaK_patchlist (<link linkend="_struct_func_state">FuncState</link> * fs, int list, int target)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00305">305</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a4db596b358989fa68a43b6f697fc9a09_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a4db596b358989fa68a43b6f697fc9a09_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a5748ad3c940c7916a2586fab6181a197"/>    <section>
+    <title>luaK_patchtohere()</title>
+<indexterm><primary>luaK_patchtohere</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_patchtohere</secondary></indexterm>
+<para><computeroutput>void luaK_patchtohere (<link linkend="_struct_func_state">FuncState</link> * fs, int list)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00311">311</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a5748ad3c940c7916a2586fab6181a197_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a5748ad3c940c7916a2586fab6181a197_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a21e9443ce3d06694c2f9ea497052fab4"/>    <section>
+    <title>luaK_posfix()</title>
+<indexterm><primary>luaK_posfix</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_posfix</secondary></indexterm>
+<para><computeroutput>void luaK_posfix (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_lcode_8h_1ae9a305c1104efedfc54af8d08b942c83">BinOpr</link> opr, <link linkend="_structexpdesc">expdesc</link> * e1, <link linkend="_structexpdesc">expdesc</link> * e2, int line)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01642">1642</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a21e9443ce3d06694c2f9ea497052fab4_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a21e9443ce3d06694c2f9ea497052fab4_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a3fc6858944504885353a652022d15a4b"/>    <section>
+    <title>luaK_prefix()</title>
+<indexterm><primary>luaK_prefix</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_prefix</secondary></indexterm>
+<para><computeroutput>void luaK_prefix (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_lcode_8h_1a36fd1054d39d6fc3373303522a7ef534">UnOpr</link> op, <link linkend="_structexpdesc">expdesc</link> * e, int line)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01553">1553</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a3fc6858944504885353a652022d15a4b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a3fc6858944504885353a652022d15a4b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1af1190942fb7a557b056ac8bbaa0024a1"/>    <section>
+    <title>luaK_reserveregs()</title>
+<indexterm><primary>luaK_reserveregs</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_reserveregs</secondary></indexterm>
+<para><computeroutput>void luaK_reserveregs (<link linkend="_struct_func_state">FuncState</link> * fs, int n)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00488">488</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_af1190942fb7a557b056ac8bbaa0024a1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_af1190942fb7a557b056ac8bbaa0024a1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1af04e0d7f5a543cbdc60d5ad981333bcf"/>    <section>
+    <title>luaK_ret()</title>
+<indexterm><primary>luaK_ret</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_ret</secondary></indexterm>
+<para><computeroutput>void luaK_ret (<link linkend="_struct_func_state">FuncState</link> * fs, int first, int nret)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00206">206</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_af04e0d7f5a543cbdc60d5ad981333bcf_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a38f9aab7679b62f5902d9adf5c502ea1"/>    <section>
+    <title>luaK_self()</title>
+<indexterm><primary>luaK_self</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_self</secondary></indexterm>
+<para><computeroutput>void luaK_self (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e, <link linkend="_structexpdesc">expdesc</link> * key)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01068">1068</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a38f9aab7679b62f5902d9adf5c502ea1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a38f9aab7679b62f5902d9adf5c502ea1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1abe3b325f24edb9acdca694951cbcb4d8"/>    <section>
+    <title>luaK_semerror()</title>
+<indexterm><primary>luaK_semerror</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_semerror</secondary></indexterm>
+<para><computeroutput><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> luaK_semerror (<link linkend="_struct_lex_state">LexState</link> * ls, const char * msg)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00045">45</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_abe3b325f24edb9acdca694951cbcb4d8_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_abe3b325f24edb9acdca694951cbcb4d8_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1adf5e140580f1f4ca545b7cfd471e3166"/>    <section>
+    <title>luaK_setlist()</title>
+<indexterm><primary>luaK_setlist</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_setlist</secondary></indexterm>
+<para><computeroutput>void luaK_setlist (<link linkend="_struct_func_state">FuncState</link> * fs, int base, int nelems, int tostore)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01750">1750</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_adf5e140580f1f4ca545b7cfd471e3166_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_adf5e140580f1f4ca545b7cfd471e3166_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a80466f0e006b20a0c0c04f6bcc5b656d"/>    <section>
+    <title>luaK_setoneret()</title>
+<indexterm><primary>luaK_setoneret</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_setoneret</secondary></indexterm>
+<para><computeroutput>void luaK_setoneret (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00741">741</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a80466f0e006b20a0c0c04f6bcc5b656d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1aa088b6c0fff724b3d4c76830416da244"/>    <section>
+    <title>luaK_setreturns()</title>
+<indexterm><primary>luaK_setreturns</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_setreturns</secondary></indexterm>
+<para><computeroutput>void luaK_setreturns (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e, int nresults)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00708">708</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_aa088b6c0fff724b3d4c76830416da244_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_aa088b6c0fff724b3d4c76830416da244_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1aa59fc2dadbee774d0cdf1196d047d7e1"/>    <section>
+    <title>luaK_settablesize()</title>
+<indexterm><primary>luaK_settablesize</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_settablesize</secondary></indexterm>
+<para><computeroutput>void luaK_settablesize (<link linkend="_struct_func_state">FuncState</link> * fs, int pc, int ra, int asize, int hsize)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01732">1732</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_aa59fc2dadbee774d0cdf1196d047d7e1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_aa59fc2dadbee774d0cdf1196d047d7e1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a31c85ce631d5ee0a691cb58a1bd360be"/>    <section>
+    <title>luaK_storevar()</title>
+<indexterm><primary>luaK_storevar</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>luaK_storevar</secondary></indexterm>
+<para><computeroutput>void luaK_storevar (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * var, <link linkend="_structexpdesc">expdesc</link> * ex)</computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01031">1031</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a31c85ce631d5ee0a691cb58a1bd360be_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a31c85ce631d5ee0a691cb58a1bd360be_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1af4b1d063270645304b0642c1f1d79cb3"/>    <section>
+    <title>need_value()</title>
+<indexterm><primary>need_value</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>need_value</secondary></indexterm>
+<para><computeroutput>static int need_value (<link linkend="_struct_func_state">FuncState</link> * fs, int list)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00884">884</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_af4b1d063270645304b0642c1f1d79cb3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_af4b1d063270645304b0642c1f1d79cb3_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a70d4b286b84e3322bb81af111b5c3a77"/>    <section>
+    <title>negatecondition()</title>
+<indexterm><primary>negatecondition</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>negatecondition</secondary></indexterm>
+<para><computeroutput>static void negatecondition (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01084">1084</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a70d4b286b84e3322bb81af111b5c3a77_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a70d4b286b84e3322bb81af111b5c3a77_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a96b95ed8f53ee7aba7c6e81a27df6d63"/>    <section>
+    <title>nilK()</title>
+<indexterm><primary>nilK</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>nilK</secondary></indexterm>
+<para><computeroutput>static int nilK (<link linkend="_struct_func_state">FuncState</link> * fs)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00632">632</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a96b95ed8f53ee7aba7c6e81a27df6d63_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a96b95ed8f53ee7aba7c6e81a27df6d63_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a83e8d2f1641cfd3ed1c465f07f383c5e"/>    <section>
+    <title>patchlistaux()</title>
+<indexterm><primary>patchlistaux</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>patchlistaux</secondary></indexterm>
+<para><computeroutput>static void patchlistaux (<link linkend="_struct_func_state">FuncState</link> * fs, int list, int vtarget, int reg, int dtarget)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00287">287</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a83e8d2f1641cfd3ed1c465f07f383c5e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a83e8d2f1641cfd3ed1c465f07f383c5e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1ac7ce05b875db5d3bdca16012f3bcad8e"/>    <section>
+    <title>patchtestreg()</title>
+<indexterm><primary>patchtestreg</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>patchtestreg</secondary></indexterm>
+<para><computeroutput>static int patchtestreg (<link linkend="_struct_func_state">FuncState</link> * fs, int node, int reg)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00258">258</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ac7ce05b875db5d3bdca16012f3bcad8e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ac7ce05b875db5d3bdca16012f3bcad8e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a2d946f6d31e46b2607bd69d89ca1a9ce"/>    <section>
+    <title>previousinstruction()</title>
+<indexterm><primary>previousinstruction</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>previousinstruction</secondary></indexterm>
+<para><computeroutput>static <link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link>* previousinstruction (<link linkend="_struct_func_state">FuncState</link> * fs)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00115">115</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a2d946f6d31e46b2607bd69d89ca1a9ce_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1af8da5ca36e18a59d8881a56b982ebae6"/>    <section>
+    <title>removelastinstruction()</title>
+<indexterm><primary>removelastinstruction</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>removelastinstruction</secondary></indexterm>
+<para><computeroutput>static void removelastinstruction (<link linkend="_struct_func_state">FuncState</link> * fs)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00380">380</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_af8da5ca36e18a59d8881a56b982ebae6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_af8da5ca36e18a59d8881a56b982ebae6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a2d0840aab23ac3d53ba8821ad4eb1b8f"/>    <section>
+    <title>removelastlineinfo()</title>
+<indexterm><primary>removelastlineinfo</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>removelastlineinfo</secondary></indexterm>
+<para><computeroutput>static void removelastlineinfo (<link linkend="_struct_func_state">FuncState</link> * fs)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00361">361</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a2d0840aab23ac3d53ba8821ad4eb1b8f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a76e8dc6a6f33ee6f3c88c22933bc5c29"/>    <section>
+    <title>removevalues()</title>
+<indexterm><primary>removevalues</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>removevalues</secondary></indexterm>
+<para><computeroutput>static void removevalues (<link linkend="_struct_func_state">FuncState</link> * fs, int list)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00276">276</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a76e8dc6a6f33ee6f3c88c22933bc5c29_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a76e8dc6a6f33ee6f3c88c22933bc5c29_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1acd1138478ae0364e0d3eaace189d2614"/>    <section>
+    <title>savelineinfo()</title>
+<indexterm><primary>savelineinfo</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>savelineinfo</secondary></indexterm>
+<para><computeroutput>static void savelineinfo (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_struct_proto">Proto</link> * f, int line)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00337">337</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_acd1138478ae0364e0d3eaace189d2614_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1ad8d97d1b9538e4e8412654930d56e5ed"/>    <section>
+    <title>str2K()</title>
+<indexterm><primary>str2K</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>str2K</secondary></indexterm>
+<para><computeroutput>static void str2K (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00724">724</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ad8d97d1b9538e4e8412654930d56e5ed_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_ad8d97d1b9538e4e8412654930d56e5ed_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a7dfe719b62474bd7657147866e202e9a"/>    <section>
+    <title>stringK()</title>
+<indexterm><primary>stringK</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>stringK</secondary></indexterm>
+<para><computeroutput>static int stringK (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_struct_t_string">TString</link> * s)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00579">579</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a7dfe719b62474bd7657147866e202e9a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a7dfe719b62474bd7657147866e202e9a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1a5cb5734345361c95cee8e08306f36821"/>    <section>
+    <title>swapexps()</title>
+<indexterm><primary>swapexps</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>swapexps</secondary></indexterm>
+<para><computeroutput>static void swapexps (<link linkend="_structexpdesc">expdesc</link> * e1, <link linkend="_structexpdesc">expdesc</link> * e2)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01417">1417</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_a5cb5734345361c95cee8e08306f36821_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1afc00b6e7519fadb094edd29e9019eefc"/>    <section>
+    <title>tonumeral()</title>
+<indexterm><primary>tonumeral</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>tonumeral</secondary></indexterm>
+<para><computeroutput>static int tonumeral (const <link linkend="_structexpdesc">expdesc</link> * e, <link linkend="_struct_t_value">TValue</link> * v)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l00055">55</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_afc00b6e7519fadb094edd29e9019eefc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lcode_8c_1acff3899ba144ce35344d2c781d4a04cc"/>    <section>
+    <title>validop()</title>
+<indexterm><primary>validop</primary><secondary>lcode.c</secondary></indexterm>
+<indexterm><primary>lcode.c</primary><secondary>validop</secondary></indexterm>
+<para><computeroutput>static int validop (int op, <link linkend="_struct_t_value">TValue</link> * v1, <link linkend="_struct_t_value">TValue</link> * v2)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lcode_8c_source">lcode.c</link> 第 <link linkend="_lcode_8c_source_1l01297">1297</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lcode_8c_acff3899ba144ce35344d2c781d4a04cc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+</section>

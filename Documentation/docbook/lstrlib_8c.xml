@@ -1,0 +1,1934 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lstrlib_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/lstrlib.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lstrlib.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;ctype.h&gt;
+#include &lt;float.h&gt;
+#include &lt;limits.h&gt;
+#include &lt;locale.h&gt;
+#include &lt;math.h&gt;
+#include &lt;stddef.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;lauxlib.h&quot;
+#include &quot;lualib.h&quot;
+</programlisting>lstrlib.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>结构体    </title>
+        <itemizedlist>
+            <listitem><para>struct <link linkend="_structstr___writer">str_Writer</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_match_state">MatchState</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_g_match_state">GMatchState</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_structc_d">cD</link></para>
+</listitem>
+            <listitem><para>union <link linkend="_union_ftypes">Ftypes</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_header">Header</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1a7d519f7b443a6bce51922ce6bb0621a8">lstrlib_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1a884b19ad6094d6238c4072a8064aeb12">LUA_LIB</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1a7cecfa7bbfb47e8a8598a9bfbfbcab54">LUA_MAXCAPTURES</link>   32</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1a6688a561ddcc83633d4fabc5d3409539">uchar</link>(c)   ((unsigned char)(c))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1aa927c7bf177c162feda3483e1e972b3a">MAX_SIZET</link>   ((size_t)(~(size_t)0))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1a2a37b4217917105aac7557862ccc19c3">MAXSIZE</link>   	(sizeof(size_t) &lt; sizeof(int) ? <link linkend="_lstrlib_8c_1aa927c7bf177c162feda3483e1e972b3a">MAX_SIZET</link> : (size_t)(INT_MAX))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1a414cda9a27ce2f01d4a6bb9a20787250">CAP_UNFINISHED</link>   (-1)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1a921f0f27e58ca4be1e9b0cf12447e118">CAP_POSITION</link>   (-2)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1a16241c11b1579d50b07598e91ed7327a">MAXCCALLS</link>   200</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1a62bae5b2b26cf1e4fdf37e42d3c53df9">L_ESC</link>   &apos;%&apos;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1a2e1ba74d2e5a4b6bdb7e2b1d00f4f4c0">SPECIALS</link>   &quot;^$*+?.([%-&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1ad6cc145aca66d79a348760712f5309ce">MAX_ITEMF</link>   (110 + <link linkend="_luaconf_8h_1af41b220b80eae0908ca2e190ca024990">l_floatatt</link>(MAX_10_EXP))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1a2ab154b213c5fed0a1ba90ac8c1232e8">MAX_ITEM</link>   120</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1aeba83a7f1d6dd6ad8d8dab4c41c7bcf3">L_FMTFLAGS</link>   &quot;-+ #0&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1a3703ed5438432f703bd9a5d7fa5f31e5">MAX_FORMAT</link>   32</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1a018375fe92d4433fa5e346266ff0fce0">LUAL_PACKPADBYTE</link>   0x00</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1a3b8c10300729d575cc5a024f4d047a31">MAXINTSIZE</link>   16</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1a58e95dc1eb9d6ce16f515e77beeadd58">NB</link>   CHAR_BIT</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1a71d9e511e7e302cd831e83581219e70d">MC</link>   ((1 &lt;&lt; <link linkend="_lstrlib_8c_1a58e95dc1eb9d6ce16f515e77beeadd58">NB</link>) - 1)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1aba1923a486465ba9dea97b9d1403ce18">SZINT</link>   ((int)sizeof(<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstrlib_8c_1a12f0ea602f7d7ba33730a7519dfcb4d3">MAXALIGN</link>   (offsetof(struct <link linkend="_structc_d">cD</link>, u))</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>类型定义    </title>
+        <itemizedlist>
+            <listitem><para>typedef struct <link linkend="_struct_match_state">MatchState</link> <link linkend="_lstrlib_8c_1aa2763c4d01615ca8073c5889d844559d">MatchState</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_g_match_state">GMatchState</link> <link linkend="_lstrlib_8c_1a470fb40b886615cdc88ff758c9cc7517">GMatchState</link></para>
+</listitem>
+            <listitem><para>typedef union <link linkend="_union_ftypes">Ftypes</link> <link linkend="_lstrlib_8c_1ad06b1f15168660f54ab9c3a914752697">Ftypes</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_header">Header</link> <link linkend="_lstrlib_8c_1aa8c0271842d616f53f294da8891f6485">Header</link></para>
+</listitem>
+            <listitem><para>typedef enum <link linkend="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45">KOption</link> <link linkend="_lstrlib_8c_1af99a797330eae00c0dbccd075acc9887">KOption</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>枚举    </title>
+        <itemizedlist>
+            <listitem><para>enum <link linkend="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45">KOption</link> { 
+<link linkend="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45a755cdbd676161935bcff95ab0db4f635">Kint</link>, 
+<link linkend="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45a83c1e7fdcc4de50f9f5b98222401b591">Kuint</link>, 
+<link linkend="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45a15dc86646bf410c0d3ac998689ffe7f7">Kfloat</link>, 
+<link linkend="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45ab2624b4f2d20c51e0eb6c668077dcbcd">Kchar</link>, 
+
+<link linkend="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45aa6aa8fb7b455739115fbd6c0dc3d4560">Kstring</link>, 
+<link linkend="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45ac4bf277f1cd2aaa95fe31d646e02aa37">Kzstr</link>, 
+<link linkend="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45a4252bf39cf9d76c3e034e248ce7bed49">Kpadding</link>, 
+<link linkend="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45a2c01775a8eeb3f674f74c65786808279">Kpaddalign</link>, 
+
+<link linkend="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45a0ca5045efff0f1f863cff5614e3e92b7">Knop</link>
+ }</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a357ce37478dde24252724e3c4c66ce11">str_len</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static size_t <link linkend="_lstrlib_8c_1a5d66236d294a1cd3e310292e43d5c3c6">posrelatI</link> (<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> pos, size_t len)</para>
+</listitem>
+            <listitem><para>static size_t <link linkend="_lstrlib_8c_1a9ed9b9b49334e68a83251eeff8427a5a">getendpos</link> (<link linkend="_structlua___state">lua_State</link> *L, int arg, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> def, size_t len)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a039b391d5f43533a0ce750c5e40d7752">str_sub</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a4b2ffac60e817b9bfc54b32f8da3a6b4">str_reverse</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1ab2235f81205d0482d03c8ae456a98992">str_lower</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a38ed99b74af58070449ca344a7351f6a">str_upper</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1acaee4c84f29e2ec7366728ca04d3569c">str_rep</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1ae561770420cfd1894054415df9d4c423">str_byte</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a3f7db8b2258dca5459ad52d2cbf9f28c">str_char</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a1f7ab2869b4517a93412ce096243ead0">writer</link> (<link linkend="_structlua___state">lua_State</link> *L, const void *b, size_t size, void *ud)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1abc94e3a13f1b6ddb2c9b20c9fd89e87f">str_dump</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a29c672037c89ca25af99c1694e04c294">tonum</link> (<link linkend="_structlua___state">lua_State</link> *L, int arg)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lstrlib_8c_1a0f8612c62e1158d37a19d06453dcbc97">trymt</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *mtname)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1afa2c944dafe82820f6f04dff68703634">arith</link> (<link linkend="_structlua___state">lua_State</link> *L, int op, const char *mtname)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a83cdf2094cab994d34c18858a990e555">arith_add</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a2c0d2a7efd64b03bb81a22f2dd974fc3">arith_sub</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a9162078e35bac5d03f26e9473a0ebf37">arith_mul</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a2a1f4d692fc02d6586bc12a07924f488">arith_mod</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1ad8c2b27458937cc9a19a949872938fc6">arith_pow</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1afd1d2f5e7f8c83185c68d20fc5dc8600">arith_div</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a86a1afce81f747da4c0cf708065acd92">arith_idiv</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1ac78f63c6c1908d139ffadb3f28d14c21">arith_unm</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lstrlib_8c_1a52a45835b75e5d31ec66421456bbb728">match</link> (<link linkend="_struct_match_state">MatchState</link> *ms, const char *s, const char *p)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1aa8c1a193fa762ecfe81888d86981a586">check_capture</link> (<link linkend="_struct_match_state">MatchState</link> *ms, int l)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a5e8b364a8f8d4300aa5007c0feb42abf">capture_to_close</link> (<link linkend="_struct_match_state">MatchState</link> *ms)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lstrlib_8c_1a72b26c2a339f5e84ef087e961b547f95">classend</link> (<link linkend="_struct_match_state">MatchState</link> *ms, const char *p)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a46c1d8d4310cb940caa503ef10a0decf">match_class</link> (int c, int cl)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a14c5b9fff2918ecc568b9bcf1bfdb241">matchbracketclass</link> (int c, const char *p, const char *ec)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a0fe170ffbc6b4ec3181d2db25ea4deb0">singlematch</link> (<link linkend="_struct_match_state">MatchState</link> *ms, const char *s, const char *p, const char *ep)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lstrlib_8c_1aacb8f9104a816720da707ecf5219a96e">matchbalance</link> (<link linkend="_struct_match_state">MatchState</link> *ms, const char *s, const char *p)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lstrlib_8c_1ad0b55e65b16045801315919fb67a4070">max_expand</link> (<link linkend="_struct_match_state">MatchState</link> *ms, const char *s, const char *p, const char *ep)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lstrlib_8c_1a3b42ede2ccaf027b891a6a4f1cdf3902">min_expand</link> (<link linkend="_struct_match_state">MatchState</link> *ms, const char *s, const char *p, const char *ep)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lstrlib_8c_1a31cf026bdaa00bf9c72a1e4f72319147">start_capture</link> (<link linkend="_struct_match_state">MatchState</link> *ms, const char *s, const char *p, int what)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lstrlib_8c_1ab0ecc0f25602beb821f6a5e62517d18e">end_capture</link> (<link linkend="_struct_match_state">MatchState</link> *ms, const char *s, const char *p)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lstrlib_8c_1af71e61c103df8b6163925c900470ee37">match_capture</link> (<link linkend="_struct_match_state">MatchState</link> *ms, const char *s, int l)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lstrlib_8c_1a894e95aeb2179634e0b62277f23c303e">lmemfind</link> (const char *s1, size_t l1, const char *s2, size_t l2)</para>
+</listitem>
+            <listitem><para>static size_t <link linkend="_lstrlib_8c_1afa9ea8e071a60a2c554c79f7def3bb39">get_onecapture</link> (<link linkend="_struct_match_state">MatchState</link> *ms, int i, const char *s, const char *e, const char **cap)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lstrlib_8c_1a24a14b4e6e90bac4610dd334bb0b51b6">push_onecapture</link> (<link linkend="_struct_match_state">MatchState</link> *ms, int i, const char *s, const char *e)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1ad14703c4bc40d7c1951dedb7bc7554f7">push_captures</link> (<link linkend="_struct_match_state">MatchState</link> *ms, const char *s, const char *e)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a83e7db07fd9aab6eb84c649f0d9f4a0a">nospecials</link> (const char *p, size_t l)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lstrlib_8c_1a901e492edece737eb5d7197219fb0fa1">prepstate</link> (<link linkend="_struct_match_state">MatchState</link> *ms, <link linkend="_structlua___state">lua_State</link> *L, const char *s, size_t ls, const char *p, size_t lp)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lstrlib_8c_1a09158e3beed6006b5dd7d5329f4474c9">reprepstate</link> (<link linkend="_struct_match_state">MatchState</link> *ms)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a692514aa32ae2668683a4db15259d26b">str_find_aux</link> (<link linkend="_structlua___state">lua_State</link> *L, int find)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a362a4bc9ba81ce87253cc3d74f015808">str_find</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a4b605e43b8f5738db9eae902bbc00f00">str_match</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1ab7cb0ba6191e1aa9455f6522d3483a02">gmatch_aux</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1ab55a72bb412d6186c82fd75de44cd031">gmatch</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lstrlib_8c_1ad5f7e3fbcadc8825f7f650ecf458fc72">add_s</link> (<link linkend="_struct_match_state">MatchState</link> *ms, <link linkend="_structlua_l___buffer">luaL_Buffer</link> *b, const char *s, const char *e)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a853703c83ab694a70212461d5cfe7843">add_value</link> (<link linkend="_struct_match_state">MatchState</link> *ms, <link linkend="_structlua_l___buffer">luaL_Buffer</link> *b, const char *s, const char *e, int tr)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a42337c674d265175bcc2b2f3809c7339">str_gsub</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lstrlib_8c_1a7c264397b481e5d854b43aaa37b0386f">addquoted</link> (<link linkend="_structlua_l___buffer">luaL_Buffer</link> *b, const char *s, size_t len)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a443e80174fa539c37a640e5e6f65212c">quotefloat</link> (<link linkend="_structlua___state">lua_State</link> *L, char *buff, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> n)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lstrlib_8c_1a2ff59847baa24a18f7d78d47dc1d3220">addliteral</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structlua_l___buffer">luaL_Buffer</link> *b, int arg)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lstrlib_8c_1aa02d130952004540df86ae92853cfc22">scanformat</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *strfrmt, char *form)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lstrlib_8c_1ab2a1b8d58b32a55a2702025f3445db3d">addlenmod</link> (char *form, const char *lenmod)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1ae26a9374857058119e59d0328208c2f2">str_format</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a9605f4d16ae762782f8be8b54aef0a22">digit</link> (int c)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a22adbe647ff5710f14b6f6c18ae0d5a4">getnum</link> (const char **fmt, int df)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a2e2809fc0c800ac97e4122f33434b94a">getnumlimit</link> (<link linkend="_struct_header">Header</link> *h, const char **fmt, int df)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lstrlib_8c_1a1d1417c36ff4629b5fa8540daa9ca2bd">initheader</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_header">Header</link> *h)</para>
+</listitem>
+            <listitem><para>static <link linkend="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45">KOption</link> <link linkend="_lstrlib_8c_1adcf5c53b9f1a52366c286fea5f9aeda7">getoption</link> (<link linkend="_struct_header">Header</link> *h, const char **fmt, int *size)</para>
+</listitem>
+            <listitem><para>static <link linkend="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45">KOption</link> <link linkend="_lstrlib_8c_1a22b9520cbe8f1b1b493e107acfa6a711">getdetails</link> (<link linkend="_struct_header">Header</link> *h, size_t totalsize, const char **fmt, int *psize, int *ntoalign)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lstrlib_8c_1a326322a54fce6c872fd7e20c3f923e8f">packint</link> (<link linkend="_structlua_l___buffer">luaL_Buffer</link> *b, <link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> n, int islittle, int size, int neg)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lstrlib_8c_1a09c1ccdd2ecff511ba28d2154a59336e">copywithendian</link> (volatile char *dest, volatile const char *src, int size, int islittle)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1abcf8553ae8937fd4f4bf85c72f528710">str_pack</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1ac548dd917c53c0c6d13518ec3ecc56ee">str_packsize</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> <link linkend="_lstrlib_8c_1a06e60d2c39a3041308dc6caa50c1d394">unpackint</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *str, int islittle, int size, int issigned)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lstrlib_8c_1a3f3c1925e7829cbe972a744fa9168ec3">str_unpack</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lstrlib_8c_1a16d034da6b46e6beae228472f26ec07b">createmetatable</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link> int <link linkend="_lstrlib_8c_1ab65aeff75cb100dde75e955c698c83b8">luaopen_string</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>变量    </title>
+        <itemizedlist>
+            <listitem><para>static const <link linkend="_structlua_l___reg">luaL_Reg</link> <link linkend="_lstrlib_8c_1a7168e6e571c41a6ac8f204f884d661fe">stringmetamethods</link> []</para>
+</listitem>
+            <listitem><para>union {</para>
+        <itemizedlist>
+            <listitem><para>   <link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> <link linkend="_lparser_8c_1a3584754acc5e91c03d6fc91359eefd78">left</link></para>
+</listitem>
+            <listitem><para>   <link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> <link linkend="_lparser_8c_1a34b07942956eb7acd9d02c5b75177ae6">right</link></para>
+</listitem>
+            <listitem><para>   int <link linkend="_lstrlib_8c_1a7c1d654b7b6114d7a0abc8d351dd1bcd">dummy</link></para>
+</listitem>
+            <listitem><para>   char <link linkend="_lstrlib_8c_1a5831a9b38577f9ef9b30553737b5b7f9">little</link></para>
+</listitem>
+        </itemizedlist>
+</listitem>
+            <listitem><para>} <link linkend="_lstrlib_8c_1a8c97bd33d32d5879ec6498232a52f4b5">nativeendian</link> = {1}</para>
+</listitem>
+            <listitem><para>static const <link linkend="_structlua_l___reg">luaL_Reg</link> <link linkend="_lstrlib_8c_1aea7d99046a1869e17a061706511f770c">strlib</link> []</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lstrlib_8c_1a921f0f27e58ca4be1e9b0cf12447e118"/>    <section>
+    <title>CAP_POSITION</title>
+<indexterm><primary>CAP_POSITION</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>CAP_POSITION</secondary></indexterm>
+<para><computeroutput>#define CAP_POSITION   (-2)</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00353">353</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1a414cda9a27ce2f01d4a6bb9a20787250"/>    <section>
+    <title>CAP_UNFINISHED</title>
+<indexterm><primary>CAP_UNFINISHED</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>CAP_UNFINISHED</secondary></indexterm>
+<para><computeroutput>#define CAP_UNFINISHED   (-1)</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00352">352</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1a62bae5b2b26cf1e4fdf37e42d3c53df9"/>    <section>
+    <title>L_ESC</title>
+<indexterm><primary>L_ESC</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>L_ESC</secondary></indexterm>
+<para><computeroutput>#define L_ESC   &apos;%&apos;</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00380">380</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1aeba83a7f1d6dd6ad8d8dab4c41c7bcf3"/>    <section>
+    <title>L_FMTFLAGS</title>
+<indexterm><primary>L_FMTFLAGS</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>L_FMTFLAGS</secondary></indexterm>
+<para><computeroutput>#define L_FMTFLAGS   &quot;-+ #0&quot;</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01091">1091</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1a7d519f7b443a6bce51922ce6bb0621a8"/>    <section>
+    <title>lstrlib_c</title>
+<indexterm><primary>lstrlib_c</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>lstrlib_c</secondary></indexterm>
+<para><computeroutput>#define lstrlib_c</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1a884b19ad6094d6238c4072a8064aeb12"/>    <section>
+    <title>LUA_LIB</title>
+<indexterm><primary>LUA_LIB</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>LUA_LIB</secondary></indexterm>
+<para><computeroutput>#define LUA_LIB</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00008">8</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1a7cecfa7bbfb47e8a8598a9bfbfbcab54"/>    <section>
+    <title>LUA_MAXCAPTURES</title>
+<indexterm><primary>LUA_MAXCAPTURES</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>LUA_MAXCAPTURES</secondary></indexterm>
+<para><computeroutput>#define LUA_MAXCAPTURES   32</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00035">35</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1a018375fe92d4433fa5e346266ff0fce0"/>    <section>
+    <title>LUAL_PACKPADBYTE</title>
+<indexterm><primary>LUAL_PACKPADBYTE</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>LUAL_PACKPADBYTE</secondary></indexterm>
+<para><computeroutput>#define LUAL_PACKPADBYTE   0x00</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01329">1329</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1a3703ed5438432f703bd9a5d7fa5f31e5"/>    <section>
+    <title>MAX_FORMAT</title>
+<indexterm><primary>MAX_FORMAT</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>MAX_FORMAT</secondary></indexterm>
+<para><computeroutput>#define MAX_FORMAT   32</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01098">1098</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1a2ab154b213c5fed0a1ba90ac8c1232e8"/>    <section>
+    <title>MAX_ITEM</title>
+<indexterm><primary>MAX_ITEM</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>MAX_ITEM</secondary></indexterm>
+<para><computeroutput>#define MAX_ITEM   120</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01086">1086</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1ad6cc145aca66d79a348760712f5309ce"/>    <section>
+    <title>MAX_ITEMF</title>
+<indexterm><primary>MAX_ITEMF</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>MAX_ITEMF</secondary></indexterm>
+<para><computeroutput>#define MAX_ITEMF   (110 + <link linkend="_luaconf_8h_1af41b220b80eae0908ca2e190ca024990">l_floatatt</link>(MAX_10_EXP))</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01075">1075</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1aa927c7bf177c162feda3483e1e972b3a"/>    <section>
+    <title>MAX_SIZET</title>
+<indexterm><primary>MAX_SIZET</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>MAX_SIZET</secondary></indexterm>
+<para><computeroutput>#define MAX_SIZET   ((size_t)(~(size_t)0))</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00047">47</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1a12f0ea602f7d7ba33730a7519dfcb4d3"/>    <section>
+    <title>MAXALIGN</title>
+<indexterm><primary>MAXALIGN</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>MAXALIGN</secondary></indexterm>
+<para><computeroutput>#define MAXALIGN   (offsetof(struct <link linkend="_structc_d">cD</link>, u))</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01358">1358</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1a16241c11b1579d50b07598e91ed7327a"/>    <section>
+    <title>MAXCCALLS</title>
+<indexterm><primary>MAXCCALLS</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>MAXCCALLS</secondary></indexterm>
+<para><computeroutput>#define MAXCCALLS   200</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00376">376</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1a3b8c10300729d575cc5a024f4d047a31"/>    <section>
+    <title>MAXINTSIZE</title>
+<indexterm><primary>MAXINTSIZE</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>MAXINTSIZE</secondary></indexterm>
+<para><computeroutput>#define MAXINTSIZE   16</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01333">1333</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1a2a37b4217917105aac7557862ccc19c3"/>    <section>
+    <title>MAXSIZE</title>
+<indexterm><primary>MAXSIZE</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>MAXSIZE</secondary></indexterm>
+<para><computeroutput>#define MAXSIZE   	(sizeof(size_t) &lt; sizeof(int) ? <link linkend="_lstrlib_8c_1aa927c7bf177c162feda3483e1e972b3a">MAX_SIZET</link> : (size_t)(INT_MAX))</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00049">49</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1a71d9e511e7e302cd831e83581219e70d"/>    <section>
+    <title>MC</title>
+<indexterm><primary>MC</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>MC</secondary></indexterm>
+<para><computeroutput>#define MC   ((1 &lt;&lt; <link linkend="_lstrlib_8c_1a58e95dc1eb9d6ce16f515e77beeadd58">NB</link>) - 1)</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01339">1339</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1a58e95dc1eb9d6ce16f515e77beeadd58"/>    <section>
+    <title>NB</title>
+<indexterm><primary>NB</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>NB</secondary></indexterm>
+<para><computeroutput>#define NB   CHAR_BIT</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01336">1336</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1a2e1ba74d2e5a4b6bdb7e2b1d00f4f4c0"/>    <section>
+    <title>SPECIALS</title>
+<indexterm><primary>SPECIALS</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>SPECIALS</secondary></indexterm>
+<para><computeroutput>#define SPECIALS   &quot;^$*+?.([%-&quot;</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00381">381</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1aba1923a486465ba9dea97b9d1403ce18"/>    <section>
+    <title>SZINT</title>
+<indexterm><primary>SZINT</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>SZINT</secondary></indexterm>
+<para><computeroutput>#define SZINT   ((int)sizeof(<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>))</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01342">1342</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1a6688a561ddcc83633d4fabc5d3409539"/>    <section>
+    <title>uchar</title>
+<indexterm><primary>uchar</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>uchar</secondary></indexterm>
+<para><computeroutput>#define uchar( c)   ((unsigned char)(c))</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00040">40</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>类型定义说明</title>
+<anchor xml:id="_lstrlib_8c_1ad06b1f15168660f54ab9c3a914752697"/>    <section>
+    <title>Ftypes</title>
+<indexterm><primary>Ftypes</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>Ftypes</secondary></indexterm>
+<para><computeroutput>typedef union <link linkend="_union_ftypes">Ftypes</link> <link linkend="_union_ftypes">Ftypes</link></computeroutput></para>    </section><anchor xml:id="_lstrlib_8c_1a470fb40b886615cdc88ff758c9cc7517"/>    <section>
+    <title>GMatchState</title>
+<indexterm><primary>GMatchState</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>GMatchState</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_g_match_state">GMatchState</link> <link linkend="_struct_g_match_state">GMatchState</link></computeroutput></para>    </section><anchor xml:id="_lstrlib_8c_1aa8c0271842d616f53f294da8891f6485"/>    <section>
+    <title>Header</title>
+<indexterm><primary>Header</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>Header</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_header">Header</link> <link linkend="_struct_header">Header</link></computeroutput></para>    </section><anchor xml:id="_lstrlib_8c_1af99a797330eae00c0dbccd075acc9887"/>    <section>
+    <title>KOption</title>
+<indexterm><primary>KOption</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>KOption</secondary></indexterm>
+<para><computeroutput>typedef enum <link linkend="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45">KOption</link> <link linkend="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45">KOption</link></computeroutput></para>    </section><anchor xml:id="_lstrlib_8c_1aa2763c4d01615ca8073c5889d844559d"/>    <section>
+    <title>MatchState</title>
+<indexterm><primary>MatchState</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>MatchState</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_match_state">MatchState</link> <link linkend="_struct_match_state">MatchState</link></computeroutput></para></section>
+</section>
+<section>
+<title>枚举类型说明</title>
+<anchor xml:id="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45"/>    <section>
+    <title>KOption</title>
+<indexterm><primary>KOption</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>KOption</secondary></indexterm>
+<para><computeroutput>enum <link linkend="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45">KOption</link></computeroutput></para><informaltable frame="all">
+<title>枚举值</title>
+    <tgroup cols="2" align="left" colsep="1" rowsep="1">
+      <colspec colname='c1'/>
+      <colspec colname='c2'/>
+<tbody>
+<row><entry><indexterm><primary>Kint</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>Kint</secondary></indexterm>
+<anchor xml:id="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45a755cdbd676161935bcff95ab0db4f635"/>Kint</entry><entry></entry></row><row><entry><indexterm><primary>Kuint</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>Kuint</secondary></indexterm>
+<anchor xml:id="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45a83c1e7fdcc4de50f9f5b98222401b591"/>Kuint</entry><entry></entry></row><row><entry><indexterm><primary>Kfloat</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>Kfloat</secondary></indexterm>
+<anchor xml:id="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45a15dc86646bf410c0d3ac998689ffe7f7"/>Kfloat</entry><entry></entry></row><row><entry><indexterm><primary>Kchar</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>Kchar</secondary></indexterm>
+<anchor xml:id="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45ab2624b4f2d20c51e0eb6c668077dcbcd"/>Kchar</entry><entry></entry></row><row><entry><indexterm><primary>Kstring</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>Kstring</secondary></indexterm>
+<anchor xml:id="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45aa6aa8fb7b455739115fbd6c0dc3d4560"/>Kstring</entry><entry></entry></row><row><entry><indexterm><primary>Kzstr</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>Kzstr</secondary></indexterm>
+<anchor xml:id="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45ac4bf277f1cd2aaa95fe31d646e02aa37"/>Kzstr</entry><entry></entry></row><row><entry><indexterm><primary>Kpadding</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>Kpadding</secondary></indexterm>
+<anchor xml:id="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45a4252bf39cf9d76c3e034e248ce7bed49"/>Kpadding</entry><entry></entry></row><row><entry><indexterm><primary>Kpaddalign</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>Kpaddalign</secondary></indexterm>
+<anchor xml:id="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45a2c01775a8eeb3f674f74c65786808279"/>Kpaddalign</entry><entry></entry></row><row><entry><indexterm><primary>Knop</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>Knop</secondary></indexterm>
+<anchor xml:id="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45a0ca5045efff0f1f863cff5614e3e92b7"/>Knop</entry><entry></entry></row>    </tbody>
+    </tgroup>
+</informaltable>
+<para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01385">1385</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lstrlib_8c_1ad5f7e3fbcadc8825f7f650ecf458fc72"/>    <section>
+    <title>add_s()</title>
+<indexterm><primary>add_s</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>add_s</secondary></indexterm>
+<para><computeroutput>static void add_s (<link linkend="_struct_match_state">MatchState</link> * ms, <link linkend="_structlua_l___buffer">luaL_Buffer</link> * b, const char * s, const char * e)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00868">868</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_ad5f7e3fbcadc8825f7f650ecf458fc72_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_ad5f7e3fbcadc8825f7f650ecf458fc72_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a853703c83ab694a70212461d5cfe7843"/>    <section>
+    <title>add_value()</title>
+<indexterm><primary>add_value</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>add_value</secondary></indexterm>
+<para><computeroutput>static int add_value (<link linkend="_struct_match_state">MatchState</link> * ms, <link linkend="_structlua_l___buffer">luaL_Buffer</link> * b, const char * s, const char * e, int tr)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00903">903</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a853703c83ab694a70212461d5cfe7843_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a853703c83ab694a70212461d5cfe7843_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1ab2a1b8d58b32a55a2702025f3445db3d"/>    <section>
+    <title>addlenmod()</title>
+<indexterm><primary>addlenmod</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>addlenmod</secondary></indexterm>
+<para><computeroutput>static void addlenmod (char * form, const char * lenmod)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01214">1214</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_ab2a1b8d58b32a55a2702025f3445db3d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a2ff59847baa24a18f7d78d47dc1d3220"/>    <section>
+    <title>addliteral()</title>
+<indexterm><primary>addliteral</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>addliteral</secondary></indexterm>
+<para><computeroutput>static void addliteral (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structlua_l___buffer">luaL_Buffer</link> * b, int arg)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01154">1154</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a2ff59847baa24a18f7d78d47dc1d3220_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a2ff59847baa24a18f7d78d47dc1d3220_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a7c264397b481e5d854b43aaa37b0386f"/>    <section>
+    <title>addquoted()</title>
+<indexterm><primary>addquoted</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>addquoted</secondary></indexterm>
+<para><computeroutput>static void addquoted (<link linkend="_structlua_l___buffer">luaL_Buffer</link> * b, const char * s, size_t len)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01101">1101</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a7c264397b481e5d854b43aaa37b0386f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a7c264397b481e5d854b43aaa37b0386f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1afa2c944dafe82820f6f04dff68703634"/>    <section>
+    <title>arith()</title>
+<indexterm><primary>arith</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>arith</secondary></indexterm>
+<para><computeroutput>static int arith (<link linkend="_structlua___state">lua_State</link> * L, int op, const char * mtname)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00286">286</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_afa2c944dafe82820f6f04dff68703634_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_afa2c944dafe82820f6f04dff68703634_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a83cdf2094cab994d34c18858a990e555"/>    <section>
+    <title>arith_add()</title>
+<indexterm><primary>arith_add</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>arith_add</secondary></indexterm>
+<para><computeroutput>static int arith_add (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00295">295</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a83cdf2094cab994d34c18858a990e555_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1afd1d2f5e7f8c83185c68d20fc5dc8600"/>    <section>
+    <title>arith_div()</title>
+<indexterm><primary>arith_div</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>arith_div</secondary></indexterm>
+<para><computeroutput>static int arith_div (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00315">315</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_afd1d2f5e7f8c83185c68d20fc5dc8600_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a86a1afce81f747da4c0cf708065acd92"/>    <section>
+    <title>arith_idiv()</title>
+<indexterm><primary>arith_idiv</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>arith_idiv</secondary></indexterm>
+<para><computeroutput>static int arith_idiv (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00319">319</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a86a1afce81f747da4c0cf708065acd92_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a2a1f4d692fc02d6586bc12a07924f488"/>    <section>
+    <title>arith_mod()</title>
+<indexterm><primary>arith_mod</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>arith_mod</secondary></indexterm>
+<para><computeroutput>static int arith_mod (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00307">307</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a2a1f4d692fc02d6586bc12a07924f488_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a9162078e35bac5d03f26e9473a0ebf37"/>    <section>
+    <title>arith_mul()</title>
+<indexterm><primary>arith_mul</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>arith_mul</secondary></indexterm>
+<para><computeroutput>static int arith_mul (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00303">303</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a9162078e35bac5d03f26e9473a0ebf37_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1ad8c2b27458937cc9a19a949872938fc6"/>    <section>
+    <title>arith_pow()</title>
+<indexterm><primary>arith_pow</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>arith_pow</secondary></indexterm>
+<para><computeroutput>static int arith_pow (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00311">311</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_ad8c2b27458937cc9a19a949872938fc6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a2c0d2a7efd64b03bb81a22f2dd974fc3"/>    <section>
+    <title>arith_sub()</title>
+<indexterm><primary>arith_sub</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>arith_sub</secondary></indexterm>
+<para><computeroutput>static int arith_sub (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00299">299</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a2c0d2a7efd64b03bb81a22f2dd974fc3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1ac78f63c6c1908d139ffadb3f28d14c21"/>    <section>
+    <title>arith_unm()</title>
+<indexterm><primary>arith_unm</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>arith_unm</secondary></indexterm>
+<para><computeroutput>static int arith_unm (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00323">323</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_ac78f63c6c1908d139ffadb3f28d14c21_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a5e8b364a8f8d4300aa5007c0feb42abf"/>    <section>
+    <title>capture_to_close()</title>
+<indexterm><primary>capture_to_close</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>capture_to_close</secondary></indexterm>
+<para><computeroutput>static int capture_to_close (<link linkend="_struct_match_state">MatchState</link> * ms)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00392">392</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a5e8b364a8f8d4300aa5007c0feb42abf_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a5e8b364a8f8d4300aa5007c0feb42abf_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1aa8c1a193fa762ecfe81888d86981a586"/>    <section>
+    <title>check_capture()</title>
+<indexterm><primary>check_capture</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>check_capture</secondary></indexterm>
+<para><computeroutput>static int check_capture (<link linkend="_struct_match_state">MatchState</link> * ms, int l)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00384">384</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_aa8c1a193fa762ecfe81888d86981a586_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_aa8c1a193fa762ecfe81888d86981a586_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a72b26c2a339f5e84ef087e961b547f95"/>    <section>
+    <title>classend()</title>
+<indexterm><primary>classend</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>classend</secondary></indexterm>
+<para><computeroutput>static const char* classend (<link linkend="_struct_match_state">MatchState</link> * ms, const char * p)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00400">400</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a72b26c2a339f5e84ef087e961b547f95_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a72b26c2a339f5e84ef087e961b547f95_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a09c1ccdd2ecff511ba28d2154a59336e"/>    <section>
+    <title>copywithendian()</title>
+<indexterm><primary>copywithendian</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>copywithendian</secondary></indexterm>
+<para><computeroutput>static void copywithendian (volatile char * dest, volatile const char * src, int size, int islittle)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01538">1538</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a09c1ccdd2ecff511ba28d2154a59336e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a16d034da6b46e6beae228472f26ec07b"/>    <section>
+    <title>createmetatable()</title>
+<indexterm><primary>createmetatable</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>createmetatable</secondary></indexterm>
+<para><computeroutput>static void createmetatable (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01783">1783</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a16d034da6b46e6beae228472f26ec07b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a16d034da6b46e6beae228472f26ec07b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a9605f4d16ae762782f8be8b54aef0a22"/>    <section>
+    <title>digit()</title>
+<indexterm><primary>digit</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>digit</secondary></indexterm>
+<para><computeroutput>static int digit (int c)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01402">1402</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a9605f4d16ae762782f8be8b54aef0a22_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1ab0ecc0f25602beb821f6a5e62517d18e"/>    <section>
+    <title>end_capture()</title>
+<indexterm><primary>end_capture</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>end_capture</secondary></indexterm>
+<para><computeroutput>static const char* end_capture (<link linkend="_struct_match_state">MatchState</link> * ms, const char * s, const char * p)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00545">545</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_ab0ecc0f25602beb821f6a5e62517d18e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_ab0ecc0f25602beb821f6a5e62517d18e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1afa9ea8e071a60a2c554c79f7def3bb39"/>    <section>
+    <title>get_onecapture()</title>
+<indexterm><primary>get_onecapture</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>get_onecapture</secondary></indexterm>
+<para><computeroutput>static size_t get_onecapture (<link linkend="_struct_match_state">MatchState</link> * ms, int i, const char * s, const char * e, const char ** cap)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00699">699</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_afa9ea8e071a60a2c554c79f7def3bb39_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_afa9ea8e071a60a2c554c79f7def3bb39_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a22b9520cbe8f1b1b493e107acfa6a711"/>    <section>
+    <title>getdetails()</title>
+<indexterm><primary>getdetails</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>getdetails</secondary></indexterm>
+<para><computeroutput>static <link linkend="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45">KOption</link> getdetails (<link linkend="_struct_header">Header</link> * h, size_t totalsize, const char ** fmt, int * psize, int * ntoalign)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01490">1490</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a22b9520cbe8f1b1b493e107acfa6a711_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a22b9520cbe8f1b1b493e107acfa6a711_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a9ed9b9b49334e68a83251eeff8427a5a"/>    <section>
+    <title>getendpos()</title>
+<indexterm><primary>getendpos</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>getendpos</secondary></indexterm>
+<para><computeroutput>static size_t getendpos (<link linkend="_structlua___state">lua_State</link> * L, int arg, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> def, size_t len)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00087">87</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a9ed9b9b49334e68a83251eeff8427a5a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a9ed9b9b49334e68a83251eeff8427a5a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a22adbe647ff5710f14b6f6c18ae0d5a4"/>    <section>
+    <title>getnum()</title>
+<indexterm><primary>getnum</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>getnum</secondary></indexterm>
+<para><computeroutput>static int getnum (const char ** fmt, int df)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01404">1404</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a22adbe647ff5710f14b6f6c18ae0d5a4_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a22adbe647ff5710f14b6f6c18ae0d5a4_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a2e2809fc0c800ac97e4122f33434b94a"/>    <section>
+    <title>getnumlimit()</title>
+<indexterm><primary>getnumlimit</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>getnumlimit</secondary></indexterm>
+<para><computeroutput>static int getnumlimit (<link linkend="_struct_header">Header</link> * h, const char ** fmt, int df)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01421">1421</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a2e2809fc0c800ac97e4122f33434b94a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a2e2809fc0c800ac97e4122f33434b94a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1adcf5c53b9f1a52366c286fea5f9aeda7"/>    <section>
+    <title>getoption()</title>
+<indexterm><primary>getoption</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>getoption</secondary></indexterm>
+<para><computeroutput>static <link linkend="_lstrlib_8c_1a367eae6d513d6ac0b1f851c0b17b7d45">KOption</link> getoption (<link linkend="_struct_header">Header</link> * h, const char ** fmt, int * size)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01443">1443</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_adcf5c53b9f1a52366c286fea5f9aeda7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_adcf5c53b9f1a52366c286fea5f9aeda7_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1ab55a72bb412d6186c82fd75de44cd031"/>    <section>
+    <title>gmatch()</title>
+<indexterm><primary>gmatch</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>gmatch</secondary></indexterm>
+<para><computeroutput>static int gmatch (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00851">851</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_ab55a72bb412d6186c82fd75de44cd031_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1ab7cb0ba6191e1aa9455f6522d3483a02"/>    <section>
+    <title>gmatch_aux()</title>
+<indexterm><primary>gmatch_aux</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>gmatch_aux</secondary></indexterm>
+<para><computeroutput>static int gmatch_aux (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00835">835</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_ab7cb0ba6191e1aa9455f6522d3483a02_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_ab7cb0ba6191e1aa9455f6522d3483a02_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a1d1417c36ff4629b5fa8540daa9ca2bd"/>    <section>
+    <title>initheader()</title>
+<indexterm><primary>initheader</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>initheader</secondary></indexterm>
+<para><computeroutput>static void initheader (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_header">Header</link> * h)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01433">1433</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a1d1417c36ff4629b5fa8540daa9ca2bd_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a894e95aeb2179634e0b62277f23c303e"/>    <section>
+    <title>lmemfind()</title>
+<indexterm><primary>lmemfind</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>lmemfind</secondary></indexterm>
+<para><computeroutput>static const char* lmemfind (const char * s1, size_t l1, const char * s2, size_t l2)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00670">670</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a894e95aeb2179634e0b62277f23c303e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1ab65aeff75cb100dde75e955c698c83b8"/>    <section>
+    <title>luaopen_string()</title>
+<indexterm><primary>luaopen_string</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>luaopen_string</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link> int luaopen_string (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01800">1800</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_ab65aeff75cb100dde75e955c698c83b8_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a52a45835b75e5d31ec66421456bbb728"/>    <section>
+    <title>match()</title>
+<indexterm><primary>match</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>match</secondary></indexterm>
+<para><computeroutput>static const char * match (<link linkend="_struct_match_state">MatchState</link> * ms, const char * s, const char * p)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00567">567</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a52a45835b75e5d31ec66421456bbb728_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a52a45835b75e5d31ec66421456bbb728_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1af71e61c103df8b6163925c900470ee37"/>    <section>
+    <title>match_capture()</title>
+<indexterm><primary>match_capture</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>match_capture</secondary></indexterm>
+<para><computeroutput>static const char* match_capture (<link linkend="_struct_match_state">MatchState</link> * ms, const char * s, int l)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00556">556</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_af71e61c103df8b6163925c900470ee37_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_af71e61c103df8b6163925c900470ee37_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a46c1d8d4310cb940caa503ef10a0decf"/>    <section>
+    <title>match_class()</title>
+<indexterm><primary>match_class</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>match_class</secondary></indexterm>
+<para><computeroutput>static int match_class (int c, int cl)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00424">424</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a46c1d8d4310cb940caa503ef10a0decf_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1aacb8f9104a816720da707ecf5219a96e"/>    <section>
+    <title>matchbalance()</title>
+<indexterm><primary>matchbalance</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>matchbalance</secondary></indexterm>
+<para><computeroutput>static const char* matchbalance (<link linkend="_struct_match_state">MatchState</link> * ms, const char * s, const char * p)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00483">483</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_aacb8f9104a816720da707ecf5219a96e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_aacb8f9104a816720da707ecf5219a96e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a14c5b9fff2918ecc568b9bcf1bfdb241"/>    <section>
+    <title>matchbracketclass()</title>
+<indexterm><primary>matchbracketclass</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>matchbracketclass</secondary></indexterm>
+<para><computeroutput>static int matchbracketclass (int c, const char * p, const char * ec)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00444">444</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a14c5b9fff2918ecc568b9bcf1bfdb241_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a14c5b9fff2918ecc568b9bcf1bfdb241_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1ad0b55e65b16045801315919fb67a4070"/>    <section>
+    <title>max_expand()</title>
+<indexterm><primary>max_expand</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>max_expand</secondary></indexterm>
+<para><computeroutput>static const char* max_expand (<link linkend="_struct_match_state">MatchState</link> * ms, const char * s, const char * p, const char * ep)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00503">503</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_ad0b55e65b16045801315919fb67a4070_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_ad0b55e65b16045801315919fb67a4070_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a3b42ede2ccaf027b891a6a4f1cdf3902"/>    <section>
+    <title>min_expand()</title>
+<indexterm><primary>min_expand</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>min_expand</secondary></indexterm>
+<para><computeroutput>static const char* min_expand (<link linkend="_struct_match_state">MatchState</link> * ms, const char * s, const char * p, const char * ep)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00518">518</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a3b42ede2ccaf027b891a6a4f1cdf3902_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a3b42ede2ccaf027b891a6a4f1cdf3902_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a83e7db07fd9aab6eb84c649f0d9f4a0a"/>    <section>
+    <title>nospecials()</title>
+<indexterm><primary>nospecials</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>nospecials</secondary></indexterm>
+<para><computeroutput>static int nospecials (const char * p, size_t l)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00743">743</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a83e7db07fd9aab6eb84c649f0d9f4a0a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a326322a54fce6c872fd7e20c3f923e8f"/>    <section>
+    <title>packint()</title>
+<indexterm><primary>packint</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>packint</secondary></indexterm>
+<para><computeroutput>static void packint (<link linkend="_structlua_l___buffer">luaL_Buffer</link> * b, <link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> n, int islittle, int size, int neg)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01517">1517</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a326322a54fce6c872fd7e20c3f923e8f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a326322a54fce6c872fd7e20c3f923e8f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a5d66236d294a1cd3e310292e43d5c3c6"/>    <section>
+    <title>posrelatI()</title>
+<indexterm><primary>posrelatI</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>posrelatI</secondary></indexterm>
+<para><computeroutput>static size_t posrelatI (<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> pos, size_t len)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00071">71</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a5d66236d294a1cd3e310292e43d5c3c6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a901e492edece737eb5d7197219fb0fa1"/>    <section>
+    <title>prepstate()</title>
+<indexterm><primary>prepstate</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>prepstate</secondary></indexterm>
+<para><computeroutput>static void prepstate (<link linkend="_struct_match_state">MatchState</link> * ms, <link linkend="_structlua___state">lua_State</link> * L, const char * s, size_t ls, const char * p, size_t lp)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00754">754</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a901e492edece737eb5d7197219fb0fa1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1ad14703c4bc40d7c1951dedb7bc7554f7"/>    <section>
+    <title>push_captures()</title>
+<indexterm><primary>push_captures</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>push_captures</secondary></indexterm>
+<para><computeroutput>static int push_captures (<link linkend="_struct_match_state">MatchState</link> * ms, const char * s, const char * e)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00732">732</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_ad14703c4bc40d7c1951dedb7bc7554f7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_ad14703c4bc40d7c1951dedb7bc7554f7_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a24a14b4e6e90bac4610dd334bb0b51b6"/>    <section>
+    <title>push_onecapture()</title>
+<indexterm><primary>push_onecapture</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>push_onecapture</secondary></indexterm>
+<para><computeroutput>static void push_onecapture (<link linkend="_struct_match_state">MatchState</link> * ms, int i, const char * s, const char * e)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00722">722</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a24a14b4e6e90bac4610dd334bb0b51b6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a24a14b4e6e90bac4610dd334bb0b51b6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a443e80174fa539c37a640e5e6f65212c"/>    <section>
+    <title>quotefloat()</title>
+<indexterm><primary>quotefloat</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>quotefloat</secondary></indexterm>
+<para><computeroutput>static int quotefloat (<link linkend="_structlua___state">lua_State</link> * L, char * buff, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> n)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01130">1130</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a443e80174fa539c37a640e5e6f65212c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a09158e3beed6006b5dd7d5329f4474c9"/>    <section>
+    <title>reprepstate()</title>
+<indexterm><primary>reprepstate</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>reprepstate</secondary></indexterm>
+<para><computeroutput>static void reprepstate (<link linkend="_struct_match_state">MatchState</link> * ms)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00764">764</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a09158e3beed6006b5dd7d5329f4474c9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1aa02d130952004540df86ae92853cfc22"/>    <section>
+    <title>scanformat()</title>
+<indexterm><primary>scanformat</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>scanformat</secondary></indexterm>
+<para><computeroutput>static const char* scanformat (<link linkend="_structlua___state">lua_State</link> * L, const char * strfrmt, char * form)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01189">1189</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_aa02d130952004540df86ae92853cfc22_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_aa02d130952004540df86ae92853cfc22_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a0fe170ffbc6b4ec3181d2db25ea4deb0"/>    <section>
+    <title>singlematch()</title>
+<indexterm><primary>singlematch</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>singlematch</secondary></indexterm>
+<para><computeroutput>static int singlematch (<link linkend="_struct_match_state">MatchState</link> * ms, const char * s, const char * p, const char * ep)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00467">467</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a0fe170ffbc6b4ec3181d2db25ea4deb0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a0fe170ffbc6b4ec3181d2db25ea4deb0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a31cf026bdaa00bf9c72a1e4f72319147"/>    <section>
+    <title>start_capture()</title>
+<indexterm><primary>start_capture</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>start_capture</secondary></indexterm>
+<para><computeroutput>static const char* start_capture (<link linkend="_struct_match_state">MatchState</link> * ms, const char * s, const char * p, int what)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00531">531</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a31cf026bdaa00bf9c72a1e4f72319147_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a31cf026bdaa00bf9c72a1e4f72319147_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1ae561770420cfd1894054415df9d4c423"/>    <section>
+    <title>str_byte()</title>
+<indexterm><primary>str_byte</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>str_byte</secondary></indexterm>
+<para><computeroutput>static int str_byte (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00176">176</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_ae561770420cfd1894054415df9d4c423_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a3f7db8b2258dca5459ad52d2cbf9f28c"/>    <section>
+    <title>str_char()</title>
+<indexterm><primary>str_char</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>str_char</secondary></indexterm>
+<para><computeroutput>static int str_char (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00194">194</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a3f7db8b2258dca5459ad52d2cbf9f28c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1abc94e3a13f1b6ddb2c9b20c9fd89e87f"/>    <section>
+    <title>str_dump()</title>
+<indexterm><primary>str_dump</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>str_dump</secondary></indexterm>
+<para><computeroutput>static int str_dump (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00232">232</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_abc94e3a13f1b6ddb2c9b20c9fd89e87f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a362a4bc9ba81ce87253cc3d74f015808"/>    <section>
+    <title>str_find()</title>
+<indexterm><primary>str_find</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>str_find</secondary></indexterm>
+<para><computeroutput>static int str_find (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00816">816</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a362a4bc9ba81ce87253cc3d74f015808_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a692514aa32ae2668683a4db15259d26b"/>    <section>
+    <title>str_find_aux()</title>
+<indexterm><primary>str_find_aux</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>str_find_aux</secondary></indexterm>
+<para><computeroutput>static int str_find_aux (<link linkend="_structlua___state">lua_State</link> * L, int find)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00770">770</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a692514aa32ae2668683a4db15259d26b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a692514aa32ae2668683a4db15259d26b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1ae26a9374857058119e59d0328208c2f2"/>    <section>
+    <title>str_format()</title>
+<indexterm><primary>str_format</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>str_format</secondary></indexterm>
+<para><computeroutput>static int str_format (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01224">1224</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_ae26a9374857058119e59d0328208c2f2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a42337c674d265175bcc2b2f3809c7339"/>    <section>
+    <title>str_gsub()</title>
+<indexterm><primary>str_gsub</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>str_gsub</secondary></indexterm>
+<para><computeroutput>static int str_gsub (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00939">939</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a42337c674d265175bcc2b2f3809c7339_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a357ce37478dde24252724e3c4c66ce11"/>    <section>
+    <title>str_len()</title>
+<indexterm><primary>str_len</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>str_len</secondary></indexterm>
+<para><computeroutput>static int str_len (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00055">55</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a357ce37478dde24252724e3c4c66ce11_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1ab2235f81205d0482d03c8ae456a98992"/>    <section>
+    <title>str_lower()</title>
+<indexterm><primary>str_lower</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>str_lower</secondary></indexterm>
+<para><computeroutput>static int str_lower (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00124">124</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_ab2235f81205d0482d03c8ae456a98992_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a4b605e43b8f5738db9eae902bbc00f00"/>    <section>
+    <title>str_match()</title>
+<indexterm><primary>str_match</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>str_match</secondary></indexterm>
+<para><computeroutput>static int str_match (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00821">821</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a4b605e43b8f5738db9eae902bbc00f00_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1abcf8553ae8937fd4f4bf85c72f528710"/>    <section>
+    <title>str_pack()</title>
+<indexterm><primary>str_pack</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>str_pack</secondary></indexterm>
+<para><computeroutput>static int str_pack (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01552">1552</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_abcf8553ae8937fd4f4bf85c72f528710_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1ac548dd917c53c0c6d13518ec3ecc56ee"/>    <section>
+    <title>str_packsize()</title>
+<indexterm><primary>str_packsize</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>str_packsize</secondary></indexterm>
+<para><computeroutput>static int str_packsize (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01639">1639</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_ac548dd917c53c0c6d13518ec3ecc56ee_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1acaee4c84f29e2ec7366728ca04d3569c"/>    <section>
+    <title>str_rep()</title>
+<indexterm><primary>str_rep</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>str_rep</secondary></indexterm>
+<para><computeroutput>static int str_rep (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00150">150</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_acaee4c84f29e2ec7366728ca04d3569c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a4b2ffac60e817b9bfc54b32f8da3a6b4"/>    <section>
+    <title>str_reverse()</title>
+<indexterm><primary>str_reverse</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>str_reverse</secondary></indexterm>
+<para><computeroutput>static int str_reverse (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00112">112</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a4b2ffac60e817b9bfc54b32f8da3a6b4_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a039b391d5f43533a0ce750c5e40d7752"/>    <section>
+    <title>str_sub()</title>
+<indexterm><primary>str_sub</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>str_sub</secondary></indexterm>
+<para><computeroutput>static int str_sub (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00100">100</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a039b391d5f43533a0ce750c5e40d7752_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a3f3c1925e7829cbe972a744fa9168ec3"/>    <section>
+    <title>str_unpack()</title>
+<indexterm><primary>str_unpack</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>str_unpack</secondary></indexterm>
+<para><computeroutput>static int str_unpack (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01693">1693</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a3f3c1925e7829cbe972a744fa9168ec3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a38ed99b74af58070449ca344a7351f6a"/>    <section>
+    <title>str_upper()</title>
+<indexterm><primary>str_upper</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>str_upper</secondary></indexterm>
+<para><computeroutput>static int str_upper (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00137">137</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a38ed99b74af58070449ca344a7351f6a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a29c672037c89ca25af99c1694e04c294"/>    <section>
+    <title>tonum()</title>
+<indexterm><primary>tonum</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>tonum</secondary></indexterm>
+<para><computeroutput>static int tonum (<link linkend="_structlua___state">lua_State</link> * L, int arg)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00263">263</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a29c672037c89ca25af99c1694e04c294_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a29c672037c89ca25af99c1694e04c294_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a0f8612c62e1158d37a19d06453dcbc97"/>    <section>
+    <title>trymt()</title>
+<indexterm><primary>trymt</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>trymt</secondary></indexterm>
+<para><computeroutput>static void trymt (<link linkend="_structlua___state">lua_State</link> * L, const char * mtname)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00276">276</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a0f8612c62e1158d37a19d06453dcbc97_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a0f8612c62e1158d37a19d06453dcbc97_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a06e60d2c39a3041308dc6caa50c1d394"/>    <section>
+    <title>unpackint()</title>
+<indexterm><primary>unpackint</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>unpackint</secondary></indexterm>
+<para><computeroutput>static <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> unpackint (<link linkend="_structlua___state">lua_State</link> * L, const char * str, int islittle, int size, int issigned)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01667">1667</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a06e60d2c39a3041308dc6caa50c1d394_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a06e60d2c39a3041308dc6caa50c1d394_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstrlib_8c_1a1f7ab2869b4517a93412ce096243ead0"/>    <section>
+    <title>writer()</title>
+<indexterm><primary>writer</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>writer</secondary></indexterm>
+<para><computeroutput>static int writer (<link linkend="_structlua___state">lua_State</link> * L, const void * b, size_t size, void * ud)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00221">221</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a1f7ab2869b4517a93412ce096243ead0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstrlib_8c_a1f7ab2869b4517a93412ce096243ead0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+<section>
+<title>变量说明</title>
+<anchor xml:id="_lstrlib_8c_1a7c1d654b7b6114d7a0abc8d351dd1bcd"/>    <section>
+    <title>dummy</title>
+<indexterm><primary>dummy</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>dummy</secondary></indexterm>
+<para><computeroutput>int dummy</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01347">1347</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1a5831a9b38577f9ef9b30553737b5b7f9"/>    <section>
+    <title>little</title>
+<indexterm><primary>little</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>little</secondary></indexterm>
+<para><computeroutput>char little</computeroutput></para><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01348">1348</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1a8c97bd33d32d5879ec6498232a52f4b5"/>    <section>
+    <title>nativeendian</title>
+<indexterm><primary>nativeendian</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>nativeendian</secondary></indexterm>
+<para><computeroutput>const { ... }  nativeendian<computeroutput>[static]</computeroutput></computeroutput></para>    </section><anchor xml:id="_lstrlib_8c_1a7168e6e571c41a6ac8f204f884d661fe"/>    <section>
+    <title>stringmetamethods</title>
+<indexterm><primary>stringmetamethods</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>stringmetamethods</secondary></indexterm>
+<para><computeroutput>const <link linkend="_structlua_l___reg">luaL_Reg</link> stringmetamethods[]<computeroutput>[static]</computeroutput></computeroutput></para><emphasis role="strong">初始值:</emphasis><programlisting>=&#32;{
+&#32;&#32;{<emphasis role="stringliteral">&quot;__add&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1a83cdf2094cab994d34c18858a990e555">arith_add</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;__sub&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1a2c0d2a7efd64b03bb81a22f2dd974fc3">arith_sub</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;__mul&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1a9162078e35bac5d03f26e9473a0ebf37">arith_mul</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;__mod&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1a2a1f4d692fc02d6586bc12a07924f488">arith_mod</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;__pow&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1ad8c2b27458937cc9a19a949872938fc6">arith_pow</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;__div&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1afd1d2f5e7f8c83185c68d20fc5dc8600">arith_div</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;__idiv&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1a86a1afce81f747da4c0cf708065acd92">arith_idiv</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;__unm&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1ac78f63c6c1908d139ffadb3f28d14c21">arith_unm</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;__index&quot;</emphasis>,&#32;NULL},&#32;&#32;
+&#32;&#32;{NULL,&#32;NULL}
+}
+</programlisting><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l00328">328</link> 行定义.</para>
+    </section><anchor xml:id="_lstrlib_8c_1aea7d99046a1869e17a061706511f770c"/>    <section>
+    <title>strlib</title>
+<indexterm><primary>strlib</primary><secondary>lstrlib.c</secondary></indexterm>
+<indexterm><primary>lstrlib.c</primary><secondary>strlib</secondary></indexterm>
+<para><computeroutput>const <link linkend="_structlua_l___reg">luaL_Reg</link> strlib[]<computeroutput>[static]</computeroutput></computeroutput></para><emphasis role="strong">初始值:</emphasis><programlisting>=&#32;{
+&#32;&#32;{<emphasis role="stringliteral">&quot;byte&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1ae561770420cfd1894054415df9d4c423">str_byte</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;char&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1a3f7db8b2258dca5459ad52d2cbf9f28c">str_char</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;dump&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1abc94e3a13f1b6ddb2c9b20c9fd89e87f">str_dump</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;find&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1a362a4bc9ba81ce87253cc3d74f015808">str_find</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;format&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1ae26a9374857058119e59d0328208c2f2">str_format</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;gmatch&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1ab55a72bb412d6186c82fd75de44cd031">gmatch</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;gsub&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1a42337c674d265175bcc2b2f3809c7339">str_gsub</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;len&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1a357ce37478dde24252724e3c4c66ce11">str_len</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;lower&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1ab2235f81205d0482d03c8ae456a98992">str_lower</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;match&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1a4b605e43b8f5738db9eae902bbc00f00">str_match</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;rep&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1acaee4c84f29e2ec7366728ca04d3569c">str_rep</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;reverse&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1a4b2ffac60e817b9bfc54b32f8da3a6b4">str_reverse</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;sub&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1a039b391d5f43533a0ce750c5e40d7752">str_sub</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;upper&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1a38ed99b74af58070449ca344a7351f6a">str_upper</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;pack&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1abcf8553ae8937fd4f4bf85c72f528710">str_pack</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;packsize&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1ac548dd917c53c0c6d13518ec3ecc56ee">str_packsize</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;unpack&quot;</emphasis>,&#32;<link linkend="_lstrlib_8c_1a3f3c1925e7829cbe972a744fa9168ec3">str_unpack</link>},
+&#32;&#32;{NULL,&#32;NULL}
+}
+</programlisting><para>
+在文件 <link linkend="_lstrlib_8c_source">lstrlib.c</link> 第 <link linkend="_lstrlib_8c_source_1l01761">1761</link> 行定义.</para>
+</section>
+</section>
+</section>

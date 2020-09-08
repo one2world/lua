@@ -1,0 +1,313 @@
+.TH "D:/gitworkspace/lua/src/loslib.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/loslib.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <errno\&.h>\fP
+.br
+\fC#include <locale\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include <time\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lauxlib\&.h'\fP
+.br
+\fC#include 'lualib\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBloslib_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_LIB\fP"
+.br
+.ti -1c
+.RI "#define \fBL_STRFTIMEC89\fP   'aAbBcdHIjmMpSUwWxXyYZ%'"
+.br
+.ti -1c
+.RI "#define \fBL_STRFTIMEC99\fP"
+.br
+.ti -1c
+.RI "#define \fBL_STRFTIMEWIN\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_STRFTIMEOPTIONS\fP   \fBL_STRFTIMEC99\fP"
+.br
+.ti -1c
+.RI "#define \fBl_timet\fP   \fBlua_Integer\fP"
+.br
+.ti -1c
+.RI "#define \fBl_pushtime\fP(L,  t)   \fBlua_pushinteger\fP(L,(\fBlua_Integer\fP)(t))"
+.br
+.ti -1c
+.RI "#define \fBl_gettime\fP(L,  arg)   \fBluaL_checkinteger\fP(L, arg)"
+.br
+.ti -1c
+.RI "#define \fBl_gmtime\fP(t,  r)   ((void)(r)\->tm_sec, gmtime(t))"
+.br
+.ti -1c
+.RI "#define \fBl_localtime\fP(t,  r)   ((void)(r)\->tm_sec, localtime(t))"
+.br
+.ti -1c
+.RI "#define \fBLUA_TMPNAMBUFSIZE\fP   L_tmpnam"
+.br
+.ti -1c
+.RI "#define \fBlua_tmpnam\fP(b,  e)   { e = (tmpnam(b) == NULL); }"
+.br
+.ti -1c
+.RI "#define \fBSIZETIMEFMT\fP   250"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static int \fBos_execute\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBos_remove\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBos_rename\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBos_tmpname\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBos_getenv\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBos_clock\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBsetfield\fP (\fBlua_State\fP *L, const char *key, int value, int delta)"
+.br
+.ti -1c
+.RI "static void \fBsetboolfield\fP (\fBlua_State\fP *L, const char *key, int value)"
+.br
+.ti -1c
+.RI "static void \fBsetallfields\fP (\fBlua_State\fP *L, struct tm *stm)"
+.br
+.ti -1c
+.RI "static int \fBgetboolfield\fP (\fBlua_State\fP *L, const char *key)"
+.br
+.ti -1c
+.RI "static int \fBgetfield\fP (\fBlua_State\fP *L, const char *key, int d, int delta)"
+.br
+.ti -1c
+.RI "static const char * \fBcheckoption\fP (\fBlua_State\fP *L, const char *conv, ptrdiff_t convlen, char *buff)"
+.br
+.ti -1c
+.RI "static time_t \fBl_checktime\fP (\fBlua_State\fP *L, int arg)"
+.br
+.ti -1c
+.RI "static int \fBos_date\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBos_time\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBos_difftime\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBos_setlocale\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBos_exit\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAMOD_API\fP int \fBluaopen_os\fP (\fBlua_State\fP *L)"
+.br
+.in -1c
+.SS "变量"
+
+.in +1c
+.ti -1c
+.RI "static const \fBluaL_Reg\fP \fBsyslib\fP []"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define l_gettime(L, arg)   \fBluaL_checkinteger\fP(L, arg)"
+
+.PP
+在文件 loslib\&.c 第 69 行定义\&.
+.SS "#define l_gmtime(t, r)   ((void)(r)\->tm_sec, gmtime(t))"
+
+.PP
+在文件 loslib\&.c 第 94 行定义\&.
+.SS "#define l_localtime(t, r)   ((void)(r)\->tm_sec, localtime(t))"
+
+.PP
+在文件 loslib\&.c 第 95 行定义\&.
+.SS "#define l_pushtime(L, t)   \fBlua_pushinteger\fP(L,(\fBlua_Integer\fP)(t))"
+
+.PP
+在文件 loslib\&.c 第 68 行定义\&.
+.SS "#define L_STRFTIMEC89   'aAbBcdHIjmMpSUwWxXyYZ%'"
+
+.PP
+在文件 loslib\&.c 第 34 行定义\&.
+.SS "#define L_STRFTIMEC99"
+\fB值:\fP
+.PP
+.nf
+    "aAbBcCdDeFgGhHIjmMnprRStTuUVwWxXyYzZ%" \
+    "||" "EcECExEXEyEY" "OdOeOHOIOmOMOSOuOUOVOwOWOy"  /* two-char options */
+.fi
+.PP
+在文件 loslib\&.c 第 37 行定义\&.
+.SS "#define L_STRFTIMEWIN"
+\fB值:\fP
+.PP
+.nf
+    "aAbBcdHIjmMpSUwWxXyYzZ%" \
+    "||" "#c#x#d#H#I#j#m#M#S#U#w#W#y#Y"  /* two-char options */
+.fi
+.PP
+在文件 loslib\&.c 第 41 行定义\&.
+.SS "#define l_timet   \fBlua_Integer\fP"
+
+.PP
+在文件 loslib\&.c 第 67 行定义\&.
+.SS "#define loslib_c"
+
+.PP
+在文件 loslib\&.c 第 7 行定义\&.
+.SS "#define LUA_LIB"
+
+.PP
+在文件 loslib\&.c 第 8 行定义\&.
+.SS "#define LUA_STRFTIMEOPTIONS   \fBL_STRFTIMEC99\fP"
+
+.PP
+在文件 loslib\&.c 第 49 行定义\&.
+.SS "#define lua_tmpnam(b, e)   { e = (tmpnam(b) == NULL); }"
+
+.PP
+在文件 loslib\&.c 第 133 行定义\&.
+.SS "#define LUA_TMPNAMBUFSIZE   L_tmpnam"
+
+.PP
+在文件 loslib\&.c 第 132 行定义\&.
+.SS "#define SIZETIMEFMT   250"
+
+.PP
+在文件 loslib\&.c 第 301 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static const char* checkoption (\fBlua_State\fP * L, const char * conv, ptrdiff_t convlen, char * buff)\fC [static]\fP"
+
+.PP
+在文件 loslib\&.c 第 274 行定义\&.
+.SS "static int getboolfield (\fBlua_State\fP * L, const char * key)\fC [static]\fP"
+
+.PP
+在文件 loslib\&.c 第 243 行定义\&.
+.SS "static int getfield (\fBlua_State\fP * L, const char * key, int d, int delta)\fC [static]\fP"
+
+.PP
+在文件 loslib\&.c 第 251 行定义\&.
+.SS "static time_t l_checktime (\fBlua_State\fP * L, int arg)\fC [static]\fP"
+
+.PP
+在文件 loslib\&.c 第 293 行定义\&.
+.SS "\fBLUAMOD_API\fP int luaopen_os (\fBlua_State\fP * L)"
+
+.PP
+在文件 loslib\&.c 第 426 行定义\&.
+.SS "static int os_clock (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loslib\&.c 第 186 行定义\&.
+.SS "static int os_date (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loslib\&.c 第 304 行定义\&.
+.SS "static int os_difftime (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loslib\&.c 第 372 行定义\&.
+.SS "static int os_execute (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loslib\&.c 第 142 行定义\&.
+.SS "static int os_exit (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loslib\&.c 第 394 行定义\&.
+.SS "static int os_getenv (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loslib\&.c 第 180 行定义\&.
+.SS "static int os_remove (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loslib\&.c 第 156 行定义\&.
+.SS "static int os_rename (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loslib\&.c 第 162 行定义\&.
+.SS "static int os_setlocale (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loslib\&.c 第 382 行定义\&.
+.SS "static int os_time (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loslib\&.c 第 346 行定义\&.
+.SS "static int os_tmpname (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loslib\&.c 第 169 行定义\&.
+.SS "static void setallfields (\fBlua_State\fP * L, struct tm * stm)\fC [static]\fP"
+
+.PP
+在文件 loslib\&.c 第 230 行定义\&.
+.SS "static void setboolfield (\fBlua_State\fP * L, const char * key, int value)\fC [static]\fP"
+
+.PP
+在文件 loslib\&.c 第 219 行定义\&.
+.SS "static void setfield (\fBlua_State\fP * L, const char * key, int value, int delta)\fC [static]\fP"
+
+.PP
+在文件 loslib\&.c 第 209 行定义\&.
+.SH "变量说明"
+.PP 
+.SS "const \fBluaL_Reg\fP syslib[]\fC [static]\fP"
+\fB初始值:\fP
+.PP
+.nf
+= {
+  {"clock",     os_clock},
+  {"date",      os_date},
+  {"difftime",  os_difftime},
+  {"execute",   os_execute},
+  {"exit",      os_exit},
+  {"getenv",    os_getenv},
+  {"remove",    os_remove},
+  {"rename",    os_rename},
+  {"setlocale", os_setlocale},
+  {"time",      os_time},
+  {"tmpname",   os_tmpname},
+  {NULL, NULL}
+}
+.fi
+.PP
+在文件 loslib\&.c 第 407 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

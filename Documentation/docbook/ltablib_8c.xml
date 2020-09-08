@@ -1,0 +1,508 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_ltablib_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/ltablib.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/ltablib.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;limits.h&gt;
+#include &lt;stddef.h&gt;
+#include &lt;string.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;lauxlib.h&quot;
+#include &quot;lualib.h&quot;
+#include &lt;time.h&gt;
+</programlisting>ltablib.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_ltablib_8c_1a140da27fde6d0c6ba8c94f2464c570cb">ltablib_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltablib_8c_1a884b19ad6094d6238c4072a8064aeb12">LUA_LIB</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltablib_8c_1a8fb9ba58986555b9e428a842d0786557">TAB_R</link>   1			/* read */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltablib_8c_1ab9cf0e51aee67f8818580144a1ba7593">TAB_W</link>   2			/* write */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltablib_8c_1a3f436d4e584aa1bb0bcee72e95cbdd50">TAB_L</link>   4			/* length */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltablib_8c_1a7c8b26f7b00c98971c1c7c2706798ac5">TAB_RW</link>   (<link linkend="_ltablib_8c_1a8fb9ba58986555b9e428a842d0786557">TAB_R</link> | <link linkend="_ltablib_8c_1ab9cf0e51aee67f8818580144a1ba7593">TAB_W</link>)		/* read/write */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltablib_8c_1a5666aa0172909d01d18bac7d35c7e5ee">aux_getn</link>(L,  n,  w)   (<link linkend="_ltablib_8c_1abe77aa6d8b3f0a5102aba10fa05d31c2">checktab</link>(L, n, (w) | <link linkend="_ltablib_8c_1a3f436d4e584aa1bb0bcee72e95cbdd50">TAB_L</link>), <link linkend="_lauxlib_8h_1ac9d38b77e425247b630afdb212401a05">luaL_len</link>(L, n))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltablib_8c_1a8978688d79ae6bceddeb55c8ad3f1c8f">sof</link>(e)   (sizeof(e) / sizeof(unsigned int))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltablib_8c_1aeb8c42b2dbafa2030e261ba804a7b530">RANLIMIT</link>   100u</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>类型定义    </title>
+        <itemizedlist>
+            <listitem><para>typedef unsigned int <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static int <link linkend="_ltablib_8c_1a641ec2ebb32db79b3eb9d972ad4997ea">checkfield</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *key, int n)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ltablib_8c_1abe77aa6d8b3f0a5102aba10fa05d31c2">checktab</link> (<link linkend="_structlua___state">lua_State</link> *L, int arg, int what)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ltablib_8c_1a214ed6966e2b1b4c376ab0de0d09032e">tinsert</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ltablib_8c_1ad8c41fe887a472709c6fdf075ba39d56">tremove</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ltablib_8c_1a2206b11cc9a180fbc33aabb81308fd74">tmove</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ltablib_8c_1a598479e00f1b316a182b1582012df5d0">addfield</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structlua_l___buffer">luaL_Buffer</link> *b, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> i)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ltablib_8c_1add6973c515a288f41265aca8e0ae6412">tconcat</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ltablib_8c_1a33b59fd5ba7dbaddc6109c692a9d5dd0">tpack</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ltablib_8c_1ae37fc20bd47c2a4385a87a12090f4e9b">tunpack</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static unsigned int <link linkend="_ltablib_8c_1a7b43760283a5fa4a2d6104c5caf19902">l_randomizePivot</link> (void)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ltablib_8c_1a66d39e7dbcc639daedcc8618fd2a18e1">set2</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> i, <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> j)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ltablib_8c_1ae92f4625e74d1876b2ca2a4ced74c807">sort_comp</link> (<link linkend="_structlua___state">lua_State</link> *L, int a, int b)</para>
+</listitem>
+            <listitem><para>static <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> <link linkend="_ltablib_8c_1a1d53059f696e353656cd98be725ffbd2">partition</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> lo, <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> up)</para>
+</listitem>
+            <listitem><para>static <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> <link linkend="_ltablib_8c_1ac4b80d03308e70f2f401c2153ebffa4e">choosePivot</link> (<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> lo, <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> up, unsigned int rnd)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ltablib_8c_1a151c51c8905acb3db7d6f1e58265b709">auxsort</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> lo, <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> up, unsigned int rnd)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ltablib_8c_1ae7d3f892e2605bf102dce63de388e626">sort</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link> int <link linkend="_ltablib_8c_1acfb66f04d8d0ea06cb1c4c059b9e142b">luaopen_table</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>变量    </title>
+        <itemizedlist>
+            <listitem><para>static const <link linkend="_structlua_l___reg">luaL_Reg</link> <link linkend="_ltablib_8c_1ae420818215325a443b1066512a76ef5d">tab_funcs</link> []</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_ltablib_8c_1a5666aa0172909d01d18bac7d35c7e5ee"/>    <section>
+    <title>aux_getn</title>
+<indexterm><primary>aux_getn</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>aux_getn</secondary></indexterm>
+<para><computeroutput>#define aux_getn( L,  n,  w)   (<link linkend="_ltablib_8c_1abe77aa6d8b3f0a5102aba10fa05d31c2">checktab</link>(L, n, (w) | <link linkend="_ltablib_8c_1a3f436d4e584aa1bb0bcee72e95cbdd50">TAB_L</link>), <link linkend="_lauxlib_8h_1ac9d38b77e425247b630afdb212401a05">luaL_len</link>(L, n))</computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00033">33</link> 行定义.</para>
+    </section><anchor xml:id="_ltablib_8c_1a140da27fde6d0c6ba8c94f2464c570cb"/>    <section>
+    <title>ltablib_c</title>
+<indexterm><primary>ltablib_c</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>ltablib_c</secondary></indexterm>
+<para><computeroutput>#define ltablib_c</computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_ltablib_8c_1a884b19ad6094d6238c4072a8064aeb12"/>    <section>
+    <title>LUA_LIB</title>
+<indexterm><primary>LUA_LIB</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>LUA_LIB</secondary></indexterm>
+<para><computeroutput>#define LUA_LIB</computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00008">8</link> 行定义.</para>
+    </section><anchor xml:id="_ltablib_8c_1aeb8c42b2dbafa2030e261ba804a7b530"/>    <section>
+    <title>RANLIMIT</title>
+<indexterm><primary>RANLIMIT</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>RANLIMIT</secondary></indexterm>
+<para><computeroutput>#define RANLIMIT   100u</computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00260">260</link> 行定义.</para>
+    </section><anchor xml:id="_ltablib_8c_1a8978688d79ae6bceddeb55c8ad3f1c8f"/>    <section>
+    <title>sof</title>
+<indexterm><primary>sof</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>sof</secondary></indexterm>
+<para><computeroutput>#define sof( e)   (sizeof(e) / sizeof(unsigned int))</computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00236">236</link> 行定义.</para>
+    </section><anchor xml:id="_ltablib_8c_1a3f436d4e584aa1bb0bcee72e95cbdd50"/>    <section>
+    <title>TAB_L</title>
+<indexterm><primary>TAB_L</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>TAB_L</secondary></indexterm>
+<para><computeroutput>#define TAB_L   4			/* length */</computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00029">29</link> 行定义.</para>
+    </section><anchor xml:id="_ltablib_8c_1a8fb9ba58986555b9e428a842d0786557"/>    <section>
+    <title>TAB_R</title>
+<indexterm><primary>TAB_R</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>TAB_R</secondary></indexterm>
+<para><computeroutput>#define TAB_R   1			/* read */</computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00027">27</link> 行定义.</para>
+    </section><anchor xml:id="_ltablib_8c_1a7c8b26f7b00c98971c1c7c2706798ac5"/>    <section>
+    <title>TAB_RW</title>
+<indexterm><primary>TAB_RW</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>TAB_RW</secondary></indexterm>
+<para><computeroutput>#define TAB_RW   (<link linkend="_ltablib_8c_1a8fb9ba58986555b9e428a842d0786557">TAB_R</link> | <link linkend="_ltablib_8c_1ab9cf0e51aee67f8818580144a1ba7593">TAB_W</link>)		/* read/write */</computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00030">30</link> 行定义.</para>
+    </section><anchor xml:id="_ltablib_8c_1ab9cf0e51aee67f8818580144a1ba7593"/>    <section>
+    <title>TAB_W</title>
+<indexterm><primary>TAB_W</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>TAB_W</secondary></indexterm>
+<para><computeroutput>#define TAB_W   2			/* write */</computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00028">28</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>类型定义说明</title>
+<anchor xml:id="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26"/>    <section>
+    <title>IdxT</title>
+<indexterm><primary>IdxT</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>IdxT</secondary></indexterm>
+<para><computeroutput>typedef unsigned int <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link></computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00222">222</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_ltablib_8c_1a598479e00f1b316a182b1582012df5d0"/>    <section>
+    <title>addfield()</title>
+<indexterm><primary>addfield</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>addfield</secondary></indexterm>
+<para><computeroutput>static void addfield (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structlua_l___buffer">luaL_Buffer</link> * b, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> i)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00146">146</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_a598479e00f1b316a182b1582012df5d0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_a598479e00f1b316a182b1582012df5d0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltablib_8c_1a151c51c8905acb3db7d6f1e58265b709"/>    <section>
+    <title>auxsort()</title>
+<indexterm><primary>auxsort</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>auxsort</secondary></indexterm>
+<para><computeroutput>static void auxsort (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> lo, <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> up, unsigned int rnd)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00343">343</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_a151c51c8905acb3db7d6f1e58265b709_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_a151c51c8905acb3db7d6f1e58265b709_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltablib_8c_1a641ec2ebb32db79b3eb9d972ad4997ea"/>    <section>
+    <title>checkfield()</title>
+<indexterm><primary>checkfield</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>checkfield</secondary></indexterm>
+<para><computeroutput>static int checkfield (<link linkend="_structlua___state">lua_State</link> * L, const char * key, int n)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00036">36</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_a641ec2ebb32db79b3eb9d972ad4997ea_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_a641ec2ebb32db79b3eb9d972ad4997ea_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltablib_8c_1abe77aa6d8b3f0a5102aba10fa05d31c2"/>    <section>
+    <title>checktab()</title>
+<indexterm><primary>checktab</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>checktab</secondary></indexterm>
+<para><computeroutput>static void checktab (<link linkend="_structlua___state">lua_State</link> * L, int arg, int what)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00046">46</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_abe77aa6d8b3f0a5102aba10fa05d31c2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_abe77aa6d8b3f0a5102aba10fa05d31c2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltablib_8c_1ac4b80d03308e70f2f401c2153ebffa4e"/>    <section>
+    <title>choosePivot()</title>
+<indexterm><primary>choosePivot</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>choosePivot</secondary></indexterm>
+<para><computeroutput>static <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> choosePivot (<link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> lo, <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> up, unsigned int rnd)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00332">332</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_ac4b80d03308e70f2f401c2153ebffa4e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltablib_8c_1a7b43760283a5fa4a2d6104c5caf19902"/>    <section>
+    <title>l_randomizePivot()</title>
+<indexterm><primary>l_randomizePivot</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>l_randomizePivot</secondary></indexterm>
+<para><computeroutput>static unsigned int l_randomizePivot (void )<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00244">244</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_a7b43760283a5fa4a2d6104c5caf19902_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltablib_8c_1acfb66f04d8d0ea06cb1c4c059b9e142b"/>    <section>
+    <title>luaopen_table()</title>
+<indexterm><primary>luaopen_table</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>luaopen_table</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link> int luaopen_table (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00424">424</link> 行定义.</para>
+    </section><anchor xml:id="_ltablib_8c_1a1d53059f696e353656cd98be725ffbd2"/>    <section>
+    <title>partition()</title>
+<indexterm><primary>partition</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>partition</secondary></indexterm>
+<para><computeroutput>static <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> partition (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> lo, <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> up)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00296">296</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_a1d53059f696e353656cd98be725ffbd2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_a1d53059f696e353656cd98be725ffbd2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltablib_8c_1a66d39e7dbcc639daedcc8618fd2a18e1"/>    <section>
+    <title>set2()</title>
+<indexterm><primary>set2</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>set2</secondary></indexterm>
+<para><computeroutput>static void set2 (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> i, <link linkend="_ltablib_8c_1a36b2de4b3d95fa6176bdba5be7c22a26">IdxT</link> j)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00263">263</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_a66d39e7dbcc639daedcc8618fd2a18e1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_a66d39e7dbcc639daedcc8618fd2a18e1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltablib_8c_1ae7d3f892e2605bf102dce63de388e626"/>    <section>
+    <title>sort()</title>
+<indexterm><primary>sort</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>sort</secondary></indexterm>
+<para><computeroutput>static int sort (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00397">397</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_ae7d3f892e2605bf102dce63de388e626_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltablib_8c_1ae92f4625e74d1876b2ca2a4ced74c807"/>    <section>
+    <title>sort_comp()</title>
+<indexterm><primary>sort_comp</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>sort_comp</secondary></indexterm>
+<para><computeroutput>static int sort_comp (<link linkend="_structlua___state">lua_State</link> * L, int a, int b)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00273">273</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_ae92f4625e74d1876b2ca2a4ced74c807_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_ae92f4625e74d1876b2ca2a4ced74c807_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltablib_8c_1add6973c515a288f41265aca8e0ae6412"/>    <section>
+    <title>tconcat()</title>
+<indexterm><primary>tconcat</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>tconcat</secondary></indexterm>
+<para><computeroutput>static int tconcat (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00155">155</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_add6973c515a288f41265aca8e0ae6412_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltablib_8c_1a214ed6966e2b1b4c376ab0de0d09032e"/>    <section>
+    <title>tinsert()</title>
+<indexterm><primary>tinsert</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>tinsert</secondary></indexterm>
+<para><computeroutput>static int tinsert (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00061">61</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_a214ed6966e2b1b4c376ab0de0d09032e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltablib_8c_1a2206b11cc9a180fbc33aabb81308fd74"/>    <section>
+    <title>tmove()</title>
+<indexterm><primary>tmove</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>tmove</secondary></indexterm>
+<para><computeroutput>static int tmove (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00114">114</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_a2206b11cc9a180fbc33aabb81308fd74_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltablib_8c_1a33b59fd5ba7dbaddc6109c692a9d5dd0"/>    <section>
+    <title>tpack()</title>
+<indexterm><primary>tpack</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>tpack</secondary></indexterm>
+<para><computeroutput>static int tpack (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00180">180</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_a33b59fd5ba7dbaddc6109c692a9d5dd0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltablib_8c_1ad8c41fe887a472709c6fdf075ba39d56"/>    <section>
+    <title>tremove()</title>
+<indexterm><primary>tremove</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>tremove</secondary></indexterm>
+<para><computeroutput>static int tremove (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00090">90</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_ad8c41fe887a472709c6fdf075ba39d56_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltablib_8c_1ae37fc20bd47c2a4385a87a12090f4e9b"/>    <section>
+    <title>tunpack()</title>
+<indexterm><primary>tunpack</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>tunpack</secondary></indexterm>
+<para><computeroutput>static int tunpack (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00193">193</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltablib_8c_ae37fc20bd47c2a4385a87a12090f4e9b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+<section>
+<title>变量说明</title>
+<anchor xml:id="_ltablib_8c_1ae420818215325a443b1066512a76ef5d"/>    <section>
+    <title>tab_funcs</title>
+<indexterm><primary>tab_funcs</primary><secondary>ltablib.c</secondary></indexterm>
+<indexterm><primary>ltablib.c</primary><secondary>tab_funcs</secondary></indexterm>
+<para><computeroutput>const <link linkend="_structlua_l___reg">luaL_Reg</link> tab_funcs[]<computeroutput>[static]</computeroutput></computeroutput></para><emphasis role="strong">初始值:</emphasis><programlisting>=&#32;{
+&#32;&#32;{<emphasis role="stringliteral">&quot;concat&quot;</emphasis>,&#32;<link linkend="_ltablib_8c_1add6973c515a288f41265aca8e0ae6412">tconcat</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;insert&quot;</emphasis>,&#32;<link linkend="_ltablib_8c_1a214ed6966e2b1b4c376ab0de0d09032e">tinsert</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;pack&quot;</emphasis>,&#32;<link linkend="_ltablib_8c_1a33b59fd5ba7dbaddc6109c692a9d5dd0">tpack</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;unpack&quot;</emphasis>,&#32;<link linkend="_ltablib_8c_1ae37fc20bd47c2a4385a87a12090f4e9b">tunpack</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;remove&quot;</emphasis>,&#32;<link linkend="_ltablib_8c_1ad8c41fe887a472709c6fdf075ba39d56">tremove</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;move&quot;</emphasis>,&#32;<link linkend="_ltablib_8c_1a2206b11cc9a180fbc33aabb81308fd74">tmove</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;sort&quot;</emphasis>,&#32;<link linkend="_ltablib_8c_1ae7d3f892e2605bf102dce63de388e626">sort</link>},
+&#32;&#32;{NULL,&#32;NULL}
+}
+</programlisting><para>
+在文件 <link linkend="_ltablib_8c_source">ltablib.c</link> 第 <link linkend="_ltablib_8c_source_1l00412">412</link> 行定义.</para>
+</section>
+</section>
+</section>

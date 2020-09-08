@@ -1,0 +1,1014 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_ltable_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/ltable.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/ltable.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;math.h&gt;
+#include &lt;limits.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;ldebug.h&quot;
+#include &quot;ldo.h&quot;
+#include &quot;lgc.h&quot;
+#include &quot;lmem.h&quot;
+#include &quot;lobject.h&quot;
+#include &quot;lstate.h&quot;
+#include &quot;lstring.h&quot;
+#include &quot;ltable.h&quot;
+#include &quot;lvm.h&quot;
+</programlisting>ltable.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_ltable_8c_1aa114e7aec320ef3b294533e55b5d08d4">ltable_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltable_8c_1abf0b3947b59218777a8e928a10be205b">LUA_CORE</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltable_8c_1a08cdfe3b6bb8e0757344b850f33c4951">MAXABITS</link>   <link linkend="_llimits_8h_1a37a9e2c4b53433d34bad0f12a1500c08">cast_int</link>(sizeof(int) * CHAR_BIT - 1)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltable_8c_1af53d6898e266c25bcd34c7eeaecd4523">MAXASIZE</link>   <link linkend="_lmem_8h_1a29ccefa76d4743ffb490cdbc291f708a">luaM_limitN</link>(1u &lt;&lt; <link linkend="_ltable_8c_1a08cdfe3b6bb8e0757344b850f33c4951">MAXABITS</link>, <link linkend="_struct_t_value">TValue</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltable_8c_1a601c76074f7c0919e82088041c67f327">MAXHBITS</link>   (<link linkend="_ltable_8c_1a08cdfe3b6bb8e0757344b850f33c4951">MAXABITS</link> - 1)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltable_8c_1a219bee6ccf323698c1314a13b33149fb">MAXHSIZE</link>   <link linkend="_lmem_8h_1a29ccefa76d4743ffb490cdbc291f708a">luaM_limitN</link>(1u &lt;&lt; <link linkend="_ltable_8c_1a601c76074f7c0919e82088041c67f327">MAXHBITS</link>, <link linkend="_union_node">Node</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltable_8c_1a7797860730de6e3edbcc2916a0f7f166">hashpow2</link>(t,  n)   (<link linkend="_ltable_8h_1a644cfa3b6d4be1782e818a8340b5f78b">gnode</link>(t, <link linkend="_lobject_8h_1a528d710ddad324002e3cb47992740b6a">lmod</link>((n), <link linkend="_lobject_8h_1a2fbf715e78eaa889ed0fb9d4514e736a">sizenode</link>(t))))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltable_8c_1a6dc1377ebc2524e79284729ad0e1b838">hashstr</link>(t,  str)   <link linkend="_ltable_8c_1a7797860730de6e3edbcc2916a0f7f166">hashpow2</link>(t, (str)-&gt;hash)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltable_8c_1a97178f1176950bb9830839b579d7ac1a">hashboolean</link>(t,  p)   <link linkend="_ltable_8c_1a7797860730de6e3edbcc2916a0f7f166">hashpow2</link>(t, p)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltable_8c_1a3b8ac3ae3d0f431c9e3efa622be3afa8">hashint</link>(t,  i)   <link linkend="_ltable_8c_1a7797860730de6e3edbcc2916a0f7f166">hashpow2</link>(t, i)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltable_8c_1a70c9da7c141750e8e7c69bad3c0e4f20">hashmod</link>(t,  n)   (<link linkend="_ltable_8h_1a644cfa3b6d4be1782e818a8340b5f78b">gnode</link>(t, ((n) % ((<link linkend="_lobject_8h_1a2fbf715e78eaa889ed0fb9d4514e736a">sizenode</link>(t)-1)|1))))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltable_8c_1abe268656b5851fdac88c13241391f41c">hashpointer</link>(t,  p)   <link linkend="_ltable_8c_1a70c9da7c141750e8e7c69bad3c0e4f20">hashmod</link>(t, <link linkend="_llimits_8h_1ad861f24ac9e8c32f78455aab3d2e7b51">point2uint</link>(p))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltable_8c_1a21431126fe0cf318103085016a832cf5">dummynode</link>   (&amp;<link linkend="_ltable_8c_1a98995dd629174f0257a7919ff17bfdba">dummynode_</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltable_8c_1ac96d62bf47745d24f9a426d5c6656acf">limitequalsasize</link>(t)   (<link linkend="_lobject_8h_1ab8a9474c584f41823442bb17f1f06970">isrealasize</link>(t) || <link linkend="_llimits_8h_1ada65e002d4b7df9ebfa7dde2d12357db">ispow2</link>((t)-&gt;alimit))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ltable_8c_1a1604d4518b18a2e39ad7030ed2495caf">limitasasize</link>(t)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1ab8a9474c584f41823442bb17f1f06970">isrealasize</link>(t), t-&gt;alimit)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static int <link linkend="_ltable_8c_1ac726a5642652c5e7d5417c03047fc3d5">l_hashfloat</link> (<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> n)</para>
+</listitem>
+            <listitem><para>static <link linkend="_union_node">Node</link> * <link linkend="_ltable_8c_1a97b549a3507ec326a9d138a741f39bbc">mainposition</link> (const <link linkend="_struct_table">Table</link> *t, int ktt, const <link linkend="_union_value">Value</link> *kvl)</para>
+</listitem>
+            <listitem><para>static <link linkend="_union_node">Node</link> * <link linkend="_ltable_8c_1a3f0add4aa38ab8e59a5983ebab80ab42">mainpositionTV</link> (const <link linkend="_struct_table">Table</link> *t, const <link linkend="_struct_t_value">TValue</link> *key)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ltable_8c_1ae1cc7cc2b9a30285deb24f2960ae313c">equalkey</link> (const <link linkend="_struct_t_value">TValue</link> *k1, const <link linkend="_union_node">Node</link> *n2)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> unsigned int <link linkend="_ltable_8c_1a8f20a204b7a78780847939086b847781">luaH_realasize</link> (const <link linkend="_struct_table">Table</link> *t)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ltable_8c_1a1017564c3ae0d59f332cf186ac118bcc">ispow2realasize</link> (const <link linkend="_struct_table">Table</link> *t)</para>
+</listitem>
+            <listitem><para>static unsigned int <link linkend="_ltable_8c_1a21e72b3bbf05de9a2fa6d3e566d070ad">setlimittosize</link> (<link linkend="_struct_table">Table</link> *t)</para>
+</listitem>
+            <listitem><para>static const <link linkend="_struct_t_value">TValue</link> * <link linkend="_ltable_8c_1a4de8d73b4c27cd4f7cefa861e54caf37">getgeneric</link> (<link linkend="_struct_table">Table</link> *t, const <link linkend="_struct_t_value">TValue</link> *key)</para>
+</listitem>
+            <listitem><para>static unsigned int <link linkend="_ltable_8c_1a729a1f92fc454693e71df73e6b4eecd1">arrayindex</link> (<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> k)</para>
+</listitem>
+            <listitem><para>static unsigned int <link linkend="_ltable_8c_1a921c25ca2be2003cbcaa9e4c10d6eba8">findindex</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_table">Table</link> *t, <link linkend="_struct_t_value">TValue</link> *key, unsigned int asize)</para>
+</listitem>
+            <listitem><para>int <link linkend="_ltable_8c_1a3c4370ade14fcc86ede5ca90271d0f30">luaH_next</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_table">Table</link> *t, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> key)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ltable_8c_1aa2eece9a18d44f30d4a7b7030816bb63">freehash</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_table">Table</link> *t)</para>
+</listitem>
+            <listitem><para>static unsigned int <link linkend="_ltable_8c_1a257cec771edd330f1dbfbd995aff684d">computesizes</link> (unsigned int nums[], unsigned int *pna)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ltable_8c_1a41b93f1d95df7f27e8dbc15a0e64f60c">countint</link> (<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> key, unsigned int *nums)</para>
+</listitem>
+            <listitem><para>static unsigned int <link linkend="_ltable_8c_1aa1bb1405b21d33c8b3c41b78ef555d22">numusearray</link> (const <link linkend="_struct_table">Table</link> *t, unsigned int *nums)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ltable_8c_1a383b5912900c91c788f78adb36c9d3f9">numusehash</link> (const <link linkend="_struct_table">Table</link> *t, unsigned int *nums, unsigned int *pna)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ltable_8c_1aee50b49395de01da3f8e14608f400108">setnodevector</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_table">Table</link> *t, unsigned int size)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ltable_8c_1acea46f70eb0bd30579a0c50c0804aabc">reinsert</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_table">Table</link> *ot, <link linkend="_struct_table">Table</link> *t)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ltable_8c_1ade9702ba8a7c9b80dfb8301126842acb">exchangehashpart</link> (<link linkend="_struct_table">Table</link> *t1, <link linkend="_struct_table">Table</link> *t2)</para>
+</listitem>
+            <listitem><para>void <link linkend="_ltable_8c_1aad3b771962cc13884bf7b45480e8f4e9">luaH_resize</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_table">Table</link> *t, unsigned int newasize, unsigned int nhsize)</para>
+</listitem>
+            <listitem><para>void <link linkend="_ltable_8c_1aeb5ce72fe8d43709093264d6522a27d4">luaH_resizearray</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_table">Table</link> *t, unsigned int nasize)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ltable_8c_1ad775daa2a19a375c7385ed30834a3eeb">rehash</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_table">Table</link> *t, const <link linkend="_struct_t_value">TValue</link> *ek)</para>
+</listitem>
+            <listitem><para><link linkend="_struct_table">Table</link> * <link linkend="_ltable_8c_1a6c97fb2d6a020b0a6f852562fef93d97">luaH_new</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>void <link linkend="_ltable_8c_1ac6d94de2e83b5b0865b4aca30dec5c8c">luaH_free</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_table">Table</link> *t)</para>
+</listitem>
+            <listitem><para>static <link linkend="_union_node">Node</link> * <link linkend="_ltable_8c_1aadac41ebb50daf5143d8deb998418a50">getfreepos</link> (<link linkend="_struct_table">Table</link> *t)</para>
+</listitem>
+            <listitem><para><link linkend="_struct_t_value">TValue</link> * <link linkend="_ltable_8c_1acd27c97015f505846bd7052b144f3133">luaH_newkey</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_table">Table</link> *t, const <link linkend="_struct_t_value">TValue</link> *key)</para>
+</listitem>
+            <listitem><para>const <link linkend="_struct_t_value">TValue</link> * <link linkend="_ltable_8c_1ae142cefd44452389877c3e3187c7973e">luaH_getint</link> (<link linkend="_struct_table">Table</link> *t, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> key)</para>
+</listitem>
+            <listitem><para>const <link linkend="_struct_t_value">TValue</link> * <link linkend="_ltable_8c_1ae8a52507e1c8966d9cf3f2dd5a0c325f">luaH_getshortstr</link> (<link linkend="_struct_table">Table</link> *t, <link linkend="_struct_t_string">TString</link> *key)</para>
+</listitem>
+            <listitem><para>const <link linkend="_struct_t_value">TValue</link> * <link linkend="_ltable_8c_1ae273e09d2342a84f5cdfa976c66f28c0">luaH_getstr</link> (<link linkend="_struct_table">Table</link> *t, <link linkend="_struct_t_string">TString</link> *key)</para>
+</listitem>
+            <listitem><para>const <link linkend="_struct_t_value">TValue</link> * <link linkend="_ltable_8c_1a8b4fce00d7db27ee9caac3d49863dea3">luaH_get</link> (<link linkend="_struct_table">Table</link> *t, const <link linkend="_struct_t_value">TValue</link> *key)</para>
+</listitem>
+            <listitem><para><link linkend="_struct_t_value">TValue</link> * <link linkend="_ltable_8c_1ab6b8518d8099b17f3ef58df047237fba">luaH_set</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_table">Table</link> *t, const <link linkend="_struct_t_value">TValue</link> *key)</para>
+</listitem>
+            <listitem><para>void <link linkend="_ltable_8c_1a9eefa8191c63f55cffb6b7b58217467c">luaH_setint</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_table">Table</link> *t, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> key, <link linkend="_struct_t_value">TValue</link> *value)</para>
+</listitem>
+            <listitem><para>static <link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> <link linkend="_ltable_8c_1a26dbf5edabc0c10a514910d82fa0e53c">hash_search</link> (<link linkend="_struct_table">Table</link> *t, <link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> j)</para>
+</listitem>
+            <listitem><para>static unsigned int <link linkend="_ltable_8c_1adb99d948364402881b0f64e24929c2d9">binsearch</link> (const <link linkend="_struct_t_value">TValue</link> *array, unsigned int i, unsigned int j)</para>
+</listitem>
+            <listitem><para><link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> <link linkend="_ltable_8c_1a94d8f30941967078b44e2e21c4dd9a75">luaH_getn</link> (<link linkend="_struct_table">Table</link> *t)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>变量    </title>
+        <itemizedlist>
+            <listitem><para>static const <link linkend="_union_node">Node</link> <link linkend="_ltable_8c_1a98995dd629174f0257a7919ff17bfdba">dummynode_</link></para>
+</listitem>
+            <listitem><para>static const <link linkend="_struct_t_value">TValue</link> <link linkend="_ltable_8c_1a8759a18088176ca1462ec2a69fdfaf49">absentkey</link> = {<link linkend="_lobject_8h_1a003630137c8fd4d1378bee8017c4fb92">ABSTKEYCONSTANT</link>}</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_ltable_8c_1a21431126fe0cf318103085016a832cf5"/>    <section>
+    <title>dummynode</title>
+<indexterm><primary>dummynode</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>dummynode</secondary></indexterm>
+<para><computeroutput>#define dummynode   (&amp;<link linkend="_ltable_8c_1a98995dd629174f0257a7919ff17bfdba">dummynode_</link>)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00088">88</link> 行定义.</para>
+    </section><anchor xml:id="_ltable_8c_1a97178f1176950bb9830839b579d7ac1a"/>    <section>
+    <title>hashboolean</title>
+<indexterm><primary>hashboolean</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>hashboolean</secondary></indexterm>
+<para><computeroutput>#define hashboolean( t,  p)   <link linkend="_ltable_8c_1a7797860730de6e3edbcc2916a0f7f166">hashpow2</link>(t, p)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00074">74</link> 行定义.</para>
+    </section><anchor xml:id="_ltable_8c_1a3b8ac3ae3d0f431c9e3efa622be3afa8"/>    <section>
+    <title>hashint</title>
+<indexterm><primary>hashint</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>hashint</secondary></indexterm>
+<para><computeroutput>#define hashint( t,  i)   <link linkend="_ltable_8c_1a7797860730de6e3edbcc2916a0f7f166">hashpow2</link>(t, i)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00075">75</link> 行定义.</para>
+    </section><anchor xml:id="_ltable_8c_1a70c9da7c141750e8e7c69bad3c0e4f20"/>    <section>
+    <title>hashmod</title>
+<indexterm><primary>hashmod</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>hashmod</secondary></indexterm>
+<para><computeroutput>#define hashmod( t,  n)   (<link linkend="_ltable_8h_1a644cfa3b6d4be1782e818a8340b5f78b">gnode</link>(t, ((n) % ((<link linkend="_lobject_8h_1a2fbf715e78eaa889ed0fb9d4514e736a">sizenode</link>(t)-1)|1))))</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00082">82</link> 行定义.</para>
+    </section><anchor xml:id="_ltable_8c_1abe268656b5851fdac88c13241391f41c"/>    <section>
+    <title>hashpointer</title>
+<indexterm><primary>hashpointer</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>hashpointer</secondary></indexterm>
+<para><computeroutput>#define hashpointer( t,  p)   <link linkend="_ltable_8c_1a70c9da7c141750e8e7c69bad3c0e4f20">hashmod</link>(t, <link linkend="_llimits_8h_1ad861f24ac9e8c32f78455aab3d2e7b51">point2uint</link>(p))</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00085">85</link> 行定义.</para>
+    </section><anchor xml:id="_ltable_8c_1a7797860730de6e3edbcc2916a0f7f166"/>    <section>
+    <title>hashpow2</title>
+<indexterm><primary>hashpow2</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>hashpow2</secondary></indexterm>
+<para><computeroutput>#define hashpow2( t,  n)   (<link linkend="_ltable_8h_1a644cfa3b6d4be1782e818a8340b5f78b">gnode</link>(t, <link linkend="_lobject_8h_1a528d710ddad324002e3cb47992740b6a">lmod</link>((n), <link linkend="_lobject_8h_1a2fbf715e78eaa889ed0fb9d4514e736a">sizenode</link>(t))))</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00071">71</link> 行定义.</para>
+    </section><anchor xml:id="_ltable_8c_1a6dc1377ebc2524e79284729ad0e1b838"/>    <section>
+    <title>hashstr</title>
+<indexterm><primary>hashstr</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>hashstr</secondary></indexterm>
+<para><computeroutput>#define hashstr( t,  str)   <link linkend="_ltable_8c_1a7797860730de6e3edbcc2916a0f7f166">hashpow2</link>(t, (str)-&gt;hash)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00073">73</link> 行定义.</para>
+    </section><anchor xml:id="_ltable_8c_1a1604d4518b18a2e39ad7030ed2495caf"/>    <section>
+    <title>limitasasize</title>
+<indexterm><primary>limitasasize</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>limitasasize</secondary></indexterm>
+<para><computeroutput>#define limitasasize( t)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1ab8a9474c584f41823442bb17f1f06970">isrealasize</link>(t), t-&gt;alimit)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00247">247</link> 行定义.</para>
+    </section><anchor xml:id="_ltable_8c_1ac96d62bf47745d24f9a426d5c6656acf"/>    <section>
+    <title>limitequalsasize</title>
+<indexterm><primary>limitequalsasize</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>limitequalsasize</secondary></indexterm>
+<para><computeroutput>#define limitequalsasize( t)   (<link linkend="_lobject_8h_1ab8a9474c584f41823442bb17f1f06970">isrealasize</link>(t) || <link linkend="_llimits_8h_1ada65e002d4b7df9ebfa7dde2d12357db">ispow2</link>((t)-&gt;alimit))</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00203">203</link> 行定义.</para>
+    </section><anchor xml:id="_ltable_8c_1aa114e7aec320ef3b294533e55b5d08d4"/>    <section>
+    <title>ltable_c</title>
+<indexterm><primary>ltable_c</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>ltable_c</secondary></indexterm>
+<para><computeroutput>#define ltable_c</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_ltable_8c_1abf0b3947b59218777a8e928a10be205b"/>    <section>
+    <title>LUA_CORE</title>
+<indexterm><primary>LUA_CORE</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>LUA_CORE</secondary></indexterm>
+<para><computeroutput>#define LUA_CORE</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00008">8</link> 行定义.</para>
+    </section><anchor xml:id="_ltable_8c_1a08cdfe3b6bb8e0757344b850f33c4951"/>    <section>
+    <title>MAXABITS</title>
+<indexterm><primary>MAXABITS</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>MAXABITS</secondary></indexterm>
+<para><computeroutput>#define MAXABITS   <link linkend="_llimits_8h_1a37a9e2c4b53433d34bad0f12a1500c08">cast_int</link>(sizeof(int) * CHAR_BIT - 1)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00046">46</link> 行定义.</para>
+    </section><anchor xml:id="_ltable_8c_1af53d6898e266c25bcd34c7eeaecd4523"/>    <section>
+    <title>MAXASIZE</title>
+<indexterm><primary>MAXASIZE</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>MAXASIZE</secondary></indexterm>
+<para><computeroutput>#define MAXASIZE   <link linkend="_lmem_8h_1a29ccefa76d4743ffb490cdbc291f708a">luaM_limitN</link>(1u &lt;&lt; <link linkend="_ltable_8c_1a08cdfe3b6bb8e0757344b850f33c4951">MAXABITS</link>, <link linkend="_struct_t_value">TValue</link>)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00054">54</link> 行定义.</para>
+    </section><anchor xml:id="_ltable_8c_1a601c76074f7c0919e82088041c67f327"/>    <section>
+    <title>MAXHBITS</title>
+<indexterm><primary>MAXHBITS</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>MAXHBITS</secondary></indexterm>
+<para><computeroutput>#define MAXHBITS   (<link linkend="_ltable_8c_1a08cdfe3b6bb8e0757344b850f33c4951">MAXABITS</link> - 1)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00060">60</link> 行定义.</para>
+    </section><anchor xml:id="_ltable_8c_1a219bee6ccf323698c1314a13b33149fb"/>    <section>
+    <title>MAXHSIZE</title>
+<indexterm><primary>MAXHSIZE</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>MAXHSIZE</secondary></indexterm>
+<para><computeroutput>#define MAXHSIZE   <link linkend="_lmem_8h_1a29ccefa76d4743ffb490cdbc291f708a">luaM_limitN</link>(1u &lt;&lt; <link linkend="_ltable_8c_1a601c76074f7c0919e82088041c67f327">MAXHBITS</link>, <link linkend="_union_node">Node</link>)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00068">68</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_ltable_8c_1a729a1f92fc454693e71df73e6b4eecd1"/>    <section>
+    <title>arrayindex()</title>
+<indexterm><primary>arrayindex</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>arrayindex</secondary></indexterm>
+<para><computeroutput>static unsigned int arrayindex (<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> k)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00274">274</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a729a1f92fc454693e71df73e6b4eecd1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1adb99d948364402881b0f64e24929c2d9"/>    <section>
+    <title>binsearch()</title>
+<indexterm><primary>binsearch</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>binsearch</secondary></indexterm>
+<para><computeroutput>static unsigned int binsearch (const <link linkend="_struct_t_value">TValue</link> * array, unsigned int i, unsigned int j)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00822">822</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_adb99d948364402881b0f64e24929c2d9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1a257cec771edd330f1dbfbd995aff684d"/>    <section>
+    <title>computesizes()</title>
+<indexterm><primary>computesizes</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>computesizes</secondary></indexterm>
+<para><computeroutput>static unsigned int computesizes (unsigned int nums[], unsigned int * pna)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00347">347</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a257cec771edd330f1dbfbd995aff684d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1a41b93f1d95df7f27e8dbc15a0e64f60c"/>    <section>
+    <title>countint()</title>
+<indexterm><primary>countint</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>countint</secondary></indexterm>
+<para><computeroutput>static int countint (<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> key, unsigned int * nums)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00369">369</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a41b93f1d95df7f27e8dbc15a0e64f60c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a41b93f1d95df7f27e8dbc15a0e64f60c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1ae1cc7cc2b9a30285deb24f2960ae313c"/>    <section>
+    <title>equalkey()</title>
+<indexterm><primary>equalkey</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>equalkey</secondary></indexterm>
+<para><computeroutput>static int equalkey (const <link linkend="_struct_t_value">TValue</link> * k1, const <link linkend="_union_node">Node</link> * n2)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00176">176</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_ae1cc7cc2b9a30285deb24f2960ae313c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_ae1cc7cc2b9a30285deb24f2960ae313c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1ade9702ba8a7c9b80dfb8301126842acb"/>    <section>
+    <title>exchangehashpart()</title>
+<indexterm><primary>exchangehashpart</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>exchangehashpart</secondary></indexterm>
+<para><computeroutput>static void exchangehashpart (<link linkend="_struct_table">Table</link> * t1, <link linkend="_struct_table">Table</link> * t2)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00483">483</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_ade9702ba8a7c9b80dfb8301126842acb_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1a921c25ca2be2003cbcaa9e4c10d6eba8"/>    <section>
+    <title>findindex()</title>
+<indexterm><primary>findindex</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>findindex</secondary></indexterm>
+<para><computeroutput>static unsigned int findindex (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_table">Table</link> * t, <link linkend="_struct_t_value">TValue</link> * key, unsigned int asize)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00287">287</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a921c25ca2be2003cbcaa9e4c10d6eba8_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a921c25ca2be2003cbcaa9e4c10d6eba8_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1aa2eece9a18d44f30d4a7b7030816bb63"/>    <section>
+    <title>freehash()</title>
+<indexterm><primary>freehash</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>freehash</secondary></indexterm>
+<para><computeroutput>static void freehash (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_table">Table</link> * t)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00327">327</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_aa2eece9a18d44f30d4a7b7030816bb63_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1aadac41ebb50daf5143d8deb998418a50"/>    <section>
+    <title>getfreepos()</title>
+<indexterm><primary>getfreepos</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>getfreepos</secondary></indexterm>
+<para><computeroutput>static <link linkend="_union_node">Node</link>* getfreepos (<link linkend="_struct_table">Table</link> * t)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00601">601</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_aadac41ebb50daf5143d8deb998418a50_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1a4de8d73b4c27cd4f7cefa861e54caf37"/>    <section>
+    <title>getgeneric()</title>
+<indexterm><primary>getgeneric</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>getgeneric</secondary></indexterm>
+<para><computeroutput>static const <link linkend="_struct_t_value">TValue</link>* getgeneric (<link linkend="_struct_table">Table</link> * t, const <link linkend="_struct_t_value">TValue</link> * key)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00255">255</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a4de8d73b4c27cd4f7cefa861e54caf37_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a4de8d73b4c27cd4f7cefa861e54caf37_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1a26dbf5edabc0c10a514910d82fa0e53c"/>    <section>
+    <title>hash_search()</title>
+<indexterm><primary>hash_search</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>hash_search</secondary></indexterm>
+<para><computeroutput>static <link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> hash_search (<link linkend="_struct_table">Table</link> * t, <link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> j)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00797">797</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a26dbf5edabc0c10a514910d82fa0e53c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a26dbf5edabc0c10a514910d82fa0e53c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1a1017564c3ae0d59f332cf186ac118bcc"/>    <section>
+    <title>ispow2realasize()</title>
+<indexterm><primary>ispow2realasize</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>ispow2realasize</secondary></indexterm>
+<para><computeroutput>static int ispow2realasize (const <link linkend="_struct_table">Table</link> * t)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00235">235</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a1017564c3ae0d59f332cf186ac118bcc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1ac726a5642652c5e7d5417c03047fc3d5"/>    <section>
+    <title>l_hashfloat()</title>
+<indexterm><primary>l_hashfloat</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>l_hashfloat</secondary></indexterm>
+<para><computeroutput>static int l_hashfloat (<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> n)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00114">114</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_ac726a5642652c5e7d5417c03047fc3d5_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1ac6d94de2e83b5b0865b4aca30dec5c8c"/>    <section>
+    <title>luaH_free()</title>
+<indexterm><primary>luaH_free</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>luaH_free</secondary></indexterm>
+<para><computeroutput>void luaH_free (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_table">Table</link> * t)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00594">594</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_ac6d94de2e83b5b0865b4aca30dec5c8c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_ac6d94de2e83b5b0865b4aca30dec5c8c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1a8b4fce00d7db27ee9caac3d49863dea3"/>    <section>
+    <title>luaH_get()</title>
+<indexterm><primary>luaH_get</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>luaH_get</secondary></indexterm>
+<para><computeroutput>const <link linkend="_struct_t_value">TValue</link>* luaH_get (<link linkend="_struct_table">Table</link> * t, const <link linkend="_struct_t_value">TValue</link> * key)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00741">741</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a8b4fce00d7db27ee9caac3d49863dea3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a8b4fce00d7db27ee9caac3d49863dea3_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1ae142cefd44452389877c3e3187c7973e"/>    <section>
+    <title>luaH_getint()</title>
+<indexterm><primary>luaH_getint</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>luaH_getint</secondary></indexterm>
+<para><computeroutput>const <link linkend="_struct_t_value">TValue</link>* luaH_getint (<link linkend="_struct_table">Table</link> * t, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> key)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00683">683</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_ae142cefd44452389877c3e3187c7973e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_ae142cefd44452389877c3e3187c7973e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1a94d8f30941967078b44e2e21c4dd9a75"/>    <section>
+    <title>luaH_getn()</title>
+<indexterm><primary>luaH_getn</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>luaH_getn</secondary></indexterm>
+<para><computeroutput><link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link> luaH_getn (<link linkend="_struct_table">Table</link> * t)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00865">865</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a94d8f30941967078b44e2e21c4dd9a75_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a94d8f30941967078b44e2e21c4dd9a75_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1ae8a52507e1c8966d9cf3f2dd5a0c325f"/>    <section>
+    <title>luaH_getshortstr()</title>
+<indexterm><primary>luaH_getshortstr</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>luaH_getshortstr</secondary></indexterm>
+<para><computeroutput>const <link linkend="_struct_t_value">TValue</link>* luaH_getshortstr (<link linkend="_struct_table">Table</link> * t, <link linkend="_struct_t_string">TString</link> * key)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00711">711</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_ae8a52507e1c8966d9cf3f2dd5a0c325f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1ae273e09d2342a84f5cdfa976c66f28c0"/>    <section>
+    <title>luaH_getstr()</title>
+<indexterm><primary>luaH_getstr</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>luaH_getstr</secondary></indexterm>
+<para><computeroutput>const <link linkend="_struct_t_value">TValue</link>* luaH_getstr (<link linkend="_struct_table">Table</link> * t, <link linkend="_struct_t_string">TString</link> * key)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00727">727</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_ae273e09d2342a84f5cdfa976c66f28c0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_ae273e09d2342a84f5cdfa976c66f28c0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1a6c97fb2d6a020b0a6f852562fef93d97"/>    <section>
+    <title>luaH_new()</title>
+<indexterm><primary>luaH_new</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>luaH_new</secondary></indexterm>
+<para><computeroutput><link linkend="_struct_table">Table</link>* luaH_new (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00582">582</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a6c97fb2d6a020b0a6f852562fef93d97_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a6c97fb2d6a020b0a6f852562fef93d97_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1acd27c97015f505846bd7052b144f3133"/>    <section>
+    <title>luaH_newkey()</title>
+<indexterm><primary>luaH_newkey</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>luaH_newkey</secondary></indexterm>
+<para><computeroutput><link linkend="_struct_t_value">TValue</link>* luaH_newkey (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_table">Table</link> * t, const <link linkend="_struct_t_value">TValue</link> * key)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00621">621</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_acd27c97015f505846bd7052b144f3133_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_acd27c97015f505846bd7052b144f3133_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1a3c4370ade14fcc86ede5ca90271d0f30"/>    <section>
+    <title>luaH_next()</title>
+<indexterm><primary>luaH_next</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>luaH_next</secondary></indexterm>
+<para><computeroutput>int luaH_next (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_table">Table</link> * t, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> key)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00305">305</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a3c4370ade14fcc86ede5ca90271d0f30_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a3c4370ade14fcc86ede5ca90271d0f30_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1a8f20a204b7a78780847939086b847781"/>    <section>
+    <title>luaH_realasize()</title>
+<indexterm><primary>luaH_realasize</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>luaH_realasize</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> unsigned int luaH_realasize (const <link linkend="_struct_table">Table</link> * t)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00209">209</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a8f20a204b7a78780847939086b847781_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1aad3b771962cc13884bf7b45480e8f4e9"/>    <section>
+    <title>luaH_resize()</title>
+<indexterm><primary>luaH_resize</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>luaH_resize</secondary></indexterm>
+<para><computeroutput>void luaH_resize (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_table">Table</link> * t, unsigned int newasize, unsigned int nhsize)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00509">509</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_aad3b771962cc13884bf7b45480e8f4e9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_aad3b771962cc13884bf7b45480e8f4e9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1aeb5ce72fe8d43709093264d6522a27d4"/>    <section>
+    <title>luaH_resizearray()</title>
+<indexterm><primary>luaH_resizearray</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>luaH_resizearray</secondary></indexterm>
+<para><computeroutput>void luaH_resizearray (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_table">Table</link> * t, unsigned int nasize)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00546">546</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_aeb5ce72fe8d43709093264d6522a27d4_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_aeb5ce72fe8d43709093264d6522a27d4_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1ab6b8518d8099b17f3ef58df047237fba"/>    <section>
+    <title>luaH_set()</title>
+<indexterm><primary>luaH_set</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>luaH_set</secondary></indexterm>
+<para><computeroutput><link linkend="_struct_t_value">TValue</link>* luaH_set (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_table">Table</link> * t, const <link linkend="_struct_t_value">TValue</link> * key)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00762">762</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_ab6b8518d8099b17f3ef58df047237fba_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_ab6b8518d8099b17f3ef58df047237fba_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1a9eefa8191c63f55cffb6b7b58217467c"/>    <section>
+    <title>luaH_setint()</title>
+<indexterm><primary>luaH_setint</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>luaH_setint</secondary></indexterm>
+<para><computeroutput>void luaH_setint (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_table">Table</link> * t, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> key, <link linkend="_struct_t_value">TValue</link> * value)</computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00770">770</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a9eefa8191c63f55cffb6b7b58217467c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a9eefa8191c63f55cffb6b7b58217467c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1a97b549a3507ec326a9d138a741f39bbc"/>    <section>
+    <title>mainposition()</title>
+<indexterm><primary>mainposition</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>mainposition</secondary></indexterm>
+<para><computeroutput>static <link linkend="_union_node">Node</link>* mainposition (const <link linkend="_struct_table">Table</link> * t, int ktt, const <link linkend="_union_value">Value</link> * kvl)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00136">136</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a97b549a3507ec326a9d138a741f39bbc_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a97b549a3507ec326a9d138a741f39bbc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1a3f0add4aa38ab8e59a5983ebab80ab42"/>    <section>
+    <title>mainpositionTV()</title>
+<indexterm><primary>mainpositionTV</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>mainpositionTV</secondary></indexterm>
+<para><computeroutput>static <link linkend="_union_node">Node</link>* mainpositionTV (const <link linkend="_struct_table">Table</link> * t, const <link linkend="_struct_t_value">TValue</link> * key)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00163">163</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a3f0add4aa38ab8e59a5983ebab80ab42_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a3f0add4aa38ab8e59a5983ebab80ab42_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1aa1bb1405b21d33c8b3c41b78ef555d22"/>    <section>
+    <title>numusearray()</title>
+<indexterm><primary>numusearray</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>numusearray</secondary></indexterm>
+<para><computeroutput>static unsigned int numusearray (const <link linkend="_struct_table">Table</link> * t, unsigned int * nums)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00385">385</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_aa1bb1405b21d33c8b3c41b78ef555d22_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1a383b5912900c91c788f78adb36c9d3f9"/>    <section>
+    <title>numusehash()</title>
+<indexterm><primary>numusehash</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>numusehash</secondary></indexterm>
+<para><computeroutput>static int numusehash (const <link linkend="_struct_table">Table</link> * t, unsigned int * nums, unsigned int * pna)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00412">412</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a383b5912900c91c788f78adb36c9d3f9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a383b5912900c91c788f78adb36c9d3f9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1ad775daa2a19a375c7385ed30834a3eeb"/>    <section>
+    <title>rehash()</title>
+<indexterm><primary>rehash</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>rehash</secondary></indexterm>
+<para><computeroutput>static void rehash (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_table">Table</link> * t, const <link linkend="_struct_t_value">TValue</link> * ek)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00554">554</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_ad775daa2a19a375c7385ed30834a3eeb_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_ad775daa2a19a375c7385ed30834a3eeb_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1acea46f70eb0bd30579a0c50c0804aabc"/>    <section>
+    <title>reinsert()</title>
+<indexterm><primary>reinsert</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>reinsert</secondary></indexterm>
+<para><computeroutput>static void reinsert (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_table">Table</link> * ot, <link linkend="_struct_table">Table</link> * t)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00464">464</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_acea46f70eb0bd30579a0c50c0804aabc_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_acea46f70eb0bd30579a0c50c0804aabc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1a21e72b3bbf05de9a2fa6d3e566d070ad"/>    <section>
+    <title>setlimittosize()</title>
+<indexterm><primary>setlimittosize</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>setlimittosize</secondary></indexterm>
+<para><computeroutput>static unsigned int setlimittosize (<link linkend="_struct_table">Table</link> * t)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00240">240</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a21e72b3bbf05de9a2fa6d3e566d070ad_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_a21e72b3bbf05de9a2fa6d3e566d070ad_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ltable_8c_1aee50b49395de01da3f8e14608f400108"/>    <section>
+    <title>setnodevector()</title>
+<indexterm><primary>setnodevector</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>setnodevector</secondary></indexterm>
+<para><computeroutput>static void setnodevector (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_table">Table</link> * t, unsigned int size)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00436">436</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_aee50b49395de01da3f8e14608f400108_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ltable_8c_aee50b49395de01da3f8e14608f400108_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+<section>
+<title>变量说明</title>
+<anchor xml:id="_ltable_8c_1a8759a18088176ca1462ec2a69fdfaf49"/>    <section>
+    <title>absentkey</title>
+<indexterm><primary>absentkey</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>absentkey</secondary></indexterm>
+<para><computeroutput>const <link linkend="_struct_t_value">TValue</link> absentkey = {<link linkend="_lobject_8h_1a003630137c8fd4d1378bee8017c4fb92">ABSTKEYCONSTANT</link>}<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00096">96</link> 行定义.</para>
+    </section><anchor xml:id="_ltable_8c_1a98995dd629174f0257a7919ff17bfdba"/>    <section>
+    <title>dummynode_</title>
+<indexterm><primary>dummynode_</primary><secondary>ltable.c</secondary></indexterm>
+<indexterm><primary>ltable.c</primary><secondary>dummynode_</secondary></indexterm>
+<para><computeroutput>const <link linkend="_union_node">Node</link> dummynode_<computeroutput>[static]</computeroutput></computeroutput></para><emphasis role="strong">初始值:</emphasis><programlisting>=&#32;{
+&#32;&#32;{{NULL},&#32;<link linkend="_lobject_8h_1abc8b34ab48ffd99b6d7a48e8e4f269e2">LUA_VEMPTY</link>,&#32;&#32;
+&#32;&#32;&#32;<link linkend="_lobject_8h_1aac7a0aeb62c96ba16c7638e707bfaac0">LUA_VNIL</link>,&#32;0,&#32;{NULL}}&#32;&#32;
+}
+</programlisting><para>
+在文件 <link linkend="_ltable_8c_source">ltable.c</link> 第 <link linkend="_ltable_8c_source_1l00090">90</link> 行定义.</para>
+</section>
+</section>
+</section>

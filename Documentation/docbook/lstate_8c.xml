@@ -1,0 +1,578 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lstate_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/lstate.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lstate.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;stddef.h&gt;
+#include &lt;string.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;lapi.h&quot;
+#include &quot;ldebug.h&quot;
+#include &quot;ldo.h&quot;
+#include &quot;lfunc.h&quot;
+#include &quot;lgc.h&quot;
+#include &quot;llex.h&quot;
+#include &quot;lmem.h&quot;
+#include &quot;lstate.h&quot;
+#include &quot;lstring.h&quot;
+#include &quot;ltable.h&quot;
+#include &quot;ltm.h&quot;
+#include &lt;time.h&gt;
+</programlisting>lstate.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>结构体    </title>
+        <itemizedlist>
+            <listitem><para>struct <link linkend="_struct_l_x">LX</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_l_g">LG</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lstate_8c_1ab8ab59be0dd5b14c27c052f876de46a0">lstate_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8c_1abf0b3947b59218777a8e928a10be205b">LUA_CORE</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8c_1aa1a01ba67b0f3289f5d755bd9d9bb889">fromstate</link>(L)   (<link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(<link linkend="_struct_l_x">LX</link> *, <link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(<link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> *, (L)) - offsetof(<link linkend="_struct_l_x">LX</link>, l)))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstate_8c_1ab61c5946e20eeaeb9925bbd7fbf42e97">addbuff</link>(b,  p,  e)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>类型定义    </title>
+        <itemizedlist>
+            <listitem><para>typedef struct <link linkend="_struct_l_x">LX</link> <link linkend="_lstate_8c_1ac58513cb1c781750265c8643a2e037b0">LX</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_l_g">LG</link> <link linkend="_lstate_8c_1ae603421ab67430c2479b21cf5b46ea83">LG</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static unsigned int <link linkend="_lstate_8c_1a2fb9ffd0e5e6ea178123879892e87681">luai_makeseed</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lstate_8c_1a42e891d6a8e1dc58d9a1487cefd9c236">luaE_setdebt</link> (<link linkend="_structglobal___state">global_State</link> *g, <link linkend="_llimits_8h_1a24fc195087e262c99a4cf0f9b346a684">l_mem</link> debt)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_lstate_8c_1a165fcd8b26ab13267d77c0d4bd06b886">lua_setcstacklimit</link> (<link linkend="_structlua___state">lua_State</link> *L, unsigned int limit)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lstate_8c_1ac5a11717929806e5d2373a23e31ae4cc">luaE_enterCcall</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_struct_call_info">CallInfo</link> * <link linkend="_lstate_8c_1ab6b891f64cdb59f08bff023fa0ba8aea">luaE_extendCI</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lstate_8c_1a1153e60541fafca38e049159a2d56cdd">luaE_freeCI</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lstate_8c_1a59bcd5586c176d9e24bcdf9e4d07adbe">luaE_shrinkCI</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lstate_8c_1a55b60427432d47460c6e1eaa9a31953f">stack_init</link> (<link linkend="_structlua___state">lua_State</link> *L1, <link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lstate_8c_1ac615222739efb52e2c21dbaea5223853">freestack</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lstate_8c_1a3f769cc49eb8309417a7cbef2b4d2d8b">init_registry</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lstate_8c_1ab65e96a7498fd886f7223b92e91fd830">f_luaopen</link> (<link linkend="_structlua___state">lua_State</link> *L, void *ud)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lstate_8c_1aeecf2dc60e2cd36a999c2b10485bb7a8">preinit_thread</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lstate_8c_1a4940327dfa3b86df0ef008180bb3fcb3">close_state</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_structlua___state">lua_State</link> * <link linkend="_lstate_8c_1a86b660d6f2b69734c35ec9fc718e4ca9">lua_newthread</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lstate_8c_1a8c121cf8444c9c54e934aeb509c4b73a">luaE_freethread</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structlua___state">lua_State</link> *L1)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lstate_8c_1a0f2e0ad7529d8020c605508c159b90f4">lua_resetthread</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_structlua___state">lua_State</link> * <link linkend="_lstate_8c_1a59a0d54f62839bcb7dfa8d0d7b4761b4">lua_newstate</link> (<link linkend="_lua_8h_1a2fee348bffcc82b15c626b27f66a748b">lua_Alloc</link> f, void *ud)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_lstate_8c_1a5d903983f1497b2fc58fba9df09e354d">lua_close</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lstate_8c_1a7055cc5e36512e37c811a7d5c6fa0be6">luaE_warning</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *msg, int tocont)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lstate_8c_1a242ebb018d637c41f24b84a2bbc78f34">luaE_warnerror</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *where)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lstate_8c_1ab61c5946e20eeaeb9925bbd7fbf42e97"/>    <section>
+    <title>addbuff</title>
+<indexterm><primary>addbuff</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>addbuff</secondary></indexterm>
+<para><computeroutput>#define addbuff( b,  p,  e)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;{&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;t&#32;=&#32;<link linkend="_llimits_8h_1a025d385a5ce274fa6eade82b6e1458d1">cast_sizet</link>(e);&#32;\
+&#32;&#32;&#32;&#32;memcpy(b&#32;+&#32;p,&#32;&amp;t,&#32;<emphasis role="keyword">sizeof</emphasis>(t));&#32;p&#32;+=&#32;<emphasis role="keyword">sizeof</emphasis>(t);&#32;}
+</programlisting><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00067">67</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8c_1aa1a01ba67b0f3289f5d755bd9d9bb889"/>    <section>
+    <title>fromstate</title>
+<indexterm><primary>fromstate</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>fromstate</secondary></indexterm>
+<para><computeroutput>#define fromstate( L)   (<link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(<link linkend="_struct_l_x">LX</link> *, <link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(<link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> *, (L)) - offsetof(<link linkend="_struct_l_x">LX</link>, l)))</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00051">51</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8c_1ab8ab59be0dd5b14c27c052f876de46a0"/>    <section>
+    <title>lstate_c</title>
+<indexterm><primary>lstate_c</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>lstate_c</secondary></indexterm>
+<para><computeroutput>#define lstate_c</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_lstate_8c_1abf0b3947b59218777a8e928a10be205b"/>    <section>
+    <title>LUA_CORE</title>
+<indexterm><primary>LUA_CORE</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>LUA_CORE</secondary></indexterm>
+<para><computeroutput>#define LUA_CORE</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00008">8</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>类型定义说明</title>
+<anchor xml:id="_lstate_8c_1ae603421ab67430c2479b21cf5b46ea83"/>    <section>
+    <title>LG</title>
+<indexterm><primary>LG</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>LG</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_l_g">LG</link> <link linkend="_struct_l_g">LG</link></computeroutput></para>    </section><anchor xml:id="_lstate_8c_1ac58513cb1c781750265c8643a2e037b0"/>    <section>
+    <title>LX</title>
+<indexterm><primary>LX</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>LX</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_l_x">LX</link> <link linkend="_struct_l_x">LX</link></computeroutput></para></section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lstate_8c_1a4940327dfa3b86df0ef008180bb3fcb3"/>    <section>
+    <title>close_state()</title>
+<indexterm><primary>close_state</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>close_state</secondary></indexterm>
+<para><computeroutput>static void close_state (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00308">308</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a4940327dfa3b86df0ef008180bb3fcb3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a4940327dfa3b86df0ef008180bb3fcb3_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8c_1ab65e96a7498fd886f7223b92e91fd830"/>    <section>
+    <title>f_luaopen()</title>
+<indexterm><primary>f_luaopen</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>f_luaopen</secondary></indexterm>
+<para><computeroutput>static void f_luaopen (<link linkend="_structlua___state">lua_State</link> * L, void * ud)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00270">270</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_ab65e96a7498fd886f7223b92e91fd830_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_ab65e96a7498fd886f7223b92e91fd830_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8c_1ac615222739efb52e2c21dbaea5223853"/>    <section>
+    <title>freestack()</title>
+<indexterm><primary>freestack</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>freestack</secondary></indexterm>
+<para><computeroutput>static void freestack (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00237">237</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_ac615222739efb52e2c21dbaea5223853_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_ac615222739efb52e2c21dbaea5223853_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8c_1a3f769cc49eb8309417a7cbef2b4d2d8b"/>    <section>
+    <title>init_registry()</title>
+<indexterm><primary>init_registry</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>init_registry</secondary></indexterm>
+<para><computeroutput>static void init_registry (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00250">250</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a3f769cc49eb8309417a7cbef2b4d2d8b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a3f769cc49eb8309417a7cbef2b4d2d8b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8c_1a5d903983f1497b2fc58fba9df09e354d"/>    <section>
+    <title>lua_close()</title>
+<indexterm><primary>lua_close</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>lua_close</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_close (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00441">441</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a5d903983f1497b2fc58fba9df09e354d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a5d903983f1497b2fc58fba9df09e354d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8c_1a59a0d54f62839bcb7dfa8d0d7b4761b4"/>    <section>
+    <title>lua_newstate()</title>
+<indexterm><primary>lua_newstate</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>lua_newstate</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_structlua___state">lua_State</link>* lua_newstate (<link linkend="_lua_8h_1a2fee348bffcc82b15c626b27f66a748b">lua_Alloc</link> f, void * ud)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00385">385</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a59a0d54f62839bcb7dfa8d0d7b4761b4_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a59a0d54f62839bcb7dfa8d0d7b4761b4_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8c_1a86b660d6f2b69734c35ec9fc718e4ca9"/>    <section>
+    <title>lua_newthread()</title>
+<indexterm><primary>lua_newthread</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>lua_newthread</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_structlua___state">lua_State</link>* lua_newthread (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00321">321</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a86b660d6f2b69734c35ec9fc718e4ca9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a86b660d6f2b69734c35ec9fc718e4ca9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8c_1a0f2e0ad7529d8020c605508c159b90f4"/>    <section>
+    <title>lua_resetthread()</title>
+<indexterm><primary>lua_resetthread</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>lua_resetthread</secondary></indexterm>
+<para><computeroutput>int lua_resetthread (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00363">363</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a0f2e0ad7529d8020c605508c159b90f4_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a0f2e0ad7529d8020c605508c159b90f4_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8c_1a165fcd8b26ab13267d77c0d4bd06b886"/>    <section>
+    <title>lua_setcstacklimit()</title>
+<indexterm><primary>lua_setcstacklimit</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>lua_setcstacklimit</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_setcstacklimit (<link linkend="_structlua___state">lua_State</link> * L, unsigned int limit)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00099">99</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a165fcd8b26ab13267d77c0d4bd06b886_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a165fcd8b26ab13267d77c0d4bd06b886_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8c_1ac5a11717929806e5d2373a23e31ae4cc"/>    <section>
+    <title>luaE_enterCcall()</title>
+<indexterm><primary>luaE_enterCcall</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>luaE_enterCcall</secondary></indexterm>
+<para><computeroutput>void luaE_enterCcall (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00135">135</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_ac5a11717929806e5d2373a23e31ae4cc_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_ac5a11717929806e5d2373a23e31ae4cc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8c_1ab6b891f64cdb59f08bff023fa0ba8aea"/>    <section>
+    <title>luaE_extendCI()</title>
+<indexterm><primary>luaE_extendCI</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>luaE_extendCI</secondary></indexterm>
+<para><computeroutput><link linkend="_struct_call_info">CallInfo</link>* luaE_extendCI (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00156">156</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_ab6b891f64cdb59f08bff023fa0ba8aea_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8c_1a1153e60541fafca38e049159a2d56cdd"/>    <section>
+    <title>luaE_freeCI()</title>
+<indexterm><primary>luaE_freeCI</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>luaE_freeCI</secondary></indexterm>
+<para><computeroutput>void luaE_freeCI (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00174">174</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a1153e60541fafca38e049159a2d56cdd_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8c_1a8c121cf8444c9c54e934aeb509c4b73a"/>    <section>
+    <title>luaE_freethread()</title>
+<indexterm><primary>luaE_freethread</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>luaE_freethread</secondary></indexterm>
+<para><computeroutput>void luaE_freethread (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structlua___state">lua_State</link> * L1)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00353">353</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a8c121cf8444c9c54e934aeb509c4b73a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a8c121cf8444c9c54e934aeb509c4b73a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8c_1a42e891d6a8e1dc58d9a1487cefd9c236"/>    <section>
+    <title>luaE_setdebt()</title>
+<indexterm><primary>luaE_setdebt</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>luaE_setdebt</secondary></indexterm>
+<para><computeroutput>void luaE_setdebt (<link linkend="_structglobal___state">global_State</link> * g, <link linkend="_llimits_8h_1a24fc195087e262c99a4cf0f9b346a684">l_mem</link> debt)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00089">89</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a42e891d6a8e1dc58d9a1487cefd9c236_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8c_1a59bcd5586c176d9e24bcdf9e4d07adbe"/>    <section>
+    <title>luaE_shrinkCI()</title>
+<indexterm><primary>luaE_shrinkCI</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>luaE_shrinkCI</secondary></indexterm>
+<para><computeroutput>void luaE_shrinkCI (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00192">192</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a59bcd5586c176d9e24bcdf9e4d07adbe_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8c_1a242ebb018d637c41f24b84a2bbc78f34"/>    <section>
+    <title>luaE_warnerror()</title>
+<indexterm><primary>luaE_warnerror</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>luaE_warnerror</secondary></indexterm>
+<para><computeroutput>void luaE_warnerror (<link linkend="_structlua___state">lua_State</link> * L, const char * where)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00458">458</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a242ebb018d637c41f24b84a2bbc78f34_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a242ebb018d637c41f24b84a2bbc78f34_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8c_1a7055cc5e36512e37c811a7d5c6fa0be6"/>    <section>
+    <title>luaE_warning()</title>
+<indexterm><primary>luaE_warning</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>luaE_warning</secondary></indexterm>
+<para><computeroutput>void luaE_warning (<link linkend="_structlua___state">lua_State</link> * L, const char * msg, int tocont)</computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00448">448</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a7055cc5e36512e37c811a7d5c6fa0be6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8c_1a2fb9ffd0e5e6ea178123879892e87681"/>    <section>
+    <title>luai_makeseed()</title>
+<indexterm><primary>luai_makeseed</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>luai_makeseed</secondary></indexterm>
+<para><computeroutput>static unsigned int luai_makeseed (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00071">71</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a2fb9ffd0e5e6ea178123879892e87681_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a2fb9ffd0e5e6ea178123879892e87681_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8c_1aeecf2dc60e2cd36a999c2b10485bb7a8"/>    <section>
+    <title>preinit_thread()</title>
+<indexterm><primary>preinit_thread</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>preinit_thread</secondary></indexterm>
+<para><computeroutput>static void preinit_thread (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00288">288</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_aeecf2dc60e2cd36a999c2b10485bb7a8_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstate_8c_1a55b60427432d47460c6e1eaa9a31953f"/>    <section>
+    <title>stack_init()</title>
+<indexterm><primary>stack_init</primary><secondary>lstate.c</secondary></indexterm>
+<indexterm><primary>lstate.c</primary><secondary>stack_init</secondary></indexterm>
+<para><computeroutput>static void stack_init (<link linkend="_structlua___state">lua_State</link> * L1, <link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lstate_8c_source">lstate.c</link> 第 <link linkend="_lstate_8c_source_1l00214">214</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstate_8c_a55b60427432d47460c6e1eaa9a31953f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+</section>

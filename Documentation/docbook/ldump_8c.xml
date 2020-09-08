@@ -1,0 +1,438 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_ldump_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/ldump.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/ldump.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;stddef.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;lobject.h&quot;
+#include &quot;lstate.h&quot;
+#include &quot;lundump.h&quot;
+</programlisting>ldump.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>结构体    </title>
+        <itemizedlist>
+            <listitem><para>struct <link linkend="_struct_dump_state">DumpState</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_ldump_8c_1a305a0bdaea32b19e7f6d2cb6dce1cc81">ldump_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_ldump_8c_1abf0b3947b59218777a8e928a10be205b">LUA_CORE</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_ldump_8c_1aa57836f656453350c7d2b6b89df1b003">dumpVector</link>(D,  v,  n)   <link linkend="_ldump_8c_1adeca46278a770e7418d0eff725770e04">dumpBlock</link>(D,v,(n)*sizeof((v)[0]))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ldump_8c_1a05e931c17f007b1c9d54080d6243af18">dumpLiteral</link>(D,  s)   <link linkend="_ldump_8c_1adeca46278a770e7418d0eff725770e04">dumpBlock</link>(D,s,sizeof(s) - sizeof(char))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ldump_8c_1ad2bf75eb38f1f5a5a7f71818fbb04098">dumpVar</link>(D,  x)   <link linkend="_ldump_8c_1aa57836f656453350c7d2b6b89df1b003">dumpVector</link>(D,&amp;x,1)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ldump_8c_1a2a1ad4360d7023093f769ebda9341597">DIBS</link>   ((sizeof(size_t) * 8 / 7) + 1)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static void <link linkend="_ldump_8c_1adeca46278a770e7418d0eff725770e04">dumpBlock</link> (<link linkend="_struct_dump_state">DumpState</link> *D, const void *b, size_t size)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldump_8c_1a4838cac003905fc2e95b522a03d4adfc">dumpByte</link> (<link linkend="_struct_dump_state">DumpState</link> *D, int y)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldump_8c_1ad8b3745ee530db686c5503e69e93c0e6">dumpSize</link> (<link linkend="_struct_dump_state">DumpState</link> *D, size_t x)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldump_8c_1af18972a3be9ad820b0d677891405d15b">dumpInt</link> (<link linkend="_struct_dump_state">DumpState</link> *D, int x)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldump_8c_1a671751477d7f491c5e9b2affbcd517a0">dumpNumber</link> (<link linkend="_struct_dump_state">DumpState</link> *D, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> x)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldump_8c_1a5bc42c8666f45652f5716243028c4b39">dumpInteger</link> (<link linkend="_struct_dump_state">DumpState</link> *D, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> x)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldump_8c_1a62dae3e1e70f0ded796f53a1571a3352">dumpString</link> (<link linkend="_struct_dump_state">DumpState</link> *D, const <link linkend="_struct_t_string">TString</link> *s)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldump_8c_1af4e6b3cad1a6436e065a811a3e6d4573">dumpCode</link> (<link linkend="_struct_dump_state">DumpState</link> *D, const <link linkend="_struct_proto">Proto</link> *f)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldump_8c_1a2e1db7ac1fa976eb7e3b90ec15a576b2">dumpFunction</link> (<link linkend="_struct_dump_state">DumpState</link> *D, const <link linkend="_struct_proto">Proto</link> *f, <link linkend="_struct_t_string">TString</link> *psource)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldump_8c_1a03c1c48bb784b200a4f8e982c9235456">dumpConstants</link> (<link linkend="_struct_dump_state">DumpState</link> *D, const <link linkend="_struct_proto">Proto</link> *f)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldump_8c_1a34567bcb1204f914b0316d5ac5532ae0">dumpProtos</link> (<link linkend="_struct_dump_state">DumpState</link> *D, const <link linkend="_struct_proto">Proto</link> *f)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldump_8c_1aa91ee935a3a398fdb0228107f579fb75">dumpUpvalues</link> (<link linkend="_struct_dump_state">DumpState</link> *D, const <link linkend="_struct_proto">Proto</link> *f)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldump_8c_1a57223a49768a740530eddd2f3ef19699">dumpDebug</link> (<link linkend="_struct_dump_state">DumpState</link> *D, const <link linkend="_struct_proto">Proto</link> *f)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldump_8c_1a7dff1d2107a66420c1476d4ecfa27b14">dumpHeader</link> (<link linkend="_struct_dump_state">DumpState</link> *D)</para>
+</listitem>
+            <listitem><para>int <link linkend="_ldump_8c_1a808f6a29001ac6446f40c76014c6b6e9">luaU_dump</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_struct_proto">Proto</link> *f, <link linkend="_lua_8h_1a855729196d7066b2da21178284868a8d">lua_Writer</link> w, void *data, int strip)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_ldump_8c_1a2a1ad4360d7023093f769ebda9341597"/>    <section>
+    <title>DIBS</title>
+<indexterm><primary>DIBS</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>DIBS</secondary></indexterm>
+<para><computeroutput>#define DIBS   ((sizeof(size_t) * 8 / 7) + 1)</computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00059">59</link> 行定义.</para>
+    </section><anchor xml:id="_ldump_8c_1a05e931c17f007b1c9d54080d6243af18"/>    <section>
+    <title>dumpLiteral</title>
+<indexterm><primary>dumpLiteral</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>dumpLiteral</secondary></indexterm>
+<para><computeroutput>#define dumpLiteral( D,  s)   <link linkend="_ldump_8c_1adeca46278a770e7418d0eff725770e04">dumpBlock</link>(D,s,sizeof(s) - sizeof(char))</computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00037">37</link> 行定义.</para>
+    </section><anchor xml:id="_ldump_8c_1ad2bf75eb38f1f5a5a7f71818fbb04098"/>    <section>
+    <title>dumpVar</title>
+<indexterm><primary>dumpVar</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>dumpVar</secondary></indexterm>
+<para><computeroutput>#define dumpVar( D,  x)   <link linkend="_ldump_8c_1aa57836f656453350c7d2b6b89df1b003">dumpVector</link>(D,&amp;x,1)</computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00049">49</link> 行定义.</para>
+    </section><anchor xml:id="_ldump_8c_1aa57836f656453350c7d2b6b89df1b003"/>    <section>
+    <title>dumpVector</title>
+<indexterm><primary>dumpVector</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>dumpVector</secondary></indexterm>
+<para><computeroutput>#define dumpVector( D,  v,  n)   <link linkend="_ldump_8c_1adeca46278a770e7418d0eff725770e04">dumpBlock</link>(D,v,(n)*sizeof((v)[0]))</computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00035">35</link> 行定义.</para>
+    </section><anchor xml:id="_ldump_8c_1a305a0bdaea32b19e7f6d2cb6dce1cc81"/>    <section>
+    <title>ldump_c</title>
+<indexterm><primary>ldump_c</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>ldump_c</secondary></indexterm>
+<para><computeroutput>#define ldump_c</computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_ldump_8c_1abf0b3947b59218777a8e928a10be205b"/>    <section>
+    <title>LUA_CORE</title>
+<indexterm><primary>LUA_CORE</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>LUA_CORE</secondary></indexterm>
+<para><computeroutput>#define LUA_CORE</computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00008">8</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_ldump_8c_1adeca46278a770e7418d0eff725770e04"/>    <section>
+    <title>dumpBlock()</title>
+<indexterm><primary>dumpBlock</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>dumpBlock</secondary></indexterm>
+<para><computeroutput>static void dumpBlock (<link linkend="_struct_dump_state">DumpState</link> * D, const void * b, size_t size)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00040">40</link> 行定义.</para>
+    </section><anchor xml:id="_ldump_8c_1a4838cac003905fc2e95b522a03d4adfc"/>    <section>
+    <title>dumpByte()</title>
+<indexterm><primary>dumpByte</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>dumpByte</secondary></indexterm>
+<para><computeroutput>static void dumpByte (<link linkend="_struct_dump_state">DumpState</link> * D, int y)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00052">52</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_a4838cac003905fc2e95b522a03d4adfc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldump_8c_1af4e6b3cad1a6436e065a811a3e6d4573"/>    <section>
+    <title>dumpCode()</title>
+<indexterm><primary>dumpCode</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>dumpCode</secondary></indexterm>
+<para><computeroutput>static void dumpCode (<link linkend="_struct_dump_state">DumpState</link> * D, const <link linkend="_struct_proto">Proto</link> * f)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00100">100</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_af4e6b3cad1a6436e065a811a3e6d4573_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_af4e6b3cad1a6436e065a811a3e6d4573_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldump_8c_1a03c1c48bb784b200a4f8e982c9235456"/>    <section>
+    <title>dumpConstants()</title>
+<indexterm><primary>dumpConstants</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>dumpConstants</secondary></indexterm>
+<para><computeroutput>static void dumpConstants (<link linkend="_struct_dump_state">DumpState</link> * D, const <link linkend="_struct_proto">Proto</link> * f)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00108">108</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_a03c1c48bb784b200a4f8e982c9235456_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_a03c1c48bb784b200a4f8e982c9235456_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldump_8c_1a57223a49768a740530eddd2f3ef19699"/>    <section>
+    <title>dumpDebug()</title>
+<indexterm><primary>dumpDebug</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>dumpDebug</secondary></indexterm>
+<para><computeroutput>static void dumpDebug (<link linkend="_struct_dump_state">DumpState</link> * D, const <link linkend="_struct_proto">Proto</link> * f)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00154">154</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_a57223a49768a740530eddd2f3ef19699_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_a57223a49768a740530eddd2f3ef19699_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldump_8c_1a2e1db7ac1fa976eb7e3b90ec15a576b2"/>    <section>
+    <title>dumpFunction()</title>
+<indexterm><primary>dumpFunction</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>dumpFunction</secondary></indexterm>
+<para><computeroutput>static void dumpFunction (<link linkend="_struct_dump_state">DumpState</link> * D, const <link linkend="_struct_proto">Proto</link> * f, <link linkend="_struct_t_string">TString</link> * psource)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00179">179</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_a2e1db7ac1fa976eb7e3b90ec15a576b2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_a2e1db7ac1fa976eb7e3b90ec15a576b2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldump_8c_1a7dff1d2107a66420c1476d4ecfa27b14"/>    <section>
+    <title>dumpHeader()</title>
+<indexterm><primary>dumpHeader</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>dumpHeader</secondary></indexterm>
+<para><computeroutput>static void dumpHeader (<link linkend="_struct_dump_state">DumpState</link> * D)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00197">197</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_a7dff1d2107a66420c1476d4ecfa27b14_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_a7dff1d2107a66420c1476d4ecfa27b14_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldump_8c_1af18972a3be9ad820b0d677891405d15b"/>    <section>
+    <title>dumpInt()</title>
+<indexterm><primary>dumpInt</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>dumpInt</secondary></indexterm>
+<para><computeroutput>static void dumpInt (<link linkend="_struct_dump_state">DumpState</link> * D, int x)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00073">73</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_af18972a3be9ad820b0d677891405d15b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_af18972a3be9ad820b0d677891405d15b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldump_8c_1a5bc42c8666f45652f5716243028c4b39"/>    <section>
+    <title>dumpInteger()</title>
+<indexterm><primary>dumpInteger</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>dumpInteger</secondary></indexterm>
+<para><computeroutput>static void dumpInteger (<link linkend="_struct_dump_state">DumpState</link> * D, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> x)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00083">83</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_a5bc42c8666f45652f5716243028c4b39_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldump_8c_1a671751477d7f491c5e9b2affbcd517a0"/>    <section>
+    <title>dumpNumber()</title>
+<indexterm><primary>dumpNumber</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>dumpNumber</secondary></indexterm>
+<para><computeroutput>static void dumpNumber (<link linkend="_struct_dump_state">DumpState</link> * D, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> x)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00078">78</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_a671751477d7f491c5e9b2affbcd517a0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldump_8c_1a34567bcb1204f914b0316d5ac5532ae0"/>    <section>
+    <title>dumpProtos()</title>
+<indexterm><primary>dumpProtos</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>dumpProtos</secondary></indexterm>
+<para><computeroutput>static void dumpProtos (<link linkend="_struct_dump_state">DumpState</link> * D, const <link linkend="_struct_proto">Proto</link> * f)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00134">134</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_a34567bcb1204f914b0316d5ac5532ae0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_a34567bcb1204f914b0316d5ac5532ae0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldump_8c_1ad8b3745ee530db686c5503e69e93c0e6"/>    <section>
+    <title>dumpSize()</title>
+<indexterm><primary>dumpSize</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>dumpSize</secondary></indexterm>
+<para><computeroutput>static void dumpSize (<link linkend="_struct_dump_state">DumpState</link> * D, size_t x)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00061">61</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_ad8b3745ee530db686c5503e69e93c0e6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldump_8c_1a62dae3e1e70f0ded796f53a1571a3352"/>    <section>
+    <title>dumpString()</title>
+<indexterm><primary>dumpString</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>dumpString</secondary></indexterm>
+<para><computeroutput>static void dumpString (<link linkend="_struct_dump_state">DumpState</link> * D, const <link linkend="_struct_t_string">TString</link> * s)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00088">88</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_a62dae3e1e70f0ded796f53a1571a3352_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_a62dae3e1e70f0ded796f53a1571a3352_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldump_8c_1aa91ee935a3a398fdb0228107f579fb75"/>    <section>
+    <title>dumpUpvalues()</title>
+<indexterm><primary>dumpUpvalues</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>dumpUpvalues</secondary></indexterm>
+<para><computeroutput>static void dumpUpvalues (<link linkend="_struct_dump_state">DumpState</link> * D, const <link linkend="_struct_proto">Proto</link> * f)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00143">143</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_aa91ee935a3a398fdb0228107f579fb75_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_aa91ee935a3a398fdb0228107f579fb75_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldump_8c_1a808f6a29001ac6446f40c76014c6b6e9"/>    <section>
+    <title>luaU_dump()</title>
+<indexterm><primary>luaU_dump</primary><secondary>ldump.c</secondary></indexterm>
+<indexterm><primary>ldump.c</primary><secondary>luaU_dump</secondary></indexterm>
+<para><computeroutput>int luaU_dump (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_struct_proto">Proto</link> * f, <link linkend="_lua_8h_1a855729196d7066b2da21178284868a8d">lua_Writer</link> w, void * data, int strip)</computeroutput></para><para>
+在文件 <link linkend="_ldump_8c_source">ldump.c</link> 第 <link linkend="_ldump_8c_source_1l00213">213</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_a808f6a29001ac6446f40c76014c6b6e9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldump_8c_a808f6a29001ac6446f40c76014c6b6e9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+</section>

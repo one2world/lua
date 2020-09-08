@@ -1,0 +1,395 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.20"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Lua_Docmention: D:/gitworkspace/lua/src/ldump.c 源文件</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectlogo"><img alt="Logo" src="luaa.gif"/></td>
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">Lua_Docmention
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.8.20 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+var searchBox = new SearchBox("searchBox", "search",false,'搜索');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(function() {
+  initMenu('',true,false,'search.php','搜索');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */</script>
+<div id="main-nav"></div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li>  </ul>
+</div>
+</div><!-- top -->
+<div class="header">
+  <div class="headertitle">
+<div class="title">ldump.c</div>  </div>
+</div><!--header-->
+<div class="contents">
+<a href="ldump_8c.html">浏览该文件的文档.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">/*</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">** $Id: ldump.c $</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment">** save precompiled Lua chunks</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment">** See Copyright Notice in lua.h</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="comment">*/</span></div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
+<div class="line"><a name="l00007"></a><span class="lineno"><a class="line" href="ldump_8c.html#a305a0bdaea32b19e7f6d2cb6dce1cc81">    7</a></span>&#160;<span class="preprocessor">#define ldump_c</span></div>
+<div class="line"><a name="l00008"></a><span class="lineno"><a class="line" href="ldump_8c.html#abf0b3947b59218777a8e928a10be205b">    8</a></span>&#160;<span class="preprocessor">#define LUA_CORE</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160; </div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="lprefix_8h.html">lprefix.h</a>&quot;</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160; </div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#include &lt;stddef.h&gt;</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="lua_8h.html">lua.h</a>&quot;</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="lobject_8h.html">lobject.h</a>&quot;</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="lstate_8h.html">lstate.h</a>&quot;</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="lundump_8h.html">lundump.h</a>&quot;</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
+<div class="line"><a name="l00022"></a><span class="lineno"><a class="line" href="struct_dump_state.html">   22</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
+<div class="line"><a name="l00023"></a><span class="lineno"><a class="line" href="struct_dump_state.html#a62f94dfc0036bec0c14106c2f15caf3e">   23</a></span>&#160;  <a class="code" href="structlua___state.html">lua_State</a> *<a class="code" href="struct_dump_state.html#a62f94dfc0036bec0c14106c2f15caf3e">L</a>;</div>
+<div class="line"><a name="l00024"></a><span class="lineno"><a class="line" href="struct_dump_state.html#affca24c5f900e5840eacb95ed06ae5b2">   24</a></span>&#160;  <a class="code" href="lua_8h.html#a855729196d7066b2da21178284868a8d">lua_Writer</a> <a class="code" href="struct_dump_state.html#affca24c5f900e5840eacb95ed06ae5b2">writer</a>;</div>
+<div class="line"><a name="l00025"></a><span class="lineno"><a class="line" href="struct_dump_state.html#a735984d41155bc1032e09bece8f8d66d">   25</a></span>&#160;  <span class="keywordtype">void</span> *<a class="code" href="struct_dump_state.html#a735984d41155bc1032e09bece8f8d66d">data</a>;</div>
+<div class="line"><a name="l00026"></a><span class="lineno"><a class="line" href="struct_dump_state.html#a6e958fbc233c7ac8487110ad21718cf0">   26</a></span>&#160;  <span class="keywordtype">int</span> <a class="code" href="struct_dump_state.html#a6e958fbc233c7ac8487110ad21718cf0">strip</a>;</div>
+<div class="line"><a name="l00027"></a><span class="lineno"><a class="line" href="struct_dump_state.html#a6e27f49150e9a14580fb313cc2777e00">   27</a></span>&#160;  <span class="keywordtype">int</span> <a class="code" href="struct_dump_state.html#a6e27f49150e9a14580fb313cc2777e00">status</a>;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;} <a class="code" href="struct_dump_state.html">DumpState</a>;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160; </div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="comment">/*</span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment">** All high-level dumps go through dumpVector; you can change it to</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">** change the endianness of the result</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">*/</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno"><a class="line" href="ldump_8c.html#aa57836f656453350c7d2b6b89df1b003">   35</a></span>&#160;<span class="preprocessor">#define dumpVector(D,v,n)   dumpBlock(D,v,(n)*sizeof((v)[0]))</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160; </div>
+<div class="line"><a name="l00037"></a><span class="lineno"><a class="line" href="ldump_8c.html#a05e931c17f007b1c9d54080d6243af18">   37</a></span>&#160;<span class="preprocessor">#define dumpLiteral(D, s)   dumpBlock(D,s,sizeof(s) - sizeof(char))</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; </div>
+<div class="line"><a name="l00040"></a><span class="lineno"><a class="line" href="ldump_8c.html#adeca46278a770e7418d0eff725770e04">   40</a></span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="ldump_8c.html#adeca46278a770e7418d0eff725770e04">dumpBlock</a> (<a class="code" href="struct_dump_state.html">DumpState</a> *D, <span class="keyword">const</span> <span class="keywordtype">void</span> *b, <span class="keywordtype">size_t</span> size) {</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="keywordflow">if</span> (D-&gt;<a class="code" href="struct_dump_state.html#a6e27f49150e9a14580fb313cc2777e00">status</a> == 0 &amp;&amp; size &gt; 0) {</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <a class="code" href="llimits_8h.html#a1781f2a7d9161848a246d475a9171875">lua_unlock</a>(D-&gt;<a class="code" href="struct_dump_state.html#a62f94dfc0036bec0c14106c2f15caf3e">L</a>);</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    D-&gt;<a class="code" href="struct_dump_state.html#a6e27f49150e9a14580fb313cc2777e00">status</a> = (*D-&gt;<a class="code" href="struct_dump_state.html#affca24c5f900e5840eacb95ed06ae5b2">writer</a>)(D-&gt;<a class="code" href="struct_dump_state.html#a62f94dfc0036bec0c14106c2f15caf3e">L</a>, b, size, D-&gt;<a class="code" href="struct_dump_state.html#a735984d41155bc1032e09bece8f8d66d">data</a>);</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <a class="code" href="llimits_8h.html#aa68a48b9104aeadf4842c25c12a9b8c9">lua_lock</a>(D-&gt;<a class="code" href="struct_dump_state.html#a62f94dfc0036bec0c14106c2f15caf3e">L</a>);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  }</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;}</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160; </div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160; </div>
+<div class="line"><a name="l00049"></a><span class="lineno"><a class="line" href="ldump_8c.html#ad2bf75eb38f1f5a5a7f71818fbb04098">   49</a></span>&#160;<span class="preprocessor">#define dumpVar(D,x)        dumpVector(D,&amp;x,1)</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160; </div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
+<div class="line"><a name="l00052"></a><span class="lineno"><a class="line" href="ldump_8c.html#a4838cac003905fc2e95b522a03d4adfc">   52</a></span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="ldump_8c.html#a4838cac003905fc2e95b522a03d4adfc">dumpByte</a> (<a class="code" href="struct_dump_state.html">DumpState</a> *D, <span class="keywordtype">int</span> y) {</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <a class="code" href="llimits_8h.html#ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</a> x = (<a class="code" href="llimits_8h.html#ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</a>)y;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  <a class="code" href="ldump_8c.html#ad2bf75eb38f1f5a5a7f71818fbb04098">dumpVar</a>(D, x);</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;}</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160; </div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">/* dumpInt Buff Size */</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno"><a class="line" href="ldump_8c.html#a2a1ad4360d7023093f769ebda9341597">   59</a></span>&#160;<span class="preprocessor">#define DIBS    ((sizeof(size_t) * 8 / 7) + 1)</span></div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
+<div class="line"><a name="l00061"></a><span class="lineno"><a class="line" href="ldump_8c.html#ad8b3745ee530db686c5503e69e93c0e6">   61</a></span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="ldump_8c.html#ad8b3745ee530db686c5503e69e93c0e6">dumpSize</a> (<a class="code" href="struct_dump_state.html">DumpState</a> *D, <span class="keywordtype">size_t</span> x) {</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  <a class="code" href="llimits_8h.html#ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</a> buff[<a class="code" href="ldump_8c.html#a2a1ad4360d7023093f769ebda9341597">DIBS</a>];</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  <span class="keywordtype">int</span> n = 0;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  <span class="keywordflow">do</span> {</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    buff[<a class="code" href="ldump_8c.html#a2a1ad4360d7023093f769ebda9341597">DIBS</a> - (++n)] = x &amp; 0x7f;  <span class="comment">/* fill buffer in reverse order */</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    x &gt;&gt;= 7;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  } <span class="keywordflow">while</span> (x != 0);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  buff[<a class="code" href="ldump_8c.html#a2a1ad4360d7023093f769ebda9341597">DIBS</a> - 1] |= 0x80;  <span class="comment">/* mark last byte */</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  <a class="code" href="ldump_8c.html#aa57836f656453350c7d2b6b89df1b003">dumpVector</a>(D, buff + <a class="code" href="ldump_8c.html#a2a1ad4360d7023093f769ebda9341597">DIBS</a> - n, n);</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;}</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160; </div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160; </div>
+<div class="line"><a name="l00073"></a><span class="lineno"><a class="line" href="ldump_8c.html#af18972a3be9ad820b0d677891405d15b">   73</a></span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="ldump_8c.html#af18972a3be9ad820b0d677891405d15b">dumpInt</a> (<a class="code" href="struct_dump_state.html">DumpState</a> *D, <span class="keywordtype">int</span> x) {</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  <a class="code" href="ldump_8c.html#ad8b3745ee530db686c5503e69e93c0e6">dumpSize</a>(D, x);</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;}</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160; </div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
+<div class="line"><a name="l00078"></a><span class="lineno"><a class="line" href="ldump_8c.html#a671751477d7f491c5e9b2affbcd517a0">   78</a></span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="ldump_8c.html#a671751477d7f491c5e9b2affbcd517a0">dumpNumber</a> (<a class="code" href="struct_dump_state.html">DumpState</a> *D, <a class="code" href="lua_8h.html#af0a6ed3b852d680769cfc410a0672172">lua_Number</a> x) {</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  <a class="code" href="ldump_8c.html#ad2bf75eb38f1f5a5a7f71818fbb04098">dumpVar</a>(D, x);</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;}</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160; </div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160; </div>
+<div class="line"><a name="l00083"></a><span class="lineno"><a class="line" href="ldump_8c.html#a5bc42c8666f45652f5716243028c4b39">   83</a></span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="ldump_8c.html#a5bc42c8666f45652f5716243028c4b39">dumpInteger</a> (<a class="code" href="struct_dump_state.html">DumpState</a> *D, <a class="code" href="lua_8h.html#a362144baa0cfb14dc38fd21438053d73">lua_Integer</a> x) {</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;  <a class="code" href="ldump_8c.html#ad2bf75eb38f1f5a5a7f71818fbb04098">dumpVar</a>(D, x);</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;}</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160; </div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160; </div>
+<div class="line"><a name="l00088"></a><span class="lineno"><a class="line" href="ldump_8c.html#a62dae3e1e70f0ded796f53a1571a3352">   88</a></span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="ldump_8c.html#a62dae3e1e70f0ded796f53a1571a3352">dumpString</a> (<a class="code" href="struct_dump_state.html">DumpState</a> *D, <span class="keyword">const</span> <a class="code" href="struct_t_string.html">TString</a> *s) {</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;  <span class="keywordflow">if</span> (s == NULL)</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <a class="code" href="ldump_8c.html#ad8b3745ee530db686c5503e69e93c0e6">dumpSize</a>(D, 0);</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="keywordtype">size_t</span> size = <a class="code" href="lobject_8h.html#a3a62185cfa9345aedfc3a581dfdbb4f3">tsslen</a>(s);</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">char</span> *str = <a class="code" href="lobject_8h.html#acb05d3ab238923581a9c629b8e11a6ac">getstr</a>(s);</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <a class="code" href="ldump_8c.html#ad8b3745ee530db686c5503e69e93c0e6">dumpSize</a>(D, size + 1);</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    <a class="code" href="ldump_8c.html#aa57836f656453350c7d2b6b89df1b003">dumpVector</a>(D, str, size);</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  }</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;}</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160; </div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160; </div>
+<div class="line"><a name="l00100"></a><span class="lineno"><a class="line" href="ldump_8c.html#af4e6b3cad1a6436e065a811a3e6d4573">  100</a></span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="ldump_8c.html#af4e6b3cad1a6436e065a811a3e6d4573">dumpCode</a> (<a class="code" href="struct_dump_state.html">DumpState</a> *D, <span class="keyword">const</span> <a class="code" href="struct_proto.html">Proto</a> *f) {</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  <a class="code" href="ldump_8c.html#af18972a3be9ad820b0d677891405d15b">dumpInt</a>(D, f-&gt;<a class="code" href="struct_proto.html#aa3cefdf204c272e3a1a3aa8bc12f4e3e">sizecode</a>);</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  <a class="code" href="ldump_8c.html#aa57836f656453350c7d2b6b89df1b003">dumpVector</a>(D, f-&gt;<a class="code" href="struct_proto.html#a744e03861a6c76b7eeef213b73419ec7">code</a>, f-&gt;<a class="code" href="struct_proto.html#aa3cefdf204c272e3a1a3aa8bc12f4e3e">sizecode</a>);</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;}</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160; </div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160; </div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="ldump_8c.html#a2e1db7ac1fa976eb7e3b90ec15a576b2">dumpFunction</a>(<a class="code" href="struct_dump_state.html">DumpState</a> *D, <span class="keyword">const</span> <a class="code" href="struct_proto.html">Proto</a> *f, <a class="code" href="struct_t_string.html">TString</a> *psource);</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160; </div>
+<div class="line"><a name="l00108"></a><span class="lineno"><a class="line" href="ldump_8c.html#a03c1c48bb784b200a4f8e982c9235456">  108</a></span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="ldump_8c.html#a03c1c48bb784b200a4f8e982c9235456">dumpConstants</a> (<a class="code" href="struct_dump_state.html">DumpState</a> *D, <span class="keyword">const</span> <a class="code" href="struct_proto.html">Proto</a> *f) {</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;  <span class="keywordtype">int</span> i;</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;  <span class="keywordtype">int</span> n = f-&gt;<a class="code" href="struct_proto.html#a207b8b69ed4d393dd3c20925febd29e4">sizek</a>;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;  <a class="code" href="ldump_8c.html#af18972a3be9ad820b0d677891405d15b">dumpInt</a>(D, n);</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;  <span class="keywordflow">for</span> (i = 0; i &lt; n; i++) {</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <span class="keyword">const</span> <a class="code" href="struct_t_value.html">TValue</a> *o = &amp;f-&gt;<a class="code" href="struct_proto.html#a5287370e219b50fe677549b4aafdc81d">k</a>[i];</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="keywordtype">int</span> tt = <a class="code" href="lobject_8h.html#a01db083f8bc8b2eb51a45c0ba9967043">ttypetag</a>(o);</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <a class="code" href="ldump_8c.html#a4838cac003905fc2e95b522a03d4adfc">dumpByte</a>(D, tt);</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <span class="keywordflow">switch</span> (tt) {</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;      <span class="keywordflow">case</span> <a class="code" href="lobject_8h.html#a19aaaf978586be9032b63b7a8807631a">LUA_VNUMFLT</a>:</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;        <a class="code" href="ldump_8c.html#a671751477d7f491c5e9b2affbcd517a0">dumpNumber</a>(D, <a class="code" href="lobject_8h.html#a7d7d6b08f40350c9e7364e9cb984d744">fltvalue</a>(o));</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;        <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;      <span class="keywordflow">case</span> <a class="code" href="lobject_8h.html#a69aa5cae89d634d458e0da4957257745">LUA_VNUMINT</a>:</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;        <a class="code" href="ldump_8c.html#a5bc42c8666f45652f5716243028c4b39">dumpInteger</a>(D, <a class="code" href="lobject_8h.html#af1a59636db050b842a791cd19086d925">ivalue</a>(o));</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;        <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;      <span class="keywordflow">case</span> <a class="code" href="lobject_8h.html#a794410ffd7267ef873eb05ac695b1ba6">LUA_VSHRSTR</a>:</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;      <span class="keywordflow">case</span> <a class="code" href="lobject_8h.html#a6869fcb0a0178b6d70d431eae1683199">LUA_VLNGSTR</a>:</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;        <a class="code" href="ldump_8c.html#a62dae3e1e70f0ded796f53a1571a3352">dumpString</a>(D, <a class="code" href="lobject_8h.html#a8661397faed512ccc9c70a4661f1a83d">tsvalue</a>(o));</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;        <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;      <span class="keywordflow">default</span>:</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;        <a class="code" href="llimits_8h.html#a5978f5fda715bd80e845df1e16ad7780">lua_assert</a>(tt == <a class="code" href="lobject_8h.html#aac7a0aeb62c96ba16c7638e707bfaac0">LUA_VNIL</a> || tt == <a class="code" href="lobject_8h.html#a95236d400066ed64a37c72d3dada7e9d">LUA_VFALSE</a> || tt == <a class="code" href="lobject_8h.html#aed66cd95aa3f518c947b5bd9e17bab47">LUA_VTRUE</a>);</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    }</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;  }</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;}</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160; </div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160; </div>
+<div class="line"><a name="l00134"></a><span class="lineno"><a class="line" href="ldump_8c.html#a34567bcb1204f914b0316d5ac5532ae0">  134</a></span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="ldump_8c.html#a34567bcb1204f914b0316d5ac5532ae0">dumpProtos</a> (<a class="code" href="struct_dump_state.html">DumpState</a> *D, <span class="keyword">const</span> <a class="code" href="struct_proto.html">Proto</a> *f) {</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;  <span class="keywordtype">int</span> i;</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;  <span class="keywordtype">int</span> n = f-&gt;<a class="code" href="struct_proto.html#aea0f5dcb02517aa08aa2ffa58c396260">sizep</a>;</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;  <a class="code" href="ldump_8c.html#af18972a3be9ad820b0d677891405d15b">dumpInt</a>(D, n);</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;  <span class="keywordflow">for</span> (i = 0; i &lt; n; i++)</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;    <a class="code" href="ldump_8c.html#a2e1db7ac1fa976eb7e3b90ec15a576b2">dumpFunction</a>(D, f-&gt;<a class="code" href="struct_proto.html#ab7af98f98f5cf674f6be5e3fc855af43">p</a>[i], f-&gt;<a class="code" href="struct_proto.html#a47b5f25d6c53f3892e43702659c6de69">source</a>);</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;}</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160; </div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160; </div>
+<div class="line"><a name="l00143"></a><span class="lineno"><a class="line" href="ldump_8c.html#aa91ee935a3a398fdb0228107f579fb75">  143</a></span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="ldump_8c.html#aa91ee935a3a398fdb0228107f579fb75">dumpUpvalues</a> (<a class="code" href="struct_dump_state.html">DumpState</a> *D, <span class="keyword">const</span> <a class="code" href="struct_proto.html">Proto</a> *f) {</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;  <span class="keywordtype">int</span> i, n = f-&gt;<a class="code" href="struct_proto.html#a2e13a98343ef0d1233bb3e62ae519c5f">sizeupvalues</a>;</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;  <a class="code" href="ldump_8c.html#af18972a3be9ad820b0d677891405d15b">dumpInt</a>(D, n);</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;  <span class="keywordflow">for</span> (i = 0; i &lt; n; i++) {</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;    <a class="code" href="ldump_8c.html#a4838cac003905fc2e95b522a03d4adfc">dumpByte</a>(D, f-&gt;<a class="code" href="struct_proto.html#ac3b891662880254a7e0a3dc0afa86254">upvalues</a>[i].<a class="code" href="struct_upvaldesc.html#acfbdd39f714ffdb714bddda46b7ae744">instack</a>);</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    <a class="code" href="ldump_8c.html#a4838cac003905fc2e95b522a03d4adfc">dumpByte</a>(D, f-&gt;<a class="code" href="struct_proto.html#ac3b891662880254a7e0a3dc0afa86254">upvalues</a>[i].<a class="code" href="struct_upvaldesc.html#a6234b462bcd2f6c2e6f5e537b2793b84">idx</a>);</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    <a class="code" href="ldump_8c.html#a4838cac003905fc2e95b522a03d4adfc">dumpByte</a>(D, f-&gt;<a class="code" href="struct_proto.html#ac3b891662880254a7e0a3dc0afa86254">upvalues</a>[i].<a class="code" href="struct_upvaldesc.html#a85f4000f0b6d1a7e3ff5f1612472db29">kind</a>);</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;  }</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;}</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160; </div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160; </div>
+<div class="line"><a name="l00154"></a><span class="lineno"><a class="line" href="ldump_8c.html#a57223a49768a740530eddd2f3ef19699">  154</a></span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="ldump_8c.html#a57223a49768a740530eddd2f3ef19699">dumpDebug</a> (<a class="code" href="struct_dump_state.html">DumpState</a> *D, <span class="keyword">const</span> <a class="code" href="struct_proto.html">Proto</a> *f) {</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;  <span class="keywordtype">int</span> i, n;</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;  n = (D-&gt;<a class="code" href="struct_dump_state.html#a6e958fbc233c7ac8487110ad21718cf0">strip</a>) ? 0 : f-&gt;<a class="code" href="struct_proto.html#a53f346647cd2060380dad39c9d5caebe">sizelineinfo</a>;</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;  <a class="code" href="ldump_8c.html#af18972a3be9ad820b0d677891405d15b">dumpInt</a>(D, n);</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;  <a class="code" href="ldump_8c.html#aa57836f656453350c7d2b6b89df1b003">dumpVector</a>(D, f-&gt;<a class="code" href="struct_proto.html#a0d5af822069e8cdb2bd7f17f3cdcf575">lineinfo</a>, n);</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;  n = (D-&gt;<a class="code" href="struct_dump_state.html#a6e958fbc233c7ac8487110ad21718cf0">strip</a>) ? 0 : f-&gt;<a class="code" href="struct_proto.html#ab443243fa7dd09b9c08117626c3f8a61">sizeabslineinfo</a>;</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;  <a class="code" href="ldump_8c.html#af18972a3be9ad820b0d677891405d15b">dumpInt</a>(D, n);</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;  <span class="keywordflow">for</span> (i = 0; i &lt; n; i++) {</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <a class="code" href="ldump_8c.html#af18972a3be9ad820b0d677891405d15b">dumpInt</a>(D, f-&gt;<a class="code" href="struct_proto.html#a731ed18a38cc12a903582b927104c883">abslineinfo</a>[i].<a class="code" href="struct_abs_line_info.html#ac8c81e61335635fa4709d82412b31f06">pc</a>);</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;    <a class="code" href="ldump_8c.html#af18972a3be9ad820b0d677891405d15b">dumpInt</a>(D, f-&gt;<a class="code" href="struct_proto.html#a731ed18a38cc12a903582b927104c883">abslineinfo</a>[i].<a class="code" href="struct_abs_line_info.html#a41ebd28ef1d7c6ade45642cb6acc1039">line</a>);</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;  }</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;  n = (D-&gt;<a class="code" href="struct_dump_state.html#a6e958fbc233c7ac8487110ad21718cf0">strip</a>) ? 0 : f-&gt;<a class="code" href="struct_proto.html#af9147ae18b522811714aeb19036f639d">sizelocvars</a>;</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;  <a class="code" href="ldump_8c.html#af18972a3be9ad820b0d677891405d15b">dumpInt</a>(D, n);</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;  <span class="keywordflow">for</span> (i = 0; i &lt; n; i++) {</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    <a class="code" href="ldump_8c.html#a62dae3e1e70f0ded796f53a1571a3352">dumpString</a>(D, f-&gt;<a class="code" href="struct_proto.html#a7a727780b57a02cd42e7ef902f6e7f90">locvars</a>[i].<a class="code" href="struct_loc_var.html#ac2450e0899ac889b040f20956221cd83">varname</a>);</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    <a class="code" href="ldump_8c.html#af18972a3be9ad820b0d677891405d15b">dumpInt</a>(D, f-&gt;<a class="code" href="struct_proto.html#a7a727780b57a02cd42e7ef902f6e7f90">locvars</a>[i].<a class="code" href="struct_loc_var.html#aede5156df384666bb10ffffe4e8c2d8f">startpc</a>);</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    <a class="code" href="ldump_8c.html#af18972a3be9ad820b0d677891405d15b">dumpInt</a>(D, f-&gt;<a class="code" href="struct_proto.html#a7a727780b57a02cd42e7ef902f6e7f90">locvars</a>[i].<a class="code" href="struct_loc_var.html#a4531ef6d4151bc1400f288a004323700">endpc</a>);</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;  }</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;  n = (D-&gt;<a class="code" href="struct_dump_state.html#a6e958fbc233c7ac8487110ad21718cf0">strip</a>) ? 0 : f-&gt;<a class="code" href="struct_proto.html#a2e13a98343ef0d1233bb3e62ae519c5f">sizeupvalues</a>;</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;  <a class="code" href="ldump_8c.html#af18972a3be9ad820b0d677891405d15b">dumpInt</a>(D, n);</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;  <span class="keywordflow">for</span> (i = 0; i &lt; n; i++)</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    <a class="code" href="ldump_8c.html#a62dae3e1e70f0ded796f53a1571a3352">dumpString</a>(D, f-&gt;<a class="code" href="struct_proto.html#ac3b891662880254a7e0a3dc0afa86254">upvalues</a>[i].<a class="code" href="struct_upvaldesc.html#aa249fce0e5297641aa43f45e48bb1548">name</a>);</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;}</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160; </div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160; </div>
+<div class="line"><a name="l00179"></a><span class="lineno"><a class="line" href="ldump_8c.html#a2e1db7ac1fa976eb7e3b90ec15a576b2">  179</a></span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="ldump_8c.html#a2e1db7ac1fa976eb7e3b90ec15a576b2">dumpFunction</a> (<a class="code" href="struct_dump_state.html">DumpState</a> *D, <span class="keyword">const</span> <a class="code" href="struct_proto.html">Proto</a> *f, <a class="code" href="struct_t_string.html">TString</a> *psource) {</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;  <span class="keywordflow">if</span> (D-&gt;<a class="code" href="struct_dump_state.html#a6e958fbc233c7ac8487110ad21718cf0">strip</a> || f-&gt;<a class="code" href="struct_proto.html#a47b5f25d6c53f3892e43702659c6de69">source</a> == psource)</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;    <a class="code" href="ldump_8c.html#a62dae3e1e70f0ded796f53a1571a3352">dumpString</a>(D, NULL);  <span class="comment">/* no debug info or same source as its parent */</span></div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;  <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    <a class="code" href="ldump_8c.html#a62dae3e1e70f0ded796f53a1571a3352">dumpString</a>(D, f-&gt;<a class="code" href="struct_proto.html#a47b5f25d6c53f3892e43702659c6de69">source</a>);</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;  <a class="code" href="ldump_8c.html#af18972a3be9ad820b0d677891405d15b">dumpInt</a>(D, f-&gt;<a class="code" href="struct_proto.html#a4dfda1a3839aa77fb8fc7626075151dd">linedefined</a>);</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;  <a class="code" href="ldump_8c.html#af18972a3be9ad820b0d677891405d15b">dumpInt</a>(D, f-&gt;<a class="code" href="struct_proto.html#a0129a289db231fbe2c6c3b3d6062979e">lastlinedefined</a>);</div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;  <a class="code" href="ldump_8c.html#a4838cac003905fc2e95b522a03d4adfc">dumpByte</a>(D, f-&gt;<a class="code" href="struct_proto.html#a2c5c3bfc47c6c4b7b9f4eef47d7167e9">numparams</a>);</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;  <a class="code" href="ldump_8c.html#a4838cac003905fc2e95b522a03d4adfc">dumpByte</a>(D, f-&gt;<a class="code" href="struct_proto.html#a75232df840e02cfa8134903745579657">is_vararg</a>);</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;  <a class="code" href="ldump_8c.html#a4838cac003905fc2e95b522a03d4adfc">dumpByte</a>(D, f-&gt;<a class="code" href="struct_proto.html#ad11e004e7f14af7e281b6da69d08ad7a">maxstacksize</a>);</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;  <a class="code" href="ldump_8c.html#af4e6b3cad1a6436e065a811a3e6d4573">dumpCode</a>(D, f);</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;  <a class="code" href="ldump_8c.html#a03c1c48bb784b200a4f8e982c9235456">dumpConstants</a>(D, f);</div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;  <a class="code" href="ldump_8c.html#aa91ee935a3a398fdb0228107f579fb75">dumpUpvalues</a>(D, f);</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;  <a class="code" href="ldump_8c.html#a34567bcb1204f914b0316d5ac5532ae0">dumpProtos</a>(D, f);</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;  <a class="code" href="ldump_8c.html#a57223a49768a740530eddd2f3ef19699">dumpDebug</a>(D, f);</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;}</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160; </div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160; </div>
+<div class="line"><a name="l00197"></a><span class="lineno"><a class="line" href="ldump_8c.html#a7dff1d2107a66420c1476d4ecfa27b14">  197</a></span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="ldump_8c.html#a7dff1d2107a66420c1476d4ecfa27b14">dumpHeader</a> (<a class="code" href="struct_dump_state.html">DumpState</a> *D) {</div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;  <a class="code" href="ldump_8c.html#a05e931c17f007b1c9d54080d6243af18">dumpLiteral</a>(D, <a class="code" href="lua_8h.html#af21c9fa681dc005c17a7b288882cae1b">LUA_SIGNATURE</a>);</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;  <a class="code" href="ldump_8c.html#a4838cac003905fc2e95b522a03d4adfc">dumpByte</a>(D, <a class="code" href="lundump_8h.html#aaef225d352d4ab1461adc02e4fa027cd">LUAC_VERSION</a>);</div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;  <a class="code" href="ldump_8c.html#a4838cac003905fc2e95b522a03d4adfc">dumpByte</a>(D, <a class="code" href="lundump_8h.html#a1898203259aab6e1d60737b1e95c2adc">LUAC_FORMAT</a>);</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;  <a class="code" href="ldump_8c.html#a05e931c17f007b1c9d54080d6243af18">dumpLiteral</a>(D, <a class="code" href="lundump_8h.html#ad6f33b546a90e78ddb67428b712b48ae">LUAC_DATA</a>);</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;  <a class="code" href="ldump_8c.html#a4838cac003905fc2e95b522a03d4adfc">dumpByte</a>(D, <span class="keyword">sizeof</span>(<a class="code" href="llimits_8h.html#aa81d2e7f7263ef29946852d4966a192e">Instruction</a>));</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;  <a class="code" href="ldump_8c.html#a4838cac003905fc2e95b522a03d4adfc">dumpByte</a>(D, <span class="keyword">sizeof</span>(<a class="code" href="lua_8h.html#a362144baa0cfb14dc38fd21438053d73">lua_Integer</a>));</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;  <a class="code" href="ldump_8c.html#a4838cac003905fc2e95b522a03d4adfc">dumpByte</a>(D, <span class="keyword">sizeof</span>(<a class="code" href="lua_8h.html#af0a6ed3b852d680769cfc410a0672172">lua_Number</a>));</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;  <a class="code" href="ldump_8c.html#a5bc42c8666f45652f5716243028c4b39">dumpInteger</a>(D, <a class="code" href="lundump_8h.html#af8b5bd7f864ed14aef7a9e7405ce6aad">LUAC_INT</a>);</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;  <a class="code" href="ldump_8c.html#a671751477d7f491c5e9b2affbcd517a0">dumpNumber</a>(D, <a class="code" href="lundump_8h.html#a83a08bb2d400b526bb4a2f449523dd62">LUAC_NUM</a>);</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;}</div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160; </div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160; </div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;<span class="comment">/*</span></div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;<span class="comment">** dump Lua function as precompiled chunk</span></div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;<span class="comment">*/</span></div>
+<div class="line"><a name="l00213"></a><span class="lineno"><a class="line" href="lundump_8h.html#a2b9d33dfd898f6284de183d168556786">  213</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="ldump_8c.html#a808f6a29001ac6446f40c76014c6b6e9">luaU_dump</a>(<a class="code" href="structlua___state.html">lua_State</a> *L, <span class="keyword">const</span> <a class="code" href="struct_proto.html">Proto</a> *f, <a class="code" href="lua_8h.html#a855729196d7066b2da21178284868a8d">lua_Writer</a> w, <span class="keywordtype">void</span> *data,</div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;              <span class="keywordtype">int</span> strip) {</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;  <a class="code" href="struct_dump_state.html">DumpState</a> D;</div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;  D.<a class="code" href="struct_dump_state.html#a62f94dfc0036bec0c14106c2f15caf3e">L</a> = L;</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;  D.<a class="code" href="struct_dump_state.html#affca24c5f900e5840eacb95ed06ae5b2">writer</a> = w;</div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;  D.<a class="code" href="struct_dump_state.html#a735984d41155bc1032e09bece8f8d66d">data</a> = data;</div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;  D.<a class="code" href="struct_dump_state.html#a6e958fbc233c7ac8487110ad21718cf0">strip</a> = strip;</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;  D.<a class="code" href="struct_dump_state.html#a6e27f49150e9a14580fb313cc2777e00">status</a> = 0;</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;  <a class="code" href="ldump_8c.html#a7dff1d2107a66420c1476d4ecfa27b14">dumpHeader</a>(&amp;D);</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;  <a class="code" href="ldump_8c.html#a4838cac003905fc2e95b522a03d4adfc">dumpByte</a>(&amp;D, f-&gt;<a class="code" href="struct_proto.html#a2e13a98343ef0d1233bb3e62ae519c5f">sizeupvalues</a>);</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;  <a class="code" href="ldump_8c.html#a2e1db7ac1fa976eb7e3b90ec15a576b2">dumpFunction</a>(&amp;D, f, NULL);</div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;  <span class="keywordflow">return</span> D.<a class="code" href="struct_dump_state.html#a6e27f49150e9a14580fb313cc2777e00">status</a>;</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;}</div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160; </div>
+</div><!-- fragment --></div><!-- contents -->
+<div class="ttc" id="aldump_8c_html_a57223a49768a740530eddd2f3ef19699"><div class="ttname"><a href="ldump_8c.html#a57223a49768a740530eddd2f3ef19699">dumpDebug</a></div><div class="ttdeci">static void dumpDebug(DumpState *D, const Proto *f)</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00154">ldump.c:154</a></div></div>
+<div class="ttc" id="alundump_8h_html_af8b5bd7f864ed14aef7a9e7405ce6aad"><div class="ttname"><a href="lundump_8h.html#af8b5bd7f864ed14aef7a9e7405ce6aad">LUAC_INT</a></div><div class="ttdeci">#define LUAC_INT</div><div class="ttdef"><b>Definition:</b> <a href="lundump_8h_source.html#l00018">lundump.h:18</a></div></div>
+<div class="ttc" id="astruct_proto_html_a53f346647cd2060380dad39c9d5caebe"><div class="ttname"><a href="struct_proto.html#a53f346647cd2060380dad39c9d5caebe">Proto::sizelineinfo</a></div><div class="ttdeci">int sizelineinfo</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00535">lobject.h:535</a></div></div>
+<div class="ttc" id="alstate_8h_html"><div class="ttname"><a href="lstate_8h.html">lstate.h</a></div></div>
+<div class="ttc" id="astruct_proto_html_aa3cefdf204c272e3a1a3aa8bc12f4e3e"><div class="ttname"><a href="struct_proto.html#aa3cefdf204c272e3a1a3aa8bc12f4e3e">Proto::sizecode</a></div><div class="ttdeci">int sizecode</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00534">lobject.h:534</a></div></div>
+<div class="ttc" id="astruct_proto_html_a207b8b69ed4d393dd3c20925febd29e4"><div class="ttname"><a href="struct_proto.html#a207b8b69ed4d393dd3c20925febd29e4">Proto::sizek</a></div><div class="ttdeci">int sizek</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00533">lobject.h:533</a></div></div>
+<div class="ttc" id="astruct_loc_var_html_a4531ef6d4151bc1400f288a004323700"><div class="ttname"><a href="struct_loc_var.html#a4531ef6d4151bc1400f288a004323700">LocVar::endpc</a></div><div class="ttdeci">int endpc</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00505">lobject.h:505</a></div></div>
+<div class="ttc" id="astruct_proto_html_a47b5f25d6c53f3892e43702659c6de69"><div class="ttname"><a href="struct_proto.html#a47b5f25d6c53f3892e43702659c6de69">Proto::source</a></div><div class="ttdeci">TString * source</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00548">lobject.h:548</a></div></div>
+<div class="ttc" id="astruct_loc_var_html_ac2450e0899ac889b040f20956221cd83"><div class="ttname"><a href="struct_loc_var.html#ac2450e0899ac889b040f20956221cd83">LocVar::varname</a></div><div class="ttdeci">TString * varname</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00503">lobject.h:503</a></div></div>
+<div class="ttc" id="astruct_proto_html_a731ed18a38cc12a903582b927104c883"><div class="ttname"><a href="struct_proto.html#a731ed18a38cc12a903582b927104c883">Proto::abslineinfo</a></div><div class="ttdeci">AbsLineInfo * abslineinfo</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00546">lobject.h:546</a></div></div>
+<div class="ttc" id="alua_8h_html_a855729196d7066b2da21178284868a8d"><div class="ttname"><a href="lua_8h.html#a855729196d7066b2da21178284868a8d">lua_Writer</a></div><div class="ttdeci">int(* lua_Writer)(lua_State *L, const void *p, size_t sz, void *ud)</div><div class="ttdef"><b>Definition:</b> <a href="lua_8h_source.html#l00119">lua.h:119</a></div></div>
+<div class="ttc" id="astruct_proto_html_aea0f5dcb02517aa08aa2ffa58c396260"><div class="ttname"><a href="struct_proto.html#aea0f5dcb02517aa08aa2ffa58c396260">Proto::sizep</a></div><div class="ttdeci">int sizep</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00536">lobject.h:536</a></div></div>
+<div class="ttc" id="allimits_8h_html_a1781f2a7d9161848a246d475a9171875"><div class="ttname"><a href="llimits_8h.html#a1781f2a7d9161848a246d475a9171875">lua_unlock</a></div><div class="ttdeci">#define lua_unlock(L)</div><div class="ttdef"><b>Definition:</b> <a href="llimits_8h_source.html#l00235">llimits.h:235</a></div></div>
+<div class="ttc" id="alobject_8h_html_a69aa5cae89d634d458e0da4957257745"><div class="ttname"><a href="lobject_8h.html#a69aa5cae89d634d458e0da4957257745">LUA_VNUMINT</a></div><div class="ttdeci">#define LUA_VNUMINT</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00298">lobject.h:298</a></div></div>
+<div class="ttc" id="astruct_dump_state_html"><div class="ttname"><a href="struct_dump_state.html">DumpState</a></div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00022">ldump.c:22</a></div></div>
+<div class="ttc" id="alobject_8h_html_a19aaaf978586be9032b63b7a8807631a"><div class="ttname"><a href="lobject_8h.html#a19aaaf978586be9032b63b7a8807631a">LUA_VNUMFLT</a></div><div class="ttdeci">#define LUA_VNUMFLT</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00299">lobject.h:299</a></div></div>
+<div class="ttc" id="aldump_8c_html_adeca46278a770e7418d0eff725770e04"><div class="ttname"><a href="ldump_8c.html#adeca46278a770e7418d0eff725770e04">dumpBlock</a></div><div class="ttdeci">static void dumpBlock(DumpState *D, const void *b, size_t size)</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00040">ldump.c:40</a></div></div>
+<div class="ttc" id="astruct_proto_html_ac3b891662880254a7e0a3dc0afa86254"><div class="ttname"><a href="struct_proto.html#ac3b891662880254a7e0a3dc0afa86254">Proto::upvalues</a></div><div class="ttdeci">Upvaldesc * upvalues</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00544">lobject.h:544</a></div></div>
+<div class="ttc" id="aldump_8c_html_a62dae3e1e70f0ded796f53a1571a3352"><div class="ttname"><a href="ldump_8c.html#a62dae3e1e70f0ded796f53a1571a3352">dumpString</a></div><div class="ttdeci">static void dumpString(DumpState *D, const TString *s)</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00088">ldump.c:88</a></div></div>
+<div class="ttc" id="alundump_8h_html_ad6f33b546a90e78ddb67428b712b48ae"><div class="ttname"><a href="lundump_8h.html#ad6f33b546a90e78ddb67428b712b48ae">LUAC_DATA</a></div><div class="ttdeci">#define LUAC_DATA</div><div class="ttdef"><b>Definition:</b> <a href="lundump_8h_source.html#l00016">lundump.h:16</a></div></div>
+<div class="ttc" id="alua_8h_html_af0a6ed3b852d680769cfc410a0672172"><div class="ttname"><a href="lua_8h.html#af0a6ed3b852d680769cfc410a0672172">lua_Number</a></div><div class="ttdeci">LUA_NUMBER lua_Number</div><div class="ttdef"><b>Definition:</b> <a href="lua_8h_source.html#l00090">lua.h:90</a></div></div>
+<div class="ttc" id="alobject_8h_html_a95236d400066ed64a37c72d3dada7e9d"><div class="ttname"><a href="lobject_8h.html#a95236d400066ed64a37c72d3dada7e9d">LUA_VFALSE</a></div><div class="ttdeci">#define LUA_VFALSE</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00214">lobject.h:214</a></div></div>
+<div class="ttc" id="astruct_dump_state_html_affca24c5f900e5840eacb95ed06ae5b2"><div class="ttname"><a href="struct_dump_state.html#affca24c5f900e5840eacb95ed06ae5b2">DumpState::writer</a></div><div class="ttdeci">lua_Writer writer</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00024">ldump.c:24</a></div></div>
+<div class="ttc" id="astruct_proto_html_a0d5af822069e8cdb2bd7f17f3cdcf575"><div class="ttname"><a href="struct_proto.html#a0d5af822069e8cdb2bd7f17f3cdcf575">Proto::lineinfo</a></div><div class="ttdeci">ls_byte * lineinfo</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00545">lobject.h:545</a></div></div>
+<div class="ttc" id="aldump_8c_html_a03c1c48bb784b200a4f8e982c9235456"><div class="ttname"><a href="ldump_8c.html#a03c1c48bb784b200a4f8e982c9235456">dumpConstants</a></div><div class="ttdeci">static void dumpConstants(DumpState *D, const Proto *f)</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00108">ldump.c:108</a></div></div>
+<div class="ttc" id="astruct_proto_html_a75232df840e02cfa8134903745579657"><div class="ttname"><a href="struct_proto.html#a75232df840e02cfa8134903745579657">Proto::is_vararg</a></div><div class="ttdeci">lu_byte is_vararg</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00530">lobject.h:530</a></div></div>
+<div class="ttc" id="aldump_8c_html_aa57836f656453350c7d2b6b89df1b003"><div class="ttname"><a href="ldump_8c.html#aa57836f656453350c7d2b6b89df1b003">dumpVector</a></div><div class="ttdeci">#define dumpVector(D, v, n)</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00035">ldump.c:35</a></div></div>
+<div class="ttc" id="aldump_8c_html_ad8b3745ee530db686c5503e69e93c0e6"><div class="ttname"><a href="ldump_8c.html#ad8b3745ee530db686c5503e69e93c0e6">dumpSize</a></div><div class="ttdeci">static void dumpSize(DumpState *D, size_t x)</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00061">ldump.c:61</a></div></div>
+<div class="ttc" id="astruct_dump_state_html_a6e958fbc233c7ac8487110ad21718cf0"><div class="ttname"><a href="struct_dump_state.html#a6e958fbc233c7ac8487110ad21718cf0">DumpState::strip</a></div><div class="ttdeci">int strip</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00026">ldump.c:26</a></div></div>
+<div class="ttc" id="astruct_upvaldesc_html_a6234b462bcd2f6c2e6f5e537b2793b84"><div class="ttname"><a href="struct_upvaldesc.html#a6234b462bcd2f6c2e6f5e537b2793b84">Upvaldesc::idx</a></div><div class="ttdeci">lu_byte idx</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00493">lobject.h:493</a></div></div>
+<div class="ttc" id="alundump_8h_html_a83a08bb2d400b526bb4a2f449523dd62"><div class="ttname"><a href="lundump_8h.html#a83a08bb2d400b526bb4a2f449523dd62">LUAC_NUM</a></div><div class="ttdeci">#define LUAC_NUM</div><div class="ttdef"><b>Definition:</b> <a href="lundump_8h_source.html#l00019">lundump.h:19</a></div></div>
+<div class="ttc" id="alundump_8h_html_aaef225d352d4ab1461adc02e4fa027cd"><div class="ttname"><a href="lundump_8h.html#aaef225d352d4ab1461adc02e4fa027cd">LUAC_VERSION</a></div><div class="ttdeci">#define LUAC_VERSION</div><div class="ttdef"><b>Definition:</b> <a href="lundump_8h_source.html#l00025">lundump.h:25</a></div></div>
+<div class="ttc" id="alua_8h_html"><div class="ttname"><a href="lua_8h.html">lua.h</a></div></div>
+<div class="ttc" id="astruct_proto_html_a4dfda1a3839aa77fb8fc7626075151dd"><div class="ttname"><a href="struct_proto.html#a4dfda1a3839aa77fb8fc7626075151dd">Proto::linedefined</a></div><div class="ttdeci">int linedefined</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00539">lobject.h:539</a></div></div>
+<div class="ttc" id="astruct_proto_html_ab7af98f98f5cf674f6be5e3fc855af43"><div class="ttname"><a href="struct_proto.html#ab7af98f98f5cf674f6be5e3fc855af43">Proto::p</a></div><div class="ttdeci">struct Proto ** p</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00543">lobject.h:543</a></div></div>
+<div class="ttc" id="alobject_8h_html_a7d7d6b08f40350c9e7364e9cb984d744"><div class="ttname"><a href="lobject_8h.html#a7d7d6b08f40350c9e7364e9cb984d744">fltvalue</a></div><div class="ttdeci">#define fltvalue(o)</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00307">lobject.h:307</a></div></div>
+<div class="ttc" id="aldump_8c_html_ad2bf75eb38f1f5a5a7f71818fbb04098"><div class="ttname"><a href="ldump_8c.html#ad2bf75eb38f1f5a5a7f71818fbb04098">dumpVar</a></div><div class="ttdeci">#define dumpVar(D, x)</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00049">ldump.c:49</a></div></div>
+<div class="ttc" id="aldump_8c_html_a7dff1d2107a66420c1476d4ecfa27b14"><div class="ttname"><a href="ldump_8c.html#a7dff1d2107a66420c1476d4ecfa27b14">dumpHeader</a></div><div class="ttdeci">static void dumpHeader(DumpState *D)</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00197">ldump.c:197</a></div></div>
+<div class="ttc" id="alobject_8h_html_af1a59636db050b842a791cd19086d925"><div class="ttname"><a href="lobject_8h.html#af1a59636db050b842a791cd19086d925">ivalue</a></div><div class="ttdeci">#define ivalue(o)</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00308">lobject.h:308</a></div></div>
+<div class="ttc" id="aldump_8c_html_a671751477d7f491c5e9b2affbcd517a0"><div class="ttname"><a href="ldump_8c.html#a671751477d7f491c5e9b2affbcd517a0">dumpNumber</a></div><div class="ttdeci">static void dumpNumber(DumpState *D, lua_Number x)</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00078">ldump.c:78</a></div></div>
+<div class="ttc" id="astruct_upvaldesc_html_aa249fce0e5297641aa43f45e48bb1548"><div class="ttname"><a href="struct_upvaldesc.html#aa249fce0e5297641aa43f45e48bb1548">Upvaldesc::name</a></div><div class="ttdeci">TString * name</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00491">lobject.h:491</a></div></div>
+<div class="ttc" id="astruct_dump_state_html_a6e27f49150e9a14580fb313cc2777e00"><div class="ttname"><a href="struct_dump_state.html#a6e27f49150e9a14580fb313cc2777e00">DumpState::status</a></div><div class="ttdeci">int status</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00027">ldump.c:27</a></div></div>
+<div class="ttc" id="astruct_proto_html_a2c5c3bfc47c6c4b7b9f4eef47d7167e9"><div class="ttname"><a href="struct_proto.html#a2c5c3bfc47c6c4b7b9f4eef47d7167e9">Proto::numparams</a></div><div class="ttdeci">lu_byte numparams</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00529">lobject.h:529</a></div></div>
+<div class="ttc" id="alobject_8h_html_a6869fcb0a0178b6d70d431eae1683199"><div class="ttname"><a href="lobject_8h.html#a6869fcb0a0178b6d70d431eae1683199">LUA_VLNGSTR</a></div><div class="ttdeci">#define LUA_VLNGSTR</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00336">lobject.h:336</a></div></div>
+<div class="ttc" id="alobject_8h_html_a794410ffd7267ef873eb05ac695b1ba6"><div class="ttname"><a href="lobject_8h.html#a794410ffd7267ef873eb05ac695b1ba6">LUA_VSHRSTR</a></div><div class="ttdeci">#define LUA_VSHRSTR</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00335">lobject.h:335</a></div></div>
+<div class="ttc" id="astruct_t_string_html"><div class="ttname"><a href="struct_t_string.html">TString</a></div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00361">lobject.h:361</a></div></div>
+<div class="ttc" id="alprefix_8h_html"><div class="ttname"><a href="lprefix_8h.html">lprefix.h</a></div></div>
+<div class="ttc" id="alobject_8h_html_aed66cd95aa3f518c947b5bd9e17bab47"><div class="ttname"><a href="lobject_8h.html#aed66cd95aa3f518c947b5bd9e17bab47">LUA_VTRUE</a></div><div class="ttdeci">#define LUA_VTRUE</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00215">lobject.h:215</a></div></div>
+<div class="ttc" id="allimits_8h_html_aa68a48b9104aeadf4842c25c12a9b8c9"><div class="ttname"><a href="llimits_8h.html#aa68a48b9104aeadf4842c25c12a9b8c9">lua_lock</a></div><div class="ttdeci">#define lua_lock(L)</div><div class="ttdef"><b>Definition:</b> <a href="llimits_8h_source.html#l00234">llimits.h:234</a></div></div>
+<div class="ttc" id="allimits_8h_html_ae1fe9ac10d9803bd1d7bdf30b18bad68"><div class="ttname"><a href="llimits_8h.html#ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</a></div><div class="ttdeci">unsigned char lu_byte</div><div class="ttdef"><b>Definition:</b> <a href="llimits_8h_source.html#l00036">llimits.h:36</a></div></div>
+<div class="ttc" id="alobject_8h_html_acb05d3ab238923581a9c629b8e11a6ac"><div class="ttname"><a href="lobject_8h.html#acb05d3ab238923581a9c629b8e11a6ac">getstr</a></div><div class="ttdeci">#define getstr(ts)</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00378">lobject.h:378</a></div></div>
+<div class="ttc" id="alua_8h_html_af21c9fa681dc005c17a7b288882cae1b"><div class="ttname"><a href="lua_8h.html#af21c9fa681dc005c17a7b288882cae1b">LUA_SIGNATURE</a></div><div class="ttdeci">#define LUA_SIGNATURE</div><div class="ttdef"><b>Definition:</b> <a href="lua_8h_source.html#l00033">lua.h:33</a></div></div>
+<div class="ttc" id="astruct_dump_state_html_a735984d41155bc1032e09bece8f8d66d"><div class="ttname"><a href="struct_dump_state.html#a735984d41155bc1032e09bece8f8d66d">DumpState::data</a></div><div class="ttdeci">void * data</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00025">ldump.c:25</a></div></div>
+<div class="ttc" id="alobject_8h_html_aac7a0aeb62c96ba16c7638e707bfaac0"><div class="ttname"><a href="lobject_8h.html#aac7a0aeb62c96ba16c7638e707bfaac0">LUA_VNIL</a></div><div class="ttdeci">#define LUA_VNIL</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00158">lobject.h:158</a></div></div>
+<div class="ttc" id="aldump_8c_html_aa91ee935a3a398fdb0228107f579fb75"><div class="ttname"><a href="ldump_8c.html#aa91ee935a3a398fdb0228107f579fb75">dumpUpvalues</a></div><div class="ttdeci">static void dumpUpvalues(DumpState *D, const Proto *f)</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00143">ldump.c:143</a></div></div>
+<div class="ttc" id="aldump_8c_html_af4e6b3cad1a6436e065a811a3e6d4573"><div class="ttname"><a href="ldump_8c.html#af4e6b3cad1a6436e065a811a3e6d4573">dumpCode</a></div><div class="ttdeci">static void dumpCode(DumpState *D, const Proto *f)</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00100">ldump.c:100</a></div></div>
+<div class="ttc" id="astruct_proto_html_a2e13a98343ef0d1233bb3e62ae519c5f"><div class="ttname"><a href="struct_proto.html#a2e13a98343ef0d1233bb3e62ae519c5f">Proto::sizeupvalues</a></div><div class="ttdeci">int sizeupvalues</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00532">lobject.h:532</a></div></div>
+<div class="ttc" id="astruct_proto_html_ab443243fa7dd09b9c08117626c3f8a61"><div class="ttname"><a href="struct_proto.html#ab443243fa7dd09b9c08117626c3f8a61">Proto::sizeabslineinfo</a></div><div class="ttdeci">int sizeabslineinfo</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00538">lobject.h:538</a></div></div>
+<div class="ttc" id="aldump_8c_html_a05e931c17f007b1c9d54080d6243af18"><div class="ttname"><a href="ldump_8c.html#a05e931c17f007b1c9d54080d6243af18">dumpLiteral</a></div><div class="ttdeci">#define dumpLiteral(D, s)</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00037">ldump.c:37</a></div></div>
+<div class="ttc" id="alobject_8h_html"><div class="ttname"><a href="lobject_8h.html">lobject.h</a></div></div>
+<div class="ttc" id="alundump_8h_html_a1898203259aab6e1d60737b1e95c2adc"><div class="ttname"><a href="lundump_8h.html#a1898203259aab6e1d60737b1e95c2adc">LUAC_FORMAT</a></div><div class="ttdeci">#define LUAC_FORMAT</div><div class="ttdef"><b>Definition:</b> <a href="lundump_8h_source.html#l00027">lundump.h:27</a></div></div>
+<div class="ttc" id="astructlua___state_html"><div class="ttname"><a href="structlua___state.html">lua_State</a></div><div class="ttdef"><b>Definition:</b> <a href="lstate_8h_source.html#l00284">lstate.h:284</a></div></div>
+<div class="ttc" id="alua_8h_html_a362144baa0cfb14dc38fd21438053d73"><div class="ttname"><a href="lua_8h.html#a362144baa0cfb14dc38fd21438053d73">lua_Integer</a></div><div class="ttdeci">LUA_INTEGER lua_Integer</div><div class="ttdef"><b>Definition:</b> <a href="lua_8h_source.html#l00094">lua.h:94</a></div></div>
+<div class="ttc" id="aldump_8c_html_a4838cac003905fc2e95b522a03d4adfc"><div class="ttname"><a href="ldump_8c.html#a4838cac003905fc2e95b522a03d4adfc">dumpByte</a></div><div class="ttdeci">static void dumpByte(DumpState *D, int y)</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00052">ldump.c:52</a></div></div>
+<div class="ttc" id="aldump_8c_html_af18972a3be9ad820b0d677891405d15b"><div class="ttname"><a href="ldump_8c.html#af18972a3be9ad820b0d677891405d15b">dumpInt</a></div><div class="ttdeci">static void dumpInt(DumpState *D, int x)</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00073">ldump.c:73</a></div></div>
+<div class="ttc" id="alundump_8h_html"><div class="ttname"><a href="lundump_8h.html">lundump.h</a></div></div>
+<div class="ttc" id="astruct_dump_state_html_a62f94dfc0036bec0c14106c2f15caf3e"><div class="ttname"><a href="struct_dump_state.html#a62f94dfc0036bec0c14106c2f15caf3e">DumpState::L</a></div><div class="ttdeci">lua_State * L</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00023">ldump.c:23</a></div></div>
+<div class="ttc" id="astruct_t_value_html"><div class="ttname"><a href="struct_t_value.html">TValue</a></div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00063">lobject.h:63</a></div></div>
+<div class="ttc" id="aldump_8c_html_a2e1db7ac1fa976eb7e3b90ec15a576b2"><div class="ttname"><a href="ldump_8c.html#a2e1db7ac1fa976eb7e3b90ec15a576b2">dumpFunction</a></div><div class="ttdeci">static void dumpFunction(DumpState *D, const Proto *f, TString *psource)</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00179">ldump.c:179</a></div></div>
+<div class="ttc" id="alobject_8h_html_a3a62185cfa9345aedfc3a581dfdbb4f3"><div class="ttname"><a href="lobject_8h.html#a3a62185cfa9345aedfc3a581dfdbb4f3">tsslen</a></div><div class="ttdeci">#define tsslen(s)</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00385">lobject.h:385</a></div></div>
+<div class="ttc" id="astruct_proto_html_a744e03861a6c76b7eeef213b73419ec7"><div class="ttname"><a href="struct_proto.html#a744e03861a6c76b7eeef213b73419ec7">Proto::code</a></div><div class="ttdeci">Instruction * code</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00542">lobject.h:542</a></div></div>
+<div class="ttc" id="alobject_8h_html_a01db083f8bc8b2eb51a45c0ba9967043"><div class="ttname"><a href="lobject_8h.html#a01db083f8bc8b2eb51a45c0ba9967043">ttypetag</a></div><div class="ttdeci">#define ttypetag(o)</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00080">lobject.h:80</a></div></div>
+<div class="ttc" id="aldump_8c_html_a5bc42c8666f45652f5716243028c4b39"><div class="ttname"><a href="ldump_8c.html#a5bc42c8666f45652f5716243028c4b39">dumpInteger</a></div><div class="ttdeci">static void dumpInteger(DumpState *D, lua_Integer x)</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00083">ldump.c:83</a></div></div>
+<div class="ttc" id="astruct_abs_line_info_html_a41ebd28ef1d7c6ade45642cb6acc1039"><div class="ttname"><a href="struct_abs_line_info.html#a41ebd28ef1d7c6ade45642cb6acc1039">AbsLineInfo::line</a></div><div class="ttdeci">int line</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00521">lobject.h:521</a></div></div>
+<div class="ttc" id="alobject_8h_html_a8661397faed512ccc9c70a4661f1a83d"><div class="ttname"><a href="lobject_8h.html#a8661397faed512ccc9c70a4661f1a83d">tsvalue</a></div><div class="ttdeci">#define tsvalue(o)</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00344">lobject.h:344</a></div></div>
+<div class="ttc" id="astruct_proto_html_a7a727780b57a02cd42e7ef902f6e7f90"><div class="ttname"><a href="struct_proto.html#a7a727780b57a02cd42e7ef902f6e7f90">Proto::locvars</a></div><div class="ttdeci">LocVar * locvars</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00547">lobject.h:547</a></div></div>
+<div class="ttc" id="allimits_8h_html_aa81d2e7f7263ef29946852d4966a192e"><div class="ttname"><a href="llimits_8h.html#aa81d2e7f7263ef29946852d4966a192e">Instruction</a></div><div class="ttdeci">l_uint32 Instruction</div><div class="ttdef"><b>Definition:</b> <a href="llimits_8h_source.html#l00186">llimits.h:186</a></div></div>
+<div class="ttc" id="astruct_proto_html_a5287370e219b50fe677549b4aafdc81d"><div class="ttname"><a href="struct_proto.html#a5287370e219b50fe677549b4aafdc81d">Proto::k</a></div><div class="ttdeci">TValue * k</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00541">lobject.h:541</a></div></div>
+<div class="ttc" id="astruct_proto_html"><div class="ttname"><a href="struct_proto.html">Proto</a></div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00527">lobject.h:527</a></div></div>
+<div class="ttc" id="astruct_loc_var_html_aede5156df384666bb10ffffe4e8c2d8f"><div class="ttname"><a href="struct_loc_var.html#aede5156df384666bb10ffffe4e8c2d8f">LocVar::startpc</a></div><div class="ttdeci">int startpc</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00504">lobject.h:504</a></div></div>
+<div class="ttc" id="aldump_8c_html_a2a1ad4360d7023093f769ebda9341597"><div class="ttname"><a href="ldump_8c.html#a2a1ad4360d7023093f769ebda9341597">DIBS</a></div><div class="ttdeci">#define DIBS</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00059">ldump.c:59</a></div></div>
+<div class="ttc" id="aldump_8c_html_a34567bcb1204f914b0316d5ac5532ae0"><div class="ttname"><a href="ldump_8c.html#a34567bcb1204f914b0316d5ac5532ae0">dumpProtos</a></div><div class="ttdeci">static void dumpProtos(DumpState *D, const Proto *f)</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00134">ldump.c:134</a></div></div>
+<div class="ttc" id="allimits_8h_html_a5978f5fda715bd80e845df1e16ad7780"><div class="ttname"><a href="llimits_8h.html#a5978f5fda715bd80e845df1e16ad7780">lua_assert</a></div><div class="ttdeci">#define lua_assert(c)</div><div class="ttdef"><b>Definition:</b> <a href="llimits_8h_source.html#l00093">llimits.h:93</a></div></div>
+<div class="ttc" id="aldump_8c_html_a808f6a29001ac6446f40c76014c6b6e9"><div class="ttname"><a href="ldump_8c.html#a808f6a29001ac6446f40c76014c6b6e9">luaU_dump</a></div><div class="ttdeci">int luaU_dump(lua_State *L, const Proto *f, lua_Writer w, void *data, int strip)</div><div class="ttdef"><b>Definition:</b> <a href="ldump_8c_source.html#l00213">ldump.c:213</a></div></div>
+<div class="ttc" id="astruct_upvaldesc_html_a85f4000f0b6d1a7e3ff5f1612472db29"><div class="ttname"><a href="struct_upvaldesc.html#a85f4000f0b6d1a7e3ff5f1612472db29">Upvaldesc::kind</a></div><div class="ttdeci">lu_byte kind</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00494">lobject.h:494</a></div></div>
+<div class="ttc" id="astruct_abs_line_info_html_ac8c81e61335635fa4709d82412b31f06"><div class="ttname"><a href="struct_abs_line_info.html#ac8c81e61335635fa4709d82412b31f06">AbsLineInfo::pc</a></div><div class="ttdeci">int pc</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00520">lobject.h:520</a></div></div>
+<div class="ttc" id="astruct_proto_html_a0129a289db231fbe2c6c3b3d6062979e"><div class="ttname"><a href="struct_proto.html#a0129a289db231fbe2c6c3b3d6062979e">Proto::lastlinedefined</a></div><div class="ttdeci">int lastlinedefined</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00540">lobject.h:540</a></div></div>
+<div class="ttc" id="astruct_upvaldesc_html_acfbdd39f714ffdb714bddda46b7ae744"><div class="ttname"><a href="struct_upvaldesc.html#acfbdd39f714ffdb714bddda46b7ae744">Upvaldesc::instack</a></div><div class="ttdeci">lu_byte instack</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00492">lobject.h:492</a></div></div>
+<div class="ttc" id="astruct_proto_html_af9147ae18b522811714aeb19036f639d"><div class="ttname"><a href="struct_proto.html#af9147ae18b522811714aeb19036f639d">Proto::sizelocvars</a></div><div class="ttdeci">int sizelocvars</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00537">lobject.h:537</a></div></div>
+<div class="ttc" id="astruct_proto_html_ad11e004e7f14af7e281b6da69d08ad7a"><div class="ttname"><a href="struct_proto.html#ad11e004e7f14af7e281b6da69d08ad7a">Proto::maxstacksize</a></div><div class="ttdeci">lu_byte maxstacksize</div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00531">lobject.h:531</a></div></div>
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+制作者&#160;<a href="http://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.8.20
+</small></address>
+</body>
+</html>

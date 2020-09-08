@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lfunc_8h_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/lfunc.h</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;lfunc.h&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Auxiliary&#32;functions&#32;to&#32;manipulate&#32;prototypes&#32;and&#32;closures</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+00007 <emphasis role="preprocessor">#ifndef&#32;lfunc_h</emphasis>
+00008 <emphasis role="preprocessor">#define&#32;lfunc_h</emphasis>
+00009 
+00010 
+00011 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lobject_8h">lobject.h</link>&quot;</emphasis>
+00012 
+00013 
+<anchor xml:id="_lfunc_8h_source_1l00014"/><link linkend="_lfunc_8h_1ae0283669f47da8432046d0a24c1db93e">00014</link> <emphasis role="preprocessor">#define&#32;sizeCclosure(n)&#32;(cast_int(offsetof(CClosure,&#32;upvalue))&#32;+&#32;\</emphasis>
+00015 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;cast_int(sizeof(TValue))&#32;*&#32;(n))</emphasis>
+00016 
+<anchor xml:id="_lfunc_8h_source_1l00017"/><link linkend="_lfunc_8h_1ab5551e284145e5258a8032a97806cfe1">00017</link> <emphasis role="preprocessor">#define&#32;sizeLclosure(n)&#32;(cast_int(offsetof(LClosure,&#32;upvals))&#32;+&#32;\</emphasis>
+00018 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;cast_int(sizeof(TValue&#32;*))&#32;*&#32;(n))</emphasis>
+00019 
+00020 
+00021 <emphasis role="comment">/*&#32;test&#32;whether&#32;thread&#32;is&#32;in&#32;&apos;twups&apos;&#32;list&#32;*/</emphasis>
+<anchor xml:id="_lfunc_8h_source_1l00022"/><link linkend="_lfunc_8h_1a3e7e5157cf6e329e4a5609e70b65101f">00022</link> <emphasis role="preprocessor">#define&#32;isintwups(L)&#32;&#32;&#32;&#32;(L-&gt;twups&#32;!=&#32;L)</emphasis>
+00023 
+00024 
+00025 <emphasis role="comment">/*</emphasis>
+00026 <emphasis role="comment">**&#32;maximum&#32;number&#32;of&#32;upvalues&#32;in&#32;a&#32;closure&#32;(both&#32;C&#32;and&#32;Lua).&#32;(Value</emphasis>
+00027 <emphasis role="comment">**&#32;must&#32;fit&#32;in&#32;a&#32;VM&#32;register.)</emphasis>
+00028 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lfunc_8h_source_1l00029"/><link linkend="_lfunc_8h_1ac5b64a112a390053ec98913b67b3f112">00029</link> <emphasis role="preprocessor">#define&#32;MAXUPVAL&#32;&#32;&#32;&#32;255</emphasis>
+00030 
+00031 
+<anchor xml:id="_lfunc_8h_source_1l00032"/><link linkend="_lfunc_8h_1a26a8ecd7d58d326f7f6f20bc8bc8bb55">00032</link> <emphasis role="preprocessor">#define&#32;upisopen(up)&#32;&#32;&#32;&#32;((up)-&gt;v&#32;!=&#32;&amp;(up)-&gt;u.value)</emphasis>
+00033 
+00034 
+<anchor xml:id="_lfunc_8h_source_1l00035"/><link linkend="_lfunc_8h_1a9c84a07f72721f9536fc43e26ae84c8b">00035</link> <emphasis role="preprocessor">#define&#32;uplevel(up)&#32;check_exp(upisopen(up),&#32;cast(StkId,&#32;(up)-&gt;v))</emphasis>
+00036 
+00037 
+00038 <emphasis role="comment">/*</emphasis>
+00039 <emphasis role="comment">**&#32;maximum&#32;number&#32;of&#32;misses&#32;before&#32;giving&#32;up&#32;the&#32;cache&#32;of&#32;closures</emphasis>
+00040 <emphasis role="comment">**&#32;in&#32;prototypes</emphasis>
+00041 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lfunc_8h_source_1l00042"/><link linkend="_lfunc_8h_1a5c78dc067795d7cfd7abe4fb5c9fe51d">00042</link> <emphasis role="preprocessor">#define&#32;MAXMISS&#32;&#32;&#32;&#32;&#32;10</emphasis>
+00043 
+00044 
+00045 <emphasis role="comment">/*</emphasis>
+00046 <emphasis role="comment">**&#32;Special&#32;&quot;status&quot;&#32;for&#32;&apos;luaF_close&apos;</emphasis>
+00047 <emphasis role="comment">*/</emphasis>
+00048 
+00049 <emphasis role="comment">/*&#32;close&#32;upvalues&#32;without&#32;running&#32;their&#32;closing&#32;methods&#32;*/</emphasis>
+<anchor xml:id="_lfunc_8h_source_1l00050"/><link linkend="_lfunc_8h_1a361b650db587d8b527a90301a7d7a0d8">00050</link> <emphasis role="preprocessor">#define&#32;NOCLOSINGMETH&#32;&#32;&#32;(-1)</emphasis>
+00051 
+00052 <emphasis role="comment">/*&#32;close&#32;upvalues&#32;running&#32;all&#32;closing&#32;methods&#32;in&#32;protected&#32;mode&#32;*/</emphasis>
+<anchor xml:id="_lfunc_8h_source_1l00053"/><link linkend="_lfunc_8h_1af4ee877475e5e9b0496b1c6b0bd36192">00053</link> <emphasis role="preprocessor">#define&#32;CLOSEPROTECT&#32;&#32;&#32;&#32;(-2)</emphasis>
+00054 
+00055 
+00056 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_struct_proto">Proto</link>&#32;*<link linkend="_lfunc_8h_1a3afa5dbaef50a7e84627e779d27c5720">luaF_newproto</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00057 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_struct_c_closure">CClosure</link>&#32;*<link linkend="_lfunc_8h_1a2264994c1f8c6a33705c9dd615271e11">luaF_newCclosure</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nupvals);
+00058 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_struct_l_closure">LClosure</link>&#32;*<link linkend="_lfunc_8h_1a71df2d2b65009262960562c5b0703b92">luaF_newLclosure</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nupvals);
+00059 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lfunc_8h_1a7f4b654cb9bf35af338f3ae1b287bc39">luaF_initupvals</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_l_closure">LClosure</link>&#32;*cl);
+00060 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_struct_up_val">UpVal</link>&#32;*<link linkend="_lfunc_8h_1ab4901d5786cbea213d8e200500999a76">luaF_findupval</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_union_stack_value">StkId</link>&#32;level);
+00061 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lfunc_8h_1a17478c6ccda97c8d77b4be5488c78c08">luaF_newtbcupval</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_union_stack_value">StkId</link>&#32;level);
+00062 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lfunc_8h_1add62dd4cd3a4c06e0cc322915196c5f3">luaF_close</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_union_stack_value">StkId</link>&#32;level,&#32;<emphasis role="keywordtype">int</emphasis>&#32;status);
+00063 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lfunc_8h_1a560691ba7dbb73952d36e6e4a87cb224">luaF_unlinkupval</link>&#32;(<link linkend="_struct_up_val">UpVal</link>&#32;*uv);
+00064 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lfunc_8h_1a0cc4051310ee836ef266607da3a58499">luaF_freeproto</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_proto">Proto</link>&#32;*f);
+00065 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_lfunc_8h_1a397e1a43935e0aebf20ae6e12d52befd">luaF_getlocalname</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_proto">Proto</link>&#32;*func,&#32;<emphasis role="keywordtype">int</emphasis>&#32;local_number,
+00066 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;pc);
+00067 
+00068 
+00069 <emphasis role="preprocessor">#endif</emphasis>
+</programlisting></section>

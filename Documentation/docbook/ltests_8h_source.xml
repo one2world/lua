@@ -1,0 +1,148 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_ltests_8h_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/ltests.h</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;ltests.h&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Internal&#32;Header&#32;for&#32;Debugging&#32;of&#32;the&#32;Lua&#32;Implementation</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+00007 <emphasis role="preprocessor">#ifndef&#32;ltests_h</emphasis>
+00008 <emphasis role="preprocessor">#define&#32;ltests_h</emphasis>
+00009 
+00010 
+00011 <emphasis role="preprocessor">#include&#32;&lt;stdio.h&gt;</emphasis>
+00012 <emphasis role="preprocessor">#include&#32;&lt;stdlib.h&gt;</emphasis>
+00013 
+00014 <emphasis role="comment">/*&#32;test&#32;Lua&#32;with&#32;compatibility&#32;code&#32;*/</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00015"/><link linkend="_ltests_8h_1ada4d60462c5b759d152da3c47cbe41ac">00015</link> <emphasis role="preprocessor">#define&#32;LUA_COMPAT_MATHLIB</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00016"/><link linkend="_ltests_8h_1aaef8a207dee1d3d7c285b91abc26dd45">00016</link> <emphasis role="preprocessor">#define&#32;LUA_COMPAT_LT_LE</emphasis>
+00017 
+00018 
+<anchor xml:id="_ltests_8h_source_1l00019"/><link linkend="_ltests_8h_1a546773d34eb6b66cf99f8ebcdf55cc9d">00019</link> <emphasis role="preprocessor">#define&#32;LUA_DEBUG</emphasis>
+00020 
+00021 
+00022 <emphasis role="comment">/*&#32;turn&#32;on&#32;assertions&#32;*/</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00023"/><link linkend="_ltests_8h_1a8b0b5e240b0680432895db37ef6aed4a">00023</link> <emphasis role="preprocessor">#define&#32;LUAI_ASSERT</emphasis>
+00024 
+00025 
+00026 
+00027 <emphasis role="comment">/*&#32;compiled&#32;with&#32;-O0,&#32;Lua&#32;uses&#32;a&#32;lot&#32;of&#32;C&#32;stack&#32;space...&#32;*/</emphasis>
+00028 <emphasis role="preprocessor">#undef&#32;LUAI_MAXCSTACK</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00029"/><link linkend="_ltests_8h_1aad7d9b351cde290eb12c180d03ec71e4">00029</link> <emphasis role="preprocessor">#define&#32;LUAI_MAXCSTACK&#32;&#32;&#32;&#32;&#32;&#32;400</emphasis>
+00030 
+00031 <emphasis role="comment">/*&#32;to&#32;avoid&#32;warnings,&#32;and&#32;to&#32;make&#32;sure&#32;value&#32;is&#32;really&#32;unused&#32;*/</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00032"/><link linkend="_ltests_8h_1a86d500a34c624c2cae56bc25a31b12f3">00032</link> <emphasis role="preprocessor">#define&#32;UNUSED(x)&#32;&#32;&#32;&#32;&#32;&#32;&#32;(x=0,&#32;(void)(x))</emphasis>
+00033 
+00034 
+00035 <emphasis role="comment">/*&#32;test&#32;for&#32;sizes&#32;in&#32;&apos;l_sprintf&apos;&#32;(make&#32;sure&#32;whole&#32;buffer&#32;is&#32;available)&#32;*/</emphasis>
+00036 <emphasis role="preprocessor">#undef&#32;l_sprintf</emphasis>
+00037 <emphasis role="preprocessor">#if&#32;!defined(LUA_USE_C89)</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00038"/><link linkend="_ltests_8h_1a66e2cc299fcf55c169a67b5b3781a955">00038</link> <emphasis role="preprocessor">#define&#32;l_sprintf(s,sz,f,i)&#32;(memset(s,0xAB,sz),&#32;snprintf(s,sz,f,i))</emphasis>
+00039 <emphasis role="preprocessor">#else</emphasis>
+00040 <emphasis role="preprocessor">#define&#32;l_sprintf(s,sz,f,i)&#32;(memset(s,0xAB,sz),&#32;sprintf(s,f,i))</emphasis>
+00041 <emphasis role="preprocessor">#endif</emphasis>
+00042 
+00043 
+00044 <emphasis role="comment">/*&#32;get&#32;a&#32;chance&#32;to&#32;test&#32;code&#32;without&#32;jump&#32;tables&#32;*/</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00045"/><link linkend="_ltests_8h_1a23db0b8d14efa41ab925d3c939eff24b">00045</link> <emphasis role="preprocessor">#define&#32;LUA_USE_JUMPTABLE&#32;&#32;&#32;0</emphasis>
+00046 
+00047 
+00048 <emphasis role="comment">/*&#32;use&#32;32-bit&#32;integers&#32;in&#32;random&#32;generator&#32;*/</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00049"/><link linkend="_ltests_8h_1af4decaf7912e6d82bfe8f69d80b000fc">00049</link> <emphasis role="preprocessor">#define&#32;LUA_RAND32</emphasis>
+00050 
+00051 
+00052 <emphasis role="comment">/*&#32;memory-allocator&#32;control&#32;variables&#32;*/</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00053"/><link linkend="_struct_memcontrol">00053</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_memcontrol">Memcontrol</link>&#32;{
+<anchor xml:id="_ltests_8h_source_1l00054"/><link linkend="_struct_memcontrol_1af70a9a9d50ffca4c21e26eedf8b2f02f">00054</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_memcontrol_1af70a9a9d50ffca4c21e26eedf8b2f02f">failnext</link>;
+<anchor xml:id="_ltests_8h_source_1l00055"/><link linkend="_struct_memcontrol_1a2ca2fa3965761b33d18fa7544185571a">00055</link> &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">long</emphasis>&#32;<link linkend="_struct_memcontrol_1a2ca2fa3965761b33d18fa7544185571a">numblocks</link>;
+<anchor xml:id="_ltests_8h_source_1l00056"/><link linkend="_struct_memcontrol_1a5ec0dbf8c451bb8edbbd7f681d30dcb2">00056</link> &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">long</emphasis>&#32;<link linkend="_struct_memcontrol_1a5ec0dbf8c451bb8edbbd7f681d30dcb2">total</link>;
+<anchor xml:id="_ltests_8h_source_1l00057"/><link linkend="_struct_memcontrol_1a25d4c1dec161580cacc04932061c41c7">00057</link> &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">long</emphasis>&#32;<link linkend="_struct_memcontrol_1a25d4c1dec161580cacc04932061c41c7">maxmem</link>;
+<anchor xml:id="_ltests_8h_source_1l00058"/><link linkend="_struct_memcontrol_1a68b43055ef53e887be706c87c2a074f2">00058</link> &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">long</emphasis>&#32;<link linkend="_struct_memcontrol_1a68b43055ef53e887be706c87c2a074f2">memlimit</link>;
+<anchor xml:id="_ltests_8h_source_1l00059"/><link linkend="_struct_memcontrol_1aae4b19108acbff1e89dde7f29364596e">00059</link> &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">long</emphasis>&#32;<link linkend="_struct_memcontrol_1aae4b19108acbff1e89dde7f29364596e">countlimit</link>;
+<anchor xml:id="_ltests_8h_source_1l00060"/><link linkend="_struct_memcontrol_1a0c97806b982f365f414fa4f4c6953954">00060</link> &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">long</emphasis>&#32;<link linkend="_struct_memcontrol_1a0c97806b982f365f414fa4f4c6953954">objcount</link>[<link linkend="_lua_8h_1a99a031e2239fe191c2a4e1dfb7511d87">LUA_NUMTYPES</link>];
+<anchor xml:id="_ltests_8h_source_1l00061"/><link linkend="_ltests_8h_1ac4584e620eadf3a17ed80ee3c4f650bf">00061</link> }&#32;<link linkend="_ltests_8h_1ac4584e620eadf3a17ed80ee3c4f650bf">Memcontrol</link>;
+00062 
+<anchor xml:id="_ltests_8h_source_1l00063"/><link linkend="_ltests_8h_1ad1e377d0e533a8cb13f2e8194142224f">00063</link> <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<link linkend="_struct_memcontrol">Memcontrol</link>&#32;<link linkend="_ltests_8h_1ad1e377d0e533a8cb13f2e8194142224f">l_memcontrol</link>;
+00064 
+00065 
+00066 <emphasis role="comment">/*</emphasis>
+00067 <emphasis role="comment">**&#32;generic&#32;variable&#32;for&#32;debug&#32;tricks</emphasis>
+00068 <emphasis role="comment">*/</emphasis>
+00069 <emphasis role="keyword">extern</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_ltests_8h_1aff7135f2cb3e0acfe05a83a41e66a53e">l_Trick</link>;
+00070 
+00071 
+00072 
+00073 <emphasis role="comment">/*</emphasis>
+00074 <emphasis role="comment">**&#32;Function&#32;to&#32;traverse&#32;and&#32;check&#32;all&#32;memory&#32;used&#32;by&#32;Lua</emphasis>
+00075 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00076"/><link linkend="_ltests_8h_1a749fe8c5cac80b7e60393e1a0e1934ab">00076</link> <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ltests_8h_1a749fe8c5cac80b7e60393e1a0e1934ab">lua_checkmemory</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00077 
+00078 <emphasis role="comment">/*</emphasis>
+00079 <emphasis role="comment">**&#32;Function&#32;to&#32;print&#32;an&#32;object&#32;GC-friendly</emphasis>
+00080 <emphasis role="comment">*/</emphasis>
+00081 <emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_g_c_object">GCObject</link>;
+<anchor xml:id="_ltests_8h_source_1l00082"/><link linkend="_ltests_8h_1a424e6fc1410a08d49bb66e9c3e68dd2c">00082</link> <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ltests_8h_1a424e6fc1410a08d49bb66e9c3e68dd2c">lua_printobj</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">struct</emphasis>&#32;<link linkend="_struct_g_c_object">GCObject</link>&#32;*o);
+00083 
+00084 
+00085 <emphasis role="comment">/*&#32;test&#32;for&#32;lock/unlock&#32;*/</emphasis>
+00086 
+<anchor xml:id="_ltests_8h_source_1l00087"/><link linkend="_struct_l___e_x_t_r_a_1af820655ce2c28557a4c895215e39fe4b">00087</link> <emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_l___e_x_t_r_a">L_EXTRA</link>&#32;{&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_l___e_x_t_r_a_1a40fb51872c375d4aa4511d37740f5d46">lock</link>;&#32;<emphasis role="keywordtype">int</emphasis>&#32;*<link linkend="_struct_l___e_x_t_r_a_1af820655ce2c28557a4c895215e39fe4b">plock</link>;&#32;};
+00088 <emphasis role="preprocessor">#undef&#32;LUA_EXTRASPACE</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00089"/><link linkend="_ltests_8h_1ae25668dff58d6257a4fc5b01c1e5820b">00089</link> <emphasis role="preprocessor">#define&#32;LUA_EXTRASPACE&#32;&#32;sizeof(struct&#32;L_EXTRA)</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00090"/><link linkend="_ltests_8h_1a2be71daa061f2a182f14d90e6d7e2867">00090</link> <emphasis role="preprocessor">#define&#32;getlock(l)&#32;&#32;cast(struct&#32;L_EXTRA*,&#32;lua_getextraspace(l))</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00091"/><link linkend="_ltests_8h_1a0e459721c051bbff9c1f068542543931">00091</link> <emphasis role="preprocessor">#define&#32;luai_userstateopen(l)&#32;&#32;\</emphasis>
+00092 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;(getlock(l)-&gt;lock&#32;=&#32;0,&#32;getlock(l)-&gt;plock&#32;=&#32;&amp;(getlock(l)-&gt;lock))</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00093"/><link linkend="_ltests_8h_1a7b95e38f89244e394b2943edeb4948d5">00093</link> <emphasis role="preprocessor">#define&#32;luai_userstateclose(l)&#32;&#32;\</emphasis>
+00094 <emphasis role="preprocessor">&#32;&#32;lua_assert(getlock(l)-&gt;lock&#32;==&#32;1&#32;&amp;&amp;&#32;getlock(l)-&gt;plock&#32;==&#32;&amp;(getlock(l)-&gt;lock))</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00095"/><link linkend="_ltests_8h_1a12057942e6ef80fa71f455ba6aee03f0">00095</link> <emphasis role="preprocessor">#define&#32;luai_userstatethread(l,l1)&#32;\</emphasis>
+00096 <emphasis role="preprocessor">&#32;&#32;lua_assert(getlock(l1)-&gt;plock&#32;==&#32;getlock(l)-&gt;plock)</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00097"/><link linkend="_ltests_8h_1aaf546c6564ac2ea8312b67870182fd44">00097</link> <emphasis role="preprocessor">#define&#32;luai_userstatefree(l,l1)&#32;\</emphasis>
+00098 <emphasis role="preprocessor">&#32;&#32;lua_assert(getlock(l)-&gt;plock&#32;==&#32;getlock(l1)-&gt;plock)</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00099"/><link linkend="_ltests_8h_1a459a2c5b3654fe38a83017e14b3fa63b">00099</link> <emphasis role="preprocessor">#define&#32;lua_lock(l)&#32;&#32;&#32;&#32;&#32;lua_assert((*getlock(l)-&gt;plock)++&#32;==&#32;0)</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00100"/><link linkend="_ltests_8h_1af24b94f132c4ba762750f4237d7bbba5">00100</link> <emphasis role="preprocessor">#define&#32;lua_unlock(l)&#32;&#32;&#32;lua_assert(--(*getlock(l)-&gt;plock)&#32;==&#32;0)</emphasis>
+00101 
+00102 
+00103 
+<anchor xml:id="_ltests_8h_source_1l00104"/><link linkend="_ltests_8h_1a939daca9bf454e4f374d1d04ff7b161c">00104</link> <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ltests_8h_1a939daca9bf454e4f374d1d04ff7b161c">luaB_opentests</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00105 
+<anchor xml:id="_ltests_8h_source_1l00106"/><link linkend="_ltests_8h_1a841f1ad3aefdf611dc771b4786868f59">00106</link> <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_ltests_8h_1a841f1ad3aefdf611dc771b4786868f59">debug_realloc</link>&#32;(<emphasis role="keywordtype">void</emphasis>&#32;*ud,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_lparser_8c_1a235428bed4c6be6cb6d2760cd0fa9d34">block</link>,
+00107 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;osize,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;nsize);
+00108 
+00109 <emphasis role="preprocessor">#if&#32;defined(lua_c)</emphasis>
+00110 <emphasis role="preprocessor">#define&#32;luaL_newstate()&#32;&#32;&#32;&#32;&#32;lua_newstate(debug_realloc,&#32;&amp;l_memcontrol)</emphasis>
+00111 <emphasis role="preprocessor">#define&#32;luaL_openlibs(L)&#32;&#32;\</emphasis>
+00112 <emphasis role="preprocessor">&#32;&#32;{&#32;(luaL_openlibs)(L);&#32;\</emphasis>
+00113 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;luaL_requiref(L,&#32;&quot;T&quot;,&#32;luaB_opentests,&#32;1);&#32;\</emphasis>
+00114 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;lua_pop(L,&#32;1);&#32;}</emphasis>
+00115 <emphasis role="preprocessor">#endif</emphasis>
+00116 
+00117 
+00118 
+00119 <emphasis role="comment">/*&#32;change&#32;some&#32;sizes&#32;to&#32;give&#32;some&#32;bugs&#32;a&#32;chance&#32;*/</emphasis>
+00120 
+00121 <emphasis role="preprocessor">#undef&#32;LUAL_BUFFERSIZE</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00122"/><link linkend="_ltests_8h_1af360ad37a770dfdc29291a99c398f42d">00122</link> <emphasis role="preprocessor">#define&#32;LUAL_BUFFERSIZE&#32;&#32;&#32;&#32;&#32;23</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00123"/><link linkend="_ltests_8h_1a91604f8876fd042d7b1cdbade17927e6">00123</link> <emphasis role="preprocessor">#define&#32;MINSTRTABSIZE&#32;&#32;&#32;&#32;&#32;&#32;&#32;2</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00124"/><link linkend="_ltests_8h_1ad5413b8b64cce6bf8cab6fa1e54d2464">00124</link> <emphasis role="preprocessor">#define&#32;MAXIWTHABS&#32;&#32;&#32;&#32;&#32;&#32;3</emphasis>
+00125 
+<anchor xml:id="_ltests_8h_source_1l00126"/><link linkend="_ltests_8h_1aa8382779dd8eeb2dea3deb97dec0ed1c">00126</link> <emphasis role="preprocessor">#define&#32;STRCACHE_N&#32;&#32;23</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00127"/><link linkend="_ltests_8h_1a3e028bcc45ab536a37bb6860caf3d2ca">00127</link> <emphasis role="preprocessor">#define&#32;STRCACHE_M&#32;&#32;5</emphasis>
+00128 
+00129 <emphasis role="preprocessor">#undef&#32;LUAI_USER_ALIGNMENT_T</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00130"/><link linkend="_ltests_8h_1a5a7113f97995c9150d121892030b4656">00130</link> <emphasis role="preprocessor">#define&#32;LUAI_USER_ALIGNMENT_T&#32;&#32;&#32;union&#32;{&#32;char&#32;b[sizeof(void*)&#32;*&#32;8];&#32;}</emphasis>
+00131 
+00132 
+00133 <emphasis role="comment">/*&#32;make&#32;stack-overflow&#32;tests&#32;run&#32;faster&#32;*/</emphasis>
+00134 <emphasis role="preprocessor">#undef&#32;LUAI_MAXSTACK</emphasis>
+<anchor xml:id="_ltests_8h_source_1l00135"/><link linkend="_ltests_8h_1ad7b065ae58f10bfa5800866b84de5f1e">00135</link> <emphasis role="preprocessor">#define&#32;LUAI_MAXSTACK&#32;&#32;&#32;50000</emphasis>
+00136 
+00137 
+00138 <emphasis role="comment">/*&#32;force&#32;Lua&#32;to&#32;use&#32;its&#32;own&#32;implementations&#32;*/</emphasis>
+00139 <emphasis role="preprocessor">#undef&#32;lua_strx2number</emphasis>
+00140 <emphasis role="preprocessor">#undef&#32;lua_number2strx</emphasis>
+00141 
+00142 
+00143 <emphasis role="preprocessor">#endif</emphasis>
+00144 
+</programlisting></section>

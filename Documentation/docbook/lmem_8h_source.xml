@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lmem_8h_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/lmem.h</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;lmem.h&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Interface&#32;to&#32;Memory&#32;Manager</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+00007 <emphasis role="preprocessor">#ifndef&#32;lmem_h</emphasis>
+00008 <emphasis role="preprocessor">#define&#32;lmem_h</emphasis>
+00009 
+00010 
+00011 <emphasis role="preprocessor">#include&#32;&lt;stddef.h&gt;</emphasis>
+00012 
+00013 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_llimits_8h">llimits.h</link>&quot;</emphasis>
+00014 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lua_8h">lua.h</link>&quot;</emphasis>
+00015 
+00016 
+<anchor xml:id="_lmem_8h_source_1l00017"/><link linkend="_lmem_8h_1ae11aaaf07d13b2f0c3a671b01d7e3822">00017</link> <emphasis role="preprocessor">#define&#32;luaM_error(L)&#32;&#32;&#32;luaD_throw(L,&#32;LUA_ERRMEM)</emphasis>
+00018 
+00019 
+00020 <emphasis role="comment">/*</emphasis>
+00021 <emphasis role="comment">**&#32;This&#32;macro&#32;tests&#32;whether&#32;it&#32;is&#32;safe&#32;to&#32;multiply&#32;&apos;n&apos;&#32;by&#32;the&#32;size&#32;of</emphasis>
+00022 <emphasis role="comment">**&#32;type&#32;&apos;t&apos;&#32;without&#32;overflows.&#32;Because&#32;&apos;e&apos;&#32;is&#32;always&#32;constant,&#32;it&#32;avoids</emphasis>
+00023 <emphasis role="comment">**&#32;the&#32;runtime&#32;division&#32;MAX_SIZET/(e).</emphasis>
+00024 <emphasis role="comment">**&#32;(The&#32;macro&#32;is&#32;somewhat&#32;complex&#32;to&#32;avoid&#32;warnings:&#32;&#32;The&#32;&apos;sizeof&apos;</emphasis>
+00025 <emphasis role="comment">**&#32;comparison&#32;avoids&#32;a&#32;runtime&#32;comparison&#32;when&#32;overflow&#32;cannot&#32;occur.</emphasis>
+00026 <emphasis role="comment">**&#32;The&#32;compiler&#32;should&#32;be&#32;able&#32;to&#32;optimize&#32;the&#32;real&#32;test&#32;by&#32;itself,&#32;but</emphasis>
+00027 <emphasis role="comment">**&#32;when&#32;it&#32;does&#32;it,&#32;it&#32;may&#32;give&#32;a&#32;warning&#32;about&#32;&quot;comparison&#32;is&#32;always</emphasis>
+00028 <emphasis role="comment">**&#32;false&#32;due&#32;to&#32;limited&#32;range&#32;of&#32;data&#32;type&quot;;&#32;the&#32;+1&#32;tricks&#32;the&#32;compiler,</emphasis>
+00029 <emphasis role="comment">**&#32;avoiding&#32;this&#32;warning&#32;but&#32;also&#32;this&#32;optimization.)</emphasis>
+00030 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lmem_8h_source_1l00031"/><link linkend="_lmem_8h_1aaa4ae2ac3a122058ba3e73b1f438a89c">00031</link> <emphasis role="preprocessor">#define&#32;luaM_testsize(n,e)&#32;&#32;\</emphasis>
+00032 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;(sizeof(n)&#32;&gt;=&#32;sizeof(size_t)&#32;&amp;&amp;&#32;cast_sizet((n))&#32;+&#32;1&#32;&gt;&#32;MAX_SIZET/(e))</emphasis>
+00033 
+<anchor xml:id="_lmem_8h_source_1l00034"/><link linkend="_lmem_8h_1a0ab87210cc8c1a531b9397f6d55b1a97">00034</link> <emphasis role="preprocessor">#define&#32;luaM_checksize(L,n,e)&#32;&#32;\</emphasis>
+00035 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;(luaM_testsize(n,e)&#32;?&#32;luaM_toobig(L)&#32;:&#32;cast_void(0))</emphasis>
+00036 
+00037 
+00038 <emphasis role="comment">/*</emphasis>
+00039 <emphasis role="comment">**&#32;Computes&#32;the&#32;minimum&#32;between&#32;&apos;n&apos;&#32;and&#32;&apos;MAX_SIZET/sizeof(t)&apos;,&#32;so&#32;that</emphasis>
+00040 <emphasis role="comment">**&#32;the&#32;result&#32;is&#32;not&#32;larger&#32;than&#32;&apos;n&apos;&#32;and&#32;cannot&#32;overflow&#32;a&#32;&apos;size_t&apos;</emphasis>
+00041 <emphasis role="comment">**&#32;when&#32;multiplied&#32;by&#32;the&#32;size&#32;of&#32;type&#32;&apos;t&apos;.&#32;(Assumes&#32;that&#32;&apos;n&apos;&#32;is&#32;an</emphasis>
+00042 <emphasis role="comment">**&#32;&apos;int&apos;&#32;or&#32;&apos;unsigned&#32;int&apos;&#32;and&#32;that&#32;&apos;int&apos;&#32;is&#32;not&#32;larger&#32;than&#32;&apos;size_t&apos;.)</emphasis>
+00043 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lmem_8h_source_1l00044"/><link linkend="_lmem_8h_1a29ccefa76d4743ffb490cdbc291f708a">00044</link> <emphasis role="preprocessor">#define&#32;luaM_limitN(n,t)&#32;&#32;\</emphasis>
+00045 <emphasis role="preprocessor">&#32;&#32;((cast_sizet(n)&#32;&lt;=&#32;MAX_SIZET/sizeof(t))&#32;?&#32;(n)&#32;:&#32;&#32;\</emphasis>
+00046 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;cast_uint((MAX_SIZET/sizeof(t))))</emphasis>
+00047 
+00048 
+00049 <emphasis role="comment">/*</emphasis>
+00050 <emphasis role="comment">**&#32;Arrays&#32;of&#32;chars&#32;do&#32;not&#32;need&#32;any&#32;test</emphasis>
+00051 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lmem_8h_source_1l00052"/><link linkend="_lmem_8h_1a5904278d180acc29faf199e1d76f3e85">00052</link> <emphasis role="preprocessor">#define&#32;luaM_reallocvchar(L,b,on,n)&#32;&#32;\</emphasis>
+00053 <emphasis role="preprocessor">&#32;&#32;cast_charp(luaM_saferealloc_(L,&#32;(b),&#32;(on)*sizeof(char),&#32;(n)*sizeof(char)))</emphasis>
+00054 
+<anchor xml:id="_lmem_8h_source_1l00055"/><link linkend="_lmem_8h_1a159fd0a4f45c4aa195990526f9d0bf01">00055</link> <emphasis role="preprocessor">#define&#32;luaM_freemem(L,&#32;b,&#32;s)&#32;&#32;&#32;luaM_free_(L,&#32;(b),&#32;(s))</emphasis>
+<anchor xml:id="_lmem_8h_source_1l00056"/><link linkend="_lmem_8h_1ad927ceb6a17a9e89a00b83dcc4482988">00056</link> <emphasis role="preprocessor">#define&#32;luaM_free(L,&#32;b)&#32;&#32;&#32;&#32;&#32;luaM_free_(L,&#32;(b),&#32;sizeof(*(b)))</emphasis>
+<anchor xml:id="_lmem_8h_source_1l00057"/><link linkend="_lmem_8h_1a574612879aa6814c76b8b57c41e4af5a">00057</link> <emphasis role="preprocessor">#define&#32;luaM_freearray(L,&#32;b,&#32;n)&#32;&#32;&#32;luaM_free_(L,&#32;(b),&#32;(n)*sizeof(*(b)))</emphasis>
+00058 
+<anchor xml:id="_lmem_8h_source_1l00059"/><link linkend="_lmem_8h_1ae72bd363be924fa9a67be67de0802ad7">00059</link> <emphasis role="preprocessor">#define&#32;luaM_new(L,t)&#32;&#32;&#32;&#32;&#32;&#32;&#32;cast(t*,&#32;luaM_malloc_(L,&#32;sizeof(t),&#32;0))</emphasis>
+<anchor xml:id="_lmem_8h_source_1l00060"/><link linkend="_lmem_8h_1a715cc368a85506c7a104cda58f270f3e">00060</link> <emphasis role="preprocessor">#define&#32;luaM_newvector(L,n,t)&#32;&#32;&#32;cast(t*,&#32;luaM_malloc_(L,&#32;(n)*sizeof(t),&#32;0))</emphasis>
+<anchor xml:id="_lmem_8h_source_1l00061"/><link linkend="_lmem_8h_1ab223744a0660c0aa48e388ca51466839">00061</link> <emphasis role="preprocessor">#define&#32;luaM_newvectorchecked(L,n,t)&#32;\</emphasis>
+00062 <emphasis role="preprocessor">&#32;&#32;(luaM_checksize(L,n,sizeof(t)),&#32;luaM_newvector(L,n,t))</emphasis>
+00063 
+<anchor xml:id="_lmem_8h_source_1l00064"/><link linkend="_lmem_8h_1a0ce640c4b032a327440e3820365d7167">00064</link> <emphasis role="preprocessor">#define&#32;luaM_newobject(L,tag,s)&#32;luaM_malloc_(L,&#32;(s),&#32;tag)</emphasis>
+00065 
+<anchor xml:id="_lmem_8h_source_1l00066"/><link linkend="_lmem_8h_1a38823c4cdf0d53b73e1e3015affb06f9">00066</link> <emphasis role="preprocessor">#define&#32;luaM_growvector(L,v,nelems,size,t,limit,e)&#32;\</emphasis>
+00067 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;((v)=cast(t&#32;*,&#32;luaM_growaux_(L,v,nelems,&amp;(size),sizeof(t),&#32;\</emphasis>
+00068 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;luaM_limitN(limit,t),e)))</emphasis>
+00069 
+<anchor xml:id="_lmem_8h_source_1l00070"/><link linkend="_lmem_8h_1ab1174e625ed7a62e5f8ba33a7e1c1917">00070</link> <emphasis role="preprocessor">#define&#32;luaM_reallocvector(L,&#32;v,oldn,n,t)&#32;\</emphasis>
+00071 <emphasis role="preprocessor">&#32;&#32;&#32;(cast(t&#32;*,&#32;luaM_realloc_(L,&#32;v,&#32;cast_sizet(oldn)&#32;*&#32;sizeof(t),&#32;\</emphasis>
+00072 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;cast_sizet(n)&#32;*&#32;sizeof(t))))</emphasis>
+00073 
+<anchor xml:id="_lmem_8h_source_1l00074"/><link linkend="_lmem_8h_1ab90797c53a311d30154c486b2b8561d5">00074</link> <emphasis role="preprocessor">#define&#32;luaM_shrinkvector(L,v,size,fs,t)&#32;\</emphasis>
+00075 <emphasis role="preprocessor">&#32;&#32;&#32;((v)=cast(t&#32;*,&#32;luaM_shrinkvector_(L,&#32;v,&#32;&amp;(size),&#32;fs,&#32;sizeof(t))))</emphasis>
+00076 
+00077 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_lmem_8h_1a23b8703b7b50e1c5dd37d41569a09a9a">luaM_toobig</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00078 
+00079 <emphasis role="comment">/*&#32;not&#32;to&#32;be&#32;called&#32;directly&#32;*/</emphasis>
+00080 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_lmem_8h_1ae7dc8a57fc5dbca825653a88a356a72d">luaM_realloc_</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_lparser_8c_1a235428bed4c6be6cb6d2760cd0fa9d34">block</link>,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;oldsize,
+00081 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;size);
+00082 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_lmem_8h_1a0e576053c97b77716cd2c48dd104ecb7">luaM_saferealloc_</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_lparser_8c_1a235428bed4c6be6cb6d2760cd0fa9d34">block</link>,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;oldsize,
+00083 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;size);
+00084 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lmem_8h_1a1596632e07c593bd9558ee4920fbe5de">luaM_free_</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_lparser_8c_1a235428bed4c6be6cb6d2760cd0fa9d34">block</link>,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;osize);
+00085 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_lmem_8h_1a28fa4e4a69de0a640dd25c23fd3aa721">luaM_growaux_</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_lparser_8c_1a235428bed4c6be6cb6d2760cd0fa9d34">block</link>,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nelems,
+00086 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;*size,&#32;<emphasis role="keywordtype">int</emphasis>&#32;size_elem,&#32;<emphasis role="keywordtype">int</emphasis>&#32;limit,
+00087 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*what);
+00088 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_lmem_8h_1a84227d0880b31ba10479080cb096b3d2">luaM_shrinkvector_</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_lparser_8c_1a235428bed4c6be6cb6d2760cd0fa9d34">block</link>,&#32;<emphasis role="keywordtype">int</emphasis>&#32;*nelem,
+00089 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;final_n,&#32;<emphasis role="keywordtype">int</emphasis>&#32;size_elem);
+00090 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_lmem_8h_1a96658ef7ad4e37d8dbd71b788733941b">luaM_malloc_</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;size,&#32;<emphasis role="keywordtype">int</emphasis>&#32;tag);
+00091 
+00092 <emphasis role="preprocessor">#endif</emphasis>
+00093 
+</programlisting></section>

@@ -1,0 +1,20 @@
+var searchData=
+[
+  ['f_3908',['f',['../struct_load_f.html#a3efb0e1a16208deecbd84c15401f7cf8',1,'LoadF::f()'],['../structlua_l___stream.html#a3efb0e1a16208deecbd84c15401f7cf8',1,'luaL_Stream::f()'],['../struct_r_n.html#a3efb0e1a16208deecbd84c15401f7cf8',1,'RN::f()'],['../union_value.html#abaf5a162dadd891d6bbdf89025862c98',1,'Value::f()'],['../struct_c_closure.html#abaf5a162dadd891d6bbdf89025862c98',1,'CClosure::f()'],['../structexpdesc.html#a362077c979b0bb65159c603270e40f70',1,'expdesc::f()'],['../struct_func_state.html#a4d218be569dacc9bcb058a02109fbce4',1,'FuncState::f()'],['../union_ftypes.html#af900396d7b72ff2a7002e8befe8cf8f1',1,'Ftypes::f()']]],
+  ['finobj_3909',['finobj',['../structglobal___state.html#a7c1118954ba5fdca801f48c9242c1a23',1,'global_State']]],
+  ['finobjold_3910',['finobjold',['../structglobal___state.html#adb047dc3e452515d1855d7313bdc86de',1,'global_State']]],
+  ['finobjrold_3911',['finobjrold',['../structglobal___state.html#a55ebc92b222c1b8367c3e0e8a36f4bd6',1,'global_State']]],
+  ['finobjsur_3912',['finobjsur',['../structglobal___state.html#a81edc846b7bf03a2c636df88e04d9688',1,'global_State']]],
+  ['firstgoto_3913',['firstgoto',['../struct_block_cnt.html#af671961b250410c3aa35bc67b91899fe',1,'BlockCnt']]],
+  ['firstlabel_3914',['firstlabel',['../struct_block_cnt.html#a92037659e880f2ed9767df1686eaa5bb',1,'BlockCnt::firstlabel()'],['../struct_func_state.html#a92037659e880f2ed9767df1686eaa5bb',1,'FuncState::firstlabel()']]],
+  ['firstlocal_3915',['firstlocal',['../struct_func_state.html#a0a14fa0565e6102066866045271dce45',1,'FuncState']]],
+  ['fixedgc_3916',['fixedgc',['../structglobal___state.html#aaae4d624f0c53c83a285c2dc30a26eb5',1,'global_State']]],
+  ['flags_3917',['flags',['../struct_table.html#a7c409930c5f202e9b7832b10a2a07109',1,'Table']]],
+  ['frealloc_3918',['frealloc',['../structglobal___state.html#aded8ba234ad5c0f907e3b70c935e28b6',1,'global_State']]],
+  ['freereg_3919',['freereg',['../struct_func_state.html#aee21b6e59a521ace2ee8ce491c912e07',1,'FuncState']]],
+  ['fs_3920',['fs',['../struct_lex_state.html#a99c527337ae84b128baaa1006f44d987',1,'LexState']]],
+  ['ftransfer_3921',['ftransfer',['../struct_call_info.html#a094d76a8d8b0428b743d44bdde3518ac',1,'CallInfo::ftransfer()'],['../structlua___debug.html#a094d76a8d8b0428b743d44bdde3518ac',1,'lua_Debug::ftransfer()']]],
+  ['func_3922',['func',['../struct_call_s.html#a9d82a8ad04b0dd8837e621047972260a',1,'CallS::func()'],['../structlua_l___reg.html#a9ee443558d897affd625361767eb0cec',1,'luaL_Reg::func()'],['../struct_call_info.html#a9d82a8ad04b0dd8837e621047972260a',1,'CallInfo::func()']]],
+  ['funcidx_3923',['funcidx',['../struct_call_info.html#ab3acb99c997e6556834d3646b44f3c85',1,'CallInfo']]],
+  ['funcs_3924',['funcs',['../lutf8lib_8c.html#aa4be121cd05b20a87bf4f1d5c1978a1b',1,'lutf8lib.c']]]
+];

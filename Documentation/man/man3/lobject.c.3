@@ -1,0 +1,312 @@
+.TH "D:/gitworkspace/lua/src/lobject.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lobject.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <locale\&.h>\fP
+.br
+\fC#include <math\&.h>\fP
+.br
+\fC#include <stdarg\&.h>\fP
+.br
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lctype\&.h'\fP
+.br
+\fC#include 'ldebug\&.h'\fP
+.br
+\fC#include 'ldo\&.h'\fP
+.br
+\fC#include 'lmem\&.h'\fP
+.br
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'lstate\&.h'\fP
+.br
+\fC#include 'lstring\&.h'\fP
+.br
+\fC#include 'lvm\&.h'\fP
+.br
+
+.SS "结构体"
+
+.in +1c
+.ti -1c
+.RI "struct \fBBuffFS\fP"
+.br
+.in -1c
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBlobject_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_CORE\fP"
+.br
+.ti -1c
+.RI "#define \fBL_MAXLENNUM\fP   200"
+.br
+.ti -1c
+.RI "#define \fBMAXBY10\fP   \fBcast\fP(\fBlua_Unsigned\fP, LUA_MAXINTEGER / 10)"
+.br
+.ti -1c
+.RI "#define \fBMAXLASTD\fP   \fBcast_int\fP(LUA_MAXINTEGER % 10)"
+.br
+.ti -1c
+.RI "#define \fBMAXNUMBER2STR\fP   50"
+.br
+.ti -1c
+.RI "#define \fBBUFVFS\fP   400"
+.br
+.ti -1c
+.RI "#define \fBaddsize\fP(b,  sz)   ((b)\->blen += (sz))"
+.br
+.ti -1c
+.RI "#define \fBRETS\fP   '\&.\&.\&.'"
+.br
+.ti -1c
+.RI "#define \fBPRE\fP   '[string \\''"
+.br
+.ti -1c
+.RI "#define \fBPOS\fP   '\\']'"
+.br
+.ti -1c
+.RI "#define \fBaddstr\fP(a,  b,  l)   ( memcpy(a,b,(l) * sizeof(char)), a += (l) )"
+.br
+.in -1c
+.SS "类型定义"
+
+.in +1c
+.ti -1c
+.RI "typedef struct \fBBuffFS\fP \fBBuffFS\fP"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "int \fBluaO_ceillog2\fP (unsigned int x)"
+.br
+.ti -1c
+.RI "static \fBlua_Integer\fP \fBintarith\fP (\fBlua_State\fP *L, int op, \fBlua_Integer\fP v1, \fBlua_Integer\fP v2)"
+.br
+.ti -1c
+.RI "static \fBlua_Number\fP \fBnumarith\fP (\fBlua_State\fP *L, int op, \fBlua_Number\fP v1, \fBlua_Number\fP v2)"
+.br
+.ti -1c
+.RI "int \fBluaO_rawarith\fP (\fBlua_State\fP *L, int op, const \fBTValue\fP *p1, const \fBTValue\fP *p2, \fBTValue\fP *res)"
+.br
+.ti -1c
+.RI "void \fBluaO_arith\fP (\fBlua_State\fP *L, int op, const \fBTValue\fP *p1, const \fBTValue\fP *p2, \fBStkId\fP res)"
+.br
+.ti -1c
+.RI "int \fBluaO_hexavalue\fP (int c)"
+.br
+.ti -1c
+.RI "static int \fBisneg\fP (const char **s)"
+.br
+.ti -1c
+.RI "static const char * \fBl_str2dloc\fP (const char *s, \fBlua_Number\fP *result, int mode)"
+.br
+.ti -1c
+.RI "static const char * \fBl_str2d\fP (const char *s, \fBlua_Number\fP *result)"
+.br
+.ti -1c
+.RI "static const char * \fBl_str2int\fP (const char *s, \fBlua_Integer\fP *result)"
+.br
+.ti -1c
+.RI "size_t \fBluaO_str2num\fP (const char *s, \fBTValue\fP *o)"
+.br
+.ti -1c
+.RI "int \fBluaO_utf8esc\fP (char *buff, unsigned long x)"
+.br
+.ti -1c
+.RI "static int \fBtostringbuff\fP (\fBTValue\fP *obj, char *buff)"
+.br
+.ti -1c
+.RI "void \fBluaO_tostring\fP (\fBlua_State\fP *L, \fBTValue\fP *obj)"
+.br
+.ti -1c
+.RI "static void \fBpushstr\fP (\fBBuffFS\fP *buff, const char *str, size_t l)"
+.br
+.ti -1c
+.RI "static void \fBclearbuff\fP (\fBBuffFS\fP *buff)"
+.br
+.ti -1c
+.RI "static char * \fBgetbuff\fP (\fBBuffFS\fP *buff, int sz)"
+.br
+.ti -1c
+.RI "static void \fBaddstr2buff\fP (\fBBuffFS\fP *buff, const char *str, size_t slen)"
+.br
+.ti -1c
+.RI "static void \fBaddnum2buff\fP (\fBBuffFS\fP *buff, \fBTValue\fP *num)"
+.br
+.ti -1c
+.RI "const char * \fBluaO_pushvfstring\fP (\fBlua_State\fP *L, const char *fmt, va_list argp)"
+.br
+.ti -1c
+.RI "const char * \fBluaO_pushfstring\fP (\fBlua_State\fP *L, const char *fmt,\&.\&.\&.)"
+.br
+.ti -1c
+.RI "void \fBluaO_chunkid\fP (char *out, const char *source, size_t srclen)"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define addsize(b, sz)   ((b)\->blen += (sz))"
+
+.PP
+在文件 lobject\&.c 第 426 行定义\&.
+.SS "#define addstr(a, b, l)   ( memcpy(a,b,(l) * sizeof(char)), a += (l) )"
+
+.PP
+在文件 lobject\&.c 第 546 行定义\&.
+.SS "#define BUFVFS   400"
+
+.PP
+在文件 lobject\&.c 第 378 行定义\&.
+.SS "#define L_MAXLENNUM   200"
+
+.PP
+在文件 lobject\&.c 第 220 行定义\&.
+.SS "#define lobject_c"
+
+.PP
+在文件 lobject\&.c 第 7 行定义\&.
+.SS "#define LUA_CORE"
+
+.PP
+在文件 lobject\&.c 第 8 行定义\&.
+.SS "#define MAXBY10   \fBcast\fP(\fBlua_Unsigned\fP, LUA_MAXINTEGER / 10)"
+
+.PP
+在文件 lobject\&.c 第 268 行定义\&.
+.SS "#define MAXLASTD   \fBcast_int\fP(LUA_MAXINTEGER % 10)"
+
+.PP
+在文件 lobject\&.c 第 269 行定义\&.
+.SS "#define MAXNUMBER2STR   50"
+
+.PP
+在文件 lobject\&.c 第 337 行定义\&.
+.SS "#define POS   '\\']'"
+
+.PP
+在文件 lobject\&.c 第 544 行定义\&.
+.SS "#define PRE   '[string \\''"
+
+.PP
+在文件 lobject\&.c 第 543 行定义\&.
+.SS "#define RETS   '\&.\&.\&.'"
+
+.PP
+在文件 lobject\&.c 第 542 行定义\&.
+.SH "类型定义说明"
+.PP 
+.SS "typedef struct \fBBuffFS\fP \fBBuffFS\fP"
+
+.SH "函数说明"
+.PP 
+.SS "static void addnum2buff (\fBBuffFS\fP * buff, \fBTValue\fP * num)\fC [static]\fP"
+
+.PP
+在文件 lobject\&.c 第 449 行定义\&.
+.SS "static void addstr2buff (\fBBuffFS\fP * buff, const char * str, size_t slen)\fC [static]\fP"
+
+.PP
+在文件 lobject\&.c 第 433 行定义\&.
+.SS "static void clearbuff (\fBBuffFS\fP * buff)\fC [static]\fP"
+
+.PP
+在文件 lobject\&.c 第 408 行定义\&.
+.SS "static char* getbuff (\fBBuffFS\fP * buff, int sz)\fC [static]\fP"
+
+.PP
+在文件 lobject\&.c 第 418 行定义\&.
+.SS "static \fBlua_Integer\fP intarith (\fBlua_State\fP * L, int op, \fBlua_Integer\fP v1, \fBlua_Integer\fP v2)\fC [static]\fP"
+
+.PP
+在文件 lobject\&.c 第 53 行定义\&.
+.SS "static int isneg (const char ** s)\fC [static]\fP"
+
+.PP
+在文件 lobject\&.c 第 141 行定义\&.
+.SS "static const char* l_str2d (const char * s, \fBlua_Number\fP * result)\fC [static]\fP"
+
+.PP
+在文件 lobject\&.c 第 246 行定义\&.
+.SS "static const char* l_str2dloc (const char * s, \fBlua_Number\fP * result, int mode)\fC [static]\fP"
+
+.PP
+在文件 lobject\&.c 第 223 行定义\&.
+.SS "static const char* l_str2int (const char * s, \fBlua_Integer\fP * result)\fC [static]\fP"
+
+.PP
+在文件 lobject\&.c 第 271 行定义\&.
+.SS "void luaO_arith (\fBlua_State\fP * L, int op, const \fBTValue\fP * p1, const \fBTValue\fP * p2, \fBStkId\fP res)"
+
+.PP
+在文件 lobject\&.c 第 126 行定义\&.
+.SS "int luaO_ceillog2 (unsigned int x)"
+
+.PP
+在文件 lobject\&.c 第 35 行定义\&.
+.SS "void luaO_chunkid (char * out, const char * source, size_t srclen)"
+
+.PP
+在文件 lobject\&.c 第 548 行定义\&.
+.SS "int luaO_hexavalue (int c)"
+
+.PP
+在文件 lobject\&.c 第 135 行定义\&.
+.SS "const char* luaO_pushfstring (\fBlua_State\fP * L, const char * fmt,  \&.\&.\&.)"
+
+.PP
+在文件 lobject\&.c 第 530 行定义\&.
+.SS "const char* luaO_pushvfstring (\fBlua_State\fP * L, const char * fmt, va_list argp)"
+
+.PP
+在文件 lobject\&.c 第 460 行定义\&.
+.SS "int luaO_rawarith (\fBlua_State\fP * L, int op, const \fBTValue\fP * p1, const \fBTValue\fP * p2, \fBTValue\fP * res)"
+
+.PP
+在文件 lobject\&.c 第 89 行定义\&.
+.SS "size_t luaO_str2num (const char * s, \fBTValue\fP * o)"
+
+.PP
+在文件 lobject\&.c 第 303 行定义\&.
+.SS "void luaO_tostring (\fBlua_State\fP * L, \fBTValue\fP * obj)"
+
+.PP
+在文件 lobject\&.c 第 362 行定义\&.
+.SS "int luaO_utf8esc (char * buff, unsigned long x)"
+
+.PP
+在文件 lobject\&.c 第 318 行定义\&.
+.SS "static \fBlua_Number\fP numarith (\fBlua_State\fP * L, int op, \fBlua_Number\fP v1, \fBlua_Number\fP v2)\fC [static]\fP"
+
+.PP
+在文件 lobject\&.c 第 73 行定义\&.
+.SS "static void pushstr (\fBBuffFS\fP * buff, const char * str, size_t l)\fC [static]\fP"
+
+.PP
+在文件 lobject\&.c 第 393 行定义\&.
+.SS "static int tostringbuff (\fBTValue\fP * obj, char * buff)\fC [static]\fP"
+
+.PP
+在文件 lobject\&.c 第 343 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

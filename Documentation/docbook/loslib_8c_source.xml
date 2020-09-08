@@ -1,0 +1,434 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_loslib_8c_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/loslib.c</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;loslib.c&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Standard&#32;Operating&#32;System&#32;library</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+<anchor xml:id="_loslib_8c_source_1l00007"/><link linkend="_loslib_8c_1a3ec58cf7ef7bd5214b2688f74dcefb73">00007</link> <emphasis role="preprocessor">#define&#32;loslib_c</emphasis>
+<anchor xml:id="_loslib_8c_source_1l00008"/><link linkend="_loslib_8c_1a884b19ad6094d6238c4072a8064aeb12">00008</link> <emphasis role="preprocessor">#define&#32;LUA_LIB</emphasis>
+00009 
+00010 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lprefix_8h">lprefix.h</link>&quot;</emphasis>
+00011 
+00012 
+00013 <emphasis role="preprocessor">#include&#32;&lt;errno.h&gt;</emphasis>
+00014 <emphasis role="preprocessor">#include&#32;&lt;locale.h&gt;</emphasis>
+00015 <emphasis role="preprocessor">#include&#32;&lt;stdlib.h&gt;</emphasis>
+00016 <emphasis role="preprocessor">#include&#32;&lt;string.h&gt;</emphasis>
+00017 <emphasis role="preprocessor">#include&#32;&lt;time.h&gt;</emphasis>
+00018 
+00019 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lua_8h">lua.h</link>&quot;</emphasis>
+00020 
+00021 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lauxlib_8h">lauxlib.h</link>&quot;</emphasis>
+00022 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lualib_8h">lualib.h</link>&quot;</emphasis>
+00023 
+00024 
+00025 <emphasis role="comment">/*</emphasis>
+00026 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00027 <emphasis role="comment">**&#32;List&#32;of&#32;valid&#32;conversion&#32;specifiers&#32;for&#32;the&#32;&apos;strftime&apos;&#32;function;</emphasis>
+00028 <emphasis role="comment">**&#32;options&#32;are&#32;grouped&#32;by&#32;length;&#32;group&#32;of&#32;length&#32;2&#32;start&#32;with&#32;&apos;||&apos;.</emphasis>
+00029 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00030 <emphasis role="comment">*/</emphasis>
+00031 <emphasis role="preprocessor">#if&#32;!defined(LUA_STRFTIMEOPTIONS)&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00032 
+00033 <emphasis role="comment">/*&#32;options&#32;for&#32;ANSI&#32;C&#32;89&#32;(only&#32;1-char&#32;options)&#32;*/</emphasis>
+<anchor xml:id="_loslib_8c_source_1l00034"/><link linkend="_loslib_8c_1ab0982d89a6abf79e4249c2daa582522c">00034</link> <emphasis role="preprocessor">#define&#32;L_STRFTIMEC89&#32;&#32;&#32;&#32;&#32;&#32;&#32;&quot;aAbBcdHIjmMpSUwWxXyYZ%&quot;</emphasis>
+00035 
+00036 <emphasis role="comment">/*&#32;options&#32;for&#32;ISO&#32;C&#32;99&#32;and&#32;POSIX&#32;*/</emphasis>
+<anchor xml:id="_loslib_8c_source_1l00037"/><link linkend="_loslib_8c_1a5f204f2c170011c7fd83337315b12e47">00037</link> <emphasis role="preprocessor">#define&#32;L_STRFTIMEC99&#32;&quot;aAbBcCdDeFgGhHIjmMnprRStTuUVwWxXyYzZ%&quot;&#32;\</emphasis>
+00038 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&quot;||&quot;&#32;&quot;EcECExEXEyEY&quot;&#32;&quot;OdOeOHOIOmOMOSOuOUOVOwOWOy&quot;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;two-char&#32;options&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00039 
+00040 <emphasis role="comment">/*&#32;options&#32;for&#32;Windows&#32;*/</emphasis>
+<anchor xml:id="_loslib_8c_source_1l00041"/><link linkend="_loslib_8c_1a8c61c03437bf447fe9b7dc054acd2217">00041</link> <emphasis role="preprocessor">#define&#32;L_STRFTIMEWIN&#32;&quot;aAbBcdHIjmMpSUwWxXyYzZ%&quot;&#32;\</emphasis>
+00042 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&quot;||&quot;&#32;&quot;#c#x#d#H#I#j#m#M#S#U#w#W#y#Y&quot;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;two-char&#32;options&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00043 
+00044 <emphasis role="preprocessor">#if&#32;defined(LUA_USE_WINDOWS)</emphasis>
+00045 <emphasis role="preprocessor">#define&#32;LUA_STRFTIMEOPTIONS&#32;L_STRFTIMEWIN</emphasis>
+00046 <emphasis role="preprocessor">#elif&#32;defined(LUA_USE_C89)</emphasis>
+00047 <emphasis role="preprocessor">#define&#32;LUA_STRFTIMEOPTIONS&#32;L_STRFTIMEC89</emphasis>
+00048 <emphasis role="preprocessor">#else&#32;&#32;</emphasis><emphasis role="comment">/*&#32;C99&#32;specification&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_loslib_8c_source_1l00049"/><link linkend="_loslib_8c_1ab7df836620acf65cb1f91c2e45ed1e31">00049</link> <emphasis role="preprocessor">#define&#32;LUA_STRFTIMEOPTIONS&#32;L_STRFTIMEC99</emphasis>
+00050 <emphasis role="preprocessor">#endif</emphasis>
+00051 
+00052 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00053 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00054 
+00055 
+00056 <emphasis role="comment">/*</emphasis>
+00057 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00058 <emphasis role="comment">**&#32;Configuration&#32;for&#32;time-related&#32;stuff</emphasis>
+00059 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00060 <emphasis role="comment">*/</emphasis>
+00061 
+00062 <emphasis role="comment">/*</emphasis>
+00063 <emphasis role="comment">**&#32;type&#32;to&#32;represent&#32;time_t&#32;in&#32;Lua</emphasis>
+00064 <emphasis role="comment">*/</emphasis>
+00065 <emphasis role="preprocessor">#if&#32;!defined(LUA_NUMTIME)&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00066 
+<anchor xml:id="_loslib_8c_source_1l00067"/><link linkend="_loslib_8c_1a7d2cb05e3c27f9dfa513dcb325e1b140">00067</link> <emphasis role="preprocessor">#define&#32;l_timet&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;lua_Integer</emphasis>
+<anchor xml:id="_loslib_8c_source_1l00068"/><link linkend="_loslib_8c_1ac63906583780389e3d016c9034a5fe9e">00068</link> <emphasis role="preprocessor">#define&#32;l_pushtime(L,t)&#32;&#32;&#32;&#32;&#32;lua_pushinteger(L,(lua_Integer)(t))</emphasis>
+<anchor xml:id="_loslib_8c_source_1l00069"/><link linkend="_loslib_8c_1a2c49dbe9467c4507fe4cd12be63eb93f">00069</link> <emphasis role="preprocessor">#define&#32;l_gettime(L,arg)&#32;&#32;&#32;&#32;luaL_checkinteger(L,&#32;arg)</emphasis>
+00070 
+00071 <emphasis role="preprocessor">#else&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00072 
+00073 <emphasis role="preprocessor">#define&#32;l_timet&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;lua_Number</emphasis>
+00074 <emphasis role="preprocessor">#define&#32;l_pushtime(L,t)&#32;&#32;&#32;&#32;&#32;lua_pushnumber(L,(lua_Number)(t))</emphasis>
+00075 <emphasis role="preprocessor">#define&#32;l_gettime(L,arg)&#32;&#32;&#32;&#32;luaL_checknumber(L,&#32;arg)</emphasis>
+00076 
+00077 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00078 
+00079 
+00080 <emphasis role="preprocessor">#if&#32;!defined(l_gmtime)&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00081 <emphasis role="comment">/*</emphasis>
+00082 <emphasis role="comment">**&#32;By&#32;default,&#32;Lua&#32;uses&#32;gmtime/localtime,&#32;except&#32;when&#32;POSIX&#32;is&#32;available,</emphasis>
+00083 <emphasis role="comment">**&#32;where&#32;it&#32;uses&#32;gmtime_r/localtime_r</emphasis>
+00084 <emphasis role="comment">*/</emphasis>
+00085 
+00086 <emphasis role="preprocessor">#if&#32;defined(LUA_USE_POSIX)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00087 
+00088 <emphasis role="preprocessor">#define&#32;l_gmtime(t,r)&#32;&#32;&#32;&#32;&#32;&#32;&#32;gmtime_r(t,r)</emphasis>
+00089 <emphasis role="preprocessor">#define&#32;l_localtime(t,r)&#32;&#32;&#32;&#32;localtime_r(t,r)</emphasis>
+00090 
+00091 <emphasis role="preprocessor">#else&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00092 
+00093 <emphasis role="comment">/*&#32;ISO&#32;C&#32;definitions&#32;*/</emphasis>
+<anchor xml:id="_loslib_8c_source_1l00094"/><link linkend="_loslib_8c_1a9192df83917f8155b1cfdbebf4c5eb8e">00094</link> <emphasis role="preprocessor">#define&#32;l_gmtime(t,r)&#32;&#32;&#32;&#32;&#32;&#32;&#32;((void)(r)-&gt;tm_sec,&#32;gmtime(t))</emphasis>
+<anchor xml:id="_loslib_8c_source_1l00095"/><link linkend="_loslib_8c_1a733d73698128700785bb69ebed050054">00095</link> <emphasis role="preprocessor">#define&#32;l_localtime(t,r)&#32;&#32;&#32;&#32;((void)(r)-&gt;tm_sec,&#32;localtime(t))</emphasis>
+00096 
+00097 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00098 
+00099 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00100 
+00101 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00102 
+00103 
+00104 <emphasis role="comment">/*</emphasis>
+00105 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00106 <emphasis role="comment">**&#32;Configuration&#32;for&#32;&apos;tmpnam&apos;:</emphasis>
+00107 <emphasis role="comment">**&#32;By&#32;default,&#32;Lua&#32;uses&#32;tmpnam&#32;except&#32;when&#32;POSIX&#32;is&#32;available,&#32;where</emphasis>
+00108 <emphasis role="comment">**&#32;it&#32;uses&#32;mkstemp.</emphasis>
+00109 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00110 <emphasis role="comment">*/</emphasis>
+00111 <emphasis role="preprocessor">#if&#32;!defined(lua_tmpnam)&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00112 
+00113 <emphasis role="preprocessor">#if&#32;defined(LUA_USE_POSIX)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00114 
+00115 <emphasis role="preprocessor">#include&#32;&lt;unistd.h&gt;</emphasis>
+00116 
+00117 <emphasis role="preprocessor">#define&#32;LUA_TMPNAMBUFSIZE&#32;&#32;&#32;32</emphasis>
+00118 
+00119 <emphasis role="preprocessor">#if&#32;!defined(LUA_TMPNAMTEMPLATE)</emphasis>
+00120 <emphasis role="preprocessor">#define&#32;LUA_TMPNAMTEMPLATE&#32;&#32;&quot;/tmp/lua_XXXXXX&quot;</emphasis>
+00121 <emphasis role="preprocessor">#endif</emphasis>
+00122 
+00123 <emphasis role="preprocessor">#define&#32;lua_tmpnam(b,e)&#32;{&#32;\</emphasis>
+00124 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;strcpy(b,&#32;LUA_TMPNAMTEMPLATE);&#32;\</emphasis>
+00125 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;e&#32;=&#32;mkstemp(b);&#32;\</emphasis>
+00126 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;(e&#32;!=&#32;-1)&#32;close(e);&#32;\</emphasis>
+00127 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;e&#32;=&#32;(e&#32;==&#32;-1);&#32;}</emphasis>
+00128 
+00129 <emphasis role="preprocessor">#else&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00130 
+00131 <emphasis role="comment">/*&#32;ISO&#32;C&#32;definitions&#32;*/</emphasis>
+<anchor xml:id="_loslib_8c_source_1l00132"/><link linkend="_loslib_8c_1a10daafc0532e819b74f297666fcc2d5f">00132</link> <emphasis role="preprocessor">#define&#32;LUA_TMPNAMBUFSIZE&#32;&#32;&#32;L_tmpnam</emphasis>
+<anchor xml:id="_loslib_8c_source_1l00133"/><link linkend="_loslib_8c_1aff3a671e45c29852d5964e9cfa7b2319">00133</link> <emphasis role="preprocessor">#define&#32;lua_tmpnam(b,e)&#32;&#32;&#32;&#32;&#32;{&#32;e&#32;=&#32;(tmpnam(b)&#32;==&#32;NULL);&#32;}</emphasis>
+00134 
+00135 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00136 
+00137 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00138 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00139 
+00140 
+00141 
+<anchor xml:id="_loslib_8c_source_1l00142"/><link linkend="_loslib_8c_1a2da7b72413e7abbb84043eeb7988ba36">00142</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loslib_8c_1a2da7b72413e7abbb84043eeb7988ba36">os_execute</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00143 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*cmd&#32;=&#32;<link linkend="_lauxlib_8h_1a732bc5882c4a5da46b236649ab6db47b">luaL_optstring</link>(L,&#32;1,&#32;NULL);
+00144 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;stat;
+00145 &#32;&#32;errno&#32;=&#32;0;
+00146 &#32;&#32;stat&#32;=&#32;system(cmd);
+00147 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(cmd&#32;!=&#32;NULL)
+00148 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a3db3f3a0c7de522b5e494c3ad06186d8">luaL_execresult</link>(L,&#32;stat);
+00149 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00150 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a56bbb7479265e38da2e2596e6ec25faa">lua_pushboolean</link>(L,&#32;stat);&#32;&#32;<emphasis role="comment">/*&#32;true&#32;if&#32;there&#32;is&#32;a&#32;shell&#32;*/</emphasis>
+00151 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00152 &#32;&#32;}
+00153 }
+00154 
+00155 
+<anchor xml:id="_loslib_8c_source_1l00156"/><link linkend="_loslib_8c_1aff1386a6722ad488ced309e2fcdebe13">00156</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loslib_8c_1aff1386a6722ad488ced309e2fcdebe13">os_remove</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00157 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*filename&#32;=&#32;<link linkend="_lauxlib_8h_1ad9917d22c79651fdd73d42c146b5056f">luaL_checkstring</link>(L,&#32;1);
+00158 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a86309080a5d45b232bcc240b45d06942">luaL_fileresult</link>(L,&#32;remove(filename)&#32;==&#32;0,&#32;filename);
+00159 }
+00160 
+00161 
+<anchor xml:id="_loslib_8c_source_1l00162"/><link linkend="_loslib_8c_1a9e0e5e5a06a8a1aa797e15034070b405">00162</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loslib_8c_1a9e0e5e5a06a8a1aa797e15034070b405">os_rename</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00163 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*fromname&#32;=&#32;<link linkend="_lauxlib_8h_1ad9917d22c79651fdd73d42c146b5056f">luaL_checkstring</link>(L,&#32;1);
+00164 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*toname&#32;=&#32;<link linkend="_lauxlib_8h_1ad9917d22c79651fdd73d42c146b5056f">luaL_checkstring</link>(L,&#32;2);
+00165 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a86309080a5d45b232bcc240b45d06942">luaL_fileresult</link>(L,&#32;rename(fromname,&#32;toname)&#32;==&#32;0,&#32;NULL);
+00166 }
+00167 
+00168 
+<anchor xml:id="_loslib_8c_source_1l00169"/><link linkend="_loslib_8c_1a89a90062784a8adc223ff4cbe576321d">00169</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loslib_8c_1a89a90062784a8adc223ff4cbe576321d">os_tmpname</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00170 &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;buff[<link linkend="_loslib_8c_1a10daafc0532e819b74f297666fcc2d5f">LUA_TMPNAMBUFSIZE</link>];
+00171 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;err;
+00172 &#32;&#32;<link linkend="_loslib_8c_1aff3a671e45c29852d5964e9cfa7b2319">lua_tmpnam</link>(buff,&#32;err);
+00173 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(err)
+00174 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;unable&#32;to&#32;generate&#32;a&#32;unique&#32;filename&quot;</emphasis>);
+00175 &#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;buff);
+00176 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00177 }
+00178 
+00179 
+<anchor xml:id="_loslib_8c_source_1l00180"/><link linkend="_loslib_8c_1a32640cd81f9679e9539fa18a4083a4ec">00180</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loslib_8c_1a32640cd81f9679e9539fa18a4083a4ec">os_getenv</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00181 &#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;getenv(<link linkend="_lauxlib_8h_1ad9917d22c79651fdd73d42c146b5056f">luaL_checkstring</link>(L,&#32;1)));&#32;&#32;<emphasis role="comment">/*&#32;if&#32;NULL&#32;push&#32;nil&#32;*/</emphasis>
+00182 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00183 }
+00184 
+00185 
+<anchor xml:id="_loslib_8c_source_1l00186"/><link linkend="_loslib_8c_1ac8ac40c239a4c86ee937b34663bffe80">00186</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loslib_8c_1ac8ac40c239a4c86ee937b34663bffe80">os_clock</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00187 &#32;&#32;<link linkend="_lapi_8c_1a328625a03fbb5548f27b1af10f109f6a">lua_pushnumber</link>(L,&#32;((<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link>)clock())/(<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link>)CLOCKS_PER_SEC);
+00188 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00189 }
+00190 
+00191 
+00192 <emphasis role="comment">/*</emphasis>
+00193 <emphasis role="comment">**&#32;{======================================================</emphasis>
+00194 <emphasis role="comment">**&#32;Time/Date&#32;operations</emphasis>
+00195 <emphasis role="comment">**&#32;{&#32;year=%Y,&#32;month=%m,&#32;day=%d,&#32;hour=%H,&#32;min=%M,&#32;sec=%S,</emphasis>
+00196 <emphasis role="comment">**&#32;&#32;&#32;wday=%w+1,&#32;yday=%j,&#32;isdst=?&#32;}</emphasis>
+00197 <emphasis role="comment">**&#32;=======================================================</emphasis>
+00198 <emphasis role="comment">*/</emphasis>
+00199 
+00200 <emphasis role="comment">/*</emphasis>
+00201 <emphasis role="comment">**&#32;About&#32;the&#32;overflow&#32;check:&#32;an&#32;overflow&#32;cannot&#32;occur&#32;when&#32;time</emphasis>
+00202 <emphasis role="comment">**&#32;is&#32;represented&#32;by&#32;a&#32;lua_Integer,&#32;because&#32;either&#32;lua_Integer&#32;is</emphasis>
+00203 <emphasis role="comment">**&#32;large&#32;enough&#32;to&#32;represent&#32;all&#32;int&#32;fields&#32;or&#32;it&#32;is&#32;not&#32;large&#32;enough</emphasis>
+00204 <emphasis role="comment">**&#32;to&#32;represent&#32;a&#32;time&#32;that&#32;cause&#32;a&#32;field&#32;to&#32;overflow.&#32;&#32;However,&#32;if</emphasis>
+00205 <emphasis role="comment">**&#32;times&#32;are&#32;represented&#32;as&#32;doubles&#32;and&#32;lua_Integer&#32;is&#32;int,&#32;then&#32;the</emphasis>
+00206 <emphasis role="comment">**&#32;time&#32;0x1.e1853b0d184f6p+55&#32;would&#32;cause&#32;an&#32;overflow&#32;when&#32;adding&#32;1900</emphasis>
+00207 <emphasis role="comment">**&#32;to&#32;compute&#32;the&#32;year.</emphasis>
+00208 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_loslib_8c_source_1l00209"/><link linkend="_loslib_8c_1aa9bc89c1972a22cc25fb7bce8584f89a">00209</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_loslib_8c_1aa9bc89c1972a22cc25fb7bce8584f89a">setfield</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*key,&#32;<emphasis role="keywordtype">int</emphasis>&#32;value,&#32;<emphasis role="keywordtype">int</emphasis>&#32;delta)&#32;{
+00210 <emphasis role="preprocessor">&#32;&#32;#if&#32;(defined(LUA_NUMTIME)&#32;&amp;&amp;&#32;LUA_MAXINTEGER&#32;&lt;=&#32;INT_MAX)</emphasis>
+00211 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(value&#32;&gt;&#32;LUA_MAXINTEGER&#32;-&#32;delta)
+00212 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;field&#32;&apos;%s&apos;&#32;is&#32;out-of-bound&quot;</emphasis>,&#32;key);
+00213 <emphasis role="preprocessor">&#32;&#32;#endif</emphasis>
+00214 &#32;&#32;<link linkend="_lapi_8c_1adcec46ff05dfee9a3c4c05828b40c213">lua_pushinteger</link>(L,&#32;(<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>)value&#32;+&#32;delta);
+00215 &#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;-2,&#32;key);
+00216 }
+00217 
+00218 
+<anchor xml:id="_loslib_8c_source_1l00219"/><link linkend="_loslib_8c_1a66ff5b88f96a4df4a360cf6928636860">00219</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_loslib_8c_1a66ff5b88f96a4df4a360cf6928636860">setboolfield</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*key,&#32;<emphasis role="keywordtype">int</emphasis>&#32;value)&#32;{
+00220 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(value&#32;&lt;&#32;0)&#32;&#32;<emphasis role="comment">/*&#32;undefined?&#32;*/</emphasis>
+00221 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;does&#32;not&#32;set&#32;field&#32;*/</emphasis>
+00222 &#32;&#32;<link linkend="_lapi_8c_1a56bbb7479265e38da2e2596e6ec25faa">lua_pushboolean</link>(L,&#32;value);
+00223 &#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;-2,&#32;key);
+00224 }
+00225 
+00226 
+00227 <emphasis role="comment">/*</emphasis>
+00228 <emphasis role="comment">**&#32;Set&#32;all&#32;fields&#32;from&#32;structure&#32;&apos;tm&apos;&#32;in&#32;the&#32;table&#32;on&#32;top&#32;of&#32;the&#32;stack</emphasis>
+00229 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_loslib_8c_source_1l00230"/><link linkend="_loslib_8c_1ae4eca277a29a763a64ef611692c4b894">00230</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_loslib_8c_1ae4eca277a29a763a64ef611692c4b894">setallfields</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">struct</emphasis>&#32;tm&#32;*stm)&#32;{
+00231 &#32;&#32;<link linkend="_loslib_8c_1aa9bc89c1972a22cc25fb7bce8584f89a">setfield</link>(L,&#32;<emphasis role="stringliteral">&quot;year&quot;</emphasis>,&#32;stm-&gt;tm_year,&#32;1900);
+00232 &#32;&#32;<link linkend="_loslib_8c_1aa9bc89c1972a22cc25fb7bce8584f89a">setfield</link>(L,&#32;<emphasis role="stringliteral">&quot;month&quot;</emphasis>,&#32;stm-&gt;tm_mon,&#32;1);
+00233 &#32;&#32;<link linkend="_loslib_8c_1aa9bc89c1972a22cc25fb7bce8584f89a">setfield</link>(L,&#32;<emphasis role="stringliteral">&quot;day&quot;</emphasis>,&#32;stm-&gt;tm_mday,&#32;0);
+00234 &#32;&#32;<link linkend="_loslib_8c_1aa9bc89c1972a22cc25fb7bce8584f89a">setfield</link>(L,&#32;<emphasis role="stringliteral">&quot;hour&quot;</emphasis>,&#32;stm-&gt;tm_hour,&#32;0);
+00235 &#32;&#32;<link linkend="_loslib_8c_1aa9bc89c1972a22cc25fb7bce8584f89a">setfield</link>(L,&#32;<emphasis role="stringliteral">&quot;min&quot;</emphasis>,&#32;stm-&gt;tm_min,&#32;0);
+00236 &#32;&#32;<link linkend="_loslib_8c_1aa9bc89c1972a22cc25fb7bce8584f89a">setfield</link>(L,&#32;<emphasis role="stringliteral">&quot;sec&quot;</emphasis>,&#32;stm-&gt;tm_sec,&#32;0);
+00237 &#32;&#32;<link linkend="_loslib_8c_1aa9bc89c1972a22cc25fb7bce8584f89a">setfield</link>(L,&#32;<emphasis role="stringliteral">&quot;yday&quot;</emphasis>,&#32;stm-&gt;tm_yday,&#32;1);
+00238 &#32;&#32;<link linkend="_loslib_8c_1aa9bc89c1972a22cc25fb7bce8584f89a">setfield</link>(L,&#32;<emphasis role="stringliteral">&quot;wday&quot;</emphasis>,&#32;stm-&gt;tm_wday,&#32;1);
+00239 &#32;&#32;<link linkend="_loslib_8c_1a66ff5b88f96a4df4a360cf6928636860">setboolfield</link>(L,&#32;<emphasis role="stringliteral">&quot;isdst&quot;</emphasis>,&#32;stm-&gt;tm_isdst);
+00240 }
+00241 
+00242 
+<anchor xml:id="_loslib_8c_source_1l00243"/><link linkend="_loslib_8c_1a5dbd1fc25ad13c0f325d09f811bb6172">00243</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loslib_8c_1a5dbd1fc25ad13c0f325d09f811bb6172">getboolfield</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*key)&#32;{
+00244 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;res;
+00245 &#32;&#32;res&#32;=&#32;(<link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link>(L,&#32;-1,&#32;key)&#32;==&#32;<link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">LUA_TNIL</link>)&#32;?&#32;-1&#32;:&#32;<link linkend="_lapi_8c_1a444aee9aa56b0b06175ee3c7bcf7927c">lua_toboolean</link>(L,&#32;-1);
+00246 &#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);
+00247 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;res;
+00248 }
+00249 
+00250 
+<anchor xml:id="_loslib_8c_source_1l00251"/><link linkend="_loslib_8c_1aa0a7f676dc564dbc1a3c16c917b933c9">00251</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loslib_8c_1aa0a7f676dc564dbc1a3c16c917b933c9">getfield</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*key,&#32;<emphasis role="keywordtype">int</emphasis>&#32;d,&#32;<emphasis role="keywordtype">int</emphasis>&#32;delta)&#32;{
+00252 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;isnum;
+00253 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;t&#32;=&#32;<link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link>(L,&#32;-1,&#32;key);&#32;&#32;<emphasis role="comment">/*&#32;get&#32;field&#32;and&#32;its&#32;type&#32;*/</emphasis>
+00254 &#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;res&#32;=&#32;<link linkend="_lapi_8c_1af81c9a68425546e1f8c6354728c95170">lua_tointegerx</link>(L,&#32;-1,&#32;&amp;isnum);
+00255 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!isnum)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;field&#32;is&#32;not&#32;an&#32;integer?&#32;*/</emphasis>
+00256 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(t&#32;!=&#32;<link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">LUA_TNIL</link>)&#32;&#32;<emphasis role="comment">/*&#32;some&#32;other&#32;value?&#32;*/</emphasis>
+00257 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;field&#32;&apos;%s&apos;&#32;is&#32;not&#32;an&#32;integer&quot;</emphasis>,&#32;key);
+00258 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(d&#32;&lt;&#32;0)&#32;&#32;<emphasis role="comment">/*&#32;absent&#32;field;&#32;no&#32;default?&#32;*/</emphasis>
+00259 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;field&#32;&apos;%s&apos;&#32;missing&#32;in&#32;date&#32;table&quot;</emphasis>,&#32;key);
+00260 &#32;&#32;&#32;&#32;res&#32;=&#32;d;
+00261 &#32;&#32;}
+00262 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00263 &#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;unsigned&#32;avoids&#32;overflow&#32;when&#32;lua_Integer&#32;has&#32;32&#32;bits&#32;*/</emphasis>
+00264 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!(res&#32;&gt;=&#32;0&#32;?&#32;(<link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link>)res&#32;&lt;=&#32;(<link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link>)INT_MAX&#32;+&#32;delta
+00265 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;:&#32;(<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>)INT_MIN&#32;+&#32;delta&#32;&lt;=&#32;res))
+00266 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;field&#32;&apos;%s&apos;&#32;is&#32;out-of-bound&quot;</emphasis>,&#32;key);
+00267 &#32;&#32;&#32;&#32;res&#32;-=&#32;delta;
+00268 &#32;&#32;}
+00269 &#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);
+00270 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;(<emphasis role="keywordtype">int</emphasis>)res;
+00271 }
+00272 
+00273 
+<anchor xml:id="_loslib_8c_source_1l00274"/><link linkend="_loslib_8c_1aaa168f0d57d7a806d86b6b8b20eb51c7">00274</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_loslib_8c_1aaa168f0d57d7a806d86b6b8b20eb51c7">checkoption</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*conv,
+00275 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;ptrdiff_t&#32;convlen,&#32;<emphasis role="keywordtype">char</emphasis>&#32;*buff)&#32;{
+00276 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*option&#32;=&#32;<link linkend="_loslib_8c_1ab7df836620acf65cb1f91c2e45ed1e31">LUA_STRFTIMEOPTIONS</link>;
+00277 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;oplen&#32;=&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;length&#32;of&#32;options&#32;being&#32;checked&#32;*/</emphasis>
+00278 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(;&#32;*option&#32;!=&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>&#32;&amp;&amp;&#32;oplen&#32;&lt;=&#32;convlen;&#32;option&#32;+=&#32;oplen)&#32;{
+00279 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(*option&#32;==&#32;<emphasis role="charliteral">&apos;|&apos;</emphasis>)&#32;&#32;<emphasis role="comment">/*&#32;next&#32;block?&#32;*/</emphasis>
+00280 &#32;&#32;&#32;&#32;&#32;&#32;oplen++;&#32;&#32;<emphasis role="comment">/*&#32;will&#32;check&#32;options&#32;with&#32;next&#32;length&#32;(+1)&#32;*/</emphasis>
+00281 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(memcmp(conv,&#32;option,&#32;oplen)&#32;==&#32;0)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;match?&#32;*/</emphasis>
+00282 &#32;&#32;&#32;&#32;&#32;&#32;memcpy(buff,&#32;conv,&#32;oplen);&#32;&#32;<emphasis role="comment">/*&#32;copy&#32;valid&#32;option&#32;to&#32;buffer&#32;*/</emphasis>
+00283 &#32;&#32;&#32;&#32;&#32;&#32;buff[oplen]&#32;=&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>;
+00284 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;conv&#32;+&#32;oplen;&#32;&#32;<emphasis role="comment">/*&#32;return&#32;next&#32;item&#32;*/</emphasis>
+00285 &#32;&#32;&#32;&#32;}
+00286 &#32;&#32;}
+00287 &#32;&#32;<link linkend="_lauxlib_8c_1ac607576dd107a3120cd51948989f1ed2">luaL_argerror</link>(L,&#32;1,
+00288 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1ab190c226d38b289e6ca57683a9d4e0f0">lua_pushfstring</link>(L,&#32;<emphasis role="stringliteral">&quot;invalid&#32;conversion&#32;specifier&#32;&apos;%%%s&apos;&quot;</emphasis>,&#32;conv));
+00289 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;conv;&#32;&#32;<emphasis role="comment">/*&#32;to&#32;avoid&#32;warnings&#32;*/</emphasis>
+00290 }
+00291 
+00292 
+<anchor xml:id="_loslib_8c_source_1l00293"/><link linkend="_loslib_8c_1afa432e42a4acd4aa3a30eb02b3beab70">00293</link> <emphasis role="keyword">static</emphasis>&#32;time_t&#32;<link linkend="_loslib_8c_1afa432e42a4acd4aa3a30eb02b3beab70">l_checktime</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg)&#32;{
+00294 &#32;&#32;<link linkend="_loslib_8c_1a7d2cb05e3c27f9dfa513dcb325e1b140">l_timet</link>&#32;t&#32;=&#32;<link linkend="_loslib_8c_1a2c49dbe9467c4507fe4cd12be63eb93f">l_gettime</link>(L,&#32;arg);
+00295 &#32;&#32;<link linkend="_lauxlib_8h_1a48ce6cd86a7448e97f258097a7abc44d">luaL_argcheck</link>(L,&#32;(time_t)t&#32;==&#32;t,&#32;arg,&#32;<emphasis role="stringliteral">&quot;time&#32;out-of-bounds&quot;</emphasis>);
+00296 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;(time_t)t;
+00297 }
+00298 
+00299 
+00300 <emphasis role="comment">/*&#32;maximum&#32;size&#32;for&#32;an&#32;individual&#32;&apos;strftime&apos;&#32;item&#32;*/</emphasis>
+<anchor xml:id="_loslib_8c_source_1l00301"/><link linkend="_loslib_8c_1a0c2f8d354bc43a99aaff9ba46dcf5258">00301</link> <emphasis role="preprocessor">#define&#32;SIZETIMEFMT&#32;250</emphasis>
+00302 
+00303 
+<anchor xml:id="_loslib_8c_source_1l00304"/><link linkend="_loslib_8c_1a6520f2562b500aee87a6a475995adefb">00304</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loslib_8c_1a6520f2562b500aee87a6a475995adefb">os_date</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00305 &#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;slen;
+00306 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*s&#32;=&#32;<link linkend="_lauxlib_8c_1a78e227b41b881001dc0e95a263690816">luaL_optlstring</link>(L,&#32;1,&#32;<emphasis role="stringliteral">&quot;%c&quot;</emphasis>,&#32;&amp;slen);
+00307 &#32;&#32;time_t&#32;t&#32;=&#32;<link linkend="_lauxlib_8h_1aca033280b0176012ef290131876f706e">luaL_opt</link>(L,&#32;<link linkend="_loslib_8c_1afa432e42a4acd4aa3a30eb02b3beab70">l_checktime</link>,&#32;2,&#32;time(NULL));
+00308 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*se&#32;=&#32;s&#32;+&#32;slen;&#32;&#32;<emphasis role="comment">/*&#32;&apos;s&apos;&#32;end&#32;*/</emphasis>
+00309 &#32;&#32;<emphasis role="keyword">struct&#32;</emphasis>tm&#32;tmr,&#32;*stm;
+00310 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(*s&#32;==&#32;<emphasis role="charliteral">&apos;!&apos;</emphasis>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;UTC?&#32;*/</emphasis>
+00311 &#32;&#32;&#32;&#32;stm&#32;=&#32;<link linkend="_loslib_8c_1a9192df83917f8155b1cfdbebf4c5eb8e">l_gmtime</link>(&amp;t,&#32;&amp;tmr);
+00312 &#32;&#32;&#32;&#32;s++;&#32;&#32;<emphasis role="comment">/*&#32;skip&#32;&apos;!&apos;&#32;*/</emphasis>
+00313 &#32;&#32;}
+00314 &#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00315 &#32;&#32;&#32;&#32;stm&#32;=&#32;<link linkend="_loslib_8c_1a733d73698128700785bb69ebed050054">l_localtime</link>(&amp;t,&#32;&amp;tmr);
+00316 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(stm&#32;==&#32;NULL)&#32;&#32;<emphasis role="comment">/*&#32;invalid&#32;date?&#32;*/</emphasis>
+00317 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,
+00318 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;date&#32;result&#32;cannot&#32;be&#32;represented&#32;in&#32;this&#32;installation&quot;</emphasis>);
+00319 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(strcmp(s,&#32;<emphasis role="stringliteral">&quot;*t&quot;</emphasis>)&#32;==&#32;0)&#32;{
+00320 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a7f93e3baf3101cad59ec61b7744a55d8">lua_createtable</link>(L,&#32;0,&#32;9);&#32;&#32;<emphasis role="comment">/*&#32;9&#32;=&#32;number&#32;of&#32;fields&#32;*/</emphasis>
+00321 &#32;&#32;&#32;&#32;<link linkend="_loslib_8c_1ae4eca277a29a763a64ef611692c4b894">setallfields</link>(L,&#32;stm);
+00322 &#32;&#32;}
+00323 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00324 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;cc[4];&#32;&#32;<emphasis role="comment">/*&#32;buffer&#32;for&#32;individual&#32;conversion&#32;specifiers&#32;*/</emphasis>
+00325 &#32;&#32;&#32;&#32;<link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;b;
+00326 &#32;&#32;&#32;&#32;cc[0]&#32;=&#32;<emphasis role="charliteral">&apos;%&apos;</emphasis>;
+00327 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a0830ef75e335f6d7590b0e058f82a5eb">luaL_buffinit</link>(L,&#32;&amp;b);
+00328 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;(s&#32;&lt;&#32;se)&#32;{
+00329 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(*s&#32;!=&#32;<emphasis role="charliteral">&apos;%&apos;</emphasis>)&#32;&#32;<emphasis role="comment">/*&#32;not&#32;a&#32;conversion&#32;specifier?&#32;*/</emphasis>
+00330 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a63935c5b4cf5d45930c875f6cc5e1432">luaL_addchar</link>(&amp;b,&#32;*s++);
+00331 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00332 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;reslen;
+00333 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;*buff&#32;=&#32;<link linkend="_lauxlib_8c_1ae695ed340bec54979c499b70d7d29318">luaL_prepbuffsize</link>(&amp;b,&#32;<link linkend="_loslib_8c_1a0c2f8d354bc43a99aaff9ba46dcf5258">SIZETIMEFMT</link>);
+00334 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;s++;&#32;&#32;<emphasis role="comment">/*&#32;skip&#32;&apos;%&apos;&#32;*/</emphasis>
+00335 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;s&#32;=&#32;<link linkend="_loslib_8c_1aaa168f0d57d7a806d86b6b8b20eb51c7">checkoption</link>(L,&#32;s,&#32;se&#32;-&#32;s,&#32;cc&#32;+&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;copy&#32;specifier&#32;to&#32;&apos;cc&apos;&#32;*/</emphasis>
+00336 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;reslen&#32;=&#32;strftime(buff,&#32;<link linkend="_loslib_8c_1a0c2f8d354bc43a99aaff9ba46dcf5258">SIZETIMEFMT</link>,&#32;cc,&#32;stm);
+00337 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a7c0adb7401e0be1a843946cee0556684">luaL_addsize</link>(&amp;b,&#32;reslen);
+00338 &#32;&#32;&#32;&#32;&#32;&#32;}
+00339 &#32;&#32;&#32;&#32;}
+00340 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a3a1f80033814e2057583a7d24cee23b4">luaL_pushresult</link>(&amp;b);
+00341 &#32;&#32;}
+00342 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00343 }
+00344 
+00345 
+<anchor xml:id="_loslib_8c_source_1l00346"/><link linkend="_loslib_8c_1ae32288bc9696b48450146e11c241f943">00346</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loslib_8c_1ae32288bc9696b48450146e11c241f943">os_time</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00347 &#32;&#32;time_t&#32;t;
+00348 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lua_8h_1af51702bb75a31bb4a279953ee386d533">lua_isnoneornil</link>(L,&#32;1))&#32;&#32;<emphasis role="comment">/*&#32;called&#32;without&#32;args?&#32;*/</emphasis>
+00349 &#32;&#32;&#32;&#32;t&#32;=&#32;time(NULL);&#32;&#32;<emphasis role="comment">/*&#32;get&#32;current&#32;time&#32;*/</emphasis>
+00350 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00351 &#32;&#32;&#32;&#32;<emphasis role="keyword">struct&#32;</emphasis>tm&#32;ts;
+00352 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a0f8f78c4edc5cbf890690b3cf9615dc8">luaL_checktype</link>(L,&#32;1,&#32;<link linkend="_lua_8h_1a31620fd8da5b655b7879e16a116ec31a">LUA_TTABLE</link>);
+00353 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1adaa30f0d34786144c94644039d1d1b6e">lua_settop</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;make&#32;sure&#32;table&#32;is&#32;at&#32;the&#32;top&#32;*/</emphasis>
+00354 &#32;&#32;&#32;&#32;ts.tm_year&#32;=&#32;<link linkend="_loslib_8c_1aa0a7f676dc564dbc1a3c16c917b933c9">getfield</link>(L,&#32;<emphasis role="stringliteral">&quot;year&quot;</emphasis>,&#32;-1,&#32;1900);
+00355 &#32;&#32;&#32;&#32;ts.tm_mon&#32;=&#32;<link linkend="_loslib_8c_1aa0a7f676dc564dbc1a3c16c917b933c9">getfield</link>(L,&#32;<emphasis role="stringliteral">&quot;month&quot;</emphasis>,&#32;-1,&#32;1);
+00356 &#32;&#32;&#32;&#32;ts.tm_mday&#32;=&#32;<link linkend="_loslib_8c_1aa0a7f676dc564dbc1a3c16c917b933c9">getfield</link>(L,&#32;<emphasis role="stringliteral">&quot;day&quot;</emphasis>,&#32;-1,&#32;0);
+00357 &#32;&#32;&#32;&#32;ts.tm_hour&#32;=&#32;<link linkend="_loslib_8c_1aa0a7f676dc564dbc1a3c16c917b933c9">getfield</link>(L,&#32;<emphasis role="stringliteral">&quot;hour&quot;</emphasis>,&#32;12,&#32;0);
+00358 &#32;&#32;&#32;&#32;ts.tm_min&#32;=&#32;<link linkend="_loslib_8c_1aa0a7f676dc564dbc1a3c16c917b933c9">getfield</link>(L,&#32;<emphasis role="stringliteral">&quot;min&quot;</emphasis>,&#32;0,&#32;0);
+00359 &#32;&#32;&#32;&#32;ts.tm_sec&#32;=&#32;<link linkend="_loslib_8c_1aa0a7f676dc564dbc1a3c16c917b933c9">getfield</link>(L,&#32;<emphasis role="stringliteral">&quot;sec&quot;</emphasis>,&#32;0,&#32;0);
+00360 &#32;&#32;&#32;&#32;ts.tm_isdst&#32;=&#32;<link linkend="_loslib_8c_1a5dbd1fc25ad13c0f325d09f811bb6172">getboolfield</link>(L,&#32;<emphasis role="stringliteral">&quot;isdst&quot;</emphasis>);
+00361 &#32;&#32;&#32;&#32;t&#32;=&#32;mktime(&amp;ts);
+00362 &#32;&#32;&#32;&#32;<link linkend="_loslib_8c_1ae4eca277a29a763a64ef611692c4b894">setallfields</link>(L,&#32;&amp;ts);&#32;&#32;<emphasis role="comment">/*&#32;update&#32;fields&#32;with&#32;normalized&#32;values&#32;*/</emphasis>
+00363 &#32;&#32;}
+00364 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(t&#32;!=&#32;(time_t)(<link linkend="_loslib_8c_1a7d2cb05e3c27f9dfa513dcb325e1b140">l_timet</link>)t&#32;||&#32;t&#32;==&#32;(time_t)(-1))
+00365 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,
+00366 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;time&#32;result&#32;cannot&#32;be&#32;represented&#32;in&#32;this&#32;installation&quot;</emphasis>);
+00367 &#32;&#32;<link linkend="_loslib_8c_1ac63906583780389e3d016c9034a5fe9e">l_pushtime</link>(L,&#32;t);
+00368 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00369 }
+00370 
+00371 
+<anchor xml:id="_loslib_8c_source_1l00372"/><link linkend="_loslib_8c_1ab2027c89bfc0320114b3cce3d77a01ed">00372</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loslib_8c_1ab2027c89bfc0320114b3cce3d77a01ed">os_difftime</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00373 &#32;&#32;time_t&#32;t1&#32;=&#32;<link linkend="_loslib_8c_1afa432e42a4acd4aa3a30eb02b3beab70">l_checktime</link>(L,&#32;1);
+00374 &#32;&#32;time_t&#32;t2&#32;=&#32;<link linkend="_loslib_8c_1afa432e42a4acd4aa3a30eb02b3beab70">l_checktime</link>(L,&#32;2);
+00375 &#32;&#32;<link linkend="_lapi_8c_1a328625a03fbb5548f27b1af10f109f6a">lua_pushnumber</link>(L,&#32;(<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link>)difftime(t1,&#32;t2));
+00376 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00377 }
+00378 
+00379 <emphasis role="comment">/*&#32;}======================================================&#32;*/</emphasis>
+00380 
+00381 
+<anchor xml:id="_loslib_8c_source_1l00382"/><link linkend="_loslib_8c_1a148e76ec4bfa32f07c0bd8c802960113">00382</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loslib_8c_1a148e76ec4bfa32f07c0bd8c802960113">os_setlocale</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00383 &#32;&#32;<emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;cat[]&#32;=&#32;{LC_ALL,&#32;LC_COLLATE,&#32;LC_CTYPE,&#32;LC_MONETARY,
+00384 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;LC_NUMERIC,&#32;LC_TIME};
+00385 &#32;&#32;<emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<emphasis role="keyword">const</emphasis>&#32;catnames[]&#32;=&#32;{<emphasis role="stringliteral">&quot;all&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;collate&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;ctype&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;monetary&quot;</emphasis>,
+00386 &#32;&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;numeric&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;time&quot;</emphasis>,&#32;NULL};
+00387 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*l&#32;=&#32;<link linkend="_lauxlib_8h_1a732bc5882c4a5da46b236649ab6db47b">luaL_optstring</link>(L,&#32;1,&#32;NULL);
+00388 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;op&#32;=&#32;<link linkend="_lauxlib_8c_1a7a3959469b5643d9ea2313eb11a3946f">luaL_checkoption</link>(L,&#32;2,&#32;<emphasis role="stringliteral">&quot;all&quot;</emphasis>,&#32;catnames);
+00389 &#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;setlocale(cat[op],&#32;l));
+00390 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00391 }
+00392 
+00393 
+<anchor xml:id="_loslib_8c_source_1l00394"/><link linkend="_loslib_8c_1a905e81425fe3d6d0b363c10162a2a37b">00394</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loslib_8c_1a905e81425fe3d6d0b363c10162a2a37b">os_exit</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00395 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;status;
+00396 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lua_8h_1af4f579ead7d5ea837d8d708186033502">lua_isboolean</link>(L,&#32;1))
+00397 &#32;&#32;&#32;&#32;status&#32;=&#32;(<link linkend="_lapi_8c_1a444aee9aa56b0b06175ee3c7bcf7927c">lua_toboolean</link>(L,&#32;1)&#32;?&#32;EXIT_SUCCESS&#32;:&#32;EXIT_FAILURE);
+00398 &#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00399 &#32;&#32;&#32;&#32;status&#32;=&#32;(int)<link linkend="_lauxlib_8c_1ab10ff110a5ba19b4385947de7834ee3c">luaL_optinteger</link>(L,&#32;1,&#32;EXIT_SUCCESS);
+00400 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lapi_8c_1a444aee9aa56b0b06175ee3c7bcf7927c">lua_toboolean</link>(L,&#32;2))
+00401 &#32;&#32;&#32;&#32;<link linkend="_lstate_8c_1a5d903983f1497b2fc58fba9df09e354d">lua_close</link>(L);
+00402 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(L)&#32;exit(status);&#32;&#32;<emphasis role="comment">/*&#32;&apos;if&apos;&#32;to&#32;avoid&#32;warnings&#32;for&#32;unreachable&#32;&apos;return&apos;&#32;*/</emphasis>
+00403 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;
+00404 }
+00405 
+00406 
+<anchor xml:id="_loslib_8c_source_1l00407"/><link linkend="_loslib_8c_1a6860192a4da9966ab5be22f3cfa624a2">00407</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_structlua_l___reg">luaL_Reg</link>&#32;<link linkend="_loslib_8c_1a6860192a4da9966ab5be22f3cfa624a2">syslib</link>[]&#32;=&#32;{
+00408 &#32;&#32;{<emphasis role="stringliteral">&quot;clock&quot;</emphasis>,&#32;&#32;&#32;&#32;&#32;<link linkend="_loslib_8c_1ac8ac40c239a4c86ee937b34663bffe80">os_clock</link>},
+00409 &#32;&#32;{<emphasis role="stringliteral">&quot;date&quot;</emphasis>,&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_loslib_8c_1a6520f2562b500aee87a6a475995adefb">os_date</link>},
+00410 &#32;&#32;{<emphasis role="stringliteral">&quot;difftime&quot;</emphasis>,&#32;&#32;<link linkend="_loslib_8c_1ab2027c89bfc0320114b3cce3d77a01ed">os_difftime</link>},
+00411 &#32;&#32;{<emphasis role="stringliteral">&quot;execute&quot;</emphasis>,&#32;&#32;&#32;<link linkend="_loslib_8c_1a2da7b72413e7abbb84043eeb7988ba36">os_execute</link>},
+00412 &#32;&#32;{<emphasis role="stringliteral">&quot;exit&quot;</emphasis>,&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_loslib_8c_1a905e81425fe3d6d0b363c10162a2a37b">os_exit</link>},
+00413 &#32;&#32;{<emphasis role="stringliteral">&quot;getenv&quot;</emphasis>,&#32;&#32;&#32;&#32;<link linkend="_loslib_8c_1a32640cd81f9679e9539fa18a4083a4ec">os_getenv</link>},
+00414 &#32;&#32;{<emphasis role="stringliteral">&quot;remove&quot;</emphasis>,&#32;&#32;&#32;&#32;<link linkend="_loslib_8c_1aff1386a6722ad488ced309e2fcdebe13">os_remove</link>},
+00415 &#32;&#32;{<emphasis role="stringliteral">&quot;rename&quot;</emphasis>,&#32;&#32;&#32;&#32;<link linkend="_loslib_8c_1a9e0e5e5a06a8a1aa797e15034070b405">os_rename</link>},
+00416 &#32;&#32;{<emphasis role="stringliteral">&quot;setlocale&quot;</emphasis>,&#32;<link linkend="_loslib_8c_1a148e76ec4bfa32f07c0bd8c802960113">os_setlocale</link>},
+00417 &#32;&#32;{<emphasis role="stringliteral">&quot;time&quot;</emphasis>,&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_loslib_8c_1ae32288bc9696b48450146e11c241f943">os_time</link>},
+00418 &#32;&#32;{<emphasis role="stringliteral">&quot;tmpname&quot;</emphasis>,&#32;&#32;&#32;<link linkend="_loslib_8c_1a89a90062784a8adc223ff4cbe576321d">os_tmpname</link>},
+00419 &#32;&#32;{NULL,&#32;NULL}
+00420 };
+00421 
+00422 <emphasis role="comment">/*&#32;}======================================================&#32;*/</emphasis>
+00423 
+00424 
+00425 
+<anchor xml:id="_loslib_8c_source_1l00426"/><link linkend="_lualib_8h_1a17174b03309597e0644e9f1d6ab830f1">00426</link> <link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loslib_8c_1a03d1c1c58e52032aee542b65a2b1c3ca">luaopen_os</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00427 &#32;&#32;<link linkend="_lauxlib_8h_1a5088ff720ec66200d83eb78467b77239">luaL_newlib</link>(L,&#32;<link linkend="_loslib_8c_1a6860192a4da9966ab5be22f3cfa624a2">syslib</link>);
+00428 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00429 }
+00430 
+</programlisting></section>

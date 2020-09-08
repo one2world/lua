@@ -1,0 +1,280 @@
+.TH "D:/gitworkspace/lua/src/lvm.h" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lvm.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'ldo\&.h'\fP
+.br
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'ltm\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBcvt2str\fP(o)   \fBttisnumber\fP(o)"
+.br
+.ti -1c
+.RI "#define \fBcvt2num\fP(o)   \fBttisstring\fP(o)"
+.br
+.ti -1c
+.RI "#define \fBLUA_FLOORN2I\fP   \fBF2Ieq\fP"
+.br
+.ti -1c
+.RI "#define \fBtonumber\fP(o,  n)   	(\fBttisfloat\fP(o) ? (*(n) = \fBfltvalue\fP(o), 1) : \fBluaV_tonumber_\fP(o,n))"
+.br
+.ti -1c
+.RI "#define \fBtonumberns\fP(o,  n)"
+.br
+.ti -1c
+.RI "#define \fBtointeger\fP(o,  i)     (\fBttisinteger\fP(o) ? (*(i) = \fBivalue\fP(o), 1) : \fBluaV_tointeger\fP(o,i,\fBLUA_FLOORN2I\fP))"
+.br
+.ti -1c
+.RI "#define \fBtointegerns\fP(o,  i)     (\fBttisinteger\fP(o) ? (*(i) = \fBivalue\fP(o), 1) : \fBluaV_tointegerns\fP(o,i,\fBLUA_FLOORN2I\fP))"
+.br
+.ti -1c
+.RI "#define \fBintop\fP(op,  v1,  v2)   \fBl_castU2S\fP(\fBl_castS2U\fP(v1) op \fBl_castS2U\fP(v2))"
+.br
+.ti -1c
+.RI "#define \fBluaV_rawequalobj\fP(t1,  t2)   \fBluaV_equalobj\fP(NULL,t1,t2)"
+.br
+.ti -1c
+.RI "#define \fBluaV_fastget\fP(L,  t,  k,  slot,  f)"
+.br
+.ti -1c
+.RI "#define \fBluaV_fastgeti\fP(L,  t,  k,  slot)"
+.br
+.ti -1c
+.RI "#define \fBluaV_finishfastset\fP(L,  t,  slot,  v)"
+.br
+.in -1c
+.SS "枚举"
+
+.in +1c
+.ti -1c
+.RI "enum \fBF2Imod\fP { \fBF2Ieq\fP, \fBF2Ifloor\fP, \fBF2Iceil\fP }"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaV_equalobj\fP (\fBlua_State\fP *L, const \fBTValue\fP *t1, const \fBTValue\fP *t2)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaV_lessthan\fP (\fBlua_State\fP *L, const \fBTValue\fP *l, const \fBTValue\fP *r)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaV_lessequal\fP (\fBlua_State\fP *L, const \fBTValue\fP *l, const \fBTValue\fP *r)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaV_tonumber_\fP (const \fBTValue\fP *obj, \fBlua_Number\fP *n)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaV_tointeger\fP (const \fBTValue\fP *obj, \fBlua_Integer\fP *p, \fBF2Imod\fP mode)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaV_tointegerns\fP (const \fBTValue\fP *obj, \fBlua_Integer\fP *p, \fBF2Imod\fP mode)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaV_flttointeger\fP (\fBlua_Number\fP n, \fBlua_Integer\fP *p, \fBF2Imod\fP mode)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaV_finishget\fP (\fBlua_State\fP *L, const \fBTValue\fP *t, \fBTValue\fP *key, \fBStkId\fP val, const \fBTValue\fP *slot)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaV_finishset\fP (\fBlua_State\fP *L, const \fBTValue\fP *t, \fBTValue\fP *key, \fBTValue\fP *val, const \fBTValue\fP *slot)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaV_finishOp\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaV_execute\fP (\fBlua_State\fP *L, \fBCallInfo\fP *ci)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaV_concat\fP (\fBlua_State\fP *L, int total)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP \fBlua_Integer\fP \fBluaV_idiv\fP (\fBlua_State\fP *L, \fBlua_Integer\fP x, \fBlua_Integer\fP y)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP \fBlua_Integer\fP \fBluaV_mod\fP (\fBlua_State\fP *L, \fBlua_Integer\fP x, \fBlua_Integer\fP y)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP \fBlua_Number\fP \fBluaV_modf\fP (\fBlua_State\fP *L, \fBlua_Number\fP x, \fBlua_Number\fP y)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP \fBlua_Integer\fP \fBluaV_shiftl\fP (\fBlua_Integer\fP x, \fBlua_Integer\fP y)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaV_objlen\fP (\fBlua_State\fP *L, \fBStkId\fP ra, const \fBTValue\fP *rb)"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define cvt2num(o)   \fBttisstring\fP(o)"
+
+.PP
+在文件 lvm\&.h 第 24 行定义\&.
+.SS "#define cvt2str(o)   \fBttisnumber\fP(o)"
+
+.PP
+在文件 lvm\&.h 第 17 行定义\&.
+.SS "#define intop(op, v1, v2)   \fBl_castU2S\fP(\fBl_castS2U\fP(v1) op \fBl_castS2U\fP(v2))"
+
+.PP
+在文件 lvm\&.h 第 71 行定义\&.
+.SS "#define LUA_FLOORN2I   \fBF2Ieq\fP"
+
+.PP
+在文件 lvm\&.h 第 36 行定义\&.
+.SS "#define luaV_fastget(L, t, k, slot, f)"
+\fB值:\fP
+.PP
+.nf
+  (!ttistable(t)  \
+   ? (slot = NULL, 0)  /* not a table; 'slot' is NULL and result is 0 */  \
+   : (slot = f(hvalue(t), k),  /* else, do raw access */  \
+      !isempty(slot)))  /* result not empty? */
+.fi
+.PP
+在文件 lvm\&.h 第 83 行定义\&.
+.SS "#define luaV_fastgeti(L, t, k, slot)"
+\fB值:\fP
+.PP
+.nf
+  (!ttistable(t)  \
+   ? (slot = NULL, 0)  /* not a table; 'slot' is NULL and result is 0 */  \
+   : (slot = (l_castS2U(k) - 1u < hvalue(t)->alimit) \
+              ? &hvalue(t)->array[k - 1] : luaH_getint(hvalue(t), k), \
+      !isempty(slot)))  /* result not empty? */
+.fi
+.PP
+在文件 lvm\&.h 第 94 行定义\&.
+.SS "#define luaV_finishfastset(L, t, slot, v)"
+\fB值:\fP
+.PP
+.nf
+    { setobj2t(L, cast(TValue *,slot), v); \
+      luaC_barrierback(L, gcvalue(t), v); }
+.fi
+.PP
+在文件 lvm\&.h 第 106 行定义\&.
+.SS "#define luaV_rawequalobj(t1, t2)   \fBluaV_equalobj\fP(NULL,t1,t2)"
+
+.PP
+在文件 lvm\&.h 第 73 行定义\&.
+.SS "#define tointeger(o, i)     (\fBttisinteger\fP(o) ? (*(i) = \fBivalue\fP(o), 1) : \fBluaV_tointeger\fP(o,i,\fBLUA_FLOORN2I\fP))"
+
+.PP
+在文件 lvm\&.h 第 62 行定义\&.
+.SS "#define tointegerns(o, i)     (\fBttisinteger\fP(o) ? (*(i) = \fBivalue\fP(o), 1) : \fBluaV_tointegerns\fP(o,i,\fBLUA_FLOORN2I\fP))"
+
+.PP
+在文件 lvm\&.h 第 67 行定义\&.
+.SS "#define tonumber(o, n)   	(\fBttisfloat\fP(o) ? (*(n) = \fBfltvalue\fP(o), 1) : \fBluaV_tonumber_\fP(o,n))"
+
+.PP
+在文件 lvm\&.h 第 51 行定义\&.
+.SS "#define tonumberns(o, n)"
+\fB值:\fP
+.PP
+.nf
+   (ttisfloat(o) ? ((n) = fltvalue(o), 1) : \
+    (ttisinteger(o) ? ((n) = cast_num(ivalue(o)), 1) : 0))
+.fi
+.PP
+在文件 lvm\&.h 第 56 行定义\&.
+.SH "枚举类型说明"
+.PP 
+.SS "enum \fBF2Imod\fP"
+
+.PP
+\fB枚举值\fP
+.in +1c
+.TP
+\fB\fIF2Ieq \fP\fP
+.TP
+\fB\fIF2Ifloor \fP\fP
+.TP
+\fB\fIF2Iceil \fP\fP
+.PP
+在文件 lvm\&.h 第 43 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "\fBLUAI_FUNC\fP void luaV_concat (\fBlua_State\fP * L, int total)"
+
+.PP
+在文件 lvm\&.c 第 636 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaV_equalobj (\fBlua_State\fP * L, const \fBTValue\fP * t1, const \fBTValue\fP * t2)"
+
+.PP
+在文件 lvm\&.c 第 568 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaV_execute (\fBlua_State\fP * L, \fBCallInfo\fP * ci)"
+
+.PP
+在文件 lvm\&.c 第 1127 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaV_finishget (\fBlua_State\fP * L, const \fBTValue\fP * t, \fBTValue\fP * key, \fBStkId\fP val, const \fBTValue\fP * slot)"
+
+.PP
+在文件 lvm\&.c 第 287 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaV_finishOp (\fBlua_State\fP * L)"
+
+.PP
+在文件 lvm\&.c 第 805 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaV_finishset (\fBlua_State\fP * L, const \fBTValue\fP * t, \fBTValue\fP * key, \fBTValue\fP * val, const \fBTValue\fP * slot)"
+
+.PP
+在文件 lvm\&.c 第 330 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaV_flttointeger (\fBlua_Number\fP n, \fBlua_Integer\fP * p, \fBF2Imod\fP mode)"
+
+.PP
+在文件 lvm\&.c 第 121 行定义\&.
+.SS "\fBLUAI_FUNC\fP \fBlua_Integer\fP luaV_idiv (\fBlua_State\fP * L, \fBlua_Integer\fP x, \fBlua_Integer\fP y)"
+
+.PP
+在文件 lvm\&.c 第 715 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaV_lessequal (\fBlua_State\fP * L, const \fBTValue\fP * l, const \fBTValue\fP * r)"
+
+.PP
+在文件 lvm\&.c 第 557 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaV_lessthan (\fBlua_State\fP * L, const \fBTValue\fP * l, const \fBTValue\fP * r)"
+
+.PP
+在文件 lvm\&.c 第 535 行定义\&.
+.SS "\fBLUAI_FUNC\fP \fBlua_Integer\fP luaV_mod (\fBlua_State\fP * L, \fBlua_Integer\fP x, \fBlua_Integer\fP y)"
+
+.PP
+在文件 lvm\&.c 第 735 行定义\&.
+.SS "\fBLUAI_FUNC\fP \fBlua_Number\fP luaV_modf (\fBlua_State\fP * L, \fBlua_Number\fP x, \fBlua_Number\fP y)"
+
+.PP
+在文件 lvm\&.c 第 753 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaV_objlen (\fBlua_State\fP * L, \fBStkId\fP ra, const \fBTValue\fP * rb)"
+
+.PP
+在文件 lvm\&.c 第 680 行定义\&.
+.SS "\fBLUAI_FUNC\fP \fBlua_Integer\fP luaV_shiftl (\fBlua_Integer\fP x, \fBlua_Integer\fP y)"
+
+.PP
+在文件 lvm\&.c 第 768 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaV_tointeger (const \fBTValue\fP * obj, \fBlua_Integer\fP * p, \fBF2Imod\fP mode)"
+
+.PP
+在文件 lvm\&.c 第 152 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaV_tointegerns (const \fBTValue\fP * obj, \fBlua_Integer\fP * p, \fBF2Imod\fP mode)"
+
+.PP
+在文件 lvm\&.c 第 137 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaV_tonumber_ (const \fBTValue\fP * obj, \fBlua_Number\fP * n)"
+
+.PP
+在文件 lvm\&.c 第 103 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

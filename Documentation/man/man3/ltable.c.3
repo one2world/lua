@@ -1,0 +1,427 @@
+.TH "D:/gitworkspace/lua/src/ltable.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/ltable.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <math\&.h>\fP
+.br
+\fC#include <limits\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'ldebug\&.h'\fP
+.br
+\fC#include 'ldo\&.h'\fP
+.br
+\fC#include 'lgc\&.h'\fP
+.br
+\fC#include 'lmem\&.h'\fP
+.br
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'lstate\&.h'\fP
+.br
+\fC#include 'lstring\&.h'\fP
+.br
+\fC#include 'ltable\&.h'\fP
+.br
+\fC#include 'lvm\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBltable_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_CORE\fP"
+.br
+.ti -1c
+.RI "#define \fBMAXABITS\fP   \fBcast_int\fP(sizeof(int) * CHAR_BIT \- 1)"
+.br
+.ti -1c
+.RI "#define \fBMAXASIZE\fP   \fBluaM_limitN\fP(1u << \fBMAXABITS\fP, \fBTValue\fP)"
+.br
+.ti -1c
+.RI "#define \fBMAXHBITS\fP   (\fBMAXABITS\fP \- 1)"
+.br
+.ti -1c
+.RI "#define \fBMAXHSIZE\fP   \fBluaM_limitN\fP(1u << \fBMAXHBITS\fP, \fBNode\fP)"
+.br
+.ti -1c
+.RI "#define \fBhashpow2\fP(t,  n)   (\fBgnode\fP(t, \fBlmod\fP((n), \fBsizenode\fP(t))))"
+.br
+.ti -1c
+.RI "#define \fBhashstr\fP(t,  str)   \fBhashpow2\fP(t, (str)\->hash)"
+.br
+.ti -1c
+.RI "#define \fBhashboolean\fP(t,  p)   \fBhashpow2\fP(t, p)"
+.br
+.ti -1c
+.RI "#define \fBhashint\fP(t,  i)   \fBhashpow2\fP(t, i)"
+.br
+.ti -1c
+.RI "#define \fBhashmod\fP(t,  n)   (\fBgnode\fP(t, ((n) % ((\fBsizenode\fP(t)\-1)|1))))"
+.br
+.ti -1c
+.RI "#define \fBhashpointer\fP(t,  p)   \fBhashmod\fP(t, \fBpoint2uint\fP(p))"
+.br
+.ti -1c
+.RI "#define \fBdummynode\fP   (&\fBdummynode_\fP)"
+.br
+.ti -1c
+.RI "#define \fBlimitequalsasize\fP(t)   (\fBisrealasize\fP(t) || \fBispow2\fP((t)\->alimit))"
+.br
+.ti -1c
+.RI "#define \fBlimitasasize\fP(t)   \fBcheck_exp\fP(\fBisrealasize\fP(t), t\->alimit)"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static int \fBl_hashfloat\fP (\fBlua_Number\fP n)"
+.br
+.ti -1c
+.RI "static \fBNode\fP * \fBmainposition\fP (const \fBTable\fP *t, int ktt, const \fBValue\fP *kvl)"
+.br
+.ti -1c
+.RI "static \fBNode\fP * \fBmainpositionTV\fP (const \fBTable\fP *t, const \fBTValue\fP *key)"
+.br
+.ti -1c
+.RI "static int \fBequalkey\fP (const \fBTValue\fP *k1, const \fBNode\fP *n2)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP unsigned int \fBluaH_realasize\fP (const \fBTable\fP *t)"
+.br
+.ti -1c
+.RI "static int \fBispow2realasize\fP (const \fBTable\fP *t)"
+.br
+.ti -1c
+.RI "static unsigned int \fBsetlimittosize\fP (\fBTable\fP *t)"
+.br
+.ti -1c
+.RI "static const \fBTValue\fP * \fBgetgeneric\fP (\fBTable\fP *t, const \fBTValue\fP *key)"
+.br
+.ti -1c
+.RI "static unsigned int \fBarrayindex\fP (\fBlua_Integer\fP k)"
+.br
+.ti -1c
+.RI "static unsigned int \fBfindindex\fP (\fBlua_State\fP *L, \fBTable\fP *t, \fBTValue\fP *key, unsigned int asize)"
+.br
+.ti -1c
+.RI "int \fBluaH_next\fP (\fBlua_State\fP *L, \fBTable\fP *t, \fBStkId\fP key)"
+.br
+.ti -1c
+.RI "static void \fBfreehash\fP (\fBlua_State\fP *L, \fBTable\fP *t)"
+.br
+.ti -1c
+.RI "static unsigned int \fBcomputesizes\fP (unsigned int nums[], unsigned int *pna)"
+.br
+.ti -1c
+.RI "static int \fBcountint\fP (\fBlua_Integer\fP key, unsigned int *nums)"
+.br
+.ti -1c
+.RI "static unsigned int \fBnumusearray\fP (const \fBTable\fP *t, unsigned int *nums)"
+.br
+.ti -1c
+.RI "static int \fBnumusehash\fP (const \fBTable\fP *t, unsigned int *nums, unsigned int *pna)"
+.br
+.ti -1c
+.RI "static void \fBsetnodevector\fP (\fBlua_State\fP *L, \fBTable\fP *t, unsigned int size)"
+.br
+.ti -1c
+.RI "static void \fBreinsert\fP (\fBlua_State\fP *L, \fBTable\fP *ot, \fBTable\fP *t)"
+.br
+.ti -1c
+.RI "static void \fBexchangehashpart\fP (\fBTable\fP *t1, \fBTable\fP *t2)"
+.br
+.ti -1c
+.RI "void \fBluaH_resize\fP (\fBlua_State\fP *L, \fBTable\fP *t, unsigned int newasize, unsigned int nhsize)"
+.br
+.ti -1c
+.RI "void \fBluaH_resizearray\fP (\fBlua_State\fP *L, \fBTable\fP *t, unsigned int nasize)"
+.br
+.ti -1c
+.RI "static void \fBrehash\fP (\fBlua_State\fP *L, \fBTable\fP *t, const \fBTValue\fP *ek)"
+.br
+.ti -1c
+.RI "\fBTable\fP * \fBluaH_new\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "void \fBluaH_free\fP (\fBlua_State\fP *L, \fBTable\fP *t)"
+.br
+.ti -1c
+.RI "static \fBNode\fP * \fBgetfreepos\fP (\fBTable\fP *t)"
+.br
+.ti -1c
+.RI "\fBTValue\fP * \fBluaH_newkey\fP (\fBlua_State\fP *L, \fBTable\fP *t, const \fBTValue\fP *key)"
+.br
+.ti -1c
+.RI "const \fBTValue\fP * \fBluaH_getint\fP (\fBTable\fP *t, \fBlua_Integer\fP key)"
+.br
+.ti -1c
+.RI "const \fBTValue\fP * \fBluaH_getshortstr\fP (\fBTable\fP *t, \fBTString\fP *key)"
+.br
+.ti -1c
+.RI "const \fBTValue\fP * \fBluaH_getstr\fP (\fBTable\fP *t, \fBTString\fP *key)"
+.br
+.ti -1c
+.RI "const \fBTValue\fP * \fBluaH_get\fP (\fBTable\fP *t, const \fBTValue\fP *key)"
+.br
+.ti -1c
+.RI "\fBTValue\fP * \fBluaH_set\fP (\fBlua_State\fP *L, \fBTable\fP *t, const \fBTValue\fP *key)"
+.br
+.ti -1c
+.RI "void \fBluaH_setint\fP (\fBlua_State\fP *L, \fBTable\fP *t, \fBlua_Integer\fP key, \fBTValue\fP *value)"
+.br
+.ti -1c
+.RI "static \fBlua_Unsigned\fP \fBhash_search\fP (\fBTable\fP *t, \fBlua_Unsigned\fP j)"
+.br
+.ti -1c
+.RI "static unsigned int \fBbinsearch\fP (const \fBTValue\fP *array, unsigned int i, unsigned int j)"
+.br
+.ti -1c
+.RI "\fBlua_Unsigned\fP \fBluaH_getn\fP (\fBTable\fP *t)"
+.br
+.in -1c
+.SS "变量"
+
+.in +1c
+.ti -1c
+.RI "static const \fBNode\fP \fBdummynode_\fP"
+.br
+.ti -1c
+.RI "static const \fBTValue\fP \fBabsentkey\fP = {\fBABSTKEYCONSTANT\fP}"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define dummynode   (&\fBdummynode_\fP)"
+
+.PP
+在文件 ltable\&.c 第 88 行定义\&.
+.SS "#define hashboolean(t, p)   \fBhashpow2\fP(t, p)"
+
+.PP
+在文件 ltable\&.c 第 74 行定义\&.
+.SS "#define hashint(t, i)   \fBhashpow2\fP(t, i)"
+
+.PP
+在文件 ltable\&.c 第 75 行定义\&.
+.SS "#define hashmod(t, n)   (\fBgnode\fP(t, ((n) % ((\fBsizenode\fP(t)\-1)|1))))"
+
+.PP
+在文件 ltable\&.c 第 82 行定义\&.
+.SS "#define hashpointer(t, p)   \fBhashmod\fP(t, \fBpoint2uint\fP(p))"
+
+.PP
+在文件 ltable\&.c 第 85 行定义\&.
+.SS "#define hashpow2(t, n)   (\fBgnode\fP(t, \fBlmod\fP((n), \fBsizenode\fP(t))))"
+
+.PP
+在文件 ltable\&.c 第 71 行定义\&.
+.SS "#define hashstr(t, str)   \fBhashpow2\fP(t, (str)\->hash)"
+
+.PP
+在文件 ltable\&.c 第 73 行定义\&.
+.SS "#define limitasasize(t)   \fBcheck_exp\fP(\fBisrealasize\fP(t), t\->alimit)"
+
+.PP
+在文件 ltable\&.c 第 247 行定义\&.
+.SS "#define limitequalsasize(t)   (\fBisrealasize\fP(t) || \fBispow2\fP((t)\->alimit))"
+
+.PP
+在文件 ltable\&.c 第 203 行定义\&.
+.SS "#define ltable_c"
+
+.PP
+在文件 ltable\&.c 第 7 行定义\&.
+.SS "#define LUA_CORE"
+
+.PP
+在文件 ltable\&.c 第 8 行定义\&.
+.SS "#define MAXABITS   \fBcast_int\fP(sizeof(int) * CHAR_BIT \- 1)"
+
+.PP
+在文件 ltable\&.c 第 46 行定义\&.
+.SS "#define MAXASIZE   \fBluaM_limitN\fP(1u << \fBMAXABITS\fP, \fBTValue\fP)"
+
+.PP
+在文件 ltable\&.c 第 54 行定义\&.
+.SS "#define MAXHBITS   (\fBMAXABITS\fP \- 1)"
+
+.PP
+在文件 ltable\&.c 第 60 行定义\&.
+.SS "#define MAXHSIZE   \fBluaM_limitN\fP(1u << \fBMAXHBITS\fP, \fBNode\fP)"
+
+.PP
+在文件 ltable\&.c 第 68 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static unsigned int arrayindex (\fBlua_Integer\fP k)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 274 行定义\&.
+.SS "static unsigned int binsearch (const \fBTValue\fP * array, unsigned int i, unsigned int j)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 822 行定义\&.
+.SS "static unsigned int computesizes (unsigned int nums[], unsigned int * pna)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 347 行定义\&.
+.SS "static int countint (\fBlua_Integer\fP key, unsigned int * nums)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 369 行定义\&.
+.SS "static int equalkey (const \fBTValue\fP * k1, const \fBNode\fP * n2)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 176 行定义\&.
+.SS "static void exchangehashpart (\fBTable\fP * t1, \fBTable\fP * t2)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 483 行定义\&.
+.SS "static unsigned int findindex (\fBlua_State\fP * L, \fBTable\fP * t, \fBTValue\fP * key, unsigned int asize)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 287 行定义\&.
+.SS "static void freehash (\fBlua_State\fP * L, \fBTable\fP * t)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 327 行定义\&.
+.SS "static \fBNode\fP* getfreepos (\fBTable\fP * t)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 601 行定义\&.
+.SS "static const \fBTValue\fP* getgeneric (\fBTable\fP * t, const \fBTValue\fP * key)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 255 行定义\&.
+.SS "static \fBlua_Unsigned\fP hash_search (\fBTable\fP * t, \fBlua_Unsigned\fP j)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 797 行定义\&.
+.SS "static int ispow2realasize (const \fBTable\fP * t)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 235 行定义\&.
+.SS "static int l_hashfloat (\fBlua_Number\fP n)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 114 行定义\&.
+.SS "void luaH_free (\fBlua_State\fP * L, \fBTable\fP * t)"
+
+.PP
+在文件 ltable\&.c 第 594 行定义\&.
+.SS "const \fBTValue\fP* luaH_get (\fBTable\fP * t, const \fBTValue\fP * key)"
+
+.PP
+在文件 ltable\&.c 第 741 行定义\&.
+.SS "const \fBTValue\fP* luaH_getint (\fBTable\fP * t, \fBlua_Integer\fP key)"
+
+.PP
+在文件 ltable\&.c 第 683 行定义\&.
+.SS "\fBlua_Unsigned\fP luaH_getn (\fBTable\fP * t)"
+
+.PP
+在文件 ltable\&.c 第 865 行定义\&.
+.SS "const \fBTValue\fP* luaH_getshortstr (\fBTable\fP * t, \fBTString\fP * key)"
+
+.PP
+在文件 ltable\&.c 第 711 行定义\&.
+.SS "const \fBTValue\fP* luaH_getstr (\fBTable\fP * t, \fBTString\fP * key)"
+
+.PP
+在文件 ltable\&.c 第 727 行定义\&.
+.SS "\fBTable\fP* luaH_new (\fBlua_State\fP * L)"
+
+.PP
+在文件 ltable\&.c 第 582 行定义\&.
+.SS "\fBTValue\fP* luaH_newkey (\fBlua_State\fP * L, \fBTable\fP * t, const \fBTValue\fP * key)"
+
+.PP
+在文件 ltable\&.c 第 621 行定义\&.
+.SS "int luaH_next (\fBlua_State\fP * L, \fBTable\fP * t, \fBStkId\fP key)"
+
+.PP
+在文件 ltable\&.c 第 305 行定义\&.
+.SS "\fBLUAI_FUNC\fP unsigned int luaH_realasize (const \fBTable\fP * t)"
+
+.PP
+在文件 ltable\&.c 第 209 行定义\&.
+.SS "void luaH_resize (\fBlua_State\fP * L, \fBTable\fP * t, unsigned int newasize, unsigned int nhsize)"
+
+.PP
+在文件 ltable\&.c 第 509 行定义\&.
+.SS "void luaH_resizearray (\fBlua_State\fP * L, \fBTable\fP * t, unsigned int nasize)"
+
+.PP
+在文件 ltable\&.c 第 546 行定义\&.
+.SS "\fBTValue\fP* luaH_set (\fBlua_State\fP * L, \fBTable\fP * t, const \fBTValue\fP * key)"
+
+.PP
+在文件 ltable\&.c 第 762 行定义\&.
+.SS "void luaH_setint (\fBlua_State\fP * L, \fBTable\fP * t, \fBlua_Integer\fP key, \fBTValue\fP * value)"
+
+.PP
+在文件 ltable\&.c 第 770 行定义\&.
+.SS "static \fBNode\fP* mainposition (const \fBTable\fP * t, int ktt, const \fBValue\fP * kvl)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 136 行定义\&.
+.SS "static \fBNode\fP* mainpositionTV (const \fBTable\fP * t, const \fBTValue\fP * key)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 163 行定义\&.
+.SS "static unsigned int numusearray (const \fBTable\fP * t, unsigned int * nums)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 385 行定义\&.
+.SS "static int numusehash (const \fBTable\fP * t, unsigned int * nums, unsigned int * pna)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 412 行定义\&.
+.SS "static void rehash (\fBlua_State\fP * L, \fBTable\fP * t, const \fBTValue\fP * ek)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 554 行定义\&.
+.SS "static void reinsert (\fBlua_State\fP * L, \fBTable\fP * ot, \fBTable\fP * t)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 464 行定义\&.
+.SS "static unsigned int setlimittosize (\fBTable\fP * t)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 240 行定义\&.
+.SS "static void setnodevector (\fBlua_State\fP * L, \fBTable\fP * t, unsigned int size)\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 436 行定义\&.
+.SH "变量说明"
+.PP 
+.SS "const \fBTValue\fP absentkey = {\fBABSTKEYCONSTANT\fP}\fC [static]\fP"
+
+.PP
+在文件 ltable\&.c 第 96 行定义\&.
+.SS "const \fBNode\fP dummynode_\fC [static]\fP"
+\fB初始值:\fP
+.PP
+.nf
+= {
+  {{NULL}, LUA_VEMPTY,  
+   LUA_VNIL, 0, {NULL}}  
+}
+.fi
+.PP
+在文件 ltable\&.c 第 90 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

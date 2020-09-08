@@ -1,0 +1,763 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_loadlib_8c_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/loadlib.c</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;loadlib.c&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Dynamic&#32;library&#32;loader&#32;for&#32;Lua</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">**</emphasis>
+00006 <emphasis role="comment">**&#32;This&#32;module&#32;contains&#32;an&#32;implementation&#32;of&#32;loadlib&#32;for&#32;Unix&#32;systems</emphasis>
+00007 <emphasis role="comment">**&#32;that&#32;have&#32;dlfcn,&#32;an&#32;implementation&#32;for&#32;Windows,&#32;and&#32;a&#32;stub&#32;for&#32;other</emphasis>
+00008 <emphasis role="comment">**&#32;systems.</emphasis>
+00009 <emphasis role="comment">*/</emphasis>
+00010 
+<anchor xml:id="_loadlib_8c_source_1l00011"/><link linkend="_loadlib_8c_1a204928807a3aea44a5765758cec7e49a">00011</link> <emphasis role="preprocessor">#define&#32;loadlib_c</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00012"/><link linkend="_loadlib_8c_1a884b19ad6094d6238c4072a8064aeb12">00012</link> <emphasis role="preprocessor">#define&#32;LUA_LIB</emphasis>
+00013 
+00014 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lprefix_8h">lprefix.h</link>&quot;</emphasis>
+00015 
+00016 
+00017 <emphasis role="preprocessor">#include&#32;&lt;stdio.h&gt;</emphasis>
+00018 <emphasis role="preprocessor">#include&#32;&lt;stdlib.h&gt;</emphasis>
+00019 <emphasis role="preprocessor">#include&#32;&lt;string.h&gt;</emphasis>
+00020 
+00021 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lua_8h">lua.h</link>&quot;</emphasis>
+00022 
+00023 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lauxlib_8h">lauxlib.h</link>&quot;</emphasis>
+00024 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lualib_8h">lualib.h</link>&quot;</emphasis>
+00025 
+00026 
+00027 <emphasis role="comment">/*</emphasis>
+00028 <emphasis role="comment">**&#32;LUA_IGMARK&#32;is&#32;a&#32;mark&#32;to&#32;ignore&#32;all&#32;before&#32;it&#32;when&#32;building&#32;the</emphasis>
+00029 <emphasis role="comment">**&#32;luaopen_&#32;function&#32;name.</emphasis>
+00030 <emphasis role="comment">*/</emphasis>
+00031 <emphasis role="preprocessor">#if&#32;!defined&#32;(LUA_IGMARK)</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00032"/><link linkend="_loadlib_8c_1ad598457446eb8bed37166e57d94deecc">00032</link> <emphasis role="preprocessor">#define&#32;LUA_IGMARK&#32;&#32;&#32;&#32;&#32;&#32;&quot;-&quot;</emphasis>
+00033 <emphasis role="preprocessor">#endif</emphasis>
+00034 
+00035 
+00036 <emphasis role="comment">/*</emphasis>
+00037 <emphasis role="comment">**&#32;LUA_CSUBSEP&#32;is&#32;the&#32;character&#32;that&#32;replaces&#32;dots&#32;in&#32;submodule&#32;names</emphasis>
+00038 <emphasis role="comment">**&#32;when&#32;searching&#32;for&#32;a&#32;C&#32;loader.</emphasis>
+00039 <emphasis role="comment">**&#32;LUA_LSUBSEP&#32;is&#32;the&#32;character&#32;that&#32;replaces&#32;dots&#32;in&#32;submodule&#32;names</emphasis>
+00040 <emphasis role="comment">**&#32;when&#32;searching&#32;for&#32;a&#32;Lua&#32;loader.</emphasis>
+00041 <emphasis role="comment">*/</emphasis>
+00042 <emphasis role="preprocessor">#if&#32;!defined(LUA_CSUBSEP)</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00043"/><link linkend="_loadlib_8c_1a612c9af4dd9a58765226bcdddb380c7d">00043</link> <emphasis role="preprocessor">#define&#32;LUA_CSUBSEP&#32;&#32;&#32;&#32;&#32;LUA_DIRSEP</emphasis>
+00044 <emphasis role="preprocessor">#endif</emphasis>
+00045 
+00046 <emphasis role="preprocessor">#if&#32;!defined(LUA_LSUBSEP)</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00047"/><link linkend="_loadlib_8c_1a6c20d5257fe758acbee718f58ec054f8">00047</link> <emphasis role="preprocessor">#define&#32;LUA_LSUBSEP&#32;&#32;&#32;&#32;&#32;LUA_DIRSEP</emphasis>
+00048 <emphasis role="preprocessor">#endif</emphasis>
+00049 
+00050 
+00051 <emphasis role="comment">/*&#32;prefix&#32;for&#32;open&#32;functions&#32;in&#32;C&#32;libraries&#32;*/</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00052"/><link linkend="_loadlib_8c_1ae484759202e13c0121badd902b707955">00052</link> <emphasis role="preprocessor">#define&#32;LUA_POF&#32;&#32;&#32;&#32;&#32;&quot;luaopen_&quot;</emphasis>
+00053 
+00054 <emphasis role="comment">/*&#32;separator&#32;for&#32;open&#32;functions&#32;in&#32;C&#32;libraries&#32;*/</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00055"/><link linkend="_loadlib_8c_1addb93481df7869f7e8c6f85ad7ed3e53">00055</link> <emphasis role="preprocessor">#define&#32;LUA_OFSEP&#32;&#32;&#32;&quot;_&quot;</emphasis>
+00056 
+00057 
+00058 <emphasis role="comment">/*</emphasis>
+00059 <emphasis role="comment">**&#32;key&#32;for&#32;table&#32;in&#32;the&#32;registry&#32;that&#32;keeps&#32;handles</emphasis>
+00060 <emphasis role="comment">**&#32;for&#32;all&#32;loaded&#32;C&#32;libraries</emphasis>
+00061 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00062"/><link linkend="_loadlib_8c_1a7bbde96feb9b84c7c149acd2773a1158">00062</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<emphasis role="keyword">const</emphasis>&#32;<link linkend="_loadlib_8c_1a7bbde96feb9b84c7c149acd2773a1158">CLIBS</link>&#32;=&#32;<emphasis role="stringliteral">&quot;_CLIBS&quot;</emphasis>;
+00063 
+00064 <emphasis role="preprocessor">#define&#32;LIB_FAIL&#32;&#32;&#32;&#32;&quot;open&quot;</emphasis>
+00065 
+00066 
+<anchor xml:id="_loadlib_8c_source_1l00067"/><link linkend="_loadlib_8c_1aaf2f653c673bdd616a05f1643e1784ab">00067</link> <emphasis role="preprocessor">#define&#32;setprogdir(L)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;((void)0)</emphasis>
+00068 
+00069 
+00070 <emphasis role="comment">/*</emphasis>
+00071 <emphasis role="comment">**&#32;Special&#32;type&#32;equivalent&#32;to&#32;&apos;(void*)&apos;&#32;for&#32;functions&#32;in&#32;gcc</emphasis>
+00072 <emphasis role="comment">**&#32;(to&#32;suppress&#32;warnings&#32;when&#32;converting&#32;function&#32;pointers)</emphasis>
+00073 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00074"/><link linkend="_loadlib_8c_1a68da1d6d858100a545e5fd84f65abe41">00074</link> <emphasis role="keyword">typedef</emphasis>&#32;void&#32;(*<link linkend="_loadlib_8c_1a68da1d6d858100a545e5fd84f65abe41">voidf</link>)(void);
+00075 
+00076 
+00077 <emphasis role="comment">/*</emphasis>
+00078 <emphasis role="comment">**&#32;system-dependent&#32;functions</emphasis>
+00079 <emphasis role="comment">*/</emphasis>
+00080 
+00081 <emphasis role="comment">/*</emphasis>
+00082 <emphasis role="comment">**&#32;unload&#32;library&#32;&apos;lib&apos;</emphasis>
+00083 <emphasis role="comment">*/</emphasis>
+00084 <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_loadlib_8c_1a68916c18b947bf8d96249191f05cd050">lsys_unloadlib</link>&#32;(<emphasis role="keywordtype">void</emphasis>&#32;*lib);
+00085 
+00086 <emphasis role="comment">/*</emphasis>
+00087 <emphasis role="comment">**&#32;load&#32;C&#32;library&#32;in&#32;file&#32;&apos;path&apos;.&#32;If&#32;&apos;seeglb&apos;,&#32;load&#32;with&#32;all&#32;names&#32;in</emphasis>
+00088 <emphasis role="comment">**&#32;the&#32;library&#32;global.</emphasis>
+00089 <emphasis role="comment">**&#32;Returns&#32;the&#32;library;&#32;in&#32;case&#32;of&#32;error,&#32;returns&#32;NULL&#32;plus&#32;an</emphasis>
+00090 <emphasis role="comment">**&#32;error&#32;string&#32;in&#32;the&#32;stack.</emphasis>
+00091 <emphasis role="comment">*/</emphasis>
+00092 <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_loadlib_8c_1a4531f21ae71791d4ad7eb2d92bcf38e9">lsys_load</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*path,&#32;<emphasis role="keywordtype">int</emphasis>&#32;seeglb);
+00093 
+00094 <emphasis role="comment">/*</emphasis>
+00095 <emphasis role="comment">**&#32;Try&#32;to&#32;find&#32;a&#32;function&#32;named&#32;&apos;sym&apos;&#32;in&#32;library&#32;&apos;lib&apos;.</emphasis>
+00096 <emphasis role="comment">**&#32;Returns&#32;the&#32;function;&#32;in&#32;case&#32;of&#32;error,&#32;returns&#32;NULL&#32;plus&#32;an</emphasis>
+00097 <emphasis role="comment">**&#32;error&#32;string&#32;in&#32;the&#32;stack.</emphasis>
+00098 <emphasis role="comment">*/</emphasis>
+00099 <emphasis role="keyword">static</emphasis>&#32;<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>&#32;<link linkend="_loadlib_8c_1a69abbe6cc341f2e6b083dec021bb1312">lsys_sym</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*lib,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*sym);
+00100 
+00101 
+00102 
+00103 
+00104 <emphasis role="preprocessor">#if&#32;defined(LUA_USE_DLOPEN)&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00105 <emphasis role="comment">/*</emphasis>
+00106 <emphasis role="comment">**&#32;{========================================================================</emphasis>
+00107 <emphasis role="comment">**&#32;This&#32;is&#32;an&#32;implementation&#32;of&#32;loadlib&#32;based&#32;on&#32;the&#32;dlfcn&#32;interface.</emphasis>
+00108 <emphasis role="comment">**&#32;The&#32;dlfcn&#32;interface&#32;is&#32;available&#32;in&#32;Linux,&#32;SunOS,&#32;Solaris,&#32;IRIX,&#32;FreeBSD,</emphasis>
+00109 <emphasis role="comment">**&#32;NetBSD,&#32;AIX&#32;4.2,&#32;HPUX&#32;11,&#32;and&#32;&#32;probably&#32;most&#32;other&#32;Unix&#32;flavors,&#32;at&#32;least</emphasis>
+00110 <emphasis role="comment">**&#32;as&#32;an&#32;emulation&#32;layer&#32;on&#32;top&#32;of&#32;native&#32;functions.</emphasis>
+00111 <emphasis role="comment">**&#32;=========================================================================</emphasis>
+00112 <emphasis role="comment">*/</emphasis>
+00113 
+00114 <emphasis role="preprocessor">#include&#32;&lt;dlfcn.h&gt;</emphasis>
+00115 
+00116 <emphasis role="comment">/*</emphasis>
+00117 <emphasis role="comment">**&#32;Macro&#32;to&#32;convert&#32;pointer-to-void*&#32;to&#32;pointer-to-function.&#32;This&#32;cast</emphasis>
+00118 <emphasis role="comment">**&#32;is&#32;undefined&#32;according&#32;to&#32;ISO&#32;C,&#32;but&#32;POSIX&#32;assumes&#32;that&#32;it&#32;works.</emphasis>
+00119 <emphasis role="comment">**&#32;(The&#32;&apos;__extension__&apos;&#32;in&#32;gnu&#32;compilers&#32;is&#32;only&#32;to&#32;avoid&#32;warnings.)</emphasis>
+00120 <emphasis role="comment">*/</emphasis>
+00121 <emphasis role="preprocessor">#if&#32;defined(__GNUC__)</emphasis>
+00122 <emphasis role="preprocessor">#define&#32;cast_func(p)&#32;(__extension__&#32;(lua_CFunction)(p))</emphasis>
+00123 <emphasis role="preprocessor">#else</emphasis>
+00124 <emphasis role="preprocessor">#define&#32;cast_func(p)&#32;((lua_CFunction)(p))</emphasis>
+00125 <emphasis role="preprocessor">#endif</emphasis>
+00126 
+00127 
+00128 <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_loadlib_8c_1a68916c18b947bf8d96249191f05cd050">lsys_unloadlib</link>&#32;(<emphasis role="keywordtype">void</emphasis>&#32;*lib)&#32;{
+00129 &#32;&#32;dlclose(lib);
+00130 }
+00131 
+00132 
+00133 <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_loadlib_8c_1a4531f21ae71791d4ad7eb2d92bcf38e9">lsys_load</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*path,&#32;<emphasis role="keywordtype">int</emphasis>&#32;seeglb)&#32;{
+00134 &#32;&#32;<emphasis role="keywordtype">void</emphasis>&#32;*lib&#32;=&#32;dlopen(path,&#32;RTLD_NOW&#32;|&#32;(seeglb&#32;?&#32;RTLD_GLOBAL&#32;:&#32;RTLD_LOCAL));
+00135 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(lib&#32;==&#32;NULL)&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;dlerror());
+00136 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;lib;
+00137 }
+00138 
+00139 
+00140 <emphasis role="keyword">static</emphasis>&#32;<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>&#32;<link linkend="_loadlib_8c_1a69abbe6cc341f2e6b083dec021bb1312">lsys_sym</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*lib,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*sym)&#32;{
+00141 &#32;&#32;<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>&#32;f&#32;=&#32;cast_func(dlsym(lib,&#32;sym));
+00142 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(f&#32;==&#32;NULL)&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;dlerror());
+00143 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;f;
+00144 }
+00145 
+00146 <emphasis role="comment">/*&#32;}======================================================&#32;*/</emphasis>
+00147 
+00148 
+00149 
+00150 <emphasis role="preprocessor">#elif&#32;defined(LUA_DL_DLL)&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00151 <emphasis role="comment">/*</emphasis>
+00152 <emphasis role="comment">**&#32;{======================================================================</emphasis>
+00153 <emphasis role="comment">**&#32;This&#32;is&#32;an&#32;implementation&#32;of&#32;loadlib&#32;for&#32;Windows&#32;using&#32;native&#32;functions.</emphasis>
+00154 <emphasis role="comment">**&#32;=======================================================================</emphasis>
+00155 <emphasis role="comment">*/</emphasis>
+00156 
+00157 <emphasis role="preprocessor">#include&#32;&lt;windows.h&gt;</emphasis>
+00158 
+00159 
+00160 <emphasis role="comment">/*</emphasis>
+00161 <emphasis role="comment">**&#32;optional&#32;flags&#32;for&#32;LoadLibraryEx</emphasis>
+00162 <emphasis role="comment">*/</emphasis>
+00163 <emphasis role="preprocessor">#if&#32;!defined(LUA_LLE_FLAGS)</emphasis>
+00164 <emphasis role="preprocessor">#define&#32;LUA_LLE_FLAGS&#32;&#32;&#32;0</emphasis>
+00165 <emphasis role="preprocessor">#endif</emphasis>
+00166 
+00167 
+00168 <emphasis role="preprocessor">#undef&#32;setprogdir</emphasis>
+00169 
+00170 
+00171 <emphasis role="comment">/*</emphasis>
+00172 <emphasis role="comment">**&#32;Replace&#32;in&#32;the&#32;path&#32;(on&#32;the&#32;top&#32;of&#32;the&#32;stack)&#32;any&#32;occurrence</emphasis>
+00173 <emphasis role="comment">**&#32;of&#32;LUA_EXEC_DIR&#32;with&#32;the&#32;executable&apos;s&#32;path.</emphasis>
+00174 <emphasis role="comment">*/</emphasis>
+00175 <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_loadlib_8c_1aaf2f653c673bdd616a05f1643e1784ab">setprogdir</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00176 &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;buff[MAX_PATH&#32;+&#32;1];
+00177 &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;*lb;
+00178 &#32;&#32;DWORD&#32;nsize&#32;=&#32;<emphasis role="keyword">sizeof</emphasis>(buff)/<emphasis role="keyword">sizeof</emphasis>(<emphasis role="keywordtype">char</emphasis>);
+00179 &#32;&#32;DWORD&#32;n&#32;=&#32;GetModuleFileNameA(NULL,&#32;buff,&#32;nsize);&#32;&#32;<emphasis role="comment">/*&#32;get&#32;exec.&#32;name&#32;*/</emphasis>
+00180 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(n&#32;==&#32;0&#32;||&#32;n&#32;==&#32;nsize&#32;||&#32;(lb&#32;=&#32;strrchr(buff,&#32;<emphasis role="charliteral">&apos;\\&apos;</emphasis>))&#32;==&#32;NULL)
+00181 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;unable&#32;to&#32;get&#32;ModuleFileName&quot;</emphasis>);
+00182 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00183 &#32;&#32;&#32;&#32;*lb&#32;=&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;cut&#32;name&#32;on&#32;the&#32;last&#32;&apos;\\&apos;&#32;to&#32;get&#32;the&#32;path&#32;*/</emphasis>
+00184 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a65a9b27abc8408f98fbeac037a790ae9">luaL_gsub</link>(L,&#32;<link linkend="_lua_8h_1ac813fc3bc1886ba17c363d5b4c6e7ef1">lua_tostring</link>(L,&#32;-1),&#32;<link linkend="_luaconf_8h_1a172ab2e6c826acf300219b4bce1ad7c6">LUA_EXEC_DIR</link>,&#32;buff);
+00185 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a7664dec8f7220c706b7e71ad3227cc78">lua_remove</link>(L,&#32;-2);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;original&#32;string&#32;*/</emphasis>
+00186 &#32;&#32;}
+00187 }
+00188 
+00189 
+00190 
+00191 
+00192 <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;pusherror&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00193 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lundump_8c_1a4359a67dfcb96fbedf2becab47365599">error</link>&#32;=&#32;GetLastError();
+00194 &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;buffer[128];
+00195 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(FormatMessageA(FORMAT_MESSAGE_IGNORE_INSERTS&#32;|&#32;FORMAT_MESSAGE_FROM_SYSTEM,
+00196 &#32;&#32;&#32;&#32;&#32;&#32;NULL,&#32;<link linkend="_lundump_8c_1a4359a67dfcb96fbedf2becab47365599">error</link>,&#32;0,&#32;buffer,&#32;<emphasis role="keyword">sizeof</emphasis>(buffer)/<emphasis role="keyword">sizeof</emphasis>(<emphasis role="keywordtype">char</emphasis>),&#32;NULL))
+00197 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;buffer);
+00198 &#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00199 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1ab190c226d38b289e6ca57683a9d4e0f0">lua_pushfstring</link>(L,&#32;<emphasis role="stringliteral">&quot;system&#32;error&#32;%d\n&quot;</emphasis>,&#32;<link linkend="_lundump_8c_1a4359a67dfcb96fbedf2becab47365599">error</link>);
+00200 }
+00201 
+00202 <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_loadlib_8c_1a68916c18b947bf8d96249191f05cd050">lsys_unloadlib</link>&#32;(<emphasis role="keywordtype">void</emphasis>&#32;*lib)&#32;{
+00203 &#32;&#32;FreeLibrary((HMODULE)lib);
+00204 }
+00205 
+00206 
+00207 <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_loadlib_8c_1a4531f21ae71791d4ad7eb2d92bcf38e9">lsys_load</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*path,&#32;<emphasis role="keywordtype">int</emphasis>&#32;seeglb)&#32;{
+00208 &#32;&#32;HMODULE&#32;lib&#32;=&#32;LoadLibraryExA(path,&#32;NULL,&#32;LUA_LLE_FLAGS);
+00209 &#32;&#32;(void)(seeglb);&#32;&#32;<emphasis role="comment">/*&#32;not&#32;used:&#32;symbols&#32;are&#32;&apos;global&apos;&#32;by&#32;default&#32;*/</emphasis>
+00210 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(lib&#32;==&#32;NULL)&#32;pusherror(L);
+00211 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;lib;
+00212 }
+00213 
+00214 
+00215 <emphasis role="keyword">static</emphasis>&#32;<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>&#32;<link linkend="_loadlib_8c_1a69abbe6cc341f2e6b083dec021bb1312">lsys_sym</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*lib,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*sym)&#32;{
+00216 &#32;&#32;<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>&#32;f&#32;=&#32;(<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>)(<link linkend="_loadlib_8c_1a68da1d6d858100a545e5fd84f65abe41">voidf</link>)GetProcAddress((HMODULE)lib,&#32;sym);
+00217 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(f&#32;==&#32;NULL)&#32;pusherror(L);
+00218 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;f;
+00219 }
+00220 
+00221 <emphasis role="comment">/*&#32;}======================================================&#32;*/</emphasis>
+00222 
+00223 
+00224 <emphasis role="preprocessor">#else&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00225 <emphasis role="comment">/*</emphasis>
+00226 <emphasis role="comment">**&#32;{======================================================</emphasis>
+00227 <emphasis role="comment">**&#32;Fallback&#32;for&#32;other&#32;systems</emphasis>
+00228 <emphasis role="comment">**&#32;=======================================================</emphasis>
+00229 <emphasis role="comment">*/</emphasis>
+00230 
+00231 <emphasis role="preprocessor">#undef&#32;LIB_FAIL</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00232"/><link linkend="_loadlib_8c_1af0b680e98ad7c321efb7b5e46f7e69c4">00232</link> <emphasis role="preprocessor">#define&#32;LIB_FAIL&#32;&#32;&#32;&#32;&quot;absent&quot;</emphasis>
+00233 
+00234 
+<anchor xml:id="_loadlib_8c_source_1l00235"/><link linkend="_loadlib_8c_1ae5b5e1b4773252e50831be85fbf40777">00235</link> <emphasis role="preprocessor">#define&#32;DLMSG&#32;&#32;&#32;&quot;dynamic&#32;libraries&#32;not&#32;enabled;&#32;check&#32;your&#32;Lua&#32;installation&quot;</emphasis>
+00236 
+00237 
+<anchor xml:id="_loadlib_8c_source_1l00238"/><link linkend="_loadlib_8c_1a68916c18b947bf8d96249191f05cd050">00238</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_loadlib_8c_1a68916c18b947bf8d96249191f05cd050">lsys_unloadlib</link>&#32;(<emphasis role="keywordtype">void</emphasis>&#32;*lib)&#32;{
+00239 &#32;&#32;(void)(lib);&#32;&#32;<emphasis role="comment">/*&#32;not&#32;used&#32;*/</emphasis>
+00240 }
+00241 
+00242 
+<anchor xml:id="_loadlib_8c_source_1l00243"/><link linkend="_loadlib_8c_1a4531f21ae71791d4ad7eb2d92bcf38e9">00243</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_loadlib_8c_1a4531f21ae71791d4ad7eb2d92bcf38e9">lsys_load</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*path,&#32;<emphasis role="keywordtype">int</emphasis>&#32;seeglb)&#32;{
+00244 &#32;&#32;(void)(path);&#32;(void)(seeglb);&#32;&#32;<emphasis role="comment">/*&#32;not&#32;used&#32;*/</emphasis>
+00245 &#32;&#32;<link linkend="_lua_8h_1a47854189a679002ed743ebbcb30b1b26">lua_pushliteral</link>(L,&#32;<link linkend="_loadlib_8c_1ae5b5e1b4773252e50831be85fbf40777">DLMSG</link>);
+00246 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;NULL;
+00247 }
+00248 
+00249 
+<anchor xml:id="_loadlib_8c_source_1l00250"/><link linkend="_loadlib_8c_1a69abbe6cc341f2e6b083dec021bb1312">00250</link> <emphasis role="keyword">static</emphasis>&#32;<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>&#32;<link linkend="_loadlib_8c_1a69abbe6cc341f2e6b083dec021bb1312">lsys_sym</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*lib,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*sym)&#32;{
+00251 &#32;&#32;(void)(lib);&#32;(void)(sym);&#32;&#32;<emphasis role="comment">/*&#32;not&#32;used&#32;*/</emphasis>
+00252 &#32;&#32;<link linkend="_lua_8h_1a47854189a679002ed743ebbcb30b1b26">lua_pushliteral</link>(L,&#32;<link linkend="_loadlib_8c_1ae5b5e1b4773252e50831be85fbf40777">DLMSG</link>);
+00253 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;NULL;
+00254 }
+00255 
+00256 <emphasis role="comment">/*&#32;}======================================================&#32;*/</emphasis>
+00257 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00258 
+00259 
+00260 <emphasis role="comment">/*</emphasis>
+00261 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00262 <emphasis role="comment">**&#32;Set&#32;Paths</emphasis>
+00263 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00264 <emphasis role="comment">*/</emphasis>
+00265 
+00266 <emphasis role="comment">/*</emphasis>
+00267 <emphasis role="comment">**&#32;LUA_PATH_VAR&#32;and&#32;LUA_CPATH_VAR&#32;are&#32;the&#32;names&#32;of&#32;the&#32;environment</emphasis>
+00268 <emphasis role="comment">**&#32;variables&#32;that&#32;Lua&#32;check&#32;to&#32;set&#32;its&#32;paths.</emphasis>
+00269 <emphasis role="comment">*/</emphasis>
+00270 <emphasis role="preprocessor">#if&#32;!defined(LUA_PATH_VAR)</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00271"/><link linkend="_loadlib_8c_1aafc06e5218aa84669dd7d3a2c6a94046">00271</link> <emphasis role="preprocessor">#define&#32;LUA_PATH_VAR&#32;&#32;&#32;&#32;&quot;LUA_PATH&quot;</emphasis>
+00272 <emphasis role="preprocessor">#endif</emphasis>
+00273 
+00274 <emphasis role="preprocessor">#if&#32;!defined(LUA_CPATH_VAR)</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00275"/><link linkend="_loadlib_8c_1adb8da8be231c0a4a2395949f78d092c5">00275</link> <emphasis role="preprocessor">#define&#32;LUA_CPATH_VAR&#32;&#32;&#32;&quot;LUA_CPATH&quot;</emphasis>
+00276 <emphasis role="preprocessor">#endif</emphasis>
+00277 
+00278 
+00279 
+00280 <emphasis role="comment">/*</emphasis>
+00281 <emphasis role="comment">**&#32;return&#32;registry.LUA_NOENV&#32;as&#32;a&#32;boolean</emphasis>
+00282 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00283"/><link linkend="_loadlib_8c_1a10314b90f6fd35b69745366d3f4961ce">00283</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loadlib_8c_1a10314b90f6fd35b69745366d3f4961ce">noenv</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00284 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;b;
+00285 &#32;&#32;<link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link>(L,&#32;<link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>,&#32;<emphasis role="stringliteral">&quot;LUA_NOENV&quot;</emphasis>);
+00286 &#32;&#32;b&#32;=&#32;<link linkend="_lapi_8c_1a444aee9aa56b0b06175ee3c7bcf7927c">lua_toboolean</link>(L,&#32;-1);
+00287 &#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;value&#32;*/</emphasis>
+00288 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;b;
+00289 }
+00290 
+00291 
+00292 <emphasis role="comment">/*</emphasis>
+00293 <emphasis role="comment">**&#32;Set&#32;a&#32;path</emphasis>
+00294 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00295"/><link linkend="_loadlib_8c_1ad3773b767d767b19dc36cab61cf5c57d">00295</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_loadlib_8c_1ad3773b767d767b19dc36cab61cf5c57d">setpath</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*fieldname,
+00296 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*envname,
+00297 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*dft)&#32;{
+00298 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*dftmark;
+00299 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*nver&#32;=&#32;<link linkend="_lapi_8c_1ab190c226d38b289e6ca57683a9d4e0f0">lua_pushfstring</link>(L,&#32;<emphasis role="stringliteral">&quot;%s%s&quot;</emphasis>,&#32;envname,&#32;<link linkend="_lualib_8h_1a06a8221265cf7c226030b5a16b18a1f0">LUA_VERSUFFIX</link>);
+00300 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*path&#32;=&#32;getenv(nver);&#32;&#32;<emphasis role="comment">/*&#32;try&#32;versioned&#32;name&#32;*/</emphasis>
+00301 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(path&#32;==&#32;NULL)&#32;&#32;<emphasis role="comment">/*&#32;no&#32;versioned&#32;environment&#32;variable?&#32;*/</emphasis>
+00302 &#32;&#32;&#32;&#32;path&#32;=&#32;getenv(envname);&#32;&#32;<emphasis role="comment">/*&#32;try&#32;unversioned&#32;name&#32;*/</emphasis>
+00303 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(path&#32;==&#32;NULL&#32;||&#32;<link linkend="_loadlib_8c_1a10314b90f6fd35b69745366d3f4961ce">noenv</link>(L))&#32;&#32;<emphasis role="comment">/*&#32;no&#32;environment&#32;variable?&#32;*/</emphasis>
+00304 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;dft);&#32;&#32;<emphasis role="comment">/*&#32;use&#32;default&#32;*/</emphasis>
+00305 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;((dftmark&#32;=&#32;strstr(path,&#32;<link linkend="_luaconf_8h_1ae9873b615af1ca0225fb3bc8d880a25e">LUA_PATH_SEP</link>&#32;<link linkend="_luaconf_8h_1ae9873b615af1ca0225fb3bc8d880a25e">LUA_PATH_SEP</link>))&#32;==&#32;NULL)
+00306 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;path);&#32;&#32;<emphasis role="comment">/*&#32;nothing&#32;to&#32;change&#32;*/</emphasis>
+00307 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;path&#32;contains&#32;a&#32;&quot;;;&quot;:&#32;insert&#32;default&#32;path&#32;in&#32;its&#32;place&#32;*/</emphasis>
+00308 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;len&#32;=&#32;strlen(path);
+00309 &#32;&#32;&#32;&#32;<link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;b;
+00310 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a0830ef75e335f6d7590b0e058f82a5eb">luaL_buffinit</link>(L,&#32;&amp;b);
+00311 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(path&#32;&lt;&#32;dftmark)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;is&#32;there&#32;a&#32;prefix&#32;before&#32;&apos;;;&apos;?&#32;*/</emphasis>
+00312 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a0d56993399c45ae61ebb9b448dc30538">luaL_addlstring</link>(&amp;b,&#32;path,&#32;dftmark&#32;-&#32;path);&#32;&#32;<emphasis role="comment">/*&#32;add&#32;it&#32;*/</emphasis>
+00313 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a63935c5b4cf5d45930c875f6cc5e1432">luaL_addchar</link>(&amp;b,&#32;*<link linkend="_luaconf_8h_1ae9873b615af1ca0225fb3bc8d880a25e">LUA_PATH_SEP</link>);
+00314 &#32;&#32;&#32;&#32;}
+00315 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1aced031f9a3f68375e9f80315933d9a88">luaL_addstring</link>(&amp;b,&#32;dft);&#32;&#32;<emphasis role="comment">/*&#32;add&#32;default&#32;*/</emphasis>
+00316 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(dftmark&#32;&lt;&#32;path&#32;+&#32;len&#32;-&#32;2)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;is&#32;there&#32;a&#32;suffix&#32;after&#32;&apos;;;&apos;?&#32;*/</emphasis>
+00317 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a63935c5b4cf5d45930c875f6cc5e1432">luaL_addchar</link>(&amp;b,&#32;*<link linkend="_luaconf_8h_1ae9873b615af1ca0225fb3bc8d880a25e">LUA_PATH_SEP</link>);
+00318 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a0d56993399c45ae61ebb9b448dc30538">luaL_addlstring</link>(&amp;b,&#32;dftmark&#32;+&#32;2,&#32;(path&#32;+&#32;len&#32;-&#32;2)&#32;-&#32;dftmark);
+00319 &#32;&#32;&#32;&#32;}
+00320 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a3a1f80033814e2057583a7d24cee23b4">luaL_pushresult</link>(&amp;b);
+00321 &#32;&#32;}
+00322 &#32;&#32;<link linkend="_loadlib_8c_1aaf2f653c673bdd616a05f1643e1784ab">setprogdir</link>(L);
+00323 &#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;-3,&#32;fieldname);&#32;&#32;<emphasis role="comment">/*&#32;package[fieldname]&#32;=&#32;path&#32;value&#32;*/</emphasis>
+00324 &#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;pop&#32;versioned&#32;variable&#32;name&#32;(&apos;nver&apos;)&#32;*/</emphasis>
+00325 }
+00326 
+00327 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00328 
+00329 
+00330 <emphasis role="comment">/*</emphasis>
+00331 <emphasis role="comment">**&#32;return&#32;registry.CLIBS[path]</emphasis>
+00332 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00333"/><link linkend="_loadlib_8c_1a245afa8e0d4941d4266eee8ec83c4adc">00333</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_loadlib_8c_1a245afa8e0d4941d4266eee8ec83c4adc">checkclib</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*path)&#32;{
+00334 &#32;&#32;<emphasis role="keywordtype">void</emphasis>&#32;*plib;
+00335 &#32;&#32;<link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link>(L,&#32;<link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>,&#32;<link linkend="_loadlib_8c_1a7bbde96feb9b84c7c149acd2773a1158">CLIBS</link>);
+00336 &#32;&#32;<link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link>(L,&#32;-1,&#32;path);
+00337 &#32;&#32;plib&#32;=&#32;<link linkend="_lapi_8c_1a0444ddf13e5618bca969e4b3b47bc0cc">lua_touserdata</link>(L,&#32;-1);&#32;&#32;<emphasis role="comment">/*&#32;plib&#32;=&#32;CLIBS[path]&#32;*/</emphasis>
+00338 &#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;2);&#32;&#32;<emphasis role="comment">/*&#32;pop&#32;CLIBS&#32;table&#32;and&#32;&apos;plib&apos;&#32;*/</emphasis>
+00339 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;plib;
+00340 }
+00341 
+00342 
+00343 <emphasis role="comment">/*</emphasis>
+00344 <emphasis role="comment">**&#32;registry.CLIBS[path]&#32;=&#32;plib&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;--&#32;for&#32;queries</emphasis>
+00345 <emphasis role="comment">**&#32;registry.CLIBS[#CLIBS&#32;+&#32;1]&#32;=&#32;plib&#32;&#32;--&#32;also&#32;keep&#32;a&#32;list&#32;of&#32;all&#32;libraries</emphasis>
+00346 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00347"/><link linkend="_loadlib_8c_1af46f12337af79b3083dc93990be408f2">00347</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_loadlib_8c_1af46f12337af79b3083dc93990be408f2">addtoclib</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*path,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*plib)&#32;{
+00348 &#32;&#32;<link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link>(L,&#32;<link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>,&#32;<link linkend="_loadlib_8c_1a7bbde96feb9b84c7c149acd2773a1158">CLIBS</link>);
+00349 &#32;&#32;<link linkend="_lapi_8c_1a85e3e3d32b068aef62426828a104b561">lua_pushlightuserdata</link>(L,&#32;plib);
+00350 &#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;-1);
+00351 &#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;-3,&#32;path);&#32;&#32;<emphasis role="comment">/*&#32;CLIBS[path]&#32;=&#32;plib&#32;*/</emphasis>
+00352 &#32;&#32;<link linkend="_lapi_8c_1a757fd16e7e09280e2d4e4f9f77ba1099">lua_rawseti</link>(L,&#32;-2,&#32;<link linkend="_lauxlib_8c_1aa525c1b6aa90c90d684ef64cf2215e21">luaL_len</link>(L,&#32;-2)&#32;+&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;CLIBS[#CLIBS&#32;+&#32;1]&#32;=&#32;plib&#32;*/</emphasis>
+00353 &#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;pop&#32;CLIBS&#32;table&#32;*/</emphasis>
+00354 }
+00355 
+00356 
+00357 <emphasis role="comment">/*</emphasis>
+00358 <emphasis role="comment">**&#32;__gc&#32;tag&#32;method&#32;for&#32;CLIBS&#32;table:&#32;calls&#32;&apos;lsys_unloadlib&apos;&#32;for&#32;all&#32;lib</emphasis>
+00359 <emphasis role="comment">**&#32;handles&#32;in&#32;list&#32;CLIBS</emphasis>
+00360 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00361"/><link linkend="_loadlib_8c_1a59926ced6bee14c7b952ef79d3520084">00361</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loadlib_8c_1a59926ced6bee14c7b952ef79d3520084">gctm</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00362 &#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;n&#32;=&#32;<link linkend="_lauxlib_8c_1aa525c1b6aa90c90d684ef64cf2215e21">luaL_len</link>(L,&#32;1);
+00363 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(;&#32;n&#32;&gt;=&#32;1;&#32;n--)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;for&#32;each&#32;handle,&#32;in&#32;reverse&#32;order&#32;*/</emphasis>
+00364 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1af8e4dc545cc83927d901d2f242489320">lua_rawgeti</link>(L,&#32;1,&#32;n);&#32;&#32;<emphasis role="comment">/*&#32;get&#32;handle&#32;CLIBS[n]&#32;*/</emphasis>
+00365 &#32;&#32;&#32;&#32;<link linkend="_loadlib_8c_1a68916c18b947bf8d96249191f05cd050">lsys_unloadlib</link>(<link linkend="_lapi_8c_1a0444ddf13e5618bca969e4b3b47bc0cc">lua_touserdata</link>(L,&#32;-1));
+00366 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;pop&#32;handle&#32;*/</emphasis>
+00367 &#32;&#32;}
+00368 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;
+00369 }
+00370 
+00371 
+00372 
+00373 <emphasis role="comment">/*&#32;error&#32;codes&#32;for&#32;&apos;lookforfunc&apos;&#32;*/</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00374"/><link linkend="_loadlib_8c_1a3a24a5a8d141a252b170da80f26a1f2f">00374</link> <emphasis role="preprocessor">#define&#32;ERRLIB&#32;&#32;&#32;&#32;&#32;&#32;1</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00375"/><link linkend="_loadlib_8c_1a51529ffe3184e16719bcb031a03c8f6f">00375</link> <emphasis role="preprocessor">#define&#32;ERRFUNC&#32;&#32;&#32;&#32;&#32;2</emphasis>
+00376 
+00377 <emphasis role="comment">/*</emphasis>
+00378 <emphasis role="comment">**&#32;Look&#32;for&#32;a&#32;C&#32;function&#32;named&#32;&apos;sym&apos;&#32;in&#32;a&#32;dynamically&#32;loaded&#32;library</emphasis>
+00379 <emphasis role="comment">**&#32;&apos;path&apos;.</emphasis>
+00380 <emphasis role="comment">**&#32;First,&#32;check&#32;whether&#32;the&#32;library&#32;is&#32;already&#32;loaded;&#32;if&#32;not,&#32;try</emphasis>
+00381 <emphasis role="comment">**&#32;to&#32;load&#32;it.</emphasis>
+00382 <emphasis role="comment">**&#32;Then,&#32;if&#32;&apos;sym&apos;&#32;is&#32;&apos;*&apos;,&#32;return&#32;true&#32;(as&#32;library&#32;has&#32;been&#32;loaded).</emphasis>
+00383 <emphasis role="comment">**&#32;Otherwise,&#32;look&#32;for&#32;symbol&#32;&apos;sym&apos;&#32;in&#32;the&#32;library&#32;and&#32;push&#32;a</emphasis>
+00384 <emphasis role="comment">**&#32;C&#32;function&#32;with&#32;that&#32;symbol.</emphasis>
+00385 <emphasis role="comment">**&#32;Return&#32;0&#32;and&#32;&apos;true&apos;&#32;or&#32;a&#32;function&#32;in&#32;the&#32;stack;&#32;in&#32;case&#32;of</emphasis>
+00386 <emphasis role="comment">**&#32;errors,&#32;return&#32;an&#32;error&#32;code&#32;and&#32;an&#32;error&#32;message&#32;in&#32;the&#32;stack.</emphasis>
+00387 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00388"/><link linkend="_loadlib_8c_1ad7ea39bad1ff41ec6a7f95c1e23722be">00388</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loadlib_8c_1ad7ea39bad1ff41ec6a7f95c1e23722be">lookforfunc</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*path,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*sym)&#32;{
+00389 &#32;&#32;<emphasis role="keywordtype">void</emphasis>&#32;*reg&#32;=&#32;<link linkend="_loadlib_8c_1a245afa8e0d4941d4266eee8ec83c4adc">checkclib</link>(L,&#32;path);&#32;&#32;<emphasis role="comment">/*&#32;check&#32;loaded&#32;C&#32;libraries&#32;*/</emphasis>
+00390 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(reg&#32;==&#32;NULL)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;must&#32;load&#32;library?&#32;*/</emphasis>
+00391 &#32;&#32;&#32;&#32;reg&#32;=&#32;<link linkend="_loadlib_8c_1a4531f21ae71791d4ad7eb2d92bcf38e9">lsys_load</link>(L,&#32;path,&#32;*sym&#32;==&#32;<emphasis role="charliteral">&apos;*&apos;</emphasis>);&#32;&#32;<emphasis role="comment">/*&#32;global&#32;symbols&#32;if&#32;&apos;sym&apos;==&apos;*&apos;&#32;*/</emphasis>
+00392 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(reg&#32;==&#32;NULL)&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_loadlib_8c_1a3a24a5a8d141a252b170da80f26a1f2f">ERRLIB</link>;&#32;&#32;<emphasis role="comment">/*&#32;unable&#32;to&#32;load&#32;library&#32;*/</emphasis>
+00393 &#32;&#32;&#32;&#32;<link linkend="_loadlib_8c_1af46f12337af79b3083dc93990be408f2">addtoclib</link>(L,&#32;path,&#32;reg);
+00394 &#32;&#32;}
+00395 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(*sym&#32;==&#32;<emphasis role="charliteral">&apos;*&apos;</emphasis>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;loading&#32;only&#32;library&#32;(no&#32;function)?&#32;*/</emphasis>
+00396 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a56bbb7479265e38da2e2596e6ec25faa">lua_pushboolean</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;return&#32;&apos;true&apos;&#32;*/</emphasis>
+00397 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;errors&#32;*/</emphasis>
+00398 &#32;&#32;}
+00399 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00400 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>&#32;f&#32;=&#32;<link linkend="_loadlib_8c_1a69abbe6cc341f2e6b083dec021bb1312">lsys_sym</link>(L,&#32;reg,&#32;sym);
+00401 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(f&#32;==&#32;NULL)
+00402 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_loadlib_8c_1a51529ffe3184e16719bcb031a03c8f6f">ERRFUNC</link>;&#32;&#32;<emphasis role="comment">/*&#32;unable&#32;to&#32;find&#32;function&#32;*/</emphasis>
+00403 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a2e4fbbe97182bf90004379202202f2b9">lua_pushcfunction</link>(L,&#32;f);&#32;&#32;<emphasis role="comment">/*&#32;else&#32;create&#32;new&#32;function&#32;*/</emphasis>
+00404 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;errors&#32;*/</emphasis>
+00405 &#32;&#32;}
+00406 }
+00407 
+00408 
+<anchor xml:id="_loadlib_8c_source_1l00409"/><link linkend="_loadlib_8c_1aac7e69bc5b4403e49e2609425f0fb7b0">00409</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loadlib_8c_1aac7e69bc5b4403e49e2609425f0fb7b0">ll_loadlib</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00410 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*path&#32;=&#32;<link linkend="_lauxlib_8h_1ad9917d22c79651fdd73d42c146b5056f">luaL_checkstring</link>(L,&#32;1);
+00411 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*init&#32;=&#32;<link linkend="_lauxlib_8h_1ad9917d22c79651fdd73d42c146b5056f">luaL_checkstring</link>(L,&#32;2);
+00412 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;stat&#32;=&#32;<link linkend="_loadlib_8c_1ad7ea39bad1ff41ec6a7f95c1e23722be">lookforfunc</link>(L,&#32;path,&#32;init);
+00413 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(stat&#32;==&#32;0)&#32;&#32;<emphasis role="comment">/*&#32;no&#32;errors?&#32;*/</emphasis>
+00414 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;return&#32;the&#32;loaded&#32;function&#32;*/</emphasis>
+00415 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;error;&#32;error&#32;message&#32;is&#32;on&#32;stack&#32;top&#32;*/</emphasis>
+00416 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a8666135f7a1412f5eaa14857aec279f0">luaL_pushfail</link>(L);
+00417 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a1ba55afa0e7f756a4599e86cf46d92e0">lua_insert</link>(L,&#32;-2);
+00418 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;(stat&#32;==&#32;<link linkend="_loadlib_8c_1a3a24a5a8d141a252b170da80f26a1f2f">ERRLIB</link>)&#32;?&#32;&#32;<link linkend="_loadlib_8c_1af0b680e98ad7c321efb7b5e46f7e69c4">LIB_FAIL</link>&#32;:&#32;<emphasis role="stringliteral">&quot;init&quot;</emphasis>);
+00419 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;3;&#32;&#32;<emphasis role="comment">/*&#32;return&#32;fail,&#32;error&#32;message,&#32;and&#32;where&#32;*/</emphasis>
+00420 &#32;&#32;}
+00421 }
+00422 
+00423 
+00424 
+00425 <emphasis role="comment">/*</emphasis>
+00426 <emphasis role="comment">**&#32;{======================================================</emphasis>
+00427 <emphasis role="comment">**&#32;&apos;require&apos;&#32;function</emphasis>
+00428 <emphasis role="comment">**&#32;=======================================================</emphasis>
+00429 <emphasis role="comment">*/</emphasis>
+00430 
+00431 
+<anchor xml:id="_loadlib_8c_source_1l00432"/><link linkend="_loadlib_8c_1afb05ec3460e3f9ccfb9450d2c3e22e5c">00432</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loadlib_8c_1afb05ec3460e3f9ccfb9450d2c3e22e5c">readable</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*filename)&#32;{
+00433 &#32;&#32;FILE&#32;*f&#32;=&#32;fopen(filename,&#32;<emphasis role="stringliteral">&quot;r&quot;</emphasis>);&#32;&#32;<emphasis role="comment">/*&#32;try&#32;to&#32;open&#32;file&#32;*/</emphasis>
+00434 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(f&#32;==&#32;NULL)&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;open&#32;failed&#32;*/</emphasis>
+00435 &#32;&#32;fclose(f);
+00436 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00437 }
+00438 
+00439 
+00440 <emphasis role="comment">/*</emphasis>
+00441 <emphasis role="comment">**&#32;Get&#32;the&#32;next&#32;name&#32;in&#32;&apos;*path&apos;&#32;=&#32;&apos;name1;name2;name3;...&apos;,&#32;changing</emphasis>
+00442 <emphasis role="comment">**&#32;the&#32;ending&#32;&apos;;&apos;&#32;to&#32;&apos;\0&apos;&#32;to&#32;create&#32;a&#32;zero-terminated&#32;string.&#32;Return</emphasis>
+00443 <emphasis role="comment">**&#32;NULL&#32;when&#32;list&#32;ends.</emphasis>
+00444 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00445"/><link linkend="_loadlib_8c_1a063c12494c1e3f3049273e78bd553453">00445</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_loadlib_8c_1a063c12494c1e3f3049273e78bd553453">getnextfilename</link>&#32;(<emphasis role="keywordtype">char</emphasis>&#32;**path,&#32;<emphasis role="keywordtype">char</emphasis>&#32;*end)&#32;{
+00446 &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;*sep;
+00447 &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name&#32;=&#32;*path;
+00448 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(name&#32;==&#32;end)
+00449 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;NULL;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;more&#32;names&#32;*/</emphasis>
+00450 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(*name&#32;==&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;from&#32;previous&#32;iteration?&#32;*/</emphasis>
+00451 &#32;&#32;&#32;&#32;*name&#32;=&#32;*<link linkend="_luaconf_8h_1ae9873b615af1ca0225fb3bc8d880a25e">LUA_PATH_SEP</link>;&#32;&#32;<emphasis role="comment">/*&#32;restore&#32;separator&#32;*/</emphasis>
+00452 &#32;&#32;&#32;&#32;name++;&#32;&#32;<emphasis role="comment">/*&#32;skip&#32;it&#32;*/</emphasis>
+00453 &#32;&#32;}
+00454 &#32;&#32;sep&#32;=&#32;strchr(name,&#32;*<link linkend="_luaconf_8h_1ae9873b615af1ca0225fb3bc8d880a25e">LUA_PATH_SEP</link>);&#32;&#32;<emphasis role="comment">/*&#32;find&#32;next&#32;separator&#32;*/</emphasis>
+00455 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(sep&#32;==&#32;NULL)&#32;&#32;<emphasis role="comment">/*&#32;separator&#32;not&#32;found?&#32;*/</emphasis>
+00456 &#32;&#32;&#32;&#32;sep&#32;=&#32;end;&#32;&#32;<emphasis role="comment">/*&#32;name&#32;goes&#32;until&#32;the&#32;end&#32;*/</emphasis>
+00457 &#32;&#32;*sep&#32;=&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;finish&#32;file&#32;name&#32;*/</emphasis>
+00458 &#32;&#32;*path&#32;=&#32;sep;&#32;&#32;<emphasis role="comment">/*&#32;will&#32;start&#32;next&#32;search&#32;from&#32;here&#32;*/</emphasis>
+00459 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;name;
+00460 }
+00461 
+00462 
+00463 <emphasis role="comment">/*</emphasis>
+00464 <emphasis role="comment">**&#32;Given&#32;a&#32;path&#32;such&#32;as&#32;&quot;;blabla.so;blublu.so&quot;,&#32;pushes&#32;the&#32;string</emphasis>
+00465 <emphasis role="comment">**</emphasis>
+00466 <emphasis role="comment">**&#32;no&#32;file&#32;&apos;blabla.so&apos;</emphasis>
+00467 <emphasis role="comment">**&#32;&#32;no&#32;file&#32;&apos;blublu.so&apos;</emphasis>
+00468 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00469"/><link linkend="_loadlib_8c_1a8c34f770d4f7748069b3b26c070e2473">00469</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_loadlib_8c_1a8c34f770d4f7748069b3b26c070e2473">pusherrornotfound</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*path)&#32;{
+00470 &#32;&#32;<link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;b;
+00471 &#32;&#32;<link linkend="_lauxlib_8c_1a0830ef75e335f6d7590b0e058f82a5eb">luaL_buffinit</link>(L,&#32;&amp;b);
+00472 &#32;&#32;<link linkend="_lauxlib_8c_1aced031f9a3f68375e9f80315933d9a88">luaL_addstring</link>(&amp;b,&#32;<emphasis role="stringliteral">&quot;no&#32;file&#32;&apos;&quot;</emphasis>);
+00473 &#32;&#32;<link linkend="_lauxlib_8c_1a5dcf12b98ab3ef52b7885a27f48fadea">luaL_addgsub</link>(&amp;b,&#32;path,&#32;<link linkend="_luaconf_8h_1ae9873b615af1ca0225fb3bc8d880a25e">LUA_PATH_SEP</link>,&#32;<emphasis role="stringliteral">&quot;&apos;\n\tno&#32;file&#32;&apos;&quot;</emphasis>);
+00474 &#32;&#32;<link linkend="_lauxlib_8c_1aced031f9a3f68375e9f80315933d9a88">luaL_addstring</link>(&amp;b,&#32;<emphasis role="stringliteral">&quot;&apos;&quot;</emphasis>);
+00475 &#32;&#32;<link linkend="_lauxlib_8c_1a3a1f80033814e2057583a7d24cee23b4">luaL_pushresult</link>(&amp;b);
+00476 }
+00477 
+00478 
+<anchor xml:id="_loadlib_8c_source_1l00479"/><link linkend="_loadlib_8c_1a9aa5433859d896c2db1a7af366e04b65">00479</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_loadlib_8c_1a9aa5433859d896c2db1a7af366e04b65">searchpath</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name,
+00480 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*path,
+00481 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*sep,
+00482 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*dirsep)&#32;{
+00483 &#32;&#32;<link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;buff;
+00484 &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;*pathname;&#32;&#32;<emphasis role="comment">/*&#32;path&#32;with&#32;name&#32;inserted&#32;*/</emphasis>
+00485 &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;*endpathname;&#32;&#32;<emphasis role="comment">/*&#32;its&#32;end&#32;*/</emphasis>
+00486 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*filename;
+00487 &#32;&#32;<emphasis role="comment">/*&#32;separator&#32;is&#32;non-empty&#32;and&#32;appears&#32;in&#32;&apos;name&apos;?&#32;*/</emphasis>
+00488 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(*sep&#32;!=&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>&#32;&amp;&amp;&#32;strchr(name,&#32;*sep)&#32;!=&#32;NULL)
+00489 &#32;&#32;&#32;&#32;name&#32;=&#32;<link linkend="_lauxlib_8c_1a65a9b27abc8408f98fbeac037a790ae9">luaL_gsub</link>(L,&#32;name,&#32;sep,&#32;dirsep);&#32;&#32;<emphasis role="comment">/*&#32;replace&#32;it&#32;by&#32;&apos;dirsep&apos;&#32;*/</emphasis>
+00490 &#32;&#32;<link linkend="_lauxlib_8c_1a0830ef75e335f6d7590b0e058f82a5eb">luaL_buffinit</link>(L,&#32;&amp;buff);
+00491 &#32;&#32;<emphasis role="comment">/*&#32;add&#32;path&#32;to&#32;the&#32;buffer,&#32;replacing&#32;marks&#32;(&apos;?&apos;)&#32;with&#32;the&#32;file&#32;name&#32;*/</emphasis>
+00492 &#32;&#32;<link linkend="_lauxlib_8c_1a5dcf12b98ab3ef52b7885a27f48fadea">luaL_addgsub</link>(&amp;buff,&#32;path,&#32;<link linkend="_luaconf_8h_1a6d221295f625b3cb9cac477c0c475bb4">LUA_PATH_MARK</link>,&#32;name);
+00493 &#32;&#32;<link linkend="_lauxlib_8h_1a63935c5b4cf5d45930c875f6cc5e1432">luaL_addchar</link>(&amp;buff,&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>);
+00494 &#32;&#32;pathname&#32;=&#32;<link linkend="_lauxlib_8h_1a3328ae8405aac1707d4b400d0d2c26dd">luaL_buffaddr</link>(&amp;buff);&#32;&#32;<emphasis role="comment">/*&#32;writable&#32;list&#32;of&#32;file&#32;names&#32;*/</emphasis>
+00495 &#32;&#32;endpathname&#32;=&#32;pathname&#32;+&#32;<link linkend="_lauxlib_8h_1ab43380e8ecfabde7c32aec748df1cf59">luaL_bufflen</link>(&amp;buff)&#32;-&#32;1;
+00496 &#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;((filename&#32;=&#32;<link linkend="_loadlib_8c_1a063c12494c1e3f3049273e78bd553453">getnextfilename</link>(&amp;pathname,&#32;endpathname))&#32;!=&#32;NULL)&#32;{
+00497 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_loadlib_8c_1afb05ec3460e3f9ccfb9450d2c3e22e5c">readable</link>(filename))&#32;&#32;<emphasis role="comment">/*&#32;does&#32;file&#32;exist&#32;and&#32;is&#32;readable?&#32;*/</emphasis>
+00498 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;filename);&#32;&#32;<emphasis role="comment">/*&#32;save&#32;and&#32;return&#32;name&#32;*/</emphasis>
+00499 &#32;&#32;}
+00500 &#32;&#32;<link linkend="_lauxlib_8c_1a3a1f80033814e2057583a7d24cee23b4">luaL_pushresult</link>(&amp;buff);&#32;&#32;<emphasis role="comment">/*&#32;push&#32;path&#32;to&#32;create&#32;error&#32;message&#32;*/</emphasis>
+00501 &#32;&#32;<link linkend="_loadlib_8c_1a8c34f770d4f7748069b3b26c070e2473">pusherrornotfound</link>(L,&#32;<link linkend="_lua_8h_1ac813fc3bc1886ba17c363d5b4c6e7ef1">lua_tostring</link>(L,&#32;-1));&#32;&#32;<emphasis role="comment">/*&#32;create&#32;error&#32;message&#32;*/</emphasis>
+00502 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;NULL;&#32;&#32;<emphasis role="comment">/*&#32;not&#32;found&#32;*/</emphasis>
+00503 }
+00504 
+00505 
+<anchor xml:id="_loadlib_8c_source_1l00506"/><link linkend="_loadlib_8c_1a3e9eb01c860846336b6f50d6c77448a2">00506</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loadlib_8c_1a3e9eb01c860846336b6f50d6c77448a2">ll_searchpath</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00507 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*f&#32;=&#32;<link linkend="_loadlib_8c_1a9aa5433859d896c2db1a7af366e04b65">searchpath</link>(L,&#32;<link linkend="_lauxlib_8h_1ad9917d22c79651fdd73d42c146b5056f">luaL_checkstring</link>(L,&#32;1),
+00508 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1ad9917d22c79651fdd73d42c146b5056f">luaL_checkstring</link>(L,&#32;2),
+00509 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a732bc5882c4a5da46b236649ab6db47b">luaL_optstring</link>(L,&#32;3,&#32;<emphasis role="stringliteral">&quot;.&quot;</emphasis>),
+00510 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a732bc5882c4a5da46b236649ab6db47b">luaL_optstring</link>(L,&#32;4,&#32;<link linkend="_luaconf_8h_1a2e611ade620cc30a6f0c306ae39d27d8">LUA_DIRSEP</link>));
+00511 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(f&#32;!=&#32;NULL)&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00512 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;error&#32;message&#32;is&#32;on&#32;top&#32;of&#32;the&#32;stack&#32;*/</emphasis>
+00513 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a8666135f7a1412f5eaa14857aec279f0">luaL_pushfail</link>(L);
+00514 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a1ba55afa0e7f756a4599e86cf46d92e0">lua_insert</link>(L,&#32;-2);
+00515 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;2;&#32;&#32;<emphasis role="comment">/*&#32;return&#32;fail&#32;+&#32;error&#32;message&#32;*/</emphasis>
+00516 &#32;&#32;}
+00517 }
+00518 
+00519 
+<anchor xml:id="_loadlib_8c_source_1l00520"/><link linkend="_loadlib_8c_1af8f7333f1a59f3d7aab8c9b79b7a4ab2">00520</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_loadlib_8c_1af8f7333f1a59f3d7aab8c9b79b7a4ab2">findfile</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name,
+00521 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*pname,
+00522 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*dirsep)&#32;{
+00523 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*path;
+00524 &#32;&#32;<link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link>(L,&#32;<link linkend="_lua_8h_1ac3aa6665c25070f282c9827ec919fe6a">lua_upvalueindex</link>(1),&#32;pname);
+00525 &#32;&#32;path&#32;=&#32;<link linkend="_lua_8h_1ac813fc3bc1886ba17c363d5b4c6e7ef1">lua_tostring</link>(L,&#32;-1);
+00526 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(path&#32;==&#32;NULL)
+00527 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;&apos;package.%s&apos;&#32;must&#32;be&#32;a&#32;string&quot;</emphasis>,&#32;pname);
+00528 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_loadlib_8c_1a9aa5433859d896c2db1a7af366e04b65">searchpath</link>(L,&#32;name,&#32;path,&#32;<emphasis role="stringliteral">&quot;.&quot;</emphasis>,&#32;dirsep);
+00529 }
+00530 
+00531 
+<anchor xml:id="_loadlib_8c_source_1l00532"/><link linkend="_loadlib_8c_1abe3af664b33d2158ef6526094c84bb17">00532</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loadlib_8c_1abe3af664b33d2158ef6526094c84bb17">checkload</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;stat,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*filename)&#32;{
+00533 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(stat)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;module&#32;loaded&#32;successfully?&#32;*/</emphasis>
+00534 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;filename);&#32;&#32;<emphasis role="comment">/*&#32;will&#32;be&#32;2nd&#32;argument&#32;to&#32;module&#32;*/</emphasis>
+00535 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;2;&#32;&#32;<emphasis role="comment">/*&#32;return&#32;open&#32;function&#32;and&#32;file&#32;name&#32;*/</emphasis>
+00536 &#32;&#32;}
+00537 &#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00538 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;error&#32;loading&#32;module&#32;&apos;%s&apos;&#32;from&#32;file&#32;&apos;%s&apos;:\n\t%s&quot;</emphasis>,
+00539 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1ac813fc3bc1886ba17c363d5b4c6e7ef1">lua_tostring</link>(L,&#32;1),&#32;filename,&#32;<link linkend="_lua_8h_1ac813fc3bc1886ba17c363d5b4c6e7ef1">lua_tostring</link>(L,&#32;-1));
+00540 }
+00541 
+00542 
+<anchor xml:id="_loadlib_8c_source_1l00543"/><link linkend="_loadlib_8c_1a8b2f1d86fe37c0829143579a6b568243">00543</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loadlib_8c_1a8b2f1d86fe37c0829143579a6b568243">searcher_Lua</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00544 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*filename;
+00545 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name&#32;=&#32;<link linkend="_lauxlib_8h_1ad9917d22c79651fdd73d42c146b5056f">luaL_checkstring</link>(L,&#32;1);
+00546 &#32;&#32;filename&#32;=&#32;<link linkend="_loadlib_8c_1af8f7333f1a59f3d7aab8c9b79b7a4ab2">findfile</link>(L,&#32;name,&#32;<emphasis role="stringliteral">&quot;path&quot;</emphasis>,&#32;<link linkend="_loadlib_8c_1a6c20d5257fe758acbee718f58ec054f8">LUA_LSUBSEP</link>);
+00547 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(filename&#32;==&#32;NULL)&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;module&#32;not&#32;found&#32;in&#32;this&#32;path&#32;*/</emphasis>
+00548 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_loadlib_8c_1abe3af664b33d2158ef6526094c84bb17">checkload</link>(L,&#32;(<link linkend="_lauxlib_8h_1a023c745560d0ed613efb6eada57a3c13">luaL_loadfile</link>(L,&#32;filename)&#32;==&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>),&#32;filename);
+00549 }
+00550 
+00551 
+00552 <emphasis role="comment">/*</emphasis>
+00553 <emphasis role="comment">**&#32;Try&#32;to&#32;find&#32;a&#32;load&#32;function&#32;for&#32;module&#32;&apos;modname&apos;&#32;at&#32;file&#32;&apos;filename&apos;.</emphasis>
+00554 <emphasis role="comment">**&#32;First,&#32;change&#32;&apos;.&apos;&#32;to&#32;&apos;_&apos;&#32;in&#32;&apos;modname&apos;;&#32;then,&#32;if&#32;&apos;modname&apos;&#32;has</emphasis>
+00555 <emphasis role="comment">**&#32;the&#32;form&#32;X-Y&#32;(that&#32;is,&#32;it&#32;has&#32;an&#32;&quot;ignore&#32;mark&quot;),&#32;build&#32;a&#32;function</emphasis>
+00556 <emphasis role="comment">**&#32;name&#32;&quot;luaopen_X&quot;&#32;and&#32;look&#32;for&#32;it.&#32;(For&#32;compatibility,&#32;if&#32;that</emphasis>
+00557 <emphasis role="comment">**&#32;fails,&#32;it&#32;also&#32;tries&#32;&quot;luaopen_Y&quot;.)&#32;If&#32;there&#32;is&#32;no&#32;ignore&#32;mark,</emphasis>
+00558 <emphasis role="comment">**&#32;look&#32;for&#32;a&#32;function&#32;named&#32;&quot;luaopen_modname&quot;.</emphasis>
+00559 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00560"/><link linkend="_loadlib_8c_1a91ac5b5231cf039af46226806dcc3884">00560</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loadlib_8c_1a91ac5b5231cf039af46226806dcc3884">loadfunc</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*filename,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*modname)&#32;{
+00561 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*openfunc;
+00562 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*mark;
+00563 &#32;&#32;modname&#32;=&#32;<link linkend="_lauxlib_8c_1a65a9b27abc8408f98fbeac037a790ae9">luaL_gsub</link>(L,&#32;modname,&#32;<emphasis role="stringliteral">&quot;.&quot;</emphasis>,&#32;<link linkend="_loadlib_8c_1addb93481df7869f7e8c6f85ad7ed3e53">LUA_OFSEP</link>);
+00564 &#32;&#32;mark&#32;=&#32;strchr(modname,&#32;*<link linkend="_loadlib_8c_1ad598457446eb8bed37166e57d94deecc">LUA_IGMARK</link>);
+00565 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(mark)&#32;{
+00566 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;stat;
+00567 &#32;&#32;&#32;&#32;openfunc&#32;=&#32;<link linkend="_lapi_8c_1a2c325311534c23450cdf11931a8db0ae">lua_pushlstring</link>(L,&#32;modname,&#32;mark&#32;-&#32;modname);
+00568 &#32;&#32;&#32;&#32;openfunc&#32;=&#32;<link linkend="_lapi_8c_1ab190c226d38b289e6ca57683a9d4e0f0">lua_pushfstring</link>(L,&#32;<link linkend="_loadlib_8c_1ae484759202e13c0121badd902b707955">LUA_POF</link><emphasis role="stringliteral">&quot;%s&quot;</emphasis>,&#32;openfunc);
+00569 &#32;&#32;&#32;&#32;stat&#32;=&#32;<link linkend="_loadlib_8c_1ad7ea39bad1ff41ec6a7f95c1e23722be">lookforfunc</link>(L,&#32;filename,&#32;openfunc);
+00570 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(stat&#32;!=&#32;<link linkend="_loadlib_8c_1a51529ffe3184e16719bcb031a03c8f6f">ERRFUNC</link>)&#32;<emphasis role="keywordflow">return</emphasis>&#32;stat;
+00571 &#32;&#32;&#32;&#32;modname&#32;=&#32;mark&#32;+&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;else&#32;go&#32;ahead&#32;and&#32;try&#32;old-style&#32;name&#32;*/</emphasis>
+00572 &#32;&#32;}
+00573 &#32;&#32;openfunc&#32;=&#32;<link linkend="_lapi_8c_1ab190c226d38b289e6ca57683a9d4e0f0">lua_pushfstring</link>(L,&#32;<link linkend="_loadlib_8c_1ae484759202e13c0121badd902b707955">LUA_POF</link><emphasis role="stringliteral">&quot;%s&quot;</emphasis>,&#32;modname);
+00574 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_loadlib_8c_1ad7ea39bad1ff41ec6a7f95c1e23722be">lookforfunc</link>(L,&#32;filename,&#32;openfunc);
+00575 }
+00576 
+00577 
+<anchor xml:id="_loadlib_8c_source_1l00578"/><link linkend="_loadlib_8c_1a9a915ea950c831cee2f1e7b0a3bd9005">00578</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loadlib_8c_1a9a915ea950c831cee2f1e7b0a3bd9005">searcher_C</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00579 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name&#32;=&#32;<link linkend="_lauxlib_8h_1ad9917d22c79651fdd73d42c146b5056f">luaL_checkstring</link>(L,&#32;1);
+00580 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*filename&#32;=&#32;<link linkend="_loadlib_8c_1af8f7333f1a59f3d7aab8c9b79b7a4ab2">findfile</link>(L,&#32;name,&#32;<emphasis role="stringliteral">&quot;cpath&quot;</emphasis>,&#32;<link linkend="_loadlib_8c_1a612c9af4dd9a58765226bcdddb380c7d">LUA_CSUBSEP</link>);
+00581 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(filename&#32;==&#32;NULL)&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;module&#32;not&#32;found&#32;in&#32;this&#32;path&#32;*/</emphasis>
+00582 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_loadlib_8c_1abe3af664b33d2158ef6526094c84bb17">checkload</link>(L,&#32;(<link linkend="_loadlib_8c_1a91ac5b5231cf039af46226806dcc3884">loadfunc</link>(L,&#32;filename,&#32;name)&#32;==&#32;0),&#32;filename);
+00583 }
+00584 
+00585 
+<anchor xml:id="_loadlib_8c_source_1l00586"/><link linkend="_loadlib_8c_1a1ec05cd98a045c271aeda9f9c6041e1c">00586</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loadlib_8c_1a1ec05cd98a045c271aeda9f9c6041e1c">searcher_Croot</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00587 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*filename;
+00588 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name&#32;=&#32;<link linkend="_lauxlib_8h_1ad9917d22c79651fdd73d42c146b5056f">luaL_checkstring</link>(L,&#32;1);
+00589 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*p&#32;=&#32;strchr(name,&#32;<emphasis role="charliteral">&apos;.&apos;</emphasis>);
+00590 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;stat;
+00591 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(p&#32;==&#32;NULL)&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;is&#32;root&#32;*/</emphasis>
+00592 &#32;&#32;<link linkend="_lapi_8c_1a2c325311534c23450cdf11931a8db0ae">lua_pushlstring</link>(L,&#32;name,&#32;p&#32;-&#32;name);
+00593 &#32;&#32;filename&#32;=&#32;<link linkend="_loadlib_8c_1af8f7333f1a59f3d7aab8c9b79b7a4ab2">findfile</link>(L,&#32;<link linkend="_lua_8h_1ac813fc3bc1886ba17c363d5b4c6e7ef1">lua_tostring</link>(L,&#32;-1),&#32;<emphasis role="stringliteral">&quot;cpath&quot;</emphasis>,&#32;<link linkend="_loadlib_8c_1a612c9af4dd9a58765226bcdddb380c7d">LUA_CSUBSEP</link>);
+00594 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(filename&#32;==&#32;NULL)&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;root&#32;not&#32;found&#32;*/</emphasis>
+00595 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;((stat&#32;=&#32;<link linkend="_loadlib_8c_1a91ac5b5231cf039af46226806dcc3884">loadfunc</link>(L,&#32;filename,&#32;name))&#32;!=&#32;0)&#32;{
+00596 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(stat&#32;!=&#32;<link linkend="_loadlib_8c_1a51529ffe3184e16719bcb031a03c8f6f">ERRFUNC</link>)
+00597 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_loadlib_8c_1abe3af664b33d2158ef6526094c84bb17">checkload</link>(L,&#32;0,&#32;filename);&#32;&#32;<emphasis role="comment">/*&#32;real&#32;error&#32;*/</emphasis>
+00598 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;open&#32;function&#32;not&#32;found&#32;*/</emphasis>
+00599 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1ab190c226d38b289e6ca57683a9d4e0f0">lua_pushfstring</link>(L,&#32;<emphasis role="stringliteral">&quot;no&#32;module&#32;&apos;%s&apos;&#32;in&#32;file&#32;&apos;%s&apos;&quot;</emphasis>,&#32;name,&#32;filename);
+00600 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00601 &#32;&#32;&#32;&#32;}
+00602 &#32;&#32;}
+00603 &#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;filename);&#32;&#32;<emphasis role="comment">/*&#32;will&#32;be&#32;2nd&#32;argument&#32;to&#32;module&#32;*/</emphasis>
+00604 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;2;
+00605 }
+00606 
+00607 
+<anchor xml:id="_loadlib_8c_source_1l00608"/><link linkend="_loadlib_8c_1a68e1957952958cc41d9ede92dabda1c6">00608</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loadlib_8c_1a68e1957952958cc41d9ede92dabda1c6">searcher_preload</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00609 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name&#32;=&#32;<link linkend="_lauxlib_8h_1ad9917d22c79651fdd73d42c146b5056f">luaL_checkstring</link>(L,&#32;1);
+00610 &#32;&#32;<link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link>(L,&#32;<link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>,&#32;<link linkend="_lauxlib_8h_1ab654a257ab8f9de4ba519a64a9a9ea91">LUA_PRELOAD_TABLE</link>);
+00611 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link>(L,&#32;-1,&#32;name)&#32;==&#32;<link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">LUA_TNIL</link>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;not&#32;found?&#32;*/</emphasis>
+00612 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1ab190c226d38b289e6ca57683a9d4e0f0">lua_pushfstring</link>(L,&#32;<emphasis role="stringliteral">&quot;no&#32;field&#32;package.preload[&apos;%s&apos;]&quot;</emphasis>,&#32;name);
+00613 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00614 &#32;&#32;}
+00615 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00616 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a47854189a679002ed743ebbcb30b1b26">lua_pushliteral</link>(L,&#32;<emphasis role="stringliteral">&quot;:preload:&quot;</emphasis>);
+00617 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;2;
+00618 &#32;&#32;}
+00619 }
+00620 
+00621 
+<anchor xml:id="_loadlib_8c_source_1l00622"/><link linkend="_loadlib_8c_1aeea4101591c7cab25273f4dfe7d811d6">00622</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_loadlib_8c_1aeea4101591c7cab25273f4dfe7d811d6">findloader</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name)&#32;{
+00623 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i;
+00624 &#32;&#32;<link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;msg;&#32;&#32;<emphasis role="comment">/*&#32;to&#32;build&#32;error&#32;message&#32;*/</emphasis>
+00625 &#32;&#32;<emphasis role="comment">/*&#32;push&#32;&apos;package.searchers&apos;&#32;to&#32;index&#32;3&#32;in&#32;the&#32;stack&#32;*/</emphasis>
+00626 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link>(L,&#32;<link linkend="_lua_8h_1ac3aa6665c25070f282c9827ec919fe6a">lua_upvalueindex</link>(1),&#32;<emphasis role="stringliteral">&quot;searchers&quot;</emphasis>)&#32;!=&#32;<link linkend="_lua_8h_1a31620fd8da5b655b7879e16a116ec31a">LUA_TTABLE</link>)
+00627 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;&apos;package.searchers&apos;&#32;must&#32;be&#32;a&#32;table&quot;</emphasis>);
+00628 &#32;&#32;<link linkend="_lauxlib_8c_1a0830ef75e335f6d7590b0e058f82a5eb">luaL_buffinit</link>(L,&#32;&amp;msg);
+00629 &#32;&#32;<emphasis role="comment">/*&#32;&#32;iterate&#32;over&#32;available&#32;searchers&#32;to&#32;find&#32;a&#32;loader&#32;*/</emphasis>
+00630 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;1;&#32;;&#32;i++)&#32;{
+00631 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1aced031f9a3f68375e9f80315933d9a88">luaL_addstring</link>(&amp;msg,&#32;<emphasis role="stringliteral">&quot;\n\t&quot;</emphasis>);&#32;&#32;<emphasis role="comment">/*&#32;error-message&#32;prefix&#32;*/</emphasis>
+00632 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lapi_8c_1af8e4dc545cc83927d901d2f242489320">lua_rawgeti</link>(L,&#32;3,&#32;i)&#32;==&#32;<link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">LUA_TNIL</link>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;no&#32;more&#32;searchers?&#32;*/</emphasis>
+00633 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;nil&#32;*/</emphasis>
+00634 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a1f4e8f07742faa5e6c25a971a53f1e7b">luaL_buffsub</link>(&amp;msg,&#32;2);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;prefix&#32;*/</emphasis>
+00635 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a3a1f80033814e2057583a7d24cee23b4">luaL_pushresult</link>(&amp;msg);&#32;&#32;<emphasis role="comment">/*&#32;create&#32;error&#32;message&#32;*/</emphasis>
+00636 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;module&#32;&apos;%s&apos;&#32;not&#32;found:%s&quot;</emphasis>,&#32;name,&#32;<link linkend="_lua_8h_1ac813fc3bc1886ba17c363d5b4c6e7ef1">lua_tostring</link>(L,&#32;-1));
+00637 &#32;&#32;&#32;&#32;}
+00638 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;name);
+00639 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a89cbf40f871b6fae2dd2df814c7ac1ba">lua_call</link>(L,&#32;1,&#32;2);&#32;&#32;<emphasis role="comment">/*&#32;call&#32;it&#32;*/</emphasis>
+00640 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lua_8h_1a7537af276c81906c144f29cd25b93315">lua_isfunction</link>(L,&#32;-2))&#32;&#32;<emphasis role="comment">/*&#32;did&#32;it&#32;find&#32;a&#32;loader?&#32;*/</emphasis>
+00641 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;module&#32;loader&#32;found&#32;*/</emphasis>
+00642 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lapi_8c_1a9f20233199a414b04c1c4b43f5d040f3">lua_isstring</link>(L,&#32;-2))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;searcher&#32;returned&#32;error&#32;message?&#32;*/</emphasis>
+00643 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;extra&#32;return&#32;*/</emphasis>
+00644 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a59a8ac34826fee305ad56101d97aee18">luaL_addvalue</link>(&amp;msg);&#32;&#32;<emphasis role="comment">/*&#32;concatenate&#32;error&#32;message&#32;*/</emphasis>
+00645 &#32;&#32;&#32;&#32;}
+00646 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;no&#32;error&#32;message&#32;*/</emphasis>
+00647 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;2);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;both&#32;returns&#32;*/</emphasis>
+00648 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a1f4e8f07742faa5e6c25a971a53f1e7b">luaL_buffsub</link>(&amp;msg,&#32;2);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;prefix&#32;*/</emphasis>
+00649 &#32;&#32;&#32;&#32;}
+00650 &#32;&#32;}
+00651 }
+00652 
+00653 
+<anchor xml:id="_loadlib_8c_source_1l00654"/><link linkend="_loadlib_8c_1a136874f5faa236dc52fb50109281e157">00654</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loadlib_8c_1a136874f5faa236dc52fb50109281e157">ll_require</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00655 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name&#32;=&#32;<link linkend="_lauxlib_8h_1ad9917d22c79651fdd73d42c146b5056f">luaL_checkstring</link>(L,&#32;1);
+00656 &#32;&#32;<link linkend="_lapi_8c_1adaa30f0d34786144c94644039d1d1b6e">lua_settop</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;LOADED&#32;table&#32;will&#32;be&#32;at&#32;index&#32;2&#32;*/</emphasis>
+00657 &#32;&#32;<link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link>(L,&#32;<link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>,&#32;<link linkend="_lauxlib_8h_1a0fbee1a8156dc622618c9f6048281a73">LUA_LOADED_TABLE</link>);
+00658 &#32;&#32;<link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link>(L,&#32;2,&#32;name);&#32;&#32;<emphasis role="comment">/*&#32;LOADED[name]&#32;*/</emphasis>
+00659 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lapi_8c_1a444aee9aa56b0b06175ee3c7bcf7927c">lua_toboolean</link>(L,&#32;-1))&#32;&#32;<emphasis role="comment">/*&#32;is&#32;it&#32;there?&#32;*/</emphasis>
+00660 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;package&#32;is&#32;already&#32;loaded&#32;*/</emphasis>
+00661 &#32;&#32;<emphasis role="comment">/*&#32;else&#32;must&#32;load&#32;package&#32;*/</emphasis>
+00662 &#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;&apos;getfield&apos;&#32;result&#32;*/</emphasis>
+00663 &#32;&#32;<link linkend="_loadlib_8c_1aeea4101591c7cab25273f4dfe7d811d6">findloader</link>(L,&#32;name);
+00664 &#32;&#32;<link linkend="_lapi_8c_1af680e24129c0e021b4fbb7700cf185dc">lua_rotate</link>(L,&#32;-2,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;function&#32;&lt;-&gt;&#32;loader&#32;data&#32;*/</emphasis>
+00665 &#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;name&#32;is&#32;1st&#32;argument&#32;to&#32;module&#32;loader&#32;*/</emphasis>
+00666 &#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;-3);&#32;&#32;<emphasis role="comment">/*&#32;loader&#32;data&#32;is&#32;2nd&#32;argument&#32;*/</emphasis>
+00667 &#32;&#32;<emphasis role="comment">/*&#32;stack:&#32;...;&#32;loader&#32;data;&#32;loader&#32;function;&#32;mod.&#32;name;&#32;loader&#32;data&#32;*/</emphasis>
+00668 &#32;&#32;<link linkend="_lua_8h_1a89cbf40f871b6fae2dd2df814c7ac1ba">lua_call</link>(L,&#32;2,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;run&#32;loader&#32;to&#32;load&#32;module&#32;*/</emphasis>
+00669 &#32;&#32;<emphasis role="comment">/*&#32;stack:&#32;...;&#32;loader&#32;data;&#32;result&#32;from&#32;loader&#32;*/</emphasis>
+00670 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_lua_8h_1a86d737d7002e7e94023765397c6eef20">lua_isnil</link>(L,&#32;-1))&#32;&#32;<emphasis role="comment">/*&#32;non-nil&#32;return?&#32;*/</emphasis>
+00671 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;2,&#32;name);&#32;&#32;<emphasis role="comment">/*&#32;LOADED[name]&#32;=&#32;returned&#32;value&#32;*/</emphasis>
+00672 &#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00673 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;pop&#32;nil&#32;*/</emphasis>
+00674 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link>(L,&#32;2,&#32;name)&#32;==&#32;<link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">LUA_TNIL</link>)&#32;{&#32;&#32;&#32;<emphasis role="comment">/*&#32;module&#32;set&#32;no&#32;value?&#32;*/</emphasis>
+00675 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a56bbb7479265e38da2e2596e6ec25faa">lua_pushboolean</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;use&#32;true&#32;as&#32;result&#32;*/</emphasis>
+00676 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a111bd3fa34fe656f415edae5e343e13e">lua_copy</link>(L,&#32;-1,&#32;-2);&#32;&#32;<emphasis role="comment">/*&#32;replace&#32;loader&#32;result&#32;*/</emphasis>
+00677 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;2,&#32;name);&#32;&#32;<emphasis role="comment">/*&#32;LOADED[name]&#32;=&#32;true&#32;*/</emphasis>
+00678 &#32;&#32;}
+00679 &#32;&#32;<link linkend="_lapi_8c_1af680e24129c0e021b4fbb7700cf185dc">lua_rotate</link>(L,&#32;-2,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;loader&#32;data&#32;&lt;-&gt;&#32;module&#32;result&#32;&#32;*/</emphasis>
+00680 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;2;&#32;&#32;<emphasis role="comment">/*&#32;return&#32;module&#32;result&#32;and&#32;loader&#32;data&#32;*/</emphasis>
+00681 }
+00682 
+00683 <emphasis role="comment">/*&#32;}======================================================&#32;*/</emphasis>
+00684 
+00685 
+00686 
+00687 
+<anchor xml:id="_loadlib_8c_source_1l00688"/><link linkend="_loadlib_8c_1affe9983330951f9d54e6d1e60c39f0b2">00688</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_structlua_l___reg">luaL_Reg</link>&#32;<link linkend="_loadlib_8c_1affe9983330951f9d54e6d1e60c39f0b2">pk_funcs</link>[]&#32;=&#32;{
+00689 &#32;&#32;{<emphasis role="stringliteral">&quot;loadlib&quot;</emphasis>,&#32;<link linkend="_loadlib_8c_1aac7e69bc5b4403e49e2609425f0fb7b0">ll_loadlib</link>},
+00690 &#32;&#32;{<emphasis role="stringliteral">&quot;searchpath&quot;</emphasis>,&#32;<link linkend="_loadlib_8c_1a3e9eb01c860846336b6f50d6c77448a2">ll_searchpath</link>},
+00691 &#32;&#32;<emphasis role="comment">/*&#32;placeholders&#32;*/</emphasis>
+00692 &#32;&#32;{<emphasis role="stringliteral">&quot;preload&quot;</emphasis>,&#32;NULL},
+00693 &#32;&#32;{<emphasis role="stringliteral">&quot;cpath&quot;</emphasis>,&#32;NULL},
+00694 &#32;&#32;{<emphasis role="stringliteral">&quot;path&quot;</emphasis>,&#32;NULL},
+00695 &#32;&#32;{<emphasis role="stringliteral">&quot;searchers&quot;</emphasis>,&#32;NULL},
+00696 &#32;&#32;{<emphasis role="stringliteral">&quot;loaded&quot;</emphasis>,&#32;NULL},
+00697 &#32;&#32;{NULL,&#32;NULL}
+00698 };
+00699 
+00700 
+<anchor xml:id="_loadlib_8c_source_1l00701"/><link linkend="_loadlib_8c_1a31e112bcc81318116cc6473f5f015e17">00701</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_structlua_l___reg">luaL_Reg</link>&#32;<link linkend="_loadlib_8c_1a31e112bcc81318116cc6473f5f015e17">ll_funcs</link>[]&#32;=&#32;{
+00702 &#32;&#32;{<emphasis role="stringliteral">&quot;require&quot;</emphasis>,&#32;<link linkend="_loadlib_8c_1a136874f5faa236dc52fb50109281e157">ll_require</link>},
+00703 &#32;&#32;{NULL,&#32;NULL}
+00704 };
+00705 
+00706 
+<anchor xml:id="_loadlib_8c_source_1l00707"/><link linkend="_loadlib_8c_1a8fc66c8b852ee2960dc20797521d1d9e">00707</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_loadlib_8c_1a8fc66c8b852ee2960dc20797521d1d9e">createsearcherstable</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00708 &#32;&#32;<emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>&#32;searchers[]&#32;=
+00709 &#32;&#32;&#32;&#32;{<link linkend="_loadlib_8c_1a68e1957952958cc41d9ede92dabda1c6">searcher_preload</link>,&#32;<link linkend="_loadlib_8c_1a8b2f1d86fe37c0829143579a6b568243">searcher_Lua</link>,&#32;<link linkend="_loadlib_8c_1a9a915ea950c831cee2f1e7b0a3bd9005">searcher_C</link>,&#32;<link linkend="_loadlib_8c_1a1ec05cd98a045c271aeda9f9c6041e1c">searcher_Croot</link>,&#32;NULL};
+00710 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i;
+00711 &#32;&#32;<emphasis role="comment">/*&#32;create&#32;&apos;searchers&apos;&#32;table&#32;*/</emphasis>
+00712 &#32;&#32;<link linkend="_lapi_8c_1a7f93e3baf3101cad59ec61b7744a55d8">lua_createtable</link>(L,&#32;<emphasis role="keyword">sizeof</emphasis>(searchers)/<emphasis role="keyword">sizeof</emphasis>(searchers[0])&#32;-&#32;1,&#32;0);
+00713 &#32;&#32;<emphasis role="comment">/*&#32;fill&#32;it&#32;with&#32;predefined&#32;searchers&#32;*/</emphasis>
+00714 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i=0;&#32;searchers[i]&#32;!=&#32;NULL;&#32;i++)&#32;{
+00715 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;-2);&#32;&#32;<emphasis role="comment">/*&#32;set&#32;&apos;package&apos;&#32;as&#32;upvalue&#32;for&#32;all&#32;searchers&#32;*/</emphasis>
+00716 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a142802b91cdd22516b54599f51e101e4">lua_pushcclosure</link>(L,&#32;searchers[i],&#32;1);
+00717 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a757fd16e7e09280e2d4e4f9f77ba1099">lua_rawseti</link>(L,&#32;-2,&#32;i+1);
+00718 &#32;&#32;}
+00719 &#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;-2,&#32;<emphasis role="stringliteral">&quot;searchers&quot;</emphasis>);&#32;&#32;<emphasis role="comment">/*&#32;put&#32;it&#32;in&#32;field&#32;&apos;searchers&apos;&#32;*/</emphasis>
+00720 }
+00721 
+00722 
+00723 <emphasis role="comment">/*</emphasis>
+00724 <emphasis role="comment">**&#32;create&#32;table&#32;CLIBS&#32;to&#32;keep&#32;track&#32;of&#32;loaded&#32;C&#32;libraries,</emphasis>
+00725 <emphasis role="comment">**&#32;setting&#32;a&#32;finalizer&#32;to&#32;close&#32;all&#32;libraries&#32;when&#32;closing&#32;state.</emphasis>
+00726 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_loadlib_8c_source_1l00727"/><link linkend="_loadlib_8c_1a5988b4ef518a60291ed34e836f549b34">00727</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_loadlib_8c_1a5988b4ef518a60291ed34e836f549b34">createclibstable</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00728 &#32;&#32;<link linkend="_lauxlib_8c_1a4cd66d7b986316711233243a268e8e04">luaL_getsubtable</link>(L,&#32;<link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>,&#32;<link linkend="_loadlib_8c_1a7bbde96feb9b84c7c149acd2773a1158">CLIBS</link>);&#32;&#32;<emphasis role="comment">/*&#32;create&#32;CLIBS&#32;table&#32;*/</emphasis>
+00729 &#32;&#32;<link linkend="_lapi_8c_1a7f93e3baf3101cad59ec61b7744a55d8">lua_createtable</link>(L,&#32;0,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;create&#32;metatable&#32;for&#32;CLIBS&#32;*/</emphasis>
+00730 &#32;&#32;<link linkend="_lua_8h_1a2e4fbbe97182bf90004379202202f2b9">lua_pushcfunction</link>(L,&#32;<link linkend="_loadlib_8c_1a59926ced6bee14c7b952ef79d3520084">gctm</link>);
+00731 &#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;-2,&#32;<emphasis role="stringliteral">&quot;__gc&quot;</emphasis>);&#32;&#32;<emphasis role="comment">/*&#32;set&#32;finalizer&#32;for&#32;CLIBS&#32;table&#32;*/</emphasis>
+00732 &#32;&#32;<link linkend="_lapi_8c_1a15719ea4119bdf5b3f2a406534431a7e">lua_setmetatable</link>(L,&#32;-2);
+00733 }
+00734 
+00735 
+<anchor xml:id="_loadlib_8c_source_1l00736"/><link linkend="_lualib_8h_1a05e0befc0439f926b6152129ab4f8dea">00736</link> <link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_loadlib_8c_1ab732e1ec253c9b8dc0c2ce4d74cb0083">luaopen_package</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00737 &#32;&#32;<link linkend="_loadlib_8c_1a5988b4ef518a60291ed34e836f549b34">createclibstable</link>(L);
+00738 &#32;&#32;<link linkend="_lauxlib_8h_1a5088ff720ec66200d83eb78467b77239">luaL_newlib</link>(L,&#32;<link linkend="_loadlib_8c_1affe9983330951f9d54e6d1e60c39f0b2">pk_funcs</link>);&#32;&#32;<emphasis role="comment">/*&#32;create&#32;&apos;package&apos;&#32;table&#32;*/</emphasis>
+00739 &#32;&#32;<link linkend="_loadlib_8c_1a8fc66c8b852ee2960dc20797521d1d9e">createsearcherstable</link>(L);
+00740 &#32;&#32;<emphasis role="comment">/*&#32;set&#32;paths&#32;*/</emphasis>
+00741 &#32;&#32;<link linkend="_loadlib_8c_1ad3773b767d767b19dc36cab61cf5c57d">setpath</link>(L,&#32;<emphasis role="stringliteral">&quot;path&quot;</emphasis>,&#32;<link linkend="_loadlib_8c_1aafc06e5218aa84669dd7d3a2c6a94046">LUA_PATH_VAR</link>,&#32;<link linkend="_luaconf_8h_1ade5464817bc6ac4c929ac914191c6a60">LUA_PATH_DEFAULT</link>);
+00742 &#32;&#32;<link linkend="_loadlib_8c_1ad3773b767d767b19dc36cab61cf5c57d">setpath</link>(L,&#32;<emphasis role="stringliteral">&quot;cpath&quot;</emphasis>,&#32;<link linkend="_loadlib_8c_1adb8da8be231c0a4a2395949f78d092c5">LUA_CPATH_VAR</link>,&#32;<link linkend="_luaconf_8h_1a45f20f03a0802b0d90d75639a339b406">LUA_CPATH_DEFAULT</link>);
+00743 &#32;&#32;<emphasis role="comment">/*&#32;store&#32;config&#32;information&#32;*/</emphasis>
+00744 &#32;&#32;<link linkend="_lua_8h_1a47854189a679002ed743ebbcb30b1b26">lua_pushliteral</link>(L,&#32;<link linkend="_luaconf_8h_1a2e611ade620cc30a6f0c306ae39d27d8">LUA_DIRSEP</link>&#32;<emphasis role="stringliteral">&quot;\n&quot;</emphasis>&#32;<link linkend="_luaconf_8h_1ae9873b615af1ca0225fb3bc8d880a25e">LUA_PATH_SEP</link>&#32;<emphasis role="stringliteral">&quot;\n&quot;</emphasis>&#32;<link linkend="_luaconf_8h_1a6d221295f625b3cb9cac477c0c475bb4">LUA_PATH_MARK</link>&#32;<emphasis role="stringliteral">&quot;\n&quot;</emphasis>
+00745 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_luaconf_8h_1a172ab2e6c826acf300219b4bce1ad7c6">LUA_EXEC_DIR</link>&#32;<emphasis role="stringliteral">&quot;\n&quot;</emphasis>&#32;<link linkend="_loadlib_8c_1ad598457446eb8bed37166e57d94deecc">LUA_IGMARK</link>&#32;<emphasis role="stringliteral">&quot;\n&quot;</emphasis>);
+00746 &#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;-2,&#32;<emphasis role="stringliteral">&quot;config&quot;</emphasis>);
+00747 &#32;&#32;<emphasis role="comment">/*&#32;set&#32;field&#32;&apos;loaded&apos;&#32;*/</emphasis>
+00748 &#32;&#32;<link linkend="_lauxlib_8c_1a4cd66d7b986316711233243a268e8e04">luaL_getsubtable</link>(L,&#32;<link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>,&#32;<link linkend="_lauxlib_8h_1a0fbee1a8156dc622618c9f6048281a73">LUA_LOADED_TABLE</link>);
+00749 &#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;-2,&#32;<emphasis role="stringliteral">&quot;loaded&quot;</emphasis>);
+00750 &#32;&#32;<emphasis role="comment">/*&#32;set&#32;field&#32;&apos;preload&apos;&#32;*/</emphasis>
+00751 &#32;&#32;<link linkend="_lauxlib_8c_1a4cd66d7b986316711233243a268e8e04">luaL_getsubtable</link>(L,&#32;<link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>,&#32;<link linkend="_lauxlib_8h_1ab654a257ab8f9de4ba519a64a9a9ea91">LUA_PRELOAD_TABLE</link>);
+00752 &#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;-2,&#32;<emphasis role="stringliteral">&quot;preload&quot;</emphasis>);
+00753 &#32;&#32;<link linkend="_lua_8h_1abf88c897458bd9848010301cb46ade18">lua_pushglobaltable</link>(L);
+00754 &#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;-2);&#32;&#32;<emphasis role="comment">/*&#32;set&#32;&apos;package&apos;&#32;as&#32;upvalue&#32;for&#32;next&#32;lib&#32;*/</emphasis>
+00755 &#32;&#32;<link linkend="_lauxlib_8c_1a4cab22d0cb403fa6b94f2542f4303096">luaL_setfuncs</link>(L,&#32;<link linkend="_loadlib_8c_1a31e112bcc81318116cc6473f5f015e17">ll_funcs</link>,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;open&#32;lib&#32;into&#32;global&#32;table&#32;*/</emphasis>
+00756 &#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;pop&#32;global&#32;table&#32;*/</emphasis>
+00757 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;return&#32;&apos;package&apos;&#32;table&#32;*/</emphasis>
+00758 }
+00759 
+</programlisting></section>

@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lzio_8h_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/lzio.h</title>
+<programlisting><anchor xml:id="_lzio_8h_source_1l00001"/><link linkend="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17">00001</link> <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;lzio.h&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Buffered&#32;streams</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+00007 
+00008 <emphasis role="preprocessor">#ifndef&#32;lzio_h</emphasis>
+00009 <emphasis role="preprocessor">#define&#32;lzio_h</emphasis>
+00010 
+00011 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lua_8h">lua.h</link>&quot;</emphasis>
+00012 
+00013 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lmem_8h">lmem.h</link>&quot;</emphasis>
+00014 
+00015 
+<anchor xml:id="_lzio_8h_source_1l00016"/><link linkend="_lzio_8h_1a8341bdc72db5a2f045e18440f9523008">00016</link> <emphasis role="preprocessor">#define&#32;EOZ&#32;(-1)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;end&#32;of&#32;stream&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00017 
+00018 <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_zio">Zio</link>&#32;<link linkend="_struct_zio">ZIO</link>;
+00019 
+<anchor xml:id="_lzio_8h_source_1l00020"/><link linkend="_lzio_8h_1aecca8ea1e6dc0c97b458f77c0e3491de">00020</link> <emphasis role="preprocessor">#define&#32;zgetc(z)&#32;&#32;(((z)-&gt;n--)&gt;0&#32;?&#32;&#32;cast_uchar(*(z)-&gt;p++)&#32;:&#32;luaZ_fill(z))</emphasis>
+00021 
+00022 
+<anchor xml:id="_lzio_8h_source_1l00023"/><link linkend="_struct_mbuffer">00023</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_mbuffer">Mbuffer</link>&#32;{
+<anchor xml:id="_lzio_8h_source_1l00024"/><link linkend="_struct_mbuffer_1aff2566f4c366b48d73479bef43ee4d2e">00024</link> &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_struct_mbuffer_1aff2566f4c366b48d73479bef43ee4d2e">buffer</link>;
+<anchor xml:id="_lzio_8h_source_1l00025"/><link linkend="_struct_mbuffer_1a3d05cf6aa68b03e254d70afbe869e305">00025</link> &#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;<link linkend="_struct_mbuffer_1a3d05cf6aa68b03e254d70afbe869e305">n</link>;
+<anchor xml:id="_lzio_8h_source_1l00026"/><link linkend="_struct_mbuffer_1a83ccf9b1a625eda95bd3a5b077f091c3">00026</link> &#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;<link linkend="_struct_mbuffer_1a83ccf9b1a625eda95bd3a5b077f091c3">buffsize</link>;
+<anchor xml:id="_lzio_8h_source_1l00027"/><link linkend="_lzio_8h_1a0e88c2a527fb0ef0af49d0b8f34a0be9">00027</link> }&#32;<link linkend="_lzio_8h_1a0e88c2a527fb0ef0af49d0b8f34a0be9">Mbuffer</link>;
+00028 
+<anchor xml:id="_lzio_8h_source_1l00029"/><link linkend="_lzio_8h_1a22367cbe48563efa737ffee3f2774ae2">00029</link> <emphasis role="preprocessor">#define&#32;luaZ_initbuffer(L,&#32;buff)&#32;((buff)-&gt;buffer&#32;=&#32;NULL,&#32;(buff)-&gt;buffsize&#32;=&#32;0)</emphasis>
+00030 
+<anchor xml:id="_lzio_8h_source_1l00031"/><link linkend="_lzio_8h_1aa51f632cb0519368a65ada80b71ea1e3">00031</link> <emphasis role="preprocessor">#define&#32;luaZ_buffer(buff)&#32;&#32;&#32;((buff)-&gt;buffer)</emphasis>
+<anchor xml:id="_lzio_8h_source_1l00032"/><link linkend="_lzio_8h_1a072ede62ba384b9d5fdedbb80eaf3ee1">00032</link> <emphasis role="preprocessor">#define&#32;luaZ_sizebuffer(buff)&#32;&#32;&#32;((buff)-&gt;buffsize)</emphasis>
+<anchor xml:id="_lzio_8h_source_1l00033"/><link linkend="_lzio_8h_1a26c3aeb9ce93f8559b0a596cf7bb1031">00033</link> <emphasis role="preprocessor">#define&#32;luaZ_bufflen(buff)&#32;&#32;((buff)-&gt;n)</emphasis>
+00034 
+<anchor xml:id="_lzio_8h_source_1l00035"/><link linkend="_lzio_8h_1ab9e4cabf75529d0c2f5a809f49a25281">00035</link> <emphasis role="preprocessor">#define&#32;luaZ_buffremove(buff,i)&#32;((buff)-&gt;n&#32;-=&#32;(i))</emphasis>
+<anchor xml:id="_lzio_8h_source_1l00036"/><link linkend="_lzio_8h_1a53c928283083a162c79e0152048affe2">00036</link> <emphasis role="preprocessor">#define&#32;luaZ_resetbuffer(buff)&#32;((buff)-&gt;n&#32;=&#32;0)</emphasis>
+00037 
+00038 
+<anchor xml:id="_lzio_8h_source_1l00039"/><link linkend="_lzio_8h_1ab158420acf019b3a45e8ae6e65b51fdb">00039</link> <emphasis role="preprocessor">#define&#32;luaZ_resizebuffer(L,&#32;buff,&#32;size)&#32;\</emphasis>
+00040 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;((buff)-&gt;buffer&#32;=&#32;luaM_reallocvchar(L,&#32;(buff)-&gt;buffer,&#32;\</emphasis>
+00041 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(buff)-&gt;buffsize,&#32;size),&#32;\</emphasis>
+00042 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;(buff)-&gt;buffsize&#32;=&#32;size)</emphasis>
+00043 
+<anchor xml:id="_lzio_8h_source_1l00044"/><link linkend="_lzio_8h_1a549577e88246e83e4578cabd2ea030ca">00044</link> <emphasis role="preprocessor">#define&#32;luaZ_freebuffer(L,&#32;buff)&#32;&#32;&#32;&#32;luaZ_resizebuffer(L,&#32;buff,&#32;0)</emphasis>
+00045 
+00046 
+00047 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lzio_8h_1a182323feac5ab7363dbf654d87f057d5">luaZ_init</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_zio">ZIO</link>&#32;*z,&#32;<link linkend="_lua_8h_1a4081d57135fee907807ba5070d528fdf">lua_Reader</link>&#32;reader,
+00048 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">void</emphasis>&#32;*data);
+00049 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;<link linkend="_lzio_8h_1a1f10428fa224047cec9e9b1756a0b733">luaZ_read</link>&#32;(<link linkend="_struct_zio">ZIO</link>*&#32;z,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*b,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;n);&#32;<emphasis role="comment">/*&#32;read&#32;next&#32;n&#32;bytes&#32;*/</emphasis>
+00050 
+00051 
+00052 
+00053 <emphasis role="comment">/*&#32;---------&#32;Private&#32;Part&#32;------------------&#32;*/</emphasis>
+00054 
+<anchor xml:id="_lzio_8h_source_1l00055"/><link linkend="_struct_zio">00055</link> <emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_zio">Zio</link>&#32;{
+<anchor xml:id="_lzio_8h_source_1l00056"/><link linkend="_struct_zio_1a3d05cf6aa68b03e254d70afbe869e305">00056</link> &#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;<link linkend="_struct_zio_1a3d05cf6aa68b03e254d70afbe869e305">n</link>;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;bytes&#32;still&#32;unread&#32;*/</emphasis>
+<anchor xml:id="_lzio_8h_source_1l00057"/><link linkend="_struct_zio_1a6bc6b007533335efe02bafff799ec64c">00057</link> &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_struct_zio_1a6bc6b007533335efe02bafff799ec64c">p</link>;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;current&#32;position&#32;in&#32;buffer&#32;*/</emphasis>
+<anchor xml:id="_lzio_8h_source_1l00058"/><link linkend="_struct_zio_1a58679f709a49abc5db634ce0b4b52f63">00058</link> &#32;&#32;<link linkend="_lua_8h_1a4081d57135fee907807ba5070d528fdf">lua_Reader</link>&#32;<link linkend="_struct_zio_1a58679f709a49abc5db634ce0b4b52f63">reader</link>;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;reader&#32;function&#32;*/</emphasis>
+<anchor xml:id="_lzio_8h_source_1l00059"/><link linkend="_struct_zio_1a735984d41155bc1032e09bece8f8d66d">00059</link> &#32;&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_struct_zio_1a735984d41155bc1032e09bece8f8d66d">data</link>;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;additional&#32;data&#32;*/</emphasis>
+<anchor xml:id="_lzio_8h_source_1l00060"/><link linkend="_struct_zio_1a62f94dfc0036bec0c14106c2f15caf3e">00060</link> &#32;&#32;<link linkend="_structlua___state">lua_State</link>&#32;*<link linkend="_struct_zio_1a62f94dfc0036bec0c14106c2f15caf3e">L</link>;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;Lua&#32;state&#32;(for&#32;reader)&#32;*/</emphasis>
+00061 };
+00062 
+00063 
+00064 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lzio_8h_1a407faec289b7559f210ac784e11a59bb">luaZ_fill</link>&#32;(<link linkend="_struct_zio">ZIO</link>&#32;*z);
+00065 
+00066 <emphasis role="preprocessor">#endif</emphasis>
+</programlisting></section>

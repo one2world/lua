@@ -1,0 +1,237 @@
+.TH "D:/gitworkspace/lua/src/lundump.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lundump.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <limits\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'ldebug\&.h'\fP
+.br
+\fC#include 'ldo\&.h'\fP
+.br
+\fC#include 'lfunc\&.h'\fP
+.br
+\fC#include 'lmem\&.h'\fP
+.br
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'lstring\&.h'\fP
+.br
+\fC#include 'lundump\&.h'\fP
+.br
+\fC#include 'lzio\&.h'\fP
+.br
+
+.SS "结构体"
+
+.in +1c
+.ti -1c
+.RI "struct \fBLoadState\fP"
+.br
+.in -1c
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBlundump_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_CORE\fP"
+.br
+.ti -1c
+.RI "#define \fBluai_verifycode\fP(L,  f)   /* empty */"
+.br
+.ti -1c
+.RI "#define \fBloadVector\fP(\fBS\fP,  b,  n)   \fBloadBlock\fP(\fBS\fP,b,(n)*sizeof((b)[0]))"
+.br
+.ti -1c
+.RI "#define \fBloadVar\fP(\fBS\fP,  x)   \fBloadVector\fP(\fBS\fP,&x,1)"
+.br
+.ti -1c
+.RI "#define \fBchecksize\fP(\fBS\fP,  t)   \fBfchecksize\fP(\fBS\fP,sizeof(t),#t)"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static \fBl_noret\fP \fBerror\fP (\fBLoadState\fP *\fBS\fP, const char *why)"
+.br
+.ti -1c
+.RI "static void \fBloadBlock\fP (\fBLoadState\fP *\fBS\fP, void *b, size_t size)"
+.br
+.ti -1c
+.RI "static \fBlu_byte\fP \fBloadByte\fP (\fBLoadState\fP *\fBS\fP)"
+.br
+.ti -1c
+.RI "static size_t \fBloadUnsigned\fP (\fBLoadState\fP *\fBS\fP, size_t limit)"
+.br
+.ti -1c
+.RI "static size_t \fBloadSize\fP (\fBLoadState\fP *\fBS\fP)"
+.br
+.ti -1c
+.RI "static int \fBloadInt\fP (\fBLoadState\fP *\fBS\fP)"
+.br
+.ti -1c
+.RI "static \fBlua_Number\fP \fBloadNumber\fP (\fBLoadState\fP *\fBS\fP)"
+.br
+.ti -1c
+.RI "static \fBlua_Integer\fP \fBloadInteger\fP (\fBLoadState\fP *\fBS\fP)"
+.br
+.ti -1c
+.RI "static \fBTString\fP * \fBloadStringN\fP (\fBLoadState\fP *\fBS\fP, \fBProto\fP *p)"
+.br
+.ti -1c
+.RI "static \fBTString\fP * \fBloadString\fP (\fBLoadState\fP *\fBS\fP, \fBProto\fP *p)"
+.br
+.ti -1c
+.RI "static void \fBloadCode\fP (\fBLoadState\fP *\fBS\fP, \fBProto\fP *f)"
+.br
+.ti -1c
+.RI "static void \fBloadFunction\fP (\fBLoadState\fP *\fBS\fP, \fBProto\fP *f, \fBTString\fP *psource)"
+.br
+.ti -1c
+.RI "static void \fBloadConstants\fP (\fBLoadState\fP *\fBS\fP, \fBProto\fP *f)"
+.br
+.ti -1c
+.RI "static void \fBloadProtos\fP (\fBLoadState\fP *\fBS\fP, \fBProto\fP *f)"
+.br
+.ti -1c
+.RI "static void \fBloadUpvalues\fP (\fBLoadState\fP *\fBS\fP, \fBProto\fP *f)"
+.br
+.ti -1c
+.RI "static void \fBloadDebug\fP (\fBLoadState\fP *\fBS\fP, \fBProto\fP *f)"
+.br
+.ti -1c
+.RI "static void \fBcheckliteral\fP (\fBLoadState\fP *\fBS\fP, const char *s, const char *msg)"
+.br
+.ti -1c
+.RI "static void \fBfchecksize\fP (\fBLoadState\fP *\fBS\fP, size_t size, const char *tname)"
+.br
+.ti -1c
+.RI "static void \fBcheckHeader\fP (\fBLoadState\fP *\fBS\fP)"
+.br
+.ti -1c
+.RI "\fBLClosure\fP * \fBluaU_undump\fP (\fBlua_State\fP *L, \fBZIO\fP *Z, const char *name)"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define checksize(\fBS\fP, t)   \fBfchecksize\fP(\fBS\fP,sizeof(t),#t)"
+
+.PP
+在文件 lundump\&.c 第 278 行定义\&.
+.SS "#define loadVar(\fBS\fP, x)   \fBloadVector\fP(\fBS\fP,&x,1)"
+
+.PP
+在文件 lundump\&.c 第 58 行定义\&.
+.SS "#define loadVector(\fBS\fP, b, n)   \fBloadBlock\fP(\fBS\fP,b,(n)*sizeof((b)[0]))"
+
+.PP
+在文件 lundump\&.c 第 50 行定义\&.
+.SS "#define LUA_CORE"
+
+.PP
+在文件 lundump\&.c 第 8 行定义\&.
+.SS "#define luai_verifycode(L, f)   /* empty */"
+
+.PP
+在文件 lundump\&.c 第 29 行定义\&.
+.SS "#define lundump_c"
+
+.PP
+在文件 lundump\&.c 第 7 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static void checkHeader (\fBLoadState\fP * S)\fC [static]\fP"
+
+.PP
+在文件 lundump\&.c 第 280 行定义\&.
+.SS "static void checkliteral (\fBLoadState\fP * S, const char * s, const char * msg)\fC [static]\fP"
+
+.PP
+在文件 lundump\&.c 第 263 行定义\&.
+.SS "static \fBl_noret\fP error (\fBLoadState\fP * S, const char * why)\fC [static]\fP"
+
+.PP
+在文件 lundump\&.c 第 40 行定义\&.
+.SS "static void fchecksize (\fBLoadState\fP * S, size_t size, const char * tname)\fC [static]\fP"
+
+.PP
+在文件 lundump\&.c 第 272 行定义\&.
+.SS "static void loadBlock (\fBLoadState\fP * S, void * b, size_t size)\fC [static]\fP"
+
+.PP
+在文件 lundump\&.c 第 52 行定义\&.
+.SS "static \fBlu_byte\fP loadByte (\fBLoadState\fP * S)\fC [static]\fP"
+
+.PP
+在文件 lundump\&.c 第 61 行定义\&.
+.SS "static void loadCode (\fBLoadState\fP * S, \fBProto\fP * f)\fC [static]\fP"
+
+.PP
+在文件 lundump\&.c 第 141 行定义\&.
+.SS "static void loadConstants (\fBLoadState\fP * S, \fBProto\fP * f)\fC [static]\fP"
+
+.PP
+在文件 lundump\&.c 第 152 行定义\&.
+.SS "static void loadDebug (\fBLoadState\fP * S, \fBProto\fP * f)\fC [static]\fP"
+
+.PP
+在文件 lundump\&.c 第 217 行定义\&.
+.SS "static void loadFunction (\fBLoadState\fP * S, \fBProto\fP * f, \fBTString\fP * psource)\fC [static]\fP"
+
+.PP
+在文件 lundump\&.c 第 246 行定义\&.
+.SS "static int loadInt (\fBLoadState\fP * S)\fC [static]\fP"
+
+.PP
+在文件 lundump\&.c 第 88 行定义\&.
+.SS "static \fBlua_Integer\fP loadInteger (\fBLoadState\fP * S)\fC [static]\fP"
+
+.PP
+在文件 lundump\&.c 第 100 行定义\&.
+.SS "static \fBlua_Number\fP loadNumber (\fBLoadState\fP * S)\fC [static]\fP"
+
+.PP
+在文件 lundump\&.c 第 93 行定义\&.
+.SS "static void loadProtos (\fBLoadState\fP * S, \fBProto\fP * f)\fC [static]\fP"
+
+.PP
+在文件 lundump\&.c 第 188 行定义\&.
+.SS "static size_t loadSize (\fBLoadState\fP * S)\fC [static]\fP"
+
+.PP
+在文件 lundump\&.c 第 83 行定义\&.
+.SS "static \fBTString\fP* loadString (\fBLoadState\fP * S, \fBProto\fP * p)\fC [static]\fP"
+
+.PP
+在文件 lundump\&.c 第 133 行定义\&.
+.SS "static \fBTString\fP* loadStringN (\fBLoadState\fP * S, \fBProto\fP * p)\fC [static]\fP"
+
+.PP
+在文件 lundump\&.c 第 110 行定义\&.
+.SS "static size_t loadUnsigned (\fBLoadState\fP * S, size_t limit)\fC [static]\fP"
+
+.PP
+在文件 lundump\&.c 第 69 行定义\&.
+.SS "static void loadUpvalues (\fBLoadState\fP * S, \fBProto\fP * f)\fC [static]\fP"
+
+.PP
+在文件 lundump\&.c 第 203 行定义\&.
+.SS "\fBLClosure\fP* luaU_undump (\fBlua_State\fP * L, \fBZIO\fP * Z, const char * name)"
+
+.PP
+在文件 lundump\&.c 第 301 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

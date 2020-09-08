@@ -1,0 +1,1898 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lgc_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/lgc.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lgc.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;ldebug.h&quot;
+#include &quot;ldo.h&quot;
+#include &quot;lfunc.h&quot;
+#include &quot;lgc.h&quot;
+#include &quot;lmem.h&quot;
+#include &quot;lobject.h&quot;
+#include &quot;lstate.h&quot;
+#include &quot;lstring.h&quot;
+#include &quot;ltable.h&quot;
+#include &quot;ltm.h&quot;
+</programlisting>lgc.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lgc_8c_1a61d084c4959fdcc23103ae67105b3472">lgc_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1abf0b3947b59218777a8e928a10be205b">LUA_CORE</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1ac31abb557425090d41f055c797049ba8">GCSWEEPMAX</link>   100</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1ac3a3667112bce0a226dbef4640edee94">GCFINMAX</link>   10</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1a84dfd5e385ed6792c171df6b6a972179">GCFINALIZECOST</link>   50</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1a2f1af1a74ed552d994ae1a8f830bd6d2">WORK2MEM</link>   sizeof(<link linkend="_struct_t_value">TValue</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1a79ef06ea1e24ee7e3d343f67e954d68c">PAUSEADJ</link>   100</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1a31f875711ff997274eb999d7fe8ec639">maskcolors</link>   (<link linkend="_lgc_8h_1af25866c39979dd1f72110cbd3a1a427d">bitmask</link>(<link linkend="_lgc_8h_1acd17af3c46cb360dc67cad2b33b6a26f">BLACKBIT</link>) | <link linkend="_lgc_8h_1a0acb34c1b3d1234f11ee9fdc34df3f71">WHITEBITS</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1a3ea4c714396849e66d63d88a8987f149">maskgcbits</link>   (<link linkend="_lgc_8c_1a31f875711ff997274eb999d7fe8ec639">maskcolors</link> | <link linkend="_lgc_8h_1a3b446e7d0b31628385b7a1f444192e9a">AGEBITS</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1ada061b1d508c516b2e53f546521b3eeb">makewhite</link>(g,  x)     (x-&gt;marked = <link linkend="_llimits_8h_1a596f5b6e992f53a5a4e5732083448dd4">cast_byte</link>((x-&gt;marked &amp; ~<link linkend="_lgc_8c_1a31f875711ff997274eb999d7fe8ec639">maskcolors</link>) | <link linkend="_lgc_8h_1afaa8a52c4097cf3a5eacd88db94092da">luaC_white</link>(g)))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1ac0d91118389ea51c074e2baf41e03ccb">set2gray</link>(x)   <link linkend="_lgc_8h_1a486033531260010debe876a076dd2a41">resetbits</link>(x-&gt;marked, <link linkend="_lgc_8c_1a31f875711ff997274eb999d7fe8ec639">maskcolors</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1a1cb0182cfa6e73b1665658a79c297d46">set2black</link>(x)     (x-&gt;marked = <link linkend="_llimits_8h_1a596f5b6e992f53a5a4e5732083448dd4">cast_byte</link>((x-&gt;marked &amp; ~<link linkend="_lgc_8h_1a0acb34c1b3d1234f11ee9fdc34df3f71">WHITEBITS</link>) | <link linkend="_lgc_8h_1af25866c39979dd1f72110cbd3a1a427d">bitmask</link>(<link linkend="_lgc_8h_1acd17af3c46cb360dc67cad2b33b6a26f">BLACKBIT</link>)))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1a84251731518ce7f66d49363eb9f0f594">valiswhite</link>(x)   (<link linkend="_lobject_8h_1aaabdb414706e6a904461e39967557185">iscollectable</link>(x) &amp;&amp; <link linkend="_lgc_8h_1a4c0ce78d476460d2e54914301f4a4bf7">iswhite</link>(<link linkend="_lobject_8h_1a05cdf6070135f10ad37e1048a730b634">gcvalue</link>(x)))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1a4e2cb724f6d35593354bd90084b87d49">keyiswhite</link>(n)   (<link linkend="_lobject_8h_1ad5d0afe3e47112e0136e0d6afb6c4536">keyiscollectable</link>(n) &amp;&amp; <link linkend="_lgc_8h_1a4c0ce78d476460d2e54914301f4a4bf7">iswhite</link>(<link linkend="_lobject_8h_1ac3dbc3b85a58d872c002e6cbea675bac">gckey</link>(n)))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1a7c7f051ea3f0945577e90c480ebeee88">gcvalueN</link>(o)   (<link linkend="_lobject_8h_1aaabdb414706e6a904461e39967557185">iscollectable</link>(o) ? <link linkend="_lobject_8h_1a05cdf6070135f10ad37e1048a730b634">gcvalue</link>(o) : NULL)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1a2dd4136ac29665568973c074bc450849">markvalue</link>(g,  o)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1a177a5a645b1409b4f1c20e3c84018d40">markkey</link>(g,  n)   { if <link linkend="_lgc_8c_1a4e2cb724f6d35593354bd90084b87d49">keyiswhite</link>(n) <link linkend="_lgc_8c_1aacf3c8ee0eebd5d5b1cd09da000ad53c">reallymarkobject</link>(g,<link linkend="_lobject_8h_1ac3dbc3b85a58d872c002e6cbea675bac">gckey</link>(n)); }</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1a6ae72c43e48b29944e55933df7f15482">markobject</link>(g,  t)   { if (<link linkend="_lgc_8h_1a4c0ce78d476460d2e54914301f4a4bf7">iswhite</link>(t)) <link linkend="_lgc_8c_1aacf3c8ee0eebd5d5b1cd09da000ad53c">reallymarkobject</link>(g, <link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(t)); }</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1af9d4ee7e422989e2c45413745252211b">markobjectN</link>(g,  t)   { if (t) <link linkend="_lgc_8c_1a6ae72c43e48b29944e55933df7f15482">markobject</link>(g,t); }</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1a43ef7b8388b613e737dd3ec7eb493f47">gnodelast</link>(h)   <link linkend="_ltable_8h_1a644cfa3b6d4be1782e818a8340b5f78b">gnode</link>(h, <link linkend="_llimits_8h_1a025d385a5ce274fa6eade82b6e1458d1">cast_sizet</link>(<link linkend="_lobject_8h_1a2fbf715e78eaa889ed0fb9d4514e736a">sizenode</link>(h)))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1ad63f9d59a67a756d3c3540d9795cdcbe">linkgclist</link>(o,  p)   <link linkend="_lgc_8c_1a26a89a256432393ba07aeaebbf36128e">linkgclist_</link>(<link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(o), &amp;(o)-&gt;gclist, &amp;(p))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8c_1a69a219e9e1a524d24173ef477419f87c">linkobjgclist</link>(o,  p)   <link linkend="_lgc_8c_1a26a89a256432393ba07aeaebbf36128e">linkgclist_</link>(<link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(o), <link linkend="_lgc_8c_1a10a95d9a52dbdb6f36c090f5e2870007">getgclist</link>(o), &amp;(p))</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static void <link linkend="_lgc_8c_1aacf3c8ee0eebd5d5b1cd09da000ad53c">reallymarkobject</link> (<link linkend="_structglobal___state">global_State</link> *g, <link linkend="_struct_g_c_object">GCObject</link> *o)</para>
+</listitem>
+            <listitem><para>static <link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link> <link linkend="_lgc_8c_1a41eded2c85eaf7e1911cd95da36882d9">atomic</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1aea46d650b68fac11368a752058b80ab7">entersweep</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_g_c_object">GCObject</link> ** <link linkend="_lgc_8c_1a10a95d9a52dbdb6f36c090f5e2870007">getgclist</link> (<link linkend="_struct_g_c_object">GCObject</link> *o)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a26a89a256432393ba07aeaebbf36128e">linkgclist_</link> (<link linkend="_struct_g_c_object">GCObject</link> *o, <link linkend="_struct_g_c_object">GCObject</link> **pnext, <link linkend="_struct_g_c_object">GCObject</link> **list)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1ae5b5bd4c69910951078ac627fa1654da">clearkey</link> (<link linkend="_union_node">Node</link> *n)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lgc_8c_1acae02b6cdb8288e654682baf4117e8ab">iscleared</link> (<link linkend="_structglobal___state">global_State</link> *g, const <link linkend="_struct_g_c_object">GCObject</link> *o)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lgc_8c_1a72c69b5d5554e0ea4b65e894f2a50793">luaC_barrier_</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_g_c_object">GCObject</link> *o, <link linkend="_struct_g_c_object">GCObject</link> *v)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lgc_8c_1a61ad59cdf3484ff64c0c3cb7a48388ad">luaC_barrierback_</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_g_c_object">GCObject</link> *o)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lgc_8c_1a77a9b70a49730bb007a8a9492687d0eb">luaC_fix</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_g_c_object">GCObject</link> *o)</para>
+</listitem>
+            <listitem><para><link linkend="_struct_g_c_object">GCObject</link> * <link linkend="_lgc_8c_1abfc8404c5fbd2a1770202fa0b087d451">luaC_newobj</link> (<link linkend="_structlua___state">lua_State</link> *L, int tt, size_t sz)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a9e8dd447c32dde7eeb9fc5da83df09b1">markmt</link> (<link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static <link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link> <link linkend="_lgc_8c_1afdc11f26c812a8356585e0e6a67b9982">markbeingfnz</link> (<link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lgc_8c_1a563e20dbbab2390ef4ac0ac254f59b71">remarkupvals</link> (<link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a1811355ed318887d7fd2fdbdc3767eea">cleargraylists</link> (<link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1abc346fb7129981227c874ba0e22a480f">restartcollection</link> (<link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a59186fdb26bd492886fdc8c3ffd17232">genlink</link> (<link linkend="_structglobal___state">global_State</link> *g, <link linkend="_struct_g_c_object">GCObject</link> *o)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1ae8dc436daacca264cf45cb9652c68430">traverseweakvalue</link> (<link linkend="_structglobal___state">global_State</link> *g, <link linkend="_struct_table">Table</link> *h)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lgc_8c_1aad4294f43d919ea5950d992599d1a445">traverseephemeron</link> (<link linkend="_structglobal___state">global_State</link> *g, <link linkend="_struct_table">Table</link> *h, int inv)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a3c018ffdc54c29a2ff8f44d32703a7c6">traversestrongtable</link> (<link linkend="_structglobal___state">global_State</link> *g, <link linkend="_struct_table">Table</link> *h)</para>
+</listitem>
+            <listitem><para>static <link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link> <link linkend="_lgc_8c_1a86c4c1008df3c908a9cca3cf72abc195">traversetable</link> (<link linkend="_structglobal___state">global_State</link> *g, <link linkend="_struct_table">Table</link> *h)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lgc_8c_1a7a5280b620352ed9282f78028779c968">traverseudata</link> (<link linkend="_structglobal___state">global_State</link> *g, <link linkend="_struct_udata">Udata</link> *u)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lgc_8c_1a19be424be90fc7025deae5ccfdcab62b">traverseproto</link> (<link linkend="_structglobal___state">global_State</link> *g, <link linkend="_struct_proto">Proto</link> *f)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lgc_8c_1aa85f9809abfe94fcd3bbec6e2c46b104">traverseCclosure</link> (<link linkend="_structglobal___state">global_State</link> *g, <link linkend="_struct_c_closure">CClosure</link> *cl)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lgc_8c_1a61e584daad5b6a41777ade0e72e559b3">traverseLclosure</link> (<link linkend="_structglobal___state">global_State</link> *g, <link linkend="_struct_l_closure">LClosure</link> *cl)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lgc_8c_1a5759d7a25445fd28e24980d7f35a99b2">traversethread</link> (<link linkend="_structglobal___state">global_State</link> *g, <link linkend="_structlua___state">lua_State</link> *th)</para>
+</listitem>
+            <listitem><para>static <link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link> <link linkend="_lgc_8c_1a817005bec4f6438093ec8bff63363f25">propagatemark</link> (<link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static <link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link> <link linkend="_lgc_8c_1a344b3515bc8cbe737fbdd9fa1521d17d">propagateall</link> (<link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a467150a6e5a6ef4402432c4964817ffc">convergeephemerons</link> (<link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a56ce6be91da7747cf9d93826cf5c8f28">clearbykeys</link> (<link linkend="_structglobal___state">global_State</link> *g, <link linkend="_struct_g_c_object">GCObject</link> *l)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a634862684194c98758caa196038d7033">clearbyvalues</link> (<link linkend="_structglobal___state">global_State</link> *g, <link linkend="_struct_g_c_object">GCObject</link> *l, <link linkend="_struct_g_c_object">GCObject</link> *f)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a41b4adb59140172e2cd717fb921cd372">freeupval</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_up_val">UpVal</link> *uv)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1aa198d7da2a8502ed70adfe1f7ed38f46">freeobj</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_g_c_object">GCObject</link> *o)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_g_c_object">GCObject</link> ** <link linkend="_lgc_8c_1a88abd139efb3d69379bf4ee92b84a65d">sweeplist</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_g_c_object">GCObject</link> **p, int countin, int *countout)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_g_c_object">GCObject</link> ** <link linkend="_lgc_8c_1ab518b7adba50d2e796e206dbc96a9d52">sweeptolive</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_g_c_object">GCObject</link> **p)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a1b2909449f815733deb4bc35c0103002">checkSizes</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_g_c_object">GCObject</link> * <link linkend="_lgc_8c_1a1b500eec5a67ec92ad263021bd7d9435">udata2finalize</link> (<link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a929058f72c03750fa82374f6bfa639ee">dothecall</link> (<link linkend="_structlua___state">lua_State</link> *L, void *ud)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1aaf7c6e9e6a93da6bb64ffe7654668ba3">GCTM</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lgc_8c_1a5ba38781fc577f890c6f97af9beef40a">runafewfinalizers</link> (<link linkend="_structlua___state">lua_State</link> *L, int n)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a3c6f43e1b63924361ed0ce31b6d30f8b">callallpendingfinalizers</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_g_c_object">GCObject</link> ** <link linkend="_lgc_8c_1a00546669316a08c1286570927e676496">findlast</link> (<link linkend="_struct_g_c_object">GCObject</link> **p)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a39f98f28e85cc750b7cca70b10e79ee9">separatetobefnz</link> (<link linkend="_structglobal___state">global_State</link> *g, int all)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a212c5bd6d46038d032294f4c53a7533e">checkpointer</link> (<link linkend="_struct_g_c_object">GCObject</link> **p, <link linkend="_struct_g_c_object">GCObject</link> *o)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a91d1c9f1242ce44318a52de3e549583e">correctpointers</link> (<link linkend="_structglobal___state">global_State</link> *g, <link linkend="_struct_g_c_object">GCObject</link> *o)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lgc_8c_1a0d4f5fb6a8831817e117cfff473aeb0e">luaC_checkfinalizer</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_g_c_object">GCObject</link> *o, <link linkend="_struct_table">Table</link> *mt)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1ab1a2b0658321a52d5ae0c139b0bf5494">setpause</link> (<link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a85b353f49bd76eb0199fa5966ee37895">sweep2old</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_g_c_object">GCObject</link> **p)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_g_c_object">GCObject</link> ** <link linkend="_lgc_8c_1ad2640fd798d0468b3832b8b64f1c94f1">sweepgen</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structglobal___state">global_State</link> *g, <link linkend="_struct_g_c_object">GCObject</link> **p, <link linkend="_struct_g_c_object">GCObject</link> *limit, <link linkend="_struct_g_c_object">GCObject</link> **pfirstold1)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a7bb7ff4928b82e65d5844fcaca7d59d8">whitelist</link> (<link linkend="_structglobal___state">global_State</link> *g, <link linkend="_struct_g_c_object">GCObject</link> *p)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_g_c_object">GCObject</link> ** <link linkend="_lgc_8c_1af7188b6e4cd31e997c857b6e010a6d4a">correctgraylist</link> (<link linkend="_struct_g_c_object">GCObject</link> **p)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a528264d2f4073b4a22b7844098a36f7d">correctgraylists</link> (<link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1ae4013fea3c735a4c2802a6adf08e4b3c">markold</link> (<link linkend="_structglobal___state">global_State</link> *g, <link linkend="_struct_g_c_object">GCObject</link> *from, <link linkend="_struct_g_c_object">GCObject</link> *to)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1ad14690f3e78fd31ce7eddc3acdbeec5b">finishgencycle</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a7528878b4bb9da15db0a23fab038a339">youngcollection</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a12beeec7fb7ed46e54b5e7633db83ad9">atomic2gen</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static <link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link> <link linkend="_lgc_8c_1a2f8aa4c5cfd7f907a35deaa695ca4d3b">entergen</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1afed5a93f2093f2a754fb26f31b5207b0">enterinc</link> (<link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lgc_8c_1ac88d5c236307393937e02bc82c10f970">luaC_changemode</link> (<link linkend="_structlua___state">lua_State</link> *L, int newmode)</para>
+</listitem>
+            <listitem><para>static <link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link> <link linkend="_lgc_8c_1a270a46ab08adc0bb728eeb67b5cc45a9">fullgen</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1ab446273aaf611d661bb4c8b6e95360f1">setminordebt</link> (<link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a6a3515ae97e70e9ccd0fb50acebc62d1">stepgenfull</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a3035567259cf4d2269426622ccc0d022">genstep</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1af9982b911970c350d2a8c071f7c90fb1">deletelist</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_g_c_object">GCObject</link> *p, <link linkend="_struct_g_c_object">GCObject</link> *limit)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lgc_8c_1abad938b33f011ec1088d1a79508c6ac9">luaC_freeallobjects</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lgc_8c_1a2669bab5717396ec41dda4e5bc46c140">sweepstep</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structglobal___state">global_State</link> *g, int nextstate, <link linkend="_struct_g_c_object">GCObject</link> **nextlist)</para>
+</listitem>
+            <listitem><para>static <link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link> <link linkend="_lgc_8c_1ae34e22198155f5d365fe500d3735c150">singlestep</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lgc_8c_1a97086b84273579d4c9b42a782f30410d">luaC_runtilstate</link> (<link linkend="_structlua___state">lua_State</link> *L, int statesmask)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1a3a70dfeab5db063c688d7e200d63a7c1">incstep</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lgc_8c_1ab0133eb7bb37a0a690e0ef71fbc13414">luaC_step</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lgc_8c_1ac6dccdcfb264cbc5f1776cea79c8e375">fullinc</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lgc_8c_1ac48130e5263ad8be09a9c51dae6125b9">luaC_fullgc</link> (<link linkend="_structlua___state">lua_State</link> *L, int isemergency)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lgc_8c_1a84dfd5e385ed6792c171df6b6a972179"/>    <section>
+    <title>GCFINALIZECOST</title>
+<indexterm><primary>GCFINALIZECOST</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>GCFINALIZECOST</secondary></indexterm>
+<para><computeroutput>#define GCFINALIZECOST   50</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00046">46</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1ac3a3667112bce0a226dbef4640edee94"/>    <section>
+    <title>GCFINMAX</title>
+<indexterm><primary>GCFINMAX</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>GCFINMAX</secondary></indexterm>
+<para><computeroutput>#define GCFINMAX   10</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00040">40</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1ac31abb557425090d41f055c797049ba8"/>    <section>
+    <title>GCSWEEPMAX</title>
+<indexterm><primary>GCSWEEPMAX</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>GCSWEEPMAX</secondary></indexterm>
+<para><computeroutput>#define GCSWEEPMAX   100</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00035">35</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1a7c7f051ea3f0945577e90c480ebeee88"/>    <section>
+    <title>gcvalueN</title>
+<indexterm><primary>gcvalueN</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>gcvalueN</secondary></indexterm>
+<para><computeroutput>#define gcvalueN( o)   (<link linkend="_lobject_8h_1aaabdb414706e6a904461e39967557185">iscollectable</link>(o) ? <link linkend="_lobject_8h_1a05cdf6070135f10ad37e1048a730b634">gcvalue</link>(o) : NULL)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00091">91</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1a43ef7b8388b613e737dd3ec7eb493f47"/>    <section>
+    <title>gnodelast</title>
+<indexterm><primary>gnodelast</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>gnodelast</secondary></indexterm>
+<para><computeroutput>#define gnodelast( h)   <link linkend="_ltable_8h_1a644cfa3b6d4be1782e818a8340b5f78b">gnode</link>(h, <link linkend="_llimits_8h_1a025d385a5ce274fa6eade82b6e1458d1">cast_sizet</link>(<link linkend="_lobject_8h_1a2fbf715e78eaa889ed0fb9d4514e736a">sizenode</link>(h)))</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00122">122</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1a4e2cb724f6d35593354bd90084b87d49"/>    <section>
+    <title>keyiswhite</title>
+<indexterm><primary>keyiswhite</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>keyiswhite</secondary></indexterm>
+<para><computeroutput>#define keyiswhite( n)   (<link linkend="_lobject_8h_1ad5d0afe3e47112e0136e0d6afb6c4536">keyiscollectable</link>(n) &amp;&amp; <link linkend="_lgc_8h_1a4c0ce78d476460d2e54914301f4a4bf7">iswhite</link>(<link linkend="_lobject_8h_1ac3dbc3b85a58d872c002e6cbea675bac">gckey</link>(n)))</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00085">85</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1a61d084c4959fdcc23103ae67105b3472"/>    <section>
+    <title>lgc_c</title>
+<indexterm><primary>lgc_c</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>lgc_c</secondary></indexterm>
+<para><computeroutput>#define lgc_c</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1ad63f9d59a67a756d3c3540d9795cdcbe"/>    <section>
+    <title>linkgclist</title>
+<indexterm><primary>linkgclist</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>linkgclist</secondary></indexterm>
+<para><computeroutput>#define linkgclist( o,  p)   <link linkend="_lgc_8c_1a26a89a256432393ba07aeaebbf36128e">linkgclist_</link>(<link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(o), &amp;(o)-&gt;gclist, &amp;(p))</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00146">146</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1a69a219e9e1a524d24173ef477419f87c"/>    <section>
+    <title>linkobjgclist</title>
+<indexterm><primary>linkobjgclist</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>linkobjgclist</secondary></indexterm>
+<para><computeroutput>#define linkobjgclist( o,  p)   <link linkend="_lgc_8c_1a26a89a256432393ba07aeaebbf36128e">linkgclist_</link>(<link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(o), <link linkend="_lgc_8c_1a10a95d9a52dbdb6f36c090f5e2870007">getgclist</link>(o), &amp;(p))</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00159">159</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1abf0b3947b59218777a8e928a10be205b"/>    <section>
+    <title>LUA_CORE</title>
+<indexterm><primary>LUA_CORE</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>LUA_CORE</secondary></indexterm>
+<para><computeroutput>#define LUA_CORE</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00008">8</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1ada061b1d508c516b2e53f546521b3eeb"/>    <section>
+    <title>makewhite</title>
+<indexterm><primary>makewhite</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>makewhite</secondary></indexterm>
+<para><computeroutput>#define makewhite( g,  x)     (x-&gt;marked = <link linkend="_llimits_8h_1a596f5b6e992f53a5a4e5732083448dd4">cast_byte</link>((x-&gt;marked &amp; ~<link linkend="_lgc_8c_1a31f875711ff997274eb999d7fe8ec639">maskcolors</link>) | <link linkend="_lgc_8h_1afaa8a52c4097cf3a5eacd88db94092da">luaC_white</link>(g)))</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00071">71</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1a177a5a645b1409b4f1c20e3c84018d40"/>    <section>
+    <title>markkey</title>
+<indexterm><primary>markkey</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>markkey</secondary></indexterm>
+<para><computeroutput>#define markkey( g,  n)   { if <link linkend="_lgc_8c_1a4e2cb724f6d35593354bd90084b87d49">keyiswhite</link>(n) <link linkend="_lgc_8c_1aacf3c8ee0eebd5d5b1cd09da000ad53c">reallymarkobject</link>(g,<link linkend="_lobject_8h_1ac3dbc3b85a58d872c002e6cbea675bac">gckey</link>(n)); }</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00097">97</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1a6ae72c43e48b29944e55933df7f15482"/>    <section>
+    <title>markobject</title>
+<indexterm><primary>markobject</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>markobject</secondary></indexterm>
+<para><computeroutput>#define markobject( g,  t)   { if (<link linkend="_lgc_8h_1a4c0ce78d476460d2e54914301f4a4bf7">iswhite</link>(t)) <link linkend="_lgc_8c_1aacf3c8ee0eebd5d5b1cd09da000ad53c">reallymarkobject</link>(g, <link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(t)); }</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00099">99</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1af9d4ee7e422989e2c45413745252211b"/>    <section>
+    <title>markobjectN</title>
+<indexterm><primary>markobjectN</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>markobjectN</secondary></indexterm>
+<para><computeroutput>#define markobjectN( g,  t)   { if (t) <link linkend="_lgc_8c_1a6ae72c43e48b29944e55933df7f15482">markobject</link>(g,t); }</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00105">105</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1a2dd4136ac29665568973c074bc450849"/>    <section>
+    <title>markvalue</title>
+<indexterm><primary>markvalue</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>markvalue</secondary></indexterm>
+<para><computeroutput>#define markvalue( g,  o)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;{&#32;<link linkend="_lobject_8h_1aeec8842aa72396b2719685ad7e131f37">checkliveness</link>(g-&gt;mainthread,o);&#32;\
+&#32;&#32;if&#32;(<link linkend="_lgc_8c_1a84251731518ce7f66d49363eb9f0f594">valiswhite</link>(o))&#32;<link linkend="_lgc_8c_1aacf3c8ee0eebd5d5b1cd09da000ad53c">reallymarkobject</link>(g,<link linkend="_lobject_8h_1a05cdf6070135f10ad37e1048a730b634">gcvalue</link>(o));&#32;}
+</programlisting><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00094">94</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1a31f875711ff997274eb999d7fe8ec639"/>    <section>
+    <title>maskcolors</title>
+<indexterm><primary>maskcolors</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>maskcolors</secondary></indexterm>
+<para><computeroutput>#define maskcolors   (<link linkend="_lgc_8h_1af25866c39979dd1f72110cbd3a1a427d">bitmask</link>(<link linkend="_lgc_8h_1acd17af3c46cb360dc67cad2b33b6a26f">BLACKBIT</link>) | <link linkend="_lgc_8h_1a0acb34c1b3d1234f11ee9fdc34df3f71">WHITEBITS</link>)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00064">64</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1a3ea4c714396849e66d63d88a8987f149"/>    <section>
+    <title>maskgcbits</title>
+<indexterm><primary>maskgcbits</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>maskgcbits</secondary></indexterm>
+<para><computeroutput>#define maskgcbits   (<link linkend="_lgc_8c_1a31f875711ff997274eb999d7fe8ec639">maskcolors</link> | <link linkend="_lgc_8h_1a3b446e7d0b31628385b7a1f444192e9a">AGEBITS</link>)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00067">67</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1a79ef06ea1e24ee7e3d343f67e954d68c"/>    <section>
+    <title>PAUSEADJ</title>
+<indexterm><primary>PAUSEADJ</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>PAUSEADJ</secondary></indexterm>
+<para><computeroutput>#define PAUSEADJ   100</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00060">60</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1a1cb0182cfa6e73b1665658a79c297d46"/>    <section>
+    <title>set2black</title>
+<indexterm><primary>set2black</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>set2black</secondary></indexterm>
+<para><computeroutput>#define set2black( x)     (x-&gt;marked = <link linkend="_llimits_8h_1a596f5b6e992f53a5a4e5732083448dd4">cast_byte</link>((x-&gt;marked &amp; ~<link linkend="_lgc_8h_1a0acb34c1b3d1234f11ee9fdc34df3f71">WHITEBITS</link>) | <link linkend="_lgc_8h_1af25866c39979dd1f72110cbd3a1a427d">bitmask</link>(<link linkend="_lgc_8h_1acd17af3c46cb360dc67cad2b33b6a26f">BLACKBIT</link>)))</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00079">79</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1ac0d91118389ea51c074e2baf41e03ccb"/>    <section>
+    <title>set2gray</title>
+<indexterm><primary>set2gray</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>set2gray</secondary></indexterm>
+<para><computeroutput>#define set2gray( x)   <link linkend="_lgc_8h_1a486033531260010debe876a076dd2a41">resetbits</link>(x-&gt;marked, <link linkend="_lgc_8c_1a31f875711ff997274eb999d7fe8ec639">maskcolors</link>)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00075">75</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1a84251731518ce7f66d49363eb9f0f594"/>    <section>
+    <title>valiswhite</title>
+<indexterm><primary>valiswhite</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>valiswhite</secondary></indexterm>
+<para><computeroutput>#define valiswhite( x)   (<link linkend="_lobject_8h_1aaabdb414706e6a904461e39967557185">iscollectable</link>(x) &amp;&amp; <link linkend="_lgc_8h_1a4c0ce78d476460d2e54914301f4a4bf7">iswhite</link>(<link linkend="_lobject_8h_1a05cdf6070135f10ad37e1048a730b634">gcvalue</link>(x)))</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00083">83</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1a2f1af1a74ed552d994ae1a8f830bd6d2"/>    <section>
+    <title>WORK2MEM</title>
+<indexterm><primary>WORK2MEM</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>WORK2MEM</secondary></indexterm>
+<para><computeroutput>#define WORK2MEM   sizeof(<link linkend="_struct_t_value">TValue</link>)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00053">53</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lgc_8c_1a41eded2c85eaf7e1911cd95da36882d9"/>    <section>
+    <title>atomic()</title>
+<indexterm><primary>atomic</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>atomic</secondary></indexterm>
+<para><computeroutput>static <link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link> atomic (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01510">1510</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a41eded2c85eaf7e1911cd95da36882d9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a41eded2c85eaf7e1911cd95da36882d9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a12beeec7fb7ed46e54b5e7633db83ad9"/>    <section>
+    <title>atomic2gen()</title>
+<indexterm><primary>atomic2gen</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>atomic2gen</secondary></indexterm>
+<para><computeroutput>static void atomic2gen (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01259">1259</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a12beeec7fb7ed46e54b5e7633db83ad9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a12beeec7fb7ed46e54b5e7633db83ad9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a3c6f43e1b63924361ed0ce31b6d30f8b"/>    <section>
+    <title>callallpendingfinalizers()</title>
+<indexterm><primary>callallpendingfinalizers</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>callallpendingfinalizers</secondary></indexterm>
+<para><computeroutput>static void callallpendingfinalizers (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00936">936</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a3c6f43e1b63924361ed0ce31b6d30f8b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a3c6f43e1b63924361ed0ce31b6d30f8b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a212c5bd6d46038d032294f4c53a7533e"/>    <section>
+    <title>checkpointer()</title>
+<indexterm><primary>checkpointer</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>checkpointer</secondary></indexterm>
+<para><computeroutput>static void checkpointer (<link linkend="_struct_g_c_object">GCObject</link> ** p, <link linkend="_struct_g_c_object">GCObject</link> * o)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00983">983</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a212c5bd6d46038d032294f4c53a7533e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a1b2909449f815733deb4bc35c0103002"/>    <section>
+    <title>checkSizes()</title>
+<indexterm><primary>checkSizes</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>checkSizes</secondary></indexterm>
+<para><computeroutput>static void checkSizes (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00857">857</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a1b2909449f815733deb4bc35c0103002_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a1b2909449f815733deb4bc35c0103002_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a56ce6be91da7747cf9d93826cf5c8f28"/>    <section>
+    <title>clearbykeys()</title>
+<indexterm><primary>clearbykeys</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>clearbykeys</secondary></indexterm>
+<para><computeroutput>static void clearbykeys (<link linkend="_structglobal___state">global_State</link> * g, <link linkend="_struct_g_c_object">GCObject</link> * l)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00719">719</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a56ce6be91da7747cf9d93826cf5c8f28_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a56ce6be91da7747cf9d93826cf5c8f28_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a634862684194c98758caa196038d7033"/>    <section>
+    <title>clearbyvalues()</title>
+<indexterm><primary>clearbyvalues</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>clearbyvalues</secondary></indexterm>
+<para><computeroutput>static void clearbyvalues (<link linkend="_structglobal___state">global_State</link> * g, <link linkend="_struct_g_c_object">GCObject</link> * l, <link linkend="_struct_g_c_object">GCObject</link> * f)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00738">738</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a634862684194c98758caa196038d7033_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a634862684194c98758caa196038d7033_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a1811355ed318887d7fd2fdbdc3767eea"/>    <section>
+    <title>cleargraylists()</title>
+<indexterm><primary>cleargraylists</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>cleargraylists</secondary></indexterm>
+<para><computeroutput>static void cleargraylists (<link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00389">389</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a1811355ed318887d7fd2fdbdc3767eea_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1ae5b5bd4c69910951078ac627fa1654da"/>    <section>
+    <title>clearkey()</title>
+<indexterm><primary>clearkey</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>clearkey</secondary></indexterm>
+<para><computeroutput>static void clearkey (<link linkend="_union_node">Node</link> * n)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00172">172</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ae5b5bd4c69910951078ac627fa1654da_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a467150a6e5a6ef4402432c4964817ffc"/>    <section>
+    <title>convergeephemerons()</title>
+<indexterm><primary>convergeephemerons</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>convergeephemerons</secondary></indexterm>
+<para><computeroutput>static void convergeephemerons (<link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00685">685</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a467150a6e5a6ef4402432c4964817ffc_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a467150a6e5a6ef4402432c4964817ffc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1af7188b6e4cd31e997c857b6e010a6d4a"/>    <section>
+    <title>correctgraylist()</title>
+<indexterm><primary>correctgraylist</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>correctgraylist</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_g_c_object">GCObject</link>** correctgraylist (<link linkend="_struct_g_c_object">GCObject</link> ** p)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01139">1139</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_af7188b6e4cd31e997c857b6e010a6d4a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_af7188b6e4cd31e997c857b6e010a6d4a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a528264d2f4073b4a22b7844098a36f7d"/>    <section>
+    <title>correctgraylists()</title>
+<indexterm><primary>correctgraylists</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>correctgraylists</secondary></indexterm>
+<para><computeroutput>static void correctgraylists (<link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01172">1172</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a528264d2f4073b4a22b7844098a36f7d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a528264d2f4073b4a22b7844098a36f7d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a91d1c9f1242ce44318a52de3e549583e"/>    <section>
+    <title>correctpointers()</title>
+<indexterm><primary>correctpointers</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>correctpointers</secondary></indexterm>
+<para><computeroutput>static void correctpointers (<link linkend="_structglobal___state">global_State</link> * g, <link linkend="_struct_g_c_object">GCObject</link> * o)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00993">993</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a91d1c9f1242ce44318a52de3e549583e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a91d1c9f1242ce44318a52de3e549583e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1af9982b911970c350d2a8c071f7c90fb1"/>    <section>
+    <title>deletelist()</title>
+<indexterm><primary>deletelist</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>deletelist</secondary></indexterm>
+<para><computeroutput>static void deletelist (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_g_c_object">GCObject</link> * p, <link linkend="_struct_g_c_object">GCObject</link> * limit)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01484">1484</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_af9982b911970c350d2a8c071f7c90fb1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_af9982b911970c350d2a8c071f7c90fb1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a929058f72c03750fa82374f6bfa639ee"/>    <section>
+    <title>dothecall()</title>
+<indexterm><primary>dothecall</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>dothecall</secondary></indexterm>
+<para><computeroutput>static void dothecall (<link linkend="_structlua___state">lua_State</link> * L, void * ud)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00887">887</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a929058f72c03750fa82374f6bfa639ee_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a929058f72c03750fa82374f6bfa639ee_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a2f8aa4c5cfd7f907a35deaa695ca4d3b"/>    <section>
+    <title>entergen()</title>
+<indexterm><primary>entergen</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>entergen</secondary></indexterm>
+<para><computeroutput>static <link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link> entergen (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01287">1287</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a2f8aa4c5cfd7f907a35deaa695ca4d3b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a2f8aa4c5cfd7f907a35deaa695ca4d3b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1afed5a93f2093f2a754fb26f31b5207b0"/>    <section>
+    <title>enterinc()</title>
+<indexterm><primary>enterinc</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>enterinc</secondary></indexterm>
+<para><computeroutput>static void enterinc (<link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01302">1302</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_afed5a93f2093f2a754fb26f31b5207b0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_afed5a93f2093f2a754fb26f31b5207b0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1aea46d650b68fac11368a752058b80ab7"/>    <section>
+    <title>entersweep()</title>
+<indexterm><primary>entersweep</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>entersweep</secondary></indexterm>
+<para><computeroutput>static void entersweep (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01472">1472</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_aea46d650b68fac11368a752058b80ab7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_aea46d650b68fac11368a752058b80ab7_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a00546669316a08c1286570927e676496"/>    <section>
+    <title>findlast()</title>
+<indexterm><primary>findlast</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>findlast</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_g_c_object">GCObject</link>** findlast (<link linkend="_struct_g_c_object">GCObject</link> ** p)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00946">946</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a00546669316a08c1286570927e676496_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1ad14690f3e78fd31ce7eddc3acdbeec5b"/>    <section>
+    <title>finishgencycle()</title>
+<indexterm><primary>finishgencycle</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>finishgencycle</secondary></indexterm>
+<para><computeroutput>static void finishgencycle (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01204">1204</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ad14690f3e78fd31ce7eddc3acdbeec5b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ad14690f3e78fd31ce7eddc3acdbeec5b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1aa198d7da2a8502ed70adfe1f7ed38f46"/>    <section>
+    <title>freeobj()</title>
+<indexterm><primary>freeobj</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>freeobj</secondary></indexterm>
+<para><computeroutput>static void freeobj (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_g_c_object">GCObject</link> * o)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00766">766</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_aa198d7da2a8502ed70adfe1f7ed38f46_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_aa198d7da2a8502ed70adfe1f7ed38f46_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a41b4adb59140172e2cd717fb921cd372"/>    <section>
+    <title>freeupval()</title>
+<indexterm><primary>freeupval</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>freeupval</secondary></indexterm>
+<para><computeroutput>static void freeupval (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_up_val">UpVal</link> * uv)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00759">759</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a41b4adb59140172e2cd717fb921cd372_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a41b4adb59140172e2cd717fb921cd372_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a270a46ab08adc0bb728eeb67b5cc45a9"/>    <section>
+    <title>fullgen()</title>
+<indexterm><primary>fullgen</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>fullgen</secondary></indexterm>
+<para><computeroutput>static <link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link> fullgen (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01332">1332</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a270a46ab08adc0bb728eeb67b5cc45a9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a270a46ab08adc0bb728eeb67b5cc45a9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1ac6dccdcfb264cbc5f1776cea79c8e375"/>    <section>
+    <title>fullinc()</title>
+<indexterm><primary>fullinc</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>fullinc</secondary></indexterm>
+<para><computeroutput>static void fullinc (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01679">1679</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ac6dccdcfb264cbc5f1776cea79c8e375_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ac6dccdcfb264cbc5f1776cea79c8e375_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1aaf7c6e9e6a93da6bb64ffe7654668ba3"/>    <section>
+    <title>GCTM()</title>
+<indexterm><primary>GCTM</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>GCTM</secondary></indexterm>
+<para><computeroutput>static void GCTM (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00893">893</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_aaf7c6e9e6a93da6bb64ffe7654668ba3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_aaf7c6e9e6a93da6bb64ffe7654668ba3_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a59186fdb26bd492886fdc8c3ffd17232"/>    <section>
+    <title>genlink()</title>
+<indexterm><primary>genlink</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>genlink</secondary></indexterm>
+<para><computeroutput>static void genlink (<link linkend="_structglobal___state">global_State</link> * g, <link linkend="_struct_g_c_object">GCObject</link> * o)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00425">425</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a59186fdb26bd492886fdc8c3ffd17232_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a3035567259cf4d2269426622ccc0d022"/>    <section>
+    <title>genstep()</title>
+<indexterm><primary>genstep</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>genstep</secondary></indexterm>
+<para><computeroutput>static void genstep (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01408">1408</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a3035567259cf4d2269426622ccc0d022_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a3035567259cf4d2269426622ccc0d022_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a10a95d9a52dbdb6f36c090f5e2870007"/>    <section>
+    <title>getgclist()</title>
+<indexterm><primary>getgclist</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>getgclist</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_g_c_object">GCObject</link>** getgclist (<link linkend="_struct_g_c_object">GCObject</link> * o)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00125">125</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a10a95d9a52dbdb6f36c090f5e2870007_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a3a70dfeab5db063c688d7e200d63a7c1"/>    <section>
+    <title>incstep()</title>
+<indexterm><primary>incstep</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>incstep</secondary></indexterm>
+<para><computeroutput>static void incstep (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01639">1639</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a3a70dfeab5db063c688d7e200d63a7c1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a3a70dfeab5db063c688d7e200d63a7c1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1acae02b6cdb8288e654682baf4117e8ab"/>    <section>
+    <title>iscleared()</title>
+<indexterm><primary>iscleared</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>iscleared</secondary></indexterm>
+<para><computeroutput>static int iscleared (<link linkend="_structglobal___state">global_State</link> * g, const <link linkend="_struct_g_c_object">GCObject</link> * o)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00186">186</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_acae02b6cdb8288e654682baf4117e8ab_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a26a89a256432393ba07aeaebbf36128e"/>    <section>
+    <title>linkgclist_()</title>
+<indexterm><primary>linkgclist_</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>linkgclist_</secondary></indexterm>
+<para><computeroutput>static void linkgclist_ (<link linkend="_struct_g_c_object">GCObject</link> * o, <link linkend="_struct_g_c_object">GCObject</link> ** pnext, <link linkend="_struct_g_c_object">GCObject</link> ** list)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00148">148</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1a72c69b5d5554e0ea4b65e894f2a50793"/>    <section>
+    <title>luaC_barrier_()</title>
+<indexterm><primary>luaC_barrier_</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>luaC_barrier_</secondary></indexterm>
+<para><computeroutput>void luaC_barrier_ (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_g_c_object">GCObject</link> * o, <link linkend="_struct_g_c_object">GCObject</link> * v)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00209">209</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a72c69b5d5554e0ea4b65e894f2a50793_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a61ad59cdf3484ff64c0c3cb7a48388ad"/>    <section>
+    <title>luaC_barrierback_()</title>
+<indexterm><primary>luaC_barrierback_</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>luaC_barrierback_</secondary></indexterm>
+<para><computeroutput>void luaC_barrierback_ (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_g_c_object">GCObject</link> * o)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00231">231</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8c_1ac88d5c236307393937e02bc82c10f970"/>    <section>
+    <title>luaC_changemode()</title>
+<indexterm><primary>luaC_changemode</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>luaC_changemode</secondary></indexterm>
+<para><computeroutput>void luaC_changemode (<link linkend="_structlua___state">lua_State</link> * L, int newmode)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01317">1317</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ac88d5c236307393937e02bc82c10f970_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ac88d5c236307393937e02bc82c10f970_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a0d4f5fb6a8831817e117cfff473aeb0e"/>    <section>
+    <title>luaC_checkfinalizer()</title>
+<indexterm><primary>luaC_checkfinalizer</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>luaC_checkfinalizer</secondary></indexterm>
+<para><computeroutput>void luaC_checkfinalizer (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_g_c_object">GCObject</link> * o, <link linkend="_struct_table">Table</link> * mt)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01005">1005</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a0d4f5fb6a8831817e117cfff473aeb0e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a0d4f5fb6a8831817e117cfff473aeb0e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a77a9b70a49730bb007a8a9492687d0eb"/>    <section>
+    <title>luaC_fix()</title>
+<indexterm><primary>luaC_fix</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>luaC_fix</secondary></indexterm>
+<para><computeroutput>void luaC_fix (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_g_c_object">GCObject</link> * o)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00244">244</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a77a9b70a49730bb007a8a9492687d0eb_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1abad938b33f011ec1088d1a79508c6ac9"/>    <section>
+    <title>luaC_freeallobjects()</title>
+<indexterm><primary>luaC_freeallobjects</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>luaC_freeallobjects</secondary></indexterm>
+<para><computeroutput>void luaC_freeallobjects (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01497">1497</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_abad938b33f011ec1088d1a79508c6ac9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_abad938b33f011ec1088d1a79508c6ac9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1ac48130e5263ad8be09a9c51dae6125b9"/>    <section>
+    <title>luaC_fullgc()</title>
+<indexterm><primary>luaC_fullgc</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>luaC_fullgc</secondary></indexterm>
+<para><computeroutput>void luaC_fullgc (<link linkend="_structlua___state">lua_State</link> * L, int isemergency)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01697">1697</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ac48130e5263ad8be09a9c51dae6125b9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ac48130e5263ad8be09a9c51dae6125b9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1abfc8404c5fbd2a1770202fa0b087d451"/>    <section>
+    <title>luaC_newobj()</title>
+<indexterm><primary>luaC_newobj</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>luaC_newobj</secondary></indexterm>
+<para><computeroutput><link linkend="_struct_g_c_object">GCObject</link>* luaC_newobj (<link linkend="_structlua___state">lua_State</link> * L, int tt, size_t sz)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00259">259</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_abfc8404c5fbd2a1770202fa0b087d451_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a97086b84273579d4c9b42a782f30410d"/>    <section>
+    <title>luaC_runtilstate()</title>
+<indexterm><primary>luaC_runtilstate</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>luaC_runtilstate</secondary></indexterm>
+<para><computeroutput>void luaC_runtilstate (<link linkend="_structlua___state">lua_State</link> * L, int statesmask)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01625">1625</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a97086b84273579d4c9b42a782f30410d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a97086b84273579d4c9b42a782f30410d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1ab0133eb7bb37a0a690e0ef71fbc13414"/>    <section>
+    <title>luaC_step()</title>
+<indexterm><primary>luaC_step</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>luaC_step</secondary></indexterm>
+<para><computeroutput>void luaC_step (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01660">1660</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ab0133eb7bb37a0a690e0ef71fbc13414_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ab0133eb7bb37a0a690e0ef71fbc13414_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1afdc11f26c812a8356585e0e6a67b9982"/>    <section>
+    <title>markbeingfnz()</title>
+<indexterm><primary>markbeingfnz</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>markbeingfnz</secondary></indexterm>
+<para><computeroutput>static <link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link> markbeingfnz (<link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00340">340</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_afdc11f26c812a8356585e0e6a67b9982_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a9e8dd447c32dde7eeb9fc5da83df09b1"/>    <section>
+    <title>markmt()</title>
+<indexterm><primary>markmt</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>markmt</secondary></indexterm>
+<para><computeroutput>static void markmt (<link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00330">330</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a9e8dd447c32dde7eeb9fc5da83df09b1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1ae4013fea3c735a4c2802a6adf08e4b3c"/>    <section>
+    <title>markold()</title>
+<indexterm><primary>markold</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>markold</secondary></indexterm>
+<para><computeroutput>static void markold (<link linkend="_structglobal___state">global_State</link> * g, <link linkend="_struct_g_c_object">GCObject</link> * from, <link linkend="_struct_g_c_object">GCObject</link> * to)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01188">1188</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ae4013fea3c735a4c2802a6adf08e4b3c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ae4013fea3c735a4c2802a6adf08e4b3c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a344b3515bc8cbe737fbdd9fa1521d17d"/>    <section>
+    <title>propagateall()</title>
+<indexterm><primary>propagateall</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>propagateall</secondary></indexterm>
+<para><computeroutput>static <link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link> propagateall (<link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00670">670</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a344b3515bc8cbe737fbdd9fa1521d17d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a344b3515bc8cbe737fbdd9fa1521d17d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a817005bec4f6438093ec8bff63363f25"/>    <section>
+    <title>propagatemark()</title>
+<indexterm><primary>propagatemark</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>propagatemark</secondary></indexterm>
+<para><computeroutput>static <link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link> propagatemark (<link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00654">654</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a817005bec4f6438093ec8bff63363f25_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a817005bec4f6438093ec8bff63363f25_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1aacf3c8ee0eebd5d5b1cd09da000ad53c"/>    <section>
+    <title>reallymarkobject()</title>
+<indexterm><primary>reallymarkobject</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>reallymarkobject</secondary></indexterm>
+<para><computeroutput>static void reallymarkobject (<link linkend="_structglobal___state">global_State</link> * g, <link linkend="_struct_g_c_object">GCObject</link> * o)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00292">292</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_aacf3c8ee0eebd5d5b1cd09da000ad53c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a563e20dbbab2390ef4ac0ac254f59b71"/>    <section>
+    <title>remarkupvals()</title>
+<indexterm><primary>remarkupvals</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>remarkupvals</secondary></indexterm>
+<para><computeroutput>static int remarkupvals (<link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00362">362</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a563e20dbbab2390ef4ac0ac254f59b71_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1abc346fb7129981227c874ba0e22a480f"/>    <section>
+    <title>restartcollection()</title>
+<indexterm><primary>restartcollection</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>restartcollection</secondary></indexterm>
+<para><computeroutput>static void restartcollection (<link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00398">398</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_abc346fb7129981227c874ba0e22a480f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_abc346fb7129981227c874ba0e22a480f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a5ba38781fc577f890c6f97af9beef40a"/>    <section>
+    <title>runafewfinalizers()</title>
+<indexterm><primary>runafewfinalizers</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>runafewfinalizers</secondary></indexterm>
+<para><computeroutput>static int runafewfinalizers (<link linkend="_structlua___state">lua_State</link> * L, int n)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00924">924</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a5ba38781fc577f890c6f97af9beef40a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a5ba38781fc577f890c6f97af9beef40a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a39f98f28e85cc750b7cca70b10e79ee9"/>    <section>
+    <title>separatetobefnz()</title>
+<indexterm><primary>separatetobefnz</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>separatetobefnz</secondary></indexterm>
+<para><computeroutput>static void separatetobefnz (<link linkend="_structglobal___state">global_State</link> * g, int all)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00960">960</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a39f98f28e85cc750b7cca70b10e79ee9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a39f98f28e85cc750b7cca70b10e79ee9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1ab446273aaf611d661bb4c8b6e95360f1"/>    <section>
+    <title>setminordebt()</title>
+<indexterm><primary>setminordebt</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>setminordebt</secondary></indexterm>
+<para><computeroutput>static void setminordebt (<link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01342">1342</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ab446273aaf611d661bb4c8b6e95360f1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ab446273aaf611d661bb4c8b6e95360f1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1ab1a2b0658321a52d5ae0c139b0bf5494"/>    <section>
+    <title>setpause()</title>
+<indexterm><primary>setpause</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>setpause</secondary></indexterm>
+<para><computeroutput>static void setpause (<link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01451">1451</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ab1a2b0658321a52d5ae0c139b0bf5494_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ab1a2b0658321a52d5ae0c139b0bf5494_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1ae34e22198155f5d365fe500d3735c150"/>    <section>
+    <title>singlestep()</title>
+<indexterm><primary>singlestep</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>singlestep</secondary></indexterm>
+<para><computeroutput>static <link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link> singlestep (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01570">1570</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ae34e22198155f5d365fe500d3735c150_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ae34e22198155f5d365fe500d3735c150_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a6a3515ae97e70e9ccd0fb50acebc62d1"/>    <section>
+    <title>stepgenfull()</title>
+<indexterm><primary>stepgenfull</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>stepgenfull</secondary></indexterm>
+<para><computeroutput>static void stepgenfull (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01368">1368</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a6a3515ae97e70e9ccd0fb50acebc62d1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a6a3515ae97e70e9ccd0fb50acebc62d1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a85b353f49bd76eb0199fa5966ee37895"/>    <section>
+    <title>sweep2old()</title>
+<indexterm><primary>sweep2old</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>sweep2old</secondary></indexterm>
+<para><computeroutput>static void sweep2old (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_g_c_object">GCObject</link> ** p)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01046">1046</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a85b353f49bd76eb0199fa5966ee37895_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a85b353f49bd76eb0199fa5966ee37895_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1ad2640fd798d0468b3832b8b64f1c94f1"/>    <section>
+    <title>sweepgen()</title>
+<indexterm><primary>sweepgen</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>sweepgen</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_g_c_object">GCObject</link>** sweepgen (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structglobal___state">global_State</link> * g, <link linkend="_struct_g_c_object">GCObject</link> ** p, <link linkend="_struct_g_c_object">GCObject</link> * limit, <link linkend="_struct_g_c_object">GCObject</link> ** pfirstold1)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01082">1082</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ad2640fd798d0468b3832b8b64f1c94f1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ad2640fd798d0468b3832b8b64f1c94f1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a88abd139efb3d69379bf4ee92b84a65d"/>    <section>
+    <title>sweeplist()</title>
+<indexterm><primary>sweeplist</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>sweeplist</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_g_c_object">GCObject</link>** sweeplist (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_g_c_object">GCObject</link> ** p, int countin, int * countout)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00810">810</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a88abd139efb3d69379bf4ee92b84a65d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a88abd139efb3d69379bf4ee92b84a65d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a2669bab5717396ec41dda4e5bc46c140"/>    <section>
+    <title>sweepstep()</title>
+<indexterm><primary>sweepstep</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>sweepstep</secondary></indexterm>
+<para><computeroutput>static int sweepstep (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structglobal___state">global_State</link> * g, int nextstate, <link linkend="_struct_g_c_object">GCObject</link> ** nextlist)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01553">1553</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a2669bab5717396ec41dda4e5bc46c140_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a2669bab5717396ec41dda4e5bc46c140_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1ab518b7adba50d2e796e206dbc96a9d52"/>    <section>
+    <title>sweeptolive()</title>
+<indexterm><primary>sweeptolive</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>sweeptolive</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_g_c_object">GCObject</link>** sweeptolive (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_g_c_object">GCObject</link> ** p)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00837">837</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ab518b7adba50d2e796e206dbc96a9d52_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ab518b7adba50d2e796e206dbc96a9d52_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1aa85f9809abfe94fcd3bbec6e2c46b104"/>    <section>
+    <title>traverseCclosure()</title>
+<indexterm><primary>traverseCclosure</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>traverseCclosure</secondary></indexterm>
+<para><computeroutput>static int traverseCclosure (<link linkend="_structglobal___state">global_State</link> * g, <link linkend="_struct_c_closure">CClosure</link> * cl)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00588">588</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_aa85f9809abfe94fcd3bbec6e2c46b104_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1aad4294f43d919ea5950d992599d1a445"/>    <section>
+    <title>traverseephemeron()</title>
+<indexterm><primary>traverseephemeron</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>traverseephemeron</secondary></indexterm>
+<para><computeroutput>static int traverseephemeron (<link linkend="_structglobal___state">global_State</link> * g, <link linkend="_struct_table">Table</link> * h, int inv)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00475">475</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_aad4294f43d919ea5950d992599d1a445_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_aad4294f43d919ea5950d992599d1a445_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a61e584daad5b6a41777ade0e72e559b3"/>    <section>
+    <title>traverseLclosure()</title>
+<indexterm><primary>traverseLclosure</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>traverseLclosure</secondary></indexterm>
+<para><computeroutput>static int traverseLclosure (<link linkend="_structglobal___state">global_State</link> * g, <link linkend="_struct_l_closure">LClosure</link> * cl)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00599">599</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a61e584daad5b6a41777ade0e72e559b3_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a19be424be90fc7025deae5ccfdcab62b"/>    <section>
+    <title>traverseproto()</title>
+<indexterm><primary>traverseproto</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>traverseproto</secondary></indexterm>
+<para><computeroutput>static int traverseproto (<link linkend="_structglobal___state">global_State</link> * g, <link linkend="_struct_proto">Proto</link> * f)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00573">573</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a19be424be90fc7025deae5ccfdcab62b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a3c018ffdc54c29a2ff8f44d32703a7c6"/>    <section>
+    <title>traversestrongtable()</title>
+<indexterm><primary>traversestrongtable</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>traversestrongtable</secondary></indexterm>
+<para><computeroutput>static void traversestrongtable (<link linkend="_structglobal___state">global_State</link> * g, <link linkend="_struct_table">Table</link> * h)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00518">518</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a3c018ffdc54c29a2ff8f44d32703a7c6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a3c018ffdc54c29a2ff8f44d32703a7c6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a86c4c1008df3c908a9cca3cf72abc195"/>    <section>
+    <title>traversetable()</title>
+<indexterm><primary>traversetable</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>traversetable</secondary></indexterm>
+<para><computeroutput>static <link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link> traversetable (<link linkend="_structglobal___state">global_State</link> * g, <link linkend="_struct_table">Table</link> * h)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00537">537</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a86c4c1008df3c908a9cca3cf72abc195_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a86c4c1008df3c908a9cca3cf72abc195_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a5759d7a25445fd28e24980d7f35a99b2"/>    <section>
+    <title>traversethread()</title>
+<indexterm><primary>traversethread</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>traversethread</secondary></indexterm>
+<para><computeroutput>static int traversethread (<link linkend="_structglobal___state">global_State</link> * g, <link linkend="_structlua___state">lua_State</link> * th)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00622">622</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a5759d7a25445fd28e24980d7f35a99b2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a5759d7a25445fd28e24980d7f35a99b2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a7a5280b620352ed9282f78028779c968"/>    <section>
+    <title>traverseudata()</title>
+<indexterm><primary>traverseudata</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>traverseudata</secondary></indexterm>
+<para><computeroutput>static int traverseudata (<link linkend="_structglobal___state">global_State</link> * g, <link linkend="_struct_udata">Udata</link> * u)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00558">558</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a7a5280b620352ed9282f78028779c968_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a7a5280b620352ed9282f78028779c968_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1ae8dc436daacca264cf45cb9652c68430"/>    <section>
+    <title>traverseweakvalue()</title>
+<indexterm><primary>traverseweakvalue</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>traverseweakvalue</secondary></indexterm>
+<para><computeroutput>static void traverseweakvalue (<link linkend="_structglobal___state">global_State</link> * g, <link linkend="_struct_table">Table</link> * h)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00441">441</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ae8dc436daacca264cf45cb9652c68430_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_ae8dc436daacca264cf45cb9652c68430_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a1b500eec5a67ec92ad263021bd7d9435"/>    <section>
+    <title>udata2finalize()</title>
+<indexterm><primary>udata2finalize</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>udata2finalize</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_g_c_object">GCObject</link>* udata2finalize (<link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00872">872</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a1b500eec5a67ec92ad263021bd7d9435_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a7bb7ff4928b82e65d5844fcaca7d59d8"/>    <section>
+    <title>whitelist()</title>
+<indexterm><primary>whitelist</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>whitelist</secondary></indexterm>
+<para><computeroutput>static void whitelist (<link linkend="_structglobal___state">global_State</link> * g, <link linkend="_struct_g_c_object">GCObject</link> * p)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01123">1123</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a7bb7ff4928b82e65d5844fcaca7d59d8_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8c_1a7528878b4bb9da15db0a23fab038a339"/>    <section>
+    <title>youngcollection()</title>
+<indexterm><primary>youngcollection</primary><secondary>lgc.c</secondary></indexterm>
+<indexterm><primary>lgc.c</primary><secondary>youngcollection</secondary></indexterm>
+<para><computeroutput>static void youngcollection (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structglobal___state">global_State</link> * g)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01218">1218</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a7528878b4bb9da15db0a23fab038a339_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8c_a7528878b4bb9da15db0a23fab038a339_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+</section>

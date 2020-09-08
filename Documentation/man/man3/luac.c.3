@@ -1,0 +1,338 @@
+.TH "D:/gitworkspace/lua/src/luac.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/luac.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <ctype\&.h>\fP
+.br
+\fC#include <errno\&.h>\fP
+.br
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lauxlib\&.h'\fP
+.br
+\fC#include 'ldebug\&.h'\fP
+.br
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'lopcodes\&.h'\fP
+.br
+\fC#include 'lopnames\&.h'\fP
+.br
+\fC#include 'lstate\&.h'\fP
+.br
+\fC#include 'lundump\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBluac_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_CORE\fP"
+.br
+.ti -1c
+.RI "#define \fBluaU_print\fP   \fBPrintFunction\fP"
+.br
+.ti -1c
+.RI "#define \fBPROGNAME\fP   'luac'		/* default program name */"
+.br
+.ti -1c
+.RI "#define \fBOUTPUT\fP   \fBPROGNAME\fP '\&.out'	/* default \fBoutput\fP file */"
+.br
+.ti -1c
+.RI "#define \fBIS\fP(s)   (strcmp(argv[i],s)==0)"
+.br
+.ti -1c
+.RI "#define \fBFUNCTION\fP   '(function()end)();'"
+.br
+.ti -1c
+.RI "#define \fBtoproto\fP(L,  i)   \fBgetproto\fP(\fBs2v\fP(L\->top+(i)))"
+.br
+.ti -1c
+.RI "#define \fBUPVALNAME\fP(x)   ((f\->upvalues[x]\&.name) ? \fBgetstr\fP(f\->upvalues[x]\&.name) : '\-')"
+.br
+.ti -1c
+.RI "#define \fBVOID\fP(p)   ((const void*)(p))"
+.br
+.ti -1c
+.RI "#define \fBeventname\fP(i)   (\fBgetstr\fP(\fBtmname\fP[i]))"
+.br
+.ti -1c
+.RI "#define \fBCOMMENT\fP   '\\t; '"
+.br
+.ti -1c
+.RI "#define \fBEXTRAARG\fP   \fBGETARG_Ax\fP(code[pc+1])"
+.br
+.ti -1c
+.RI "#define \fBEXTRAARGC\fP   (\fBEXTRAARG\fP*(\fBMAXARG_C\fP+1))"
+.br
+.ti -1c
+.RI "#define \fBISK\fP   (isk ? 'k' : '')"
+.br
+.ti -1c
+.RI "#define \fBSS\fP(x)   ((x==1)?'':'s')"
+.br
+.ti -1c
+.RI "#define \fBS\fP(x)   (int)(x),\fBSS\fP(x)"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static void \fBPrintFunction\fP (const \fBProto\fP *f, int full)"
+.br
+.ti -1c
+.RI "static void \fBfatal\fP (const char *message)"
+.br
+.ti -1c
+.RI "static void \fBcannot\fP (const char *what)"
+.br
+.ti -1c
+.RI "static void \fBusage\fP (const char *message)"
+.br
+.ti -1c
+.RI "static int \fBdoargs\fP (int argc, char *argv[])"
+.br
+.ti -1c
+.RI "static const char * \fBreader\fP (\fBlua_State\fP *L, void *ud, size_t *size)"
+.br
+.ti -1c
+.RI "static const \fBProto\fP * \fBcombine\fP (\fBlua_State\fP *L, int n)"
+.br
+.ti -1c
+.RI "static int \fBwriter\fP (\fBlua_State\fP *L, const void *p, size_t size, void *u)"
+.br
+.ti -1c
+.RI "static int \fBpmain\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "int \fBmain\fP (int argc, char *argv[])"
+.br
+.ti -1c
+.RI "static void \fBPrintString\fP (const \fBTString\fP *ts)"
+.br
+.ti -1c
+.RI "static void \fBPrintType\fP (const \fBProto\fP *f, int i)"
+.br
+.ti -1c
+.RI "static void \fBPrintConstant\fP (const \fBProto\fP *f, int i)"
+.br
+.ti -1c
+.RI "static void \fBPrintCode\fP (const \fBProto\fP *f)"
+.br
+.ti -1c
+.RI "static void \fBPrintHeader\fP (const \fBProto\fP *f)"
+.br
+.ti -1c
+.RI "static void \fBPrintDebug\fP (const \fBProto\fP *f)"
+.br
+.in -1c
+.SS "变量"
+
+.in +1c
+.ti -1c
+.RI "static int \fBlisting\fP =0"
+.br
+.ti -1c
+.RI "static int \fBdumping\fP =1"
+.br
+.ti -1c
+.RI "static int \fBstripping\fP =0"
+.br
+.ti -1c
+.RI "static char \fBOutput\fP [] ={ \fBOUTPUT\fP }"
+.br
+.ti -1c
+.RI "static const char * \fBoutput\fP =\fBOutput\fP"
+.br
+.ti -1c
+.RI "static const char * \fBprogname\fP =\fBPROGNAME\fP"
+.br
+.ti -1c
+.RI "static \fBTString\fP ** \fBtmname\fP"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define COMMENT   '\\t; '"
+
+.PP
+在文件 luac\&.c 第 330 行定义\&.
+.SS "#define eventname(i)   (\fBgetstr\fP(\fBtmname\fP[i]))"
+
+.PP
+在文件 luac\&.c 第 219 行定义\&.
+.SS "#define EXTRAARG   \fBGETARG_Ax\fP(code[pc+1])"
+
+.PP
+在文件 luac\&.c 第 331 行定义\&.
+.SS "#define EXTRAARGC   (\fBEXTRAARG\fP*(\fBMAXARG_C\fP+1))"
+
+.PP
+在文件 luac\&.c 第 332 行定义\&.
+.SS "#define FUNCTION   '(function()end)();'"
+
+.PP
+在文件 luac\&.c 第 124 行定义\&.
+.SS "#define IS(s)   (strcmp(argv[i],s)==0)"
+
+.PP
+在文件 luac\&.c 第 74 行定义\&.
+.SS "#define ISK   (isk ? 'k' : '')"
+
+.PP
+在文件 luac\&.c 第 333 行定义\&.
+.SS "#define LUA_CORE"
+
+.PP
+在文件 luac\&.c 第 8 行定义\&.
+.SS "#define luac_c"
+
+.PP
+在文件 luac\&.c 第 7 行定义\&.
+.SS "#define luaU_print   \fBPrintFunction\fP"
+
+.PP
+在文件 luac\&.c 第 29 行定义\&.
+.SS "#define OUTPUT   \fBPROGNAME\fP '\&.out'	/* default \fBoutput\fP file */"
+
+.PP
+在文件 luac\&.c 第 32 行定义\&.
+.SS "#define PROGNAME   'luac'		/* default program name */"
+
+.PP
+在文件 luac\&.c 第 31 行定义\&.
+.SS "#define S(x)   (int)(x),\fBSS\fP(x)"
+
+.PP
+在文件 luac\&.c 第 667 行定义\&.
+.SS "#define SS(x)   ((x==1)?'':'s')"
+
+.PP
+在文件 luac\&.c 第 666 行定义\&.
+.SS "#define toproto(L, i)   \fBgetproto\fP(\fBs2v\fP(L\->top+(i)))"
+
+.PP
+在文件 luac\&.c 第 141 行定义\&.
+.SS "#define UPVALNAME(x)   ((f\->upvalues[x]\&.name) ? \fBgetstr\fP(f\->upvalues[x]\&.name) : '\-')"
+
+.PP
+在文件 luac\&.c 第 217 行定义\&.
+.SS "#define VOID(p)   ((const void*)(p))"
+
+.PP
+在文件 luac\&.c 第 218 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static void cannot (const char * what)\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 48 行定义\&.
+.SS "static const \fBProto\fP* combine (\fBlua_State\fP * L, int n)\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 143 行定义\&.
+.SS "static int doargs (int argc, char * argv[])\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 76 行定义\&.
+.SS "static void fatal (const char * message)\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 42 行定义\&.
+.SS "int main (int argc, char * argv[])"
+
+.PP
+在文件 luac\&.c 第 197 行定义\&.
+.SS "static int pmain (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 169 行定义\&.
+.SS "static void PrintCode (const \fBProto\fP * f)\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 335 行定义\&.
+.SS "static void PrintConstant (const \fBProto\fP * f, int i)\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 295 行定义\&.
+.SS "static void PrintDebug (const \fBProto\fP * f)\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 689 行定义\&.
+.SS "static void PrintFunction (const \fBProto\fP * f, int full)\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 717 行定义\&.
+.SS "static void PrintHeader (const \fBProto\fP * f)\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 669 行定义\&.
+.SS "static void PrintString (const \fBTString\fP * ts)\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 221 行定义\&.
+.SS "static void PrintType (const \fBProto\fP * f, int i)\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 266 行定义\&.
+.SS "static const char* reader (\fBlua_State\fP * L, void * ud, size_t * size)\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 126 行定义\&.
+.SS "static void usage (const char * message)\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 54 行定义\&.
+.SS "static int writer (\fBlua_State\fP * L, const void * p, size_t size, void * u)\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 163 行定义\&.
+.SH "变量说明"
+.PP 
+.SS "int dumping =1\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 35 行定义\&.
+.SS "int listing =0\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 34 行定义\&.
+.SS "char Output[] ={ \fBOUTPUT\fP }\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 37 行定义\&.
+.SS "const char* output =\fBOutput\fP\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 38 行定义\&.
+.SS "const char* progname =\fBPROGNAME\fP\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 39 行定义\&.
+.SS "int stripping =0\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 36 行定义\&.
+.SS "\fBTString\fP** tmname\fC [static]\fP"
+
+.PP
+在文件 luac\&.c 第 40 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

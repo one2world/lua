@@ -1,0 +1,481 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_ldblib_8c_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/ldblib.c</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;ldblib.c&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Interface&#32;from&#32;Lua&#32;to&#32;its&#32;debug&#32;API</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+<anchor xml:id="_ldblib_8c_source_1l00007"/><link linkend="_ldblib_8c_1a45fbab86b0d9d4fa0676f993eba4bacf">00007</link> <emphasis role="preprocessor">#define&#32;ldblib_c</emphasis>
+<anchor xml:id="_ldblib_8c_source_1l00008"/><link linkend="_ldblib_8c_1a884b19ad6094d6238c4072a8064aeb12">00008</link> <emphasis role="preprocessor">#define&#32;LUA_LIB</emphasis>
+00009 
+00010 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lprefix_8h">lprefix.h</link>&quot;</emphasis>
+00011 
+00012 
+00013 <emphasis role="preprocessor">#include&#32;&lt;stdio.h&gt;</emphasis>
+00014 <emphasis role="preprocessor">#include&#32;&lt;stdlib.h&gt;</emphasis>
+00015 <emphasis role="preprocessor">#include&#32;&lt;string.h&gt;</emphasis>
+00016 
+00017 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lua_8h">lua.h</link>&quot;</emphasis>
+00018 
+00019 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lauxlib_8h">lauxlib.h</link>&quot;</emphasis>
+00020 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lualib_8h">lualib.h</link>&quot;</emphasis>
+00021 
+00022 
+00023 <emphasis role="comment">/*</emphasis>
+00024 <emphasis role="comment">**&#32;The&#32;hook&#32;table&#32;at&#32;registry[HOOKKEY]&#32;maps&#32;threads&#32;to&#32;their&#32;current</emphasis>
+00025 <emphasis role="comment">**&#32;hook&#32;function.</emphasis>
+00026 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldblib_8c_source_1l00027"/><link linkend="_ldblib_8c_1af733d7d4bc619309441a5d1296a55c34">00027</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<emphasis role="keyword">const</emphasis>&#32;<link linkend="_ldblib_8c_1af733d7d4bc619309441a5d1296a55c34">HOOKKEY</link>&#32;=&#32;<emphasis role="stringliteral">&quot;_HOOKKEY&quot;</emphasis>;
+00028 
+00029 
+00030 <emphasis role="comment">/*</emphasis>
+00031 <emphasis role="comment">**&#32;If&#32;L1&#32;!=&#32;L,&#32;L1&#32;can&#32;be&#32;in&#32;any&#32;state,&#32;and&#32;therefore&#32;there&#32;are&#32;no</emphasis>
+00032 <emphasis role="comment">**&#32;guarantees&#32;about&#32;its&#32;stack&#32;space;&#32;any&#32;push&#32;in&#32;L1&#32;must&#32;be</emphasis>
+00033 <emphasis role="comment">**&#32;checked.</emphasis>
+00034 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldblib_8c_source_1l00035"/><link linkend="_ldblib_8c_1aef541490d49259cf4cb14e7f9597600e">00035</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldblib_8c_1aef541490d49259cf4cb14e7f9597600e">checkstack</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_structlua___state">lua_State</link>&#32;*L1,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n)&#32;{
+00036 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(L&#32;!=&#32;L1&#32;&amp;&amp;&#32;!<link linkend="_lapi_8c_1a1d762b92d5d82d6fa9f54ccf5c89d6a2">lua_checkstack</link>(L1,&#32;n))
+00037 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;stack&#32;overflow&quot;</emphasis>);
+00038 }
+00039 
+00040 
+<anchor xml:id="_ldblib_8c_source_1l00041"/><link linkend="_ldblib_8c_1a7dd12424841eb9d91aa28c7424d4e380">00041</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1a7dd12424841eb9d91aa28c7424d4e380">db_getregistry</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00042 &#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;<link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>);
+00043 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00044 }
+00045 
+00046 
+<anchor xml:id="_ldblib_8c_source_1l00047"/><link linkend="_ldblib_8c_1aa84da9dfea83fb9e516443b49b109044">00047</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1aa84da9dfea83fb9e516443b49b109044">db_getmetatable</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00048 &#32;&#32;<link linkend="_lauxlib_8c_1a8ebfe706b773eaaf50283e6583d4642e">luaL_checkany</link>(L,&#32;1);
+00049 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_lapi_8c_1a4caa9ca5e47a30bd45e33d83bf2d6d6e">lua_getmetatable</link>(L,&#32;1))&#32;{
+00050 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a1b4cd0d80f51e5545a97ca6c28c03c50">lua_pushnil</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;no&#32;metatable&#32;*/</emphasis>
+00051 &#32;&#32;}
+00052 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00053 }
+00054 
+00055 
+<anchor xml:id="_ldblib_8c_source_1l00056"/><link linkend="_ldblib_8c_1a3595aee1af712c0ba9c586feb763bffc">00056</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1a3595aee1af712c0ba9c586feb763bffc">db_setmetatable</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00057 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;t&#32;=&#32;<link linkend="_lapi_8c_1a652b273947f0656686f998d8e90cd3ea">lua_type</link>(L,&#32;2);
+00058 &#32;&#32;<link linkend="_lauxlib_8h_1ad13737dbd230fffc0b9925b1c728c58e">luaL_argexpected</link>(L,&#32;t&#32;==&#32;<link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">LUA_TNIL</link>&#32;||&#32;t&#32;==&#32;<link linkend="_lua_8h_1a31620fd8da5b655b7879e16a116ec31a">LUA_TTABLE</link>,&#32;2,&#32;<emphasis role="stringliteral">&quot;nil&#32;or&#32;table&quot;</emphasis>);
+00059 &#32;&#32;<link linkend="_lapi_8c_1adaa30f0d34786144c94644039d1d1b6e">lua_settop</link>(L,&#32;2);
+00060 &#32;&#32;<link linkend="_lapi_8c_1a15719ea4119bdf5b3f2a406534431a7e">lua_setmetatable</link>(L,&#32;1);
+00061 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;return&#32;1st&#32;argument&#32;*/</emphasis>
+00062 }
+00063 
+00064 
+<anchor xml:id="_ldblib_8c_source_1l00065"/><link linkend="_ldblib_8c_1a129f5b6b3a5f37b1b05a6db5b3a1e0be">00065</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1a129f5b6b3a5f37b1b05a6db5b3a1e0be">db_getuservalue</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00066 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;n&#32;=&#32;(int)<link linkend="_lauxlib_8c_1ab10ff110a5ba19b4385947de7834ee3c">luaL_optinteger</link>(L,&#32;2,&#32;1);
+00067 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lapi_8c_1a652b273947f0656686f998d8e90cd3ea">lua_type</link>(L,&#32;1)&#32;!=&#32;<link linkend="_lua_8h_1a84fd4c52cea4073671a4cd0eb7026dc7">LUA_TUSERDATA</link>)
+00068 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a8666135f7a1412f5eaa14857aec279f0">luaL_pushfail</link>(L);
+00069 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lapi_8c_1a57c21a629f94ee0acc21a25d83bfaeba">lua_getiuservalue</link>(L,&#32;1,&#32;n)&#32;!=&#32;<link linkend="_lua_8h_1a39c27eef097c704eee3536906dea5380">LUA_TNONE</link>)&#32;{
+00070 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a56bbb7479265e38da2e2596e6ec25faa">lua_pushboolean</link>(L,&#32;1);
+00071 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;2;
+00072 &#32;&#32;}
+00073 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00074 }
+00075 
+00076 
+<anchor xml:id="_ldblib_8c_source_1l00077"/><link linkend="_ldblib_8c_1a233c3c4d12bda0fdbf515a18b8961461">00077</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1a233c3c4d12bda0fdbf515a18b8961461">db_setuservalue</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00078 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;n&#32;=&#32;(int)<link linkend="_lauxlib_8c_1ab10ff110a5ba19b4385947de7834ee3c">luaL_optinteger</link>(L,&#32;3,&#32;1);
+00079 &#32;&#32;<link linkend="_lauxlib_8c_1a0f8f78c4edc5cbf890690b3cf9615dc8">luaL_checktype</link>(L,&#32;1,&#32;<link linkend="_lua_8h_1a84fd4c52cea4073671a4cd0eb7026dc7">LUA_TUSERDATA</link>);
+00080 &#32;&#32;<link linkend="_lauxlib_8c_1a8ebfe706b773eaaf50283e6583d4642e">luaL_checkany</link>(L,&#32;2);
+00081 &#32;&#32;<link linkend="_lapi_8c_1adaa30f0d34786144c94644039d1d1b6e">lua_settop</link>(L,&#32;2);
+00082 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_lapi_8c_1a7383d0f43ccf69b414217a32d3947a49">lua_setiuservalue</link>(L,&#32;1,&#32;n))
+00083 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a8666135f7a1412f5eaa14857aec279f0">luaL_pushfail</link>(L);
+00084 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00085 }
+00086 
+00087 
+00088 <emphasis role="comment">/*</emphasis>
+00089 <emphasis role="comment">**&#32;Auxiliary&#32;function&#32;used&#32;by&#32;several&#32;library&#32;functions:&#32;check&#32;for</emphasis>
+00090 <emphasis role="comment">**&#32;an&#32;optional&#32;thread&#32;as&#32;function&apos;s&#32;first&#32;argument&#32;and&#32;set&#32;&apos;arg&apos;&#32;with</emphasis>
+00091 <emphasis role="comment">**&#32;1&#32;if&#32;this&#32;argument&#32;is&#32;present&#32;(so&#32;that&#32;functions&#32;can&#32;skip&#32;it&#32;to</emphasis>
+00092 <emphasis role="comment">**&#32;access&#32;their&#32;other&#32;arguments)</emphasis>
+00093 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldblib_8c_source_1l00094"/><link linkend="_ldblib_8c_1a75169427eed495886306b6236f365512">00094</link> <emphasis role="keyword">static</emphasis>&#32;<link linkend="_structlua___state">lua_State</link>&#32;*<link linkend="_ldblib_8c_1a75169427eed495886306b6236f365512">getthread</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;*arg)&#32;{
+00095 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lua_8h_1a0c346eeb2eee1d2e9b9920fb9b9d7fc9">lua_isthread</link>(L,&#32;1))&#32;{
+00096 &#32;&#32;&#32;&#32;*arg&#32;=&#32;1;
+00097 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lapi_8c_1ad1dcea410edb5c5595fc070f8bf2e9a0">lua_tothread</link>(L,&#32;1);
+00098 &#32;&#32;}
+00099 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00100 &#32;&#32;&#32;&#32;*arg&#32;=&#32;0;
+00101 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;L;&#32;&#32;<emphasis role="comment">/*&#32;function&#32;will&#32;operate&#32;over&#32;current&#32;thread&#32;*/</emphasis>
+00102 &#32;&#32;}
+00103 }
+00104 
+00105 
+00106 <emphasis role="comment">/*</emphasis>
+00107 <emphasis role="comment">**&#32;Variations&#32;of&#32;&apos;lua_settable&apos;,&#32;used&#32;by&#32;&apos;db_getinfo&apos;&#32;to&#32;put&#32;results</emphasis>
+00108 <emphasis role="comment">**&#32;from&#32;&apos;lua_getinfo&apos;&#32;into&#32;result&#32;table.&#32;Key&#32;is&#32;always&#32;a&#32;string;</emphasis>
+00109 <emphasis role="comment">**&#32;value&#32;can&#32;be&#32;a&#32;string,&#32;an&#32;int,&#32;or&#32;a&#32;boolean.</emphasis>
+00110 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldblib_8c_source_1l00111"/><link linkend="_ldblib_8c_1a91baf8e0a21e990ffed4a8853fc584f3">00111</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldblib_8c_1a91baf8e0a21e990ffed4a8853fc584f3">settabss</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*k,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*v)&#32;{
+00112 &#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;v);
+00113 &#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;-2,&#32;k);
+00114 }
+00115 
+<anchor xml:id="_ldblib_8c_source_1l00116"/><link linkend="_ldblib_8c_1a32d25d4a90662ff3ed4d28104419c5b3">00116</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldblib_8c_1a32d25d4a90662ff3ed4d28104419c5b3">settabsi</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*k,&#32;<emphasis role="keywordtype">int</emphasis>&#32;v)&#32;{
+00117 &#32;&#32;<link linkend="_lapi_8c_1adcec46ff05dfee9a3c4c05828b40c213">lua_pushinteger</link>(L,&#32;v);
+00118 &#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;-2,&#32;k);
+00119 }
+00120 
+<anchor xml:id="_ldblib_8c_source_1l00121"/><link linkend="_ldblib_8c_1af88c1e9a59e65c7ffdacfb48b8defaa8">00121</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldblib_8c_1af88c1e9a59e65c7ffdacfb48b8defaa8">settabsb</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*k,&#32;<emphasis role="keywordtype">int</emphasis>&#32;v)&#32;{
+00122 &#32;&#32;<link linkend="_lapi_8c_1a56bbb7479265e38da2e2596e6ec25faa">lua_pushboolean</link>(L,&#32;v);
+00123 &#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;-2,&#32;k);
+00124 }
+00125 
+00126 
+00127 <emphasis role="comment">/*</emphasis>
+00128 <emphasis role="comment">**&#32;In&#32;function&#32;&apos;db_getinfo&apos;,&#32;the&#32;call&#32;to&#32;&apos;lua_getinfo&apos;&#32;may&#32;push</emphasis>
+00129 <emphasis role="comment">**&#32;results&#32;on&#32;the&#32;stack;&#32;later&#32;it&#32;creates&#32;the&#32;result&#32;table&#32;to&#32;put</emphasis>
+00130 <emphasis role="comment">**&#32;these&#32;objects.&#32;Function&#32;&apos;treatstackoption&apos;&#32;puts&#32;the&#32;result&#32;from</emphasis>
+00131 <emphasis role="comment">**&#32;&apos;lua_getinfo&apos;&#32;on&#32;top&#32;of&#32;the&#32;result&#32;table&#32;so&#32;that&#32;it&#32;can&#32;call</emphasis>
+00132 <emphasis role="comment">**&#32;&apos;lua_setfield&apos;.</emphasis>
+00133 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldblib_8c_source_1l00134"/><link linkend="_ldblib_8c_1a6269322ee4ae931654d7442fe2be6a46">00134</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldblib_8c_1a6269322ee4ae931654d7442fe2be6a46">treatstackoption</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_structlua___state">lua_State</link>&#32;*L1,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*fname)&#32;{
+00135 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(L&#32;==&#32;L1)
+00136 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1af680e24129c0e021b4fbb7700cf185dc">lua_rotate</link>(L,&#32;-2,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;exchange&#32;object&#32;and&#32;table&#32;*/</emphasis>
+00137 &#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00138 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1ae27bb8d0218710bbbfefc1f573839d6d">lua_xmove</link>(L1,&#32;L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;move&#32;object&#32;to&#32;the&#32;&quot;main&quot;&#32;stack&#32;*/</emphasis>
+00139 &#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;-2,&#32;fname);&#32;&#32;<emphasis role="comment">/*&#32;put&#32;object&#32;into&#32;table&#32;*/</emphasis>
+00140 }
+00141 
+00142 
+00143 <emphasis role="comment">/*</emphasis>
+00144 <emphasis role="comment">**&#32;Calls&#32;&apos;lua_getinfo&apos;&#32;and&#32;collects&#32;all&#32;results&#32;in&#32;a&#32;new&#32;table.</emphasis>
+00145 <emphasis role="comment">**&#32;L1&#32;needs&#32;stack&#32;space&#32;for&#32;an&#32;optional&#32;input&#32;(function)&#32;plus</emphasis>
+00146 <emphasis role="comment">**&#32;two&#32;optional&#32;outputs&#32;(function&#32;and&#32;line&#32;table)&#32;from&#32;function</emphasis>
+00147 <emphasis role="comment">**&#32;&apos;lua_getinfo&apos;.</emphasis>
+00148 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldblib_8c_source_1l00149"/><link linkend="_ldblib_8c_1a4eb57e66c2efb2d31c9b9e1b01d27e13">00149</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1a4eb57e66c2efb2d31c9b9e1b01d27e13">db_getinfo</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00150 &#32;&#32;<link linkend="_structlua___debug">lua_Debug</link>&#32;ar;
+00151 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg;
+00152 &#32;&#32;<link linkend="_structlua___state">lua_State</link>&#32;*L1&#32;=&#32;<link linkend="_ldblib_8c_1a75169427eed495886306b6236f365512">getthread</link>(L,&#32;&amp;arg);
+00153 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*options&#32;=&#32;<link linkend="_lauxlib_8h_1a732bc5882c4a5da46b236649ab6db47b">luaL_optstring</link>(L,&#32;arg+2,&#32;<emphasis role="stringliteral">&quot;flnSrtu&quot;</emphasis>);
+00154 &#32;&#32;<link linkend="_ldblib_8c_1aef541490d49259cf4cb14e7f9597600e">checkstack</link>(L,&#32;L1,&#32;3);
+00155 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lua_8h_1a7537af276c81906c144f29cd25b93315">lua_isfunction</link>(L,&#32;arg&#32;+&#32;1))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;info&#32;about&#32;a&#32;function?&#32;*/</emphasis>
+00156 &#32;&#32;&#32;&#32;options&#32;=&#32;<link linkend="_lapi_8c_1ab190c226d38b289e6ca57683a9d4e0f0">lua_pushfstring</link>(L,&#32;<emphasis role="stringliteral">&quot;&gt;%s&quot;</emphasis>,&#32;options);&#32;&#32;<emphasis role="comment">/*&#32;add&#32;&apos;&gt;&apos;&#32;to&#32;&apos;options&apos;&#32;*/</emphasis>
+00157 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;arg&#32;+&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;move&#32;function&#32;to&#32;&apos;L1&apos;&#32;stack&#32;*/</emphasis>
+00158 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1ae27bb8d0218710bbbfefc1f573839d6d">lua_xmove</link>(L,&#32;L1,&#32;1);
+00159 &#32;&#32;}
+00160 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;stack&#32;level&#32;*/</emphasis>
+00161 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_ldebug_8c_1ac1fc03c27ee46caa4037df2d70f22110">lua_getstack</link>(L1,&#32;(<emphasis role="keywordtype">int</emphasis>)<link linkend="_lauxlib_8c_1aa15bea412c49bfdee1f3dbff096ce7d2">luaL_checkinteger</link>(L,&#32;arg&#32;+&#32;1),&#32;&amp;ar))&#32;{
+00162 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a8666135f7a1412f5eaa14857aec279f0">luaL_pushfail</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;level&#32;out&#32;of&#32;range&#32;*/</emphasis>
+00163 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00164 &#32;&#32;&#32;&#32;}
+00165 &#32;&#32;}
+00166 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_ldebug_8c_1acaafc35d8e385c4d167229486165df6d">lua_getinfo</link>(L1,&#32;options,&#32;&amp;ar))
+00167 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1ac607576dd107a3120cd51948989f1ed2">luaL_argerror</link>(L,&#32;arg+2,&#32;<emphasis role="stringliteral">&quot;invalid&#32;option&quot;</emphasis>);
+00168 &#32;&#32;<link linkend="_lua_8h_1aa59db6b784aa1ec954599a44168c7761">lua_newtable</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;table&#32;to&#32;collect&#32;results&#32;*/</emphasis>
+00169 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(strchr(options,&#32;<emphasis role="charliteral">&apos;S&apos;</emphasis>))&#32;{
+00170 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a2c325311534c23450cdf11931a8db0ae">lua_pushlstring</link>(L,&#32;ar.<link linkend="_structlua___debug_1af2ed45b90afa2ef4ec6e09625335a082">source</link>,&#32;ar.<link linkend="_structlua___debug_1a3272ffa9b40871a9265ac4d0570206b3">srclen</link>);
+00171 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;-2,&#32;<emphasis role="stringliteral">&quot;source&quot;</emphasis>);
+00172 &#32;&#32;&#32;&#32;<link linkend="_ldblib_8c_1a91baf8e0a21e990ffed4a8853fc584f3">settabss</link>(L,&#32;<emphasis role="stringliteral">&quot;short_src&quot;</emphasis>,&#32;ar.<link linkend="_structlua___debug_1af9d2e23fe50a49dc12c41f7276c2143d">short_src</link>);
+00173 &#32;&#32;&#32;&#32;<link linkend="_ldblib_8c_1a32d25d4a90662ff3ed4d28104419c5b3">settabsi</link>(L,&#32;<emphasis role="stringliteral">&quot;linedefined&quot;</emphasis>,&#32;ar.<link linkend="_structlua___debug_1a4dfda1a3839aa77fb8fc7626075151dd">linedefined</link>);
+00174 &#32;&#32;&#32;&#32;<link linkend="_ldblib_8c_1a32d25d4a90662ff3ed4d28104419c5b3">settabsi</link>(L,&#32;<emphasis role="stringliteral">&quot;lastlinedefined&quot;</emphasis>,&#32;ar.<link linkend="_structlua___debug_1a0129a289db231fbe2c6c3b3d6062979e">lastlinedefined</link>);
+00175 &#32;&#32;&#32;&#32;<link linkend="_ldblib_8c_1a91baf8e0a21e990ffed4a8853fc584f3">settabss</link>(L,&#32;<emphasis role="stringliteral">&quot;what&quot;</emphasis>,&#32;ar.<link linkend="_structlua___debug_1a951a98f1e2d69ca61adcd53c0f8faca3">what</link>);
+00176 &#32;&#32;}
+00177 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(strchr(options,&#32;<emphasis role="charliteral">&apos;l&apos;</emphasis>))
+00178 &#32;&#32;&#32;&#32;<link linkend="_ldblib_8c_1a32d25d4a90662ff3ed4d28104419c5b3">settabsi</link>(L,&#32;<emphasis role="stringliteral">&quot;currentline&quot;</emphasis>,&#32;ar.<link linkend="_structlua___debug_1a1be7dfac6c204d2592700475b5d73fd2">currentline</link>);
+00179 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(strchr(options,&#32;<emphasis role="charliteral">&apos;u&apos;</emphasis>))&#32;{
+00180 &#32;&#32;&#32;&#32;<link linkend="_ldblib_8c_1a32d25d4a90662ff3ed4d28104419c5b3">settabsi</link>(L,&#32;<emphasis role="stringliteral">&quot;nups&quot;</emphasis>,&#32;ar.<link linkend="_structlua___debug_1a752e0c1314877c70a6fdebe1616bd63c">nups</link>);
+00181 &#32;&#32;&#32;&#32;<link linkend="_ldblib_8c_1a32d25d4a90662ff3ed4d28104419c5b3">settabsi</link>(L,&#32;<emphasis role="stringliteral">&quot;nparams&quot;</emphasis>,&#32;ar.<link linkend="_structlua___debug_1a4f5b0b53ea9dc4548f85b28cd77d4fb3">nparams</link>);
+00182 &#32;&#32;&#32;&#32;<link linkend="_ldblib_8c_1af88c1e9a59e65c7ffdacfb48b8defaa8">settabsb</link>(L,&#32;<emphasis role="stringliteral">&quot;isvararg&quot;</emphasis>,&#32;ar.<link linkend="_structlua___debug_1a6e37131e4962b40bdbab3540cd5f306e">isvararg</link>);
+00183 &#32;&#32;}
+00184 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(strchr(options,&#32;<emphasis role="charliteral">&apos;n&apos;</emphasis>))&#32;{
+00185 &#32;&#32;&#32;&#32;<link linkend="_ldblib_8c_1a91baf8e0a21e990ffed4a8853fc584f3">settabss</link>(L,&#32;<emphasis role="stringliteral">&quot;name&quot;</emphasis>,&#32;ar.<link linkend="_structlua___debug_1a8f8f80d37794cde9472343e4487ba3eb">name</link>);
+00186 &#32;&#32;&#32;&#32;<link linkend="_ldblib_8c_1a91baf8e0a21e990ffed4a8853fc584f3">settabss</link>(L,&#32;<emphasis role="stringliteral">&quot;namewhat&quot;</emphasis>,&#32;ar.<link linkend="_structlua___debug_1a37bd506f9c90a2199c60ed511c2c56dc">namewhat</link>);
+00187 &#32;&#32;}
+00188 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(strchr(options,&#32;<emphasis role="charliteral">&apos;r&apos;</emphasis>))&#32;{
+00189 &#32;&#32;&#32;&#32;<link linkend="_ldblib_8c_1a32d25d4a90662ff3ed4d28104419c5b3">settabsi</link>(L,&#32;<emphasis role="stringliteral">&quot;ftransfer&quot;</emphasis>,&#32;ar.<link linkend="_structlua___debug_1a094d76a8d8b0428b743d44bdde3518ac">ftransfer</link>);
+00190 &#32;&#32;&#32;&#32;<link linkend="_ldblib_8c_1a32d25d4a90662ff3ed4d28104419c5b3">settabsi</link>(L,&#32;<emphasis role="stringliteral">&quot;ntransfer&quot;</emphasis>,&#32;ar.<link linkend="_structlua___debug_1ad200601700ff51b853a6760e5b010b91">ntransfer</link>);
+00191 &#32;&#32;}
+00192 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(strchr(options,&#32;<emphasis role="charliteral">&apos;t&apos;</emphasis>))
+00193 &#32;&#32;&#32;&#32;<link linkend="_ldblib_8c_1af88c1e9a59e65c7ffdacfb48b8defaa8">settabsb</link>(L,&#32;<emphasis role="stringliteral">&quot;istailcall&quot;</emphasis>,&#32;ar.<link linkend="_structlua___debug_1aa30e4bb574536d40b6aaa3c24c1fa725">istailcall</link>);
+00194 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(strchr(options,&#32;<emphasis role="charliteral">&apos;L&apos;</emphasis>))
+00195 &#32;&#32;&#32;&#32;<link linkend="_ldblib_8c_1a6269322ee4ae931654d7442fe2be6a46">treatstackoption</link>(L,&#32;L1,&#32;<emphasis role="stringliteral">&quot;activelines&quot;</emphasis>);
+00196 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(strchr(options,&#32;<emphasis role="charliteral">&apos;f&apos;</emphasis>))
+00197 &#32;&#32;&#32;&#32;<link linkend="_ldblib_8c_1a6269322ee4ae931654d7442fe2be6a46">treatstackoption</link>(L,&#32;L1,&#32;<emphasis role="stringliteral">&quot;func&quot;</emphasis>);
+00198 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;return&#32;table&#32;*/</emphasis>
+00199 }
+00200 
+00201 
+<anchor xml:id="_ldblib_8c_source_1l00202"/><link linkend="_ldblib_8c_1ae802ce7397e9ebb08a90b69976578ecc">00202</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1ae802ce7397e9ebb08a90b69976578ecc">db_getlocal</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00203 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg;
+00204 &#32;&#32;<link linkend="_structlua___state">lua_State</link>&#32;*L1&#32;=&#32;<link linkend="_ldblib_8c_1a75169427eed495886306b6236f365512">getthread</link>(L,&#32;&amp;arg);
+00205 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;nvar&#32;=&#32;(int)<link linkend="_lauxlib_8c_1aa15bea412c49bfdee1f3dbff096ce7d2">luaL_checkinteger</link>(L,&#32;arg&#32;+&#32;2);&#32;&#32;<emphasis role="comment">/*&#32;local-variable&#32;index&#32;*/</emphasis>
+00206 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lua_8h_1a7537af276c81906c144f29cd25b93315">lua_isfunction</link>(L,&#32;arg&#32;+&#32;1))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;function&#32;argument?&#32;*/</emphasis>
+00207 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;arg&#32;+&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;push&#32;function&#32;*/</emphasis>
+00208 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;<link linkend="_ldebug_8c_1aaaf420ee0b0e79a45b823d9da4905667">lua_getlocal</link>(L,&#32;NULL,&#32;nvar));&#32;&#32;<emphasis role="comment">/*&#32;push&#32;local&#32;name&#32;*/</emphasis>
+00209 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;return&#32;only&#32;name&#32;(there&#32;is&#32;no&#32;value)&#32;*/</emphasis>
+00210 &#32;&#32;}
+00211 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;stack-level&#32;argument&#32;*/</emphasis>
+00212 &#32;&#32;&#32;&#32;<link linkend="_structlua___debug">lua_Debug</link>&#32;ar;
+00213 &#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name;
+00214 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;level&#32;=&#32;(int)<link linkend="_lauxlib_8c_1aa15bea412c49bfdee1f3dbff096ce7d2">luaL_checkinteger</link>(L,&#32;arg&#32;+&#32;1);
+00215 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_ldebug_8c_1ac1fc03c27ee46caa4037df2d70f22110">lua_getstack</link>(L1,&#32;level,&#32;&amp;ar))&#32;&#32;<emphasis role="comment">/*&#32;out&#32;of&#32;range?&#32;*/</emphasis>
+00216 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1ac607576dd107a3120cd51948989f1ed2">luaL_argerror</link>(L,&#32;arg+1,&#32;<emphasis role="stringliteral">&quot;level&#32;out&#32;of&#32;range&quot;</emphasis>);
+00217 &#32;&#32;&#32;&#32;<link linkend="_ldblib_8c_1aef541490d49259cf4cb14e7f9597600e">checkstack</link>(L,&#32;L1,&#32;1);
+00218 &#32;&#32;&#32;&#32;name&#32;=&#32;<link linkend="_ldebug_8c_1aaaf420ee0b0e79a45b823d9da4905667">lua_getlocal</link>(L1,&#32;&amp;ar,&#32;nvar);
+00219 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(name)&#32;{
+00220 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1ae27bb8d0218710bbbfefc1f573839d6d">lua_xmove</link>(L1,&#32;L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;move&#32;local&#32;value&#32;*/</emphasis>
+00221 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;name);&#32;&#32;<emphasis role="comment">/*&#32;push&#32;name&#32;*/</emphasis>
+00222 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1af680e24129c0e021b4fbb7700cf185dc">lua_rotate</link>(L,&#32;-2,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;re-order&#32;*/</emphasis>
+00223 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;2;
+00224 &#32;&#32;&#32;&#32;}
+00225 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00226 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a8666135f7a1412f5eaa14857aec279f0">luaL_pushfail</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;no&#32;name&#32;(nor&#32;value)&#32;*/</emphasis>
+00227 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00228 &#32;&#32;&#32;&#32;}
+00229 &#32;&#32;}
+00230 }
+00231 
+00232 
+<anchor xml:id="_ldblib_8c_source_1l00233"/><link linkend="_ldblib_8c_1a11cfe90e96e7ea907a767f5109f7ef4b">00233</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1a11cfe90e96e7ea907a767f5109f7ef4b">db_setlocal</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00234 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg;
+00235 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name;
+00236 &#32;&#32;<link linkend="_structlua___state">lua_State</link>&#32;*L1&#32;=&#32;<link linkend="_ldblib_8c_1a75169427eed495886306b6236f365512">getthread</link>(L,&#32;&amp;arg);
+00237 &#32;&#32;<link linkend="_structlua___debug">lua_Debug</link>&#32;ar;
+00238 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;level&#32;=&#32;(int)<link linkend="_lauxlib_8c_1aa15bea412c49bfdee1f3dbff096ce7d2">luaL_checkinteger</link>(L,&#32;arg&#32;+&#32;1);
+00239 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;nvar&#32;=&#32;(int)<link linkend="_lauxlib_8c_1aa15bea412c49bfdee1f3dbff096ce7d2">luaL_checkinteger</link>(L,&#32;arg&#32;+&#32;2);
+00240 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_ldebug_8c_1ac1fc03c27ee46caa4037df2d70f22110">lua_getstack</link>(L1,&#32;level,&#32;&amp;ar))&#32;&#32;<emphasis role="comment">/*&#32;out&#32;of&#32;range?&#32;*/</emphasis>
+00241 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1ac607576dd107a3120cd51948989f1ed2">luaL_argerror</link>(L,&#32;arg+1,&#32;<emphasis role="stringliteral">&quot;level&#32;out&#32;of&#32;range&quot;</emphasis>);
+00242 &#32;&#32;<link linkend="_lauxlib_8c_1a8ebfe706b773eaaf50283e6583d4642e">luaL_checkany</link>(L,&#32;arg+3);
+00243 &#32;&#32;<link linkend="_lapi_8c_1adaa30f0d34786144c94644039d1d1b6e">lua_settop</link>(L,&#32;arg+3);
+00244 &#32;&#32;<link linkend="_ldblib_8c_1aef541490d49259cf4cb14e7f9597600e">checkstack</link>(L,&#32;L1,&#32;1);
+00245 &#32;&#32;<link linkend="_lapi_8c_1ae27bb8d0218710bbbfefc1f573839d6d">lua_xmove</link>(L,&#32;L1,&#32;1);
+00246 &#32;&#32;name&#32;=&#32;<link linkend="_ldebug_8c_1a425c37b17caf76545f1541a5bb81dfc6">lua_setlocal</link>(L1,&#32;&amp;ar,&#32;nvar);
+00247 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(name&#32;==&#32;NULL)
+00248 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L1,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;pop&#32;value&#32;(if&#32;not&#32;popped&#32;by&#32;&apos;lua_setlocal&apos;)&#32;*/</emphasis>
+00249 &#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;name);
+00250 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00251 }
+00252 
+00253 
+00254 <emphasis role="comment">/*</emphasis>
+00255 <emphasis role="comment">**&#32;get&#32;(if&#32;&apos;get&apos;&#32;is&#32;true)&#32;or&#32;set&#32;an&#32;upvalue&#32;from&#32;a&#32;closure</emphasis>
+00256 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldblib_8c_source_1l00257"/><link linkend="_ldblib_8c_1a31ebacb3668352430584fe277ac74923">00257</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1a31ebacb3668352430584fe277ac74923">auxupvalue</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;get)&#32;{
+00258 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name;
+00259 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;n&#32;=&#32;(int)<link linkend="_lauxlib_8c_1aa15bea412c49bfdee1f3dbff096ce7d2">luaL_checkinteger</link>(L,&#32;2);&#32;&#32;<emphasis role="comment">/*&#32;upvalue&#32;index&#32;*/</emphasis>
+00260 &#32;&#32;<link linkend="_lauxlib_8c_1a0f8f78c4edc5cbf890690b3cf9615dc8">luaL_checktype</link>(L,&#32;1,&#32;<link linkend="_lua_8h_1adaa7fa6e2561c1bc428ba8d265171494">LUA_TFUNCTION</link>);&#32;&#32;<emphasis role="comment">/*&#32;closure&#32;*/</emphasis>
+00261 &#32;&#32;name&#32;=&#32;get&#32;?&#32;<link linkend="_lapi_8c_1afd5e7d6995dc52a5cb9e370ee3a710e6">lua_getupvalue</link>(L,&#32;1,&#32;n)&#32;:&#32;<link linkend="_lapi_8c_1a6e2e5717e848fca56335a64739a8f2c0">lua_setupvalue</link>(L,&#32;1,&#32;n);
+00262 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(name&#32;==&#32;NULL)&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;
+00263 &#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;name);
+00264 &#32;&#32;<link linkend="_lua_8h_1a1ba55afa0e7f756a4599e86cf46d92e0">lua_insert</link>(L,&#32;-(get+1));&#32;&#32;<emphasis role="comment">/*&#32;no-op&#32;if&#32;get&#32;is&#32;false&#32;*/</emphasis>
+00265 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;get&#32;+&#32;1;
+00266 }
+00267 
+00268 
+<anchor xml:id="_ldblib_8c_source_1l00269"/><link linkend="_ldblib_8c_1a7a4124c791de7d76bd4fa752eb1569b6">00269</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1a7a4124c791de7d76bd4fa752eb1569b6">db_getupvalue</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00270 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_ldblib_8c_1a31ebacb3668352430584fe277ac74923">auxupvalue</link>(L,&#32;1);
+00271 }
+00272 
+00273 
+<anchor xml:id="_ldblib_8c_source_1l00274"/><link linkend="_ldblib_8c_1acd61487bdd057d6c668ec0bd88728670">00274</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1acd61487bdd057d6c668ec0bd88728670">db_setupvalue</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00275 &#32;&#32;<link linkend="_lauxlib_8c_1a8ebfe706b773eaaf50283e6583d4642e">luaL_checkany</link>(L,&#32;3);
+00276 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_ldblib_8c_1a31ebacb3668352430584fe277ac74923">auxupvalue</link>(L,&#32;0);
+00277 }
+00278 
+00279 
+00280 <emphasis role="comment">/*</emphasis>
+00281 <emphasis role="comment">**&#32;Check&#32;whether&#32;a&#32;given&#32;upvalue&#32;from&#32;a&#32;given&#32;closure&#32;exists&#32;and</emphasis>
+00282 <emphasis role="comment">**&#32;returns&#32;its&#32;index</emphasis>
+00283 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldblib_8c_source_1l00284"/><link linkend="_ldblib_8c_1a0951daf8c0b66e39bd3aa618aff380bf">00284</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1a0951daf8c0b66e39bd3aa618aff380bf">checkupval</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;argf,&#32;<emphasis role="keywordtype">int</emphasis>&#32;argnup)&#32;{
+00285 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;nup&#32;=&#32;(int)<link linkend="_lauxlib_8c_1aa15bea412c49bfdee1f3dbff096ce7d2">luaL_checkinteger</link>(L,&#32;argnup);&#32;&#32;<emphasis role="comment">/*&#32;upvalue&#32;index&#32;*/</emphasis>
+00286 &#32;&#32;<link linkend="_lauxlib_8c_1a0f8f78c4edc5cbf890690b3cf9615dc8">luaL_checktype</link>(L,&#32;argf,&#32;<link linkend="_lua_8h_1adaa7fa6e2561c1bc428ba8d265171494">LUA_TFUNCTION</link>);&#32;&#32;<emphasis role="comment">/*&#32;closure&#32;*/</emphasis>
+00287 &#32;&#32;<link linkend="_lauxlib_8h_1a48ce6cd86a7448e97f258097a7abc44d">luaL_argcheck</link>(L,&#32;(<link linkend="_lapi_8c_1afd5e7d6995dc52a5cb9e370ee3a710e6">lua_getupvalue</link>(L,&#32;argf,&#32;nup)&#32;!=&#32;NULL),&#32;argnup,
+00288 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;invalid&#32;upvalue&#32;index&quot;</emphasis>);
+00289 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;nup;
+00290 }
+00291 
+00292 
+<anchor xml:id="_ldblib_8c_source_1l00293"/><link linkend="_ldblib_8c_1ade86533c6188a941aae1be4396a20393">00293</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1ade86533c6188a941aae1be4396a20393">db_upvalueid</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00294 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;n&#32;=&#32;<link linkend="_ldblib_8c_1a0951daf8c0b66e39bd3aa618aff380bf">checkupval</link>(L,&#32;1,&#32;2);
+00295 &#32;&#32;<link linkend="_lapi_8c_1a85e3e3d32b068aef62426828a104b561">lua_pushlightuserdata</link>(L,&#32;<link linkend="_lapi_8c_1af20e3a68caf3e24d35318baf952c5567">lua_upvalueid</link>(L,&#32;1,&#32;n));
+00296 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00297 }
+00298 
+00299 
+<anchor xml:id="_ldblib_8c_source_1l00300"/><link linkend="_ldblib_8c_1acd80bdb3262b3580eb6955f6f3eb3549">00300</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1acd80bdb3262b3580eb6955f6f3eb3549">db_upvaluejoin</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00301 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;n1&#32;=&#32;<link linkend="_ldblib_8c_1a0951daf8c0b66e39bd3aa618aff380bf">checkupval</link>(L,&#32;1,&#32;2);
+00302 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;n2&#32;=&#32;<link linkend="_ldblib_8c_1a0951daf8c0b66e39bd3aa618aff380bf">checkupval</link>(L,&#32;3,&#32;4);
+00303 &#32;&#32;<link linkend="_lauxlib_8h_1a48ce6cd86a7448e97f258097a7abc44d">luaL_argcheck</link>(L,&#32;!<link linkend="_lapi_8c_1a3b922032c9fe2930399186a3647cc3ad">lua_iscfunction</link>(L,&#32;1),&#32;1,&#32;<emphasis role="stringliteral">&quot;Lua&#32;function&#32;expected&quot;</emphasis>);
+00304 &#32;&#32;<link linkend="_lauxlib_8h_1a48ce6cd86a7448e97f258097a7abc44d">luaL_argcheck</link>(L,&#32;!<link linkend="_lapi_8c_1a3b922032c9fe2930399186a3647cc3ad">lua_iscfunction</link>(L,&#32;3),&#32;3,&#32;<emphasis role="stringliteral">&quot;Lua&#32;function&#32;expected&quot;</emphasis>);
+00305 &#32;&#32;<link linkend="_lapi_8c_1a9ce27da3bd8232ac4a0d383e924a0c7a">lua_upvaluejoin</link>(L,&#32;1,&#32;n1,&#32;3,&#32;n2);
+00306 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;
+00307 }
+00308 
+00309 
+00310 <emphasis role="comment">/*</emphasis>
+00311 <emphasis role="comment">**&#32;Call&#32;hook&#32;function&#32;registered&#32;at&#32;hook&#32;table&#32;for&#32;the&#32;current</emphasis>
+00312 <emphasis role="comment">**&#32;thread&#32;(if&#32;there&#32;is&#32;one)</emphasis>
+00313 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldblib_8c_source_1l00314"/><link linkend="_ldblib_8c_1a5caaa985f31fc5cbd014f831833205e7">00314</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ldblib_8c_1a5caaa985f31fc5cbd014f831833205e7">hookf</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_structlua___debug">lua_Debug</link>&#32;*ar)&#32;{
+00315 &#32;&#32;<emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<emphasis role="keyword">const</emphasis>&#32;hooknames[]&#32;=
+00316 &#32;&#32;&#32;&#32;{<emphasis role="stringliteral">&quot;call&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;return&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;line&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;count&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;tail&#32;call&quot;</emphasis>};
+00317 &#32;&#32;<link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link>(L,&#32;<link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>,&#32;<link linkend="_ldblib_8c_1af733d7d4bc619309441a5d1296a55c34">HOOKKEY</link>);
+00318 &#32;&#32;<link linkend="_lapi_8c_1a4175aeea9aa6dbf096ecfca7b190fa4a">lua_pushthread</link>(L);
+00319 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lapi_8c_1a52944e714d1c64bda7b83f511c14b2d3">lua_rawget</link>(L,&#32;-2)&#32;==&#32;<link linkend="_lua_8h_1adaa7fa6e2561c1bc428ba8d265171494">LUA_TFUNCTION</link>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;is&#32;there&#32;a&#32;hook&#32;function?&#32;*/</emphasis>
+00320 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;hooknames[(<emphasis role="keywordtype">int</emphasis>)ar-&gt;<link linkend="_structlua___debug_1acafe4c229c051e50e7e55ba9ce3e5893">event</link>]);&#32;&#32;<emphasis role="comment">/*&#32;push&#32;event&#32;name&#32;*/</emphasis>
+00321 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ar-&gt;<link linkend="_structlua___debug_1a1be7dfac6c204d2592700475b5d73fd2">currentline</link>&#32;&gt;=&#32;0)
+00322 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1adcec46ff05dfee9a3c4c05828b40c213">lua_pushinteger</link>(L,&#32;ar-&gt;<link linkend="_structlua___debug_1a1be7dfac6c204d2592700475b5d73fd2">currentline</link>);&#32;&#32;<emphasis role="comment">/*&#32;push&#32;current&#32;line&#32;*/</emphasis>
+00323 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<link linkend="_lapi_8c_1a1b4cd0d80f51e5545a97ca6c28c03c50">lua_pushnil</link>(L);
+00324 &#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(<link linkend="_ldebug_8c_1acaafc35d8e385c4d167229486165df6d">lua_getinfo</link>(L,&#32;<emphasis role="stringliteral">&quot;lS&quot;</emphasis>,&#32;ar));
+00325 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a89cbf40f871b6fae2dd2df814c7ac1ba">lua_call</link>(L,&#32;2,&#32;0);&#32;&#32;<emphasis role="comment">/*&#32;call&#32;hook&#32;function&#32;*/</emphasis>
+00326 &#32;&#32;}
+00327 }
+00328 
+00329 
+00330 <emphasis role="comment">/*</emphasis>
+00331 <emphasis role="comment">**&#32;Convert&#32;a&#32;string&#32;mask&#32;(for&#32;&apos;sethook&apos;)&#32;into&#32;a&#32;bit&#32;mask</emphasis>
+00332 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldblib_8c_source_1l00333"/><link linkend="_ldblib_8c_1a565f59065c4ab878c3d49097a7f2c471">00333</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1a565f59065c4ab878c3d49097a7f2c471">makemask</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*smask,&#32;<emphasis role="keywordtype">int</emphasis>&#32;count)&#32;{
+00334 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;mask&#32;=&#32;0;
+00335 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(strchr(smask,&#32;<emphasis role="charliteral">&apos;c&apos;</emphasis>))&#32;mask&#32;|=&#32;<link linkend="_lua_8h_1a3b3ff95f914cf6ff4d46c87e8a648489">LUA_MASKCALL</link>;
+00336 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(strchr(smask,&#32;<emphasis role="charliteral">&apos;r&apos;</emphasis>))&#32;mask&#32;|=&#32;<link linkend="_lua_8h_1af0345e20a0268525a82cd71ab3ecb5da">LUA_MASKRET</link>;
+00337 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(strchr(smask,&#32;<emphasis role="charliteral">&apos;l&apos;</emphasis>))&#32;mask&#32;|=&#32;<link linkend="_lua_8h_1a671bc8ae0eddd679411c7f2401a594cf">LUA_MASKLINE</link>;
+00338 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(count&#32;&gt;&#32;0)&#32;mask&#32;|=&#32;<link linkend="_lua_8h_1a29927bc26e642df4f842e0235d290c56">LUA_MASKCOUNT</link>;
+00339 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;mask;
+00340 }
+00341 
+00342 
+00343 <emphasis role="comment">/*</emphasis>
+00344 <emphasis role="comment">**&#32;Convert&#32;a&#32;bit&#32;mask&#32;(for&#32;&apos;gethook&apos;)&#32;into&#32;a&#32;string&#32;mask</emphasis>
+00345 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldblib_8c_source_1l00346"/><link linkend="_ldblib_8c_1aa21335f2f9cd444bde1f824b7bcc5659">00346</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_ldblib_8c_1aa21335f2f9cd444bde1f824b7bcc5659">unmakemask</link>&#32;(<emphasis role="keywordtype">int</emphasis>&#32;mask,&#32;<emphasis role="keywordtype">char</emphasis>&#32;*smask)&#32;{
+00347 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i&#32;=&#32;0;
+00348 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(mask&#32;&amp;&#32;<link linkend="_lua_8h_1a3b3ff95f914cf6ff4d46c87e8a648489">LUA_MASKCALL</link>)&#32;smask[i++]&#32;=&#32;<emphasis role="charliteral">&apos;c&apos;</emphasis>;
+00349 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(mask&#32;&amp;&#32;<link linkend="_lua_8h_1af0345e20a0268525a82cd71ab3ecb5da">LUA_MASKRET</link>)&#32;smask[i++]&#32;=&#32;<emphasis role="charliteral">&apos;r&apos;</emphasis>;
+00350 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(mask&#32;&amp;&#32;<link linkend="_lua_8h_1a671bc8ae0eddd679411c7f2401a594cf">LUA_MASKLINE</link>)&#32;smask[i++]&#32;=&#32;<emphasis role="charliteral">&apos;l&apos;</emphasis>;
+00351 &#32;&#32;smask[i]&#32;=&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>;
+00352 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;smask;
+00353 }
+00354 
+00355 
+<anchor xml:id="_ldblib_8c_source_1l00356"/><link linkend="_ldblib_8c_1aa0c362d361f8f9bd8a002c34c393e2b0">00356</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1aa0c362d361f8f9bd8a002c34c393e2b0">db_sethook</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00357 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg,&#32;mask,&#32;count;
+00358 &#32;&#32;<link linkend="_lua_8h_1aa00de66eff087aef1fdd44f5b3bb9a0b">lua_Hook</link>&#32;func;
+00359 &#32;&#32;<link linkend="_structlua___state">lua_State</link>&#32;*L1&#32;=&#32;<link linkend="_ldblib_8c_1a75169427eed495886306b6236f365512">getthread</link>(L,&#32;&amp;arg);
+00360 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lua_8h_1af51702bb75a31bb4a279953ee386d533">lua_isnoneornil</link>(L,&#32;arg+1))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;no&#32;hook?&#32;*/</emphasis>
+00361 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1adaa30f0d34786144c94644039d1d1b6e">lua_settop</link>(L,&#32;arg+1);
+00362 &#32;&#32;&#32;&#32;func&#32;=&#32;NULL;&#32;mask&#32;=&#32;0;&#32;count&#32;=&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;turn&#32;off&#32;hooks&#32;*/</emphasis>
+00363 &#32;&#32;}
+00364 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00365 &#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*smask&#32;=&#32;<link linkend="_lauxlib_8h_1ad9917d22c79651fdd73d42c146b5056f">luaL_checkstring</link>(L,&#32;arg+2);
+00366 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a0f8f78c4edc5cbf890690b3cf9615dc8">luaL_checktype</link>(L,&#32;arg+1,&#32;<link linkend="_lua_8h_1adaa7fa6e2561c1bc428ba8d265171494">LUA_TFUNCTION</link>);
+00367 &#32;&#32;&#32;&#32;count&#32;=&#32;(int)<link linkend="_lauxlib_8c_1ab10ff110a5ba19b4385947de7834ee3c">luaL_optinteger</link>(L,&#32;arg&#32;+&#32;3,&#32;0);
+00368 &#32;&#32;&#32;&#32;func&#32;=&#32;<link linkend="_ldblib_8c_1a5caaa985f31fc5cbd014f831833205e7">hookf</link>;&#32;mask&#32;=&#32;<link linkend="_ldblib_8c_1a565f59065c4ab878c3d49097a7f2c471">makemask</link>(smask,&#32;count);
+00369 &#32;&#32;}
+00370 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_lauxlib_8c_1a4cd66d7b986316711233243a268e8e04">luaL_getsubtable</link>(L,&#32;<link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>,&#32;<link linkend="_ldblib_8c_1af733d7d4bc619309441a5d1296a55c34">HOOKKEY</link>))&#32;{
+00371 &#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;table&#32;just&#32;created;&#32;initialize&#32;it&#32;*/</emphasis>
+00372 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;<emphasis role="stringliteral">&quot;k&quot;</emphasis>);
+00373 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;-2,&#32;<emphasis role="stringliteral">&quot;__mode&quot;</emphasis>);&#32;&#32;
+00374 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;-1);
+00375 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a15719ea4119bdf5b3f2a406534431a7e">lua_setmetatable</link>(L,&#32;-2);&#32;&#32;<emphasis role="comment">/*&#32;metatable(hooktable)&#32;=&#32;hooktable&#32;*/</emphasis>
+00376 &#32;&#32;}
+00377 &#32;&#32;<link linkend="_ldblib_8c_1aef541490d49259cf4cb14e7f9597600e">checkstack</link>(L,&#32;L1,&#32;1);
+00378 &#32;&#32;<link linkend="_lapi_8c_1a4175aeea9aa6dbf096ecfca7b190fa4a">lua_pushthread</link>(L1);&#32;<link linkend="_lapi_8c_1ae27bb8d0218710bbbfefc1f573839d6d">lua_xmove</link>(L1,&#32;L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;key&#32;(thread)&#32;*/</emphasis>
+00379 &#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;arg&#32;+&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;value&#32;(hook&#32;function)&#32;*/</emphasis>
+00380 &#32;&#32;<link linkend="_lapi_8c_1afb2d27f421677ef40425f9054ae216a7">lua_rawset</link>(L,&#32;-3);&#32;&#32;<emphasis role="comment">/*&#32;hooktable[L1]&#32;=&#32;new&#32;Lua&#32;hook&#32;*/</emphasis>
+00381 &#32;&#32;<link linkend="_ldebug_8c_1ac9d3d168561f5c1a747a3ab198f0f092">lua_sethook</link>(L1,&#32;func,&#32;mask,&#32;count);
+00382 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;
+00383 }
+00384 
+00385 
+<anchor xml:id="_ldblib_8c_source_1l00386"/><link linkend="_ldblib_8c_1a6a624ae8d8ff673e72a317b280ed008d">00386</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1a6a624ae8d8ff673e72a317b280ed008d">db_gethook</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00387 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg;
+00388 &#32;&#32;<link linkend="_structlua___state">lua_State</link>&#32;*L1&#32;=&#32;<link linkend="_ldblib_8c_1a75169427eed495886306b6236f365512">getthread</link>(L,&#32;&amp;arg);
+00389 &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;buff[5];
+00390 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;mask&#32;=&#32;<link linkend="_ldebug_8c_1a0b41dd9ab46652c8433b861f679fadb8">lua_gethookmask</link>(L1);
+00391 &#32;&#32;<link linkend="_lua_8h_1aa00de66eff087aef1fdd44f5b3bb9a0b">lua_Hook</link>&#32;hook&#32;=&#32;<link linkend="_ldebug_8c_1a44b9923035977dcfa57279761f7379b4">lua_gethook</link>(L1);
+00392 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(hook&#32;==&#32;NULL)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;no&#32;hook?&#32;*/</emphasis>
+00393 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a8666135f7a1412f5eaa14857aec279f0">luaL_pushfail</link>(L);
+00394 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00395 &#32;&#32;}
+00396 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(hook&#32;!=&#32;<link linkend="_ldblib_8c_1a5caaa985f31fc5cbd014f831833205e7">hookf</link>)&#32;&#32;<emphasis role="comment">/*&#32;external&#32;hook?&#32;*/</emphasis>
+00397 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a47854189a679002ed743ebbcb30b1b26">lua_pushliteral</link>(L,&#32;<emphasis role="stringliteral">&quot;external&#32;hook&quot;</emphasis>);
+00398 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;hook&#32;table&#32;must&#32;exist&#32;*/</emphasis>
+00399 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link>(L,&#32;<link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>,&#32;<link linkend="_ldblib_8c_1af733d7d4bc619309441a5d1296a55c34">HOOKKEY</link>);
+00400 &#32;&#32;&#32;&#32;<link linkend="_ldblib_8c_1aef541490d49259cf4cb14e7f9597600e">checkstack</link>(L,&#32;L1,&#32;1);
+00401 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a4175aeea9aa6dbf096ecfca7b190fa4a">lua_pushthread</link>(L1);&#32;<link linkend="_lapi_8c_1ae27bb8d0218710bbbfefc1f573839d6d">lua_xmove</link>(L1,&#32;L,&#32;1);
+00402 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a52944e714d1c64bda7b83f511c14b2d3">lua_rawget</link>(L,&#32;-2);&#32;&#32;&#32;<emphasis role="comment">/*&#32;1st&#32;result&#32;=&#32;hooktable[L1]&#32;*/</emphasis>
+00403 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a7664dec8f7220c706b7e71ad3227cc78">lua_remove</link>(L,&#32;-2);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;hook&#32;table&#32;*/</emphasis>
+00404 &#32;&#32;}
+00405 &#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;<link linkend="_ldblib_8c_1aa21335f2f9cd444bde1f824b7bcc5659">unmakemask</link>(mask,&#32;buff));&#32;&#32;<emphasis role="comment">/*&#32;2nd&#32;result&#32;=&#32;mask&#32;*/</emphasis>
+00406 &#32;&#32;<link linkend="_lapi_8c_1adcec46ff05dfee9a3c4c05828b40c213">lua_pushinteger</link>(L,&#32;<link linkend="_ldebug_8c_1a18f065f752cfa08eefd338b4cbd7254b">lua_gethookcount</link>(L1));&#32;&#32;<emphasis role="comment">/*&#32;3rd&#32;result&#32;=&#32;count&#32;*/</emphasis>
+00407 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;3;
+00408 }
+00409 
+00410 
+<anchor xml:id="_ldblib_8c_source_1l00411"/><link linkend="_ldblib_8c_1ad72cc206e90f6ebc343460376c950a14">00411</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1ad72cc206e90f6ebc343460376c950a14">db_debug</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00412 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(;;)&#32;{
+00413 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;buffer[250];
+00414 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a0706f68a79575584d365d033d613707b">lua_writestringerror</link>(<emphasis role="stringliteral">&quot;%s&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;lua_debug&gt;&#32;&quot;</emphasis>);
+00415 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(fgets(buffer,&#32;<emphasis role="keyword">sizeof</emphasis>(buffer),&#32;stdin)&#32;==&#32;0&#32;||
+00416 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;strcmp(buffer,&#32;<emphasis role="stringliteral">&quot;cont\n&quot;</emphasis>)&#32;==&#32;0)
+00417 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;
+00418 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lauxlib_8h_1ae210c8b2a9a27ee62b2e846e93ae876f">luaL_loadbuffer</link>(L,&#32;buffer,&#32;strlen(buffer),&#32;<emphasis role="stringliteral">&quot;=(debug&#32;command)&quot;</emphasis>)&#32;||
+00419 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a589d7e3fd4c388d64056c88bf4672431">lua_pcall</link>(L,&#32;0,&#32;0,&#32;0))
+00420 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a0706f68a79575584d365d033d613707b">lua_writestringerror</link>(<emphasis role="stringliteral">&quot;%s\n&quot;</emphasis>,&#32;<link linkend="_lauxlib_8c_1a0d4cbfd194d1919b3ff84000c0644cc0">luaL_tolstring</link>(L,&#32;-1,&#32;NULL));
+00421 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1adaa30f0d34786144c94644039d1d1b6e">lua_settop</link>(L,&#32;0);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;eventual&#32;returns&#32;*/</emphasis>
+00422 &#32;&#32;}
+00423 }
+00424 
+00425 
+<anchor xml:id="_ldblib_8c_source_1l00426"/><link linkend="_ldblib_8c_1ae0792d4f3f6eedd535895e05426b82df">00426</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1ae0792d4f3f6eedd535895e05426b82df">db_traceback</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00427 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg;
+00428 &#32;&#32;<link linkend="_structlua___state">lua_State</link>&#32;*L1&#32;=&#32;<link linkend="_ldblib_8c_1a75169427eed495886306b6236f365512">getthread</link>(L,&#32;&amp;arg);
+00429 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg&#32;=&#32;<link linkend="_lua_8h_1ac813fc3bc1886ba17c363d5b4c6e7ef1">lua_tostring</link>(L,&#32;arg&#32;+&#32;1);
+00430 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(msg&#32;==&#32;NULL&#32;&amp;&amp;&#32;!<link linkend="_lua_8h_1af51702bb75a31bb4a279953ee386d533">lua_isnoneornil</link>(L,&#32;arg&#32;+&#32;1))&#32;&#32;<emphasis role="comment">/*&#32;non-string&#32;&apos;msg&apos;?&#32;*/</emphasis>
+00431 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;arg&#32;+&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;return&#32;it&#32;untouched&#32;*/</emphasis>
+00432 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00433 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;level&#32;=&#32;(int)<link linkend="_lauxlib_8c_1ab10ff110a5ba19b4385947de7834ee3c">luaL_optinteger</link>(L,&#32;arg&#32;+&#32;2,&#32;(L&#32;==&#32;L1)&#32;?&#32;1&#32;:&#32;0);
+00434 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a67bf3728d34d2c9badb2bd2f57c75233">luaL_traceback</link>(L,&#32;L1,&#32;msg,&#32;level);
+00435 &#32;&#32;}
+00436 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00437 }
+00438 
+00439 
+<anchor xml:id="_ldblib_8c_source_1l00440"/><link linkend="_ldblib_8c_1addcdd421fc78c360575136d5faff8b9a">00440</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1addcdd421fc78c360575136d5faff8b9a">db_setcstacklimit</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00441 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;limit&#32;=&#32;(int)<link linkend="_lauxlib_8c_1aa15bea412c49bfdee1f3dbff096ce7d2">luaL_checkinteger</link>(L,&#32;1);
+00442 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;res&#32;=&#32;<link linkend="_lstate_8c_1a165fcd8b26ab13267d77c0d4bd06b886">lua_setcstacklimit</link>(L,&#32;limit);
+00443 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(res&#32;==&#32;0)
+00444 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a56bbb7479265e38da2e2596e6ec25faa">lua_pushboolean</link>(L,&#32;0);
+00445 &#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00446 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1adcec46ff05dfee9a3c4c05828b40c213">lua_pushinteger</link>(L,&#32;res);
+00447 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00448 }
+00449 
+00450 
+<anchor xml:id="_ldblib_8c_source_1l00451"/><link linkend="_ldblib_8c_1ac91241d20cc27cd0d55e51f4c972101b">00451</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_structlua_l___reg">luaL_Reg</link>&#32;<link linkend="_ldblib_8c_1ac91241d20cc27cd0d55e51f4c972101b">dblib</link>[]&#32;=&#32;{
+00452 &#32;&#32;{<emphasis role="stringliteral">&quot;debug&quot;</emphasis>,&#32;<link linkend="_ldblib_8c_1ad72cc206e90f6ebc343460376c950a14">db_debug</link>},
+00453 &#32;&#32;{<emphasis role="stringliteral">&quot;getuservalue&quot;</emphasis>,&#32;<link linkend="_ldblib_8c_1a129f5b6b3a5f37b1b05a6db5b3a1e0be">db_getuservalue</link>},
+00454 &#32;&#32;{<emphasis role="stringliteral">&quot;gethook&quot;</emphasis>,&#32;<link linkend="_ldblib_8c_1a6a624ae8d8ff673e72a317b280ed008d">db_gethook</link>},
+00455 &#32;&#32;{<emphasis role="stringliteral">&quot;getinfo&quot;</emphasis>,&#32;<link linkend="_ldblib_8c_1a4eb57e66c2efb2d31c9b9e1b01d27e13">db_getinfo</link>},
+00456 &#32;&#32;{<emphasis role="stringliteral">&quot;getlocal&quot;</emphasis>,&#32;<link linkend="_ldblib_8c_1ae802ce7397e9ebb08a90b69976578ecc">db_getlocal</link>},
+00457 &#32;&#32;{<emphasis role="stringliteral">&quot;getregistry&quot;</emphasis>,&#32;<link linkend="_ldblib_8c_1a7dd12424841eb9d91aa28c7424d4e380">db_getregistry</link>},
+00458 &#32;&#32;{<emphasis role="stringliteral">&quot;getmetatable&quot;</emphasis>,&#32;<link linkend="_ldblib_8c_1aa84da9dfea83fb9e516443b49b109044">db_getmetatable</link>},
+00459 &#32;&#32;{<emphasis role="stringliteral">&quot;getupvalue&quot;</emphasis>,&#32;<link linkend="_ldblib_8c_1a7a4124c791de7d76bd4fa752eb1569b6">db_getupvalue</link>},
+00460 &#32;&#32;{<emphasis role="stringliteral">&quot;upvaluejoin&quot;</emphasis>,&#32;<link linkend="_ldblib_8c_1acd80bdb3262b3580eb6955f6f3eb3549">db_upvaluejoin</link>},
+00461 &#32;&#32;{<emphasis role="stringliteral">&quot;upvalueid&quot;</emphasis>,&#32;<link linkend="_ldblib_8c_1ade86533c6188a941aae1be4396a20393">db_upvalueid</link>},
+00462 &#32;&#32;{<emphasis role="stringliteral">&quot;setuservalue&quot;</emphasis>,&#32;<link linkend="_ldblib_8c_1a233c3c4d12bda0fdbf515a18b8961461">db_setuservalue</link>},
+00463 &#32;&#32;{<emphasis role="stringliteral">&quot;sethook&quot;</emphasis>,&#32;<link linkend="_ldblib_8c_1aa0c362d361f8f9bd8a002c34c393e2b0">db_sethook</link>},
+00464 &#32;&#32;{<emphasis role="stringliteral">&quot;setlocal&quot;</emphasis>,&#32;<link linkend="_ldblib_8c_1a11cfe90e96e7ea907a767f5109f7ef4b">db_setlocal</link>},
+00465 &#32;&#32;{<emphasis role="stringliteral">&quot;setmetatable&quot;</emphasis>,&#32;<link linkend="_ldblib_8c_1a3595aee1af712c0ba9c586feb763bffc">db_setmetatable</link>},
+00466 &#32;&#32;{<emphasis role="stringliteral">&quot;setupvalue&quot;</emphasis>,&#32;<link linkend="_ldblib_8c_1acd61487bdd057d6c668ec0bd88728670">db_setupvalue</link>},
+00467 &#32;&#32;{<emphasis role="stringliteral">&quot;traceback&quot;</emphasis>,&#32;<link linkend="_ldblib_8c_1ae0792d4f3f6eedd535895e05426b82df">db_traceback</link>},
+00468 &#32;&#32;{<emphasis role="stringliteral">&quot;setcstacklimit&quot;</emphasis>,&#32;<link linkend="_ldblib_8c_1addcdd421fc78c360575136d5faff8b9a">db_setcstacklimit</link>},
+00469 &#32;&#32;{NULL,&#32;NULL}
+00470 };
+00471 
+00472 
+<anchor xml:id="_ldblib_8c_source_1l00473"/><link linkend="_lualib_8h_1a6fde14068d6456a15b45173face90304">00473</link> <link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldblib_8c_1ad94d3e2d0ca6d83a904a3ba9aad04f3b">luaopen_debug</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00474 &#32;&#32;<link linkend="_lauxlib_8h_1a5088ff720ec66200d83eb78467b77239">luaL_newlib</link>(L,&#32;<link linkend="_ldblib_8c_1ac91241d20cc27cd0d55e51f4c972101b">dblib</link>);
+00475 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00476 }
+00477 
+</programlisting></section>

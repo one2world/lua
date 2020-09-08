@@ -1,0 +1,169 @@
+.TH "D:/gitworkspace/lua/src/lfunc.h" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lfunc.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lobject\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBsizeCclosure\fP(n)"
+.br
+.ti -1c
+.RI "#define \fBsizeLclosure\fP(n)"
+.br
+.ti -1c
+.RI "#define \fBisintwups\fP(L)   (L\->twups != L)"
+.br
+.ti -1c
+.RI "#define \fBMAXUPVAL\fP   255"
+.br
+.ti -1c
+.RI "#define \fBupisopen\fP(up)   ((up)\->v != &(up)\->u\&.value)"
+.br
+.ti -1c
+.RI "#define \fBuplevel\fP(up)   \fBcheck_exp\fP(\fBupisopen\fP(up), \fBcast\fP(\fBStkId\fP, (up)\->v))"
+.br
+.ti -1c
+.RI "#define \fBMAXMISS\fP   10"
+.br
+.ti -1c
+.RI "#define \fBNOCLOSINGMETH\fP   (\-1)"
+.br
+.ti -1c
+.RI "#define \fBCLOSEPROTECT\fP   (\-2)"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "\fBLUAI_FUNC\fP \fBProto\fP * \fBluaF_newproto\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP \fBCClosure\fP * \fBluaF_newCclosure\fP (\fBlua_State\fP *L, int nupvals)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP \fBLClosure\fP * \fBluaF_newLclosure\fP (\fBlua_State\fP *L, int nupvals)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaF_initupvals\fP (\fBlua_State\fP *L, \fBLClosure\fP *cl)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP \fBUpVal\fP * \fBluaF_findupval\fP (\fBlua_State\fP *L, \fBStkId\fP level)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaF_newtbcupval\fP (\fBlua_State\fP *L, \fBStkId\fP level)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaF_close\fP (\fBlua_State\fP *L, \fBStkId\fP level, int status)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaF_unlinkupval\fP (\fBUpVal\fP *uv)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaF_freeproto\fP (\fBlua_State\fP *L, \fBProto\fP *f)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP const char * \fBluaF_getlocalname\fP (const \fBProto\fP *func, int local_number, int pc)"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define CLOSEPROTECT   (\-2)"
+
+.PP
+在文件 lfunc\&.h 第 53 行定义\&.
+.SS "#define isintwups(L)   (L\->twups != L)"
+
+.PP
+在文件 lfunc\&.h 第 22 行定义\&.
+.SS "#define MAXMISS   10"
+
+.PP
+在文件 lfunc\&.h 第 42 行定义\&.
+.SS "#define MAXUPVAL   255"
+
+.PP
+在文件 lfunc\&.h 第 29 行定义\&.
+.SS "#define NOCLOSINGMETH   (\-1)"
+
+.PP
+在文件 lfunc\&.h 第 50 行定义\&.
+.SS "#define sizeCclosure(n)"
+\fB值:\fP
+.PP
+.nf
+                         (cast_int(offsetof(CClosure, upvalue)) + \
+                         cast_int(sizeof(TValue)) * (n))
+.fi
+.PP
+在文件 lfunc\&.h 第 14 行定义\&.
+.SS "#define sizeLclosure(n)"
+\fB值:\fP
+.PP
+.nf
+                         (cast_int(offsetof(LClosure, upvals)) + \
+                         cast_int(sizeof(TValue *)) * (n))
+.fi
+.PP
+在文件 lfunc\&.h 第 17 行定义\&.
+.SS "#define upisopen(up)   ((up)\->v != &(up)\->u\&.value)"
+
+.PP
+在文件 lfunc\&.h 第 32 行定义\&.
+.SS "#define uplevel(up)   \fBcheck_exp\fP(\fBupisopen\fP(up), \fBcast\fP(\fBStkId\fP, (up)\->v))"
+
+.PP
+在文件 lfunc\&.h 第 35 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "\fBLUAI_FUNC\fP int luaF_close (\fBlua_State\fP * L, \fBStkId\fP level, int status)"
+
+.PP
+在文件 lfunc\&.c 第 223 行定义\&.
+.SS "\fBLUAI_FUNC\fP \fBUpVal\fP* luaF_findupval (\fBlua_State\fP * L, \fBStkId\fP level)"
+
+.PP
+在文件 lfunc\&.c 第 88 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaF_freeproto (\fBlua_State\fP * L, \fBProto\fP * f)"
+
+.PP
+在文件 lfunc\&.c 第 272 行定义\&.
+.SS "\fBLUAI_FUNC\fP const char* luaF_getlocalname (const \fBProto\fP * func, int local_number, int pc)"
+
+.PP
+在文件 lfunc\&.c 第 288 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaF_initupvals (\fBlua_State\fP * L, \fBLClosure\fP * cl)"
+
+.PP
+在文件 lfunc\&.c 第 48 行定义\&.
+.SS "\fBLUAI_FUNC\fP \fBCClosure\fP* luaF_newCclosure (\fBlua_State\fP * L, int nupvals)"
+
+.PP
+在文件 lfunc\&.c 第 27 行定义\&.
+.SS "\fBLUAI_FUNC\fP \fBLClosure\fP* luaF_newLclosure (\fBlua_State\fP * L, int nupvals)"
+
+.PP
+在文件 lfunc\&.c 第 35 行定义\&.
+.SS "\fBLUAI_FUNC\fP \fBProto\fP* luaF_newproto (\fBlua_State\fP * L)"
+
+.PP
+在文件 lfunc\&.c 第 245 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaF_newtbcupval (\fBlua_State\fP * L, \fBStkId\fP level)"
+
+.PP
+在文件 lfunc\&.c 第 194 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaF_unlinkupval (\fBUpVal\fP * uv)"
+
+.PP
+在文件 lfunc\&.c 第 215 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

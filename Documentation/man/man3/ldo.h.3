@@ -1,0 +1,210 @@
+.TH "D:/gitworkspace/lua/src/ldo.h" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/ldo.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'lstate\&.h'\fP
+.br
+\fC#include 'lzio\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBluaD_checkstackaux\fP(L,  n,  pre,  pos)"
+.br
+.ti -1c
+.RI "#define \fBluaD_checkstack\fP(L,  n)   \fBluaD_checkstackaux\fP(L,n,(void)0,(void)0)"
+.br
+.ti -1c
+.RI "#define \fBsavestack\fP(L,  p)   ((char *)(p) \- (char *)L\->stack)"
+.br
+.ti -1c
+.RI "#define \fBrestorestack\fP(L,  n)   ((\fBStkId\fP)((char *)L\->stack + (n)))"
+.br
+.ti -1c
+.RI "#define \fBcheckstackp\fP(L,  n,  p)"
+.br
+.ti -1c
+.RI "#define \fBcheckstackGC\fP(L,  fsize)   	\fBluaD_checkstackaux\fP(L, (fsize), (void)0, \fBluaC_checkGC\fP(L))"
+.br
+.in -1c
+.SS "类型定义"
+
+.in +1c
+.ti -1c
+.RI "typedef void(* \fBPfunc\fP) (\fBlua_State\fP *L, void *ud)"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaD_seterrorobj\fP (\fBlua_State\fP *L, int errcode, \fBStkId\fP oldtop)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaD_protectedparser\fP (\fBlua_State\fP *L, \fBZIO\fP *z, const char *name, const char *mode)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaD_hook\fP (\fBlua_State\fP *L, int event, int line, int fTransfer, int nTransfer)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaD_hookcall\fP (\fBlua_State\fP *L, \fBCallInfo\fP *ci)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaD_pretailcall\fP (\fBlua_State\fP *L, \fBCallInfo\fP *ci, \fBStkId\fP func, int n)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaD_call\fP (\fBlua_State\fP *L, \fBStkId\fP func, int nResults)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaD_callnoyield\fP (\fBlua_State\fP *L, \fBStkId\fP func, int nResults)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaD_tryfuncTM\fP (\fBlua_State\fP *L, \fBStkId\fP func)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaD_pcall\fP (\fBlua_State\fP *L, \fBPfunc\fP func, void *u, ptrdiff_t oldtop, ptrdiff_t ef)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaD_poscall\fP (\fBlua_State\fP *L, \fBCallInfo\fP *ci, int nres)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaD_reallocstack\fP (\fBlua_State\fP *L, int newsize, int raiseerror)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaD_growstack\fP (\fBlua_State\fP *L, int n, int raiseerror)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaD_shrinkstack\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaD_inctop\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP \fBl_noret\fP \fBluaD_throw\fP (\fBlua_State\fP *L, int errcode)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaD_rawrunprotected\fP (\fBlua_State\fP *L, \fBPfunc\fP f, void *ud)"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define checkstackGC(L, fsize)   	\fBluaD_checkstackaux\fP(L, (fsize), (void)0, \fBluaC_checkGC\fP(L))"
+
+.PP
+在文件 ldo\&.h 第 46 行定义\&.
+.SS "#define checkstackp(L, n, p)"
+\fB值:\fP
+.PP
+.nf
+  luaD_checkstackaux(L, n, \
+    ptrdiff_t t__ = savestack(L, p);  /* save 'p' */ \
+    luaC_checkGC(L),  /* stack grow uses memory */ \
+    p = restorestack(L, t__))  /* 'pos' part: restore 'p' */
+.fi
+.PP
+在文件 ldo\&.h 第 38 行定义\&.
+.SS "#define luaD_checkstack(L, n)   \fBluaD_checkstackaux\fP(L,n,(void)0,(void)0)"
+
+.PP
+在文件 ldo\&.h 第 29 行定义\&.
+.SS "#define luaD_checkstackaux(L, n, pre, pos)"
+\fB值:\fP
+.PP
+.nf
+  if (L->stack_last - L->top <= (n)) \
+      { pre; luaD_growstack(L, n, 1); pos; } \
+        else { condmovestack(L,pre,pos); }
+.fi
+.PP
+在文件 ldo\&.h 第 23 行定义\&.
+.SS "#define restorestack(L, n)   ((\fBStkId\fP)((char *)L\->stack + (n)))"
+
+.PP
+在文件 ldo\&.h 第 34 行定义\&.
+.SS "#define savestack(L, p)   ((char *)(p) \- (char *)L\->stack)"
+
+.PP
+在文件 ldo\&.h 第 33 行定义\&.
+.SH "类型定义说明"
+.PP 
+.SS "typedef void(* Pfunc) (\fBlua_State\fP *L, void *ud)"
+
+.PP
+在文件 ldo\&.h 第 51 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "\fBLUAI_FUNC\fP void luaD_call (\fBlua_State\fP * L, \fBStkId\fP func, int nResults)"
+
+.PP
+在文件 ldo\&.c 第 458 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaD_callnoyield (\fBlua_State\fP * L, \fBStkId\fP func, int nResults)"
+
+.PP
+在文件 ldo\&.c 第 522 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaD_growstack (\fBlua_State\fP * L, int n, int raiseerror)"
+
+.PP
+在文件 ldo\&.c 第 209 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaD_hook (\fBlua_State\fP * L, int event, int line, int fTransfer, int nTransfer)"
+
+.PP
+在文件 ldo\&.c 第 275 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaD_hookcall (\fBlua_State\fP * L, \fBCallInfo\fP * ci)"
+
+.PP
+在文件 ldo\&.c 第 314 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaD_inctop (\fBlua_State\fP * L)"
+
+.PP
+在文件 ldo\&.c 第 262 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaD_pcall (\fBlua_State\fP * L, \fBPfunc\fP func, void * u, ptrdiff_t oldtop, ptrdiff_t ef)"
+
+.PP
+在文件 ldo\&.c 第 742 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaD_poscall (\fBlua_State\fP * L, \fBCallInfo\fP * ci, int nres)"
+
+.PP
+在文件 ldo\&.c 第 415 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaD_pretailcall (\fBlua_State\fP * L, \fBCallInfo\fP * ci, \fBStkId\fP func, int n)"
+
+.PP
+在文件 ldo\&.c 第 433 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaD_protectedparser (\fBlua_State\fP * L, \fBZIO\fP * z, const char * name, const char * mode)"
+
+.PP
+在文件 ldo\&.c 第 803 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaD_rawrunprotected (\fBlua_State\fP * L, \fBPfunc\fP f, void * ud)"
+
+.PP
+在文件 ldo\&.c 第 141 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaD_reallocstack (\fBlua_State\fP * L, int newsize, int raiseerror)"
+
+.PP
+在文件 ldo\&.c 第 185 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaD_seterrorobj (\fBlua_State\fP * L, int errcode, \fBStkId\fP oldtop)"
+
+.PP
+在文件 ldo\&.c 第 91 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaD_shrinkstack (\fBlua_State\fP * L)"
+
+.PP
+在文件 ldo\&.c 第 246 行定义\&.
+.SS "\fBLUAI_FUNC\fP \fBl_noret\fP luaD_throw (\fBlua_State\fP * L, int errcode)"
+
+.PP
+在文件 ldo\&.c 第 114 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaD_tryfuncTM (\fBlua_State\fP * L, \fBStkId\fP func)"
+
+.PP
+在文件 ldo\&.c 第 355 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

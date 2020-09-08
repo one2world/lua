@@ -1,0 +1,687 @@
+.TH "D:/gitworkspace/lua/src/lgc.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lgc.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'ldebug\&.h'\fP
+.br
+\fC#include 'ldo\&.h'\fP
+.br
+\fC#include 'lfunc\&.h'\fP
+.br
+\fC#include 'lgc\&.h'\fP
+.br
+\fC#include 'lmem\&.h'\fP
+.br
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'lstate\&.h'\fP
+.br
+\fC#include 'lstring\&.h'\fP
+.br
+\fC#include 'ltable\&.h'\fP
+.br
+\fC#include 'ltm\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBlgc_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_CORE\fP"
+.br
+.ti -1c
+.RI "#define \fBGCSWEEPMAX\fP   100"
+.br
+.ti -1c
+.RI "#define \fBGCFINMAX\fP   10"
+.br
+.ti -1c
+.RI "#define \fBGCFINALIZECOST\fP   50"
+.br
+.ti -1c
+.RI "#define \fBWORK2MEM\fP   sizeof(\fBTValue\fP)"
+.br
+.ti -1c
+.RI "#define \fBPAUSEADJ\fP   100"
+.br
+.ti -1c
+.RI "#define \fBmaskcolors\fP   (~(\fBbitmask\fP(\fBBLACKBIT\fP) | \fBWHITEBITS\fP | \fBAGEBITS\fP))"
+.br
+.ti -1c
+.RI "#define \fBmakewhite\fP(g,  x)    (x\->marked = \fBcast_byte\fP((x\->marked & \fBmaskcolors\fP) | \fBluaC_white\fP(g)))"
+.br
+.ti -1c
+.RI "#define \fBwhite2gray\fP(x)   \fBresetbits\fP(x\->marked, \fBWHITEBITS\fP)"
+.br
+.ti -1c
+.RI "#define \fBblack2gray\fP(x)   \fBresetbit\fP(x\->marked, \fBBLACKBIT\fP)"
+.br
+.ti -1c
+.RI "#define \fBvaliswhite\fP(x)   (\fBiscollectable\fP(x) && \fBiswhite\fP(\fBgcvalue\fP(x)))"
+.br
+.ti -1c
+.RI "#define \fBkeyiswhite\fP(n)   (\fBkeyiscollectable\fP(n) && \fBiswhite\fP(\fBgckey\fP(n)))"
+.br
+.ti -1c
+.RI "#define \fBcheckconsistency\fP(obj)     \fBlua_longassert\fP(!\fBiscollectable\fP(obj) || \fBrighttt\fP(obj))"
+.br
+.ti -1c
+.RI "#define \fBgcvalueN\fP(o)   (\fBiscollectable\fP(o) ? \fBgcvalue\fP(o) : NULL)"
+.br
+.ti -1c
+.RI "#define \fBmarkvalue\fP(g,  o)"
+.br
+.ti -1c
+.RI "#define \fBmarkkey\fP(g,  n)   { if \fBkeyiswhite\fP(n) \fBreallymarkobject\fP(g,\fBgckey\fP(n)); }"
+.br
+.ti -1c
+.RI "#define \fBmarkobject\fP(g,  t)   { if (\fBiswhite\fP(t)) \fBreallymarkobject\fP(g, \fBobj2gco\fP(t)); }"
+.br
+.ti -1c
+.RI "#define \fBmarkobjectN\fP(g,  t)   { if (t) \fBmarkobject\fP(g,t); }"
+.br
+.ti -1c
+.RI "#define \fBgnodelast\fP(h)   \fBgnode\fP(h, \fBcast_sizet\fP(\fBsizenode\fP(h)))"
+.br
+.ti -1c
+.RI "#define \fBlinkgclist\fP(o,  p)   ((o)\->gclist = (p), (p) = \fBobj2gco\fP(o))"
+.br
+.ti -1c
+.RI "#define \fBlinkobjgclist\fP(o,  p)   (*\fBgetgclist\fP(o) = (p), (p) = \fBobj2gco\fP(o))"
+.br
+.ti -1c
+.RI "#define \fBmaskgencolors\fP   (~(\fBbitmask\fP(\fBBLACKBIT\fP) | \fBWHITEBITS\fP))"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static void \fBreallymarkobject\fP (\fBglobal_State\fP *g, \fBGCObject\fP *o)"
+.br
+.ti -1c
+.RI "static \fBlu_mem\fP \fBatomic\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBentersweep\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static \fBGCObject\fP ** \fBgetgclist\fP (\fBGCObject\fP *o)"
+.br
+.ti -1c
+.RI "static void \fBclearkey\fP (\fBNode\fP *n)"
+.br
+.ti -1c
+.RI "static int \fBiscleared\fP (\fBglobal_State\fP *g, const \fBGCObject\fP *o)"
+.br
+.ti -1c
+.RI "void \fBluaC_barrier_\fP (\fBlua_State\fP *L, \fBGCObject\fP *o, \fBGCObject\fP *v)"
+.br
+.ti -1c
+.RI "void \fBluaC_barrierback_\fP (\fBlua_State\fP *L, \fBGCObject\fP *o)"
+.br
+.ti -1c
+.RI "void \fBluaC_fix\fP (\fBlua_State\fP *L, \fBGCObject\fP *o)"
+.br
+.ti -1c
+.RI "\fBGCObject\fP * \fBluaC_newobj\fP (\fBlua_State\fP *L, int tt, size_t sz)"
+.br
+.ti -1c
+.RI "static void \fBmarkmt\fP (\fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static \fBlu_mem\fP \fBmarkbeingfnz\fP (\fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static int \fBremarkupvals\fP (\fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static void \fBrestartcollection\fP (\fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static void \fBtraverseweakvalue\fP (\fBglobal_State\fP *g, \fBTable\fP *h)"
+.br
+.ti -1c
+.RI "static int \fBtraverseephemeron\fP (\fBglobal_State\fP *g, \fBTable\fP *h, int inv)"
+.br
+.ti -1c
+.RI "static void \fBtraversestrongtable\fP (\fBglobal_State\fP *g, \fBTable\fP *h)"
+.br
+.ti -1c
+.RI "static \fBlu_mem\fP \fBtraversetable\fP (\fBglobal_State\fP *g, \fBTable\fP *h)"
+.br
+.ti -1c
+.RI "static int \fBtraverseudata\fP (\fBglobal_State\fP *g, \fBUdata\fP *u)"
+.br
+.ti -1c
+.RI "static int \fBtraverseproto\fP (\fBglobal_State\fP *g, \fBProto\fP *f)"
+.br
+.ti -1c
+.RI "static int \fBtraverseCclosure\fP (\fBglobal_State\fP *g, \fBCClosure\fP *cl)"
+.br
+.ti -1c
+.RI "static int \fBtraverseLclosure\fP (\fBglobal_State\fP *g, \fBLClosure\fP *cl)"
+.br
+.ti -1c
+.RI "static int \fBtraversethread\fP (\fBglobal_State\fP *g, \fBlua_State\fP *th)"
+.br
+.ti -1c
+.RI "static \fBlu_mem\fP \fBpropagatemark\fP (\fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static \fBlu_mem\fP \fBpropagateall\fP (\fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static void \fBconvergeephemerons\fP (\fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static void \fBclearbykeys\fP (\fBglobal_State\fP *g, \fBGCObject\fP *l)"
+.br
+.ti -1c
+.RI "static void \fBclearbyvalues\fP (\fBglobal_State\fP *g, \fBGCObject\fP *l, \fBGCObject\fP *f)"
+.br
+.ti -1c
+.RI "static void \fBfreeupval\fP (\fBlua_State\fP *L, \fBUpVal\fP *uv)"
+.br
+.ti -1c
+.RI "static void \fBfreeobj\fP (\fBlua_State\fP *L, \fBGCObject\fP *o)"
+.br
+.ti -1c
+.RI "static \fBGCObject\fP ** \fBsweeplist\fP (\fBlua_State\fP *L, \fBGCObject\fP **p, int countin, int *countout)"
+.br
+.ti -1c
+.RI "static \fBGCObject\fP ** \fBsweeptolive\fP (\fBlua_State\fP *L, \fBGCObject\fP **p)"
+.br
+.ti -1c
+.RI "static void \fBcheckSizes\fP (\fBlua_State\fP *L, \fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static \fBGCObject\fP * \fBudata2finalize\fP (\fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static void \fBdothecall\fP (\fBlua_State\fP *L, void *ud)"
+.br
+.ti -1c
+.RI "static void \fBGCTM\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBrunafewfinalizers\fP (\fBlua_State\fP *L, int n)"
+.br
+.ti -1c
+.RI "static void \fBcallallpendingfinalizers\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static \fBGCObject\fP ** \fBfindlast\fP (\fBGCObject\fP **p)"
+.br
+.ti -1c
+.RI "static void \fBseparatetobefnz\fP (\fBglobal_State\fP *g, int all)"
+.br
+.ti -1c
+.RI "void \fBluaC_checkfinalizer\fP (\fBlua_State\fP *L, \fBGCObject\fP *o, \fBTable\fP *mt)"
+.br
+.ti -1c
+.RI "static void \fBsetpause\fP (\fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static void \fBsweep2old\fP (\fBlua_State\fP *L, \fBGCObject\fP **p)"
+.br
+.ti -1c
+.RI "static \fBGCObject\fP ** \fBsweepgen\fP (\fBlua_State\fP *L, \fBglobal_State\fP *g, \fBGCObject\fP **p, \fBGCObject\fP *limit)"
+.br
+.ti -1c
+.RI "static void \fBwhitelist\fP (\fBglobal_State\fP *g, \fBGCObject\fP *p)"
+.br
+.ti -1c
+.RI "static \fBGCObject\fP ** \fBcorrectgraylist\fP (\fBGCObject\fP **p)"
+.br
+.ti -1c
+.RI "static void \fBcorrectgraylists\fP (\fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static void \fBmarkold\fP (\fBglobal_State\fP *g, \fBGCObject\fP *from, \fBGCObject\fP *to)"
+.br
+.ti -1c
+.RI "static void \fBfinishgencycle\fP (\fBlua_State\fP *L, \fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static void \fByoungcollection\fP (\fBlua_State\fP *L, \fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static void \fBatomic2gen\fP (\fBlua_State\fP *L, \fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static \fBlu_mem\fP \fBentergen\fP (\fBlua_State\fP *L, \fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static void \fBenterinc\fP (\fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "void \fBluaC_changemode\fP (\fBlua_State\fP *L, int newmode)"
+.br
+.ti -1c
+.RI "static \fBlu_mem\fP \fBfullgen\fP (\fBlua_State\fP *L, \fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static void \fBsetminordebt\fP (\fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static void \fBstepgenfull\fP (\fBlua_State\fP *L, \fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static void \fBgenstep\fP (\fBlua_State\fP *L, \fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static void \fBdeletelist\fP (\fBlua_State\fP *L, \fBGCObject\fP *p, \fBGCObject\fP *limit)"
+.br
+.ti -1c
+.RI "void \fBluaC_freeallobjects\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBsweepstep\fP (\fBlua_State\fP *L, \fBglobal_State\fP *g, int nextstate, \fBGCObject\fP **nextlist)"
+.br
+.ti -1c
+.RI "static \fBlu_mem\fP \fBsinglestep\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "void \fBluaC_runtilstate\fP (\fBlua_State\fP *L, int statesmask)"
+.br
+.ti -1c
+.RI "static void \fBincstep\fP (\fBlua_State\fP *L, \fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "void \fBluaC_step\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBfullinc\fP (\fBlua_State\fP *L, \fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "void \fBluaC_fullgc\fP (\fBlua_State\fP *L, int isemergency)"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define black2gray(x)   \fBresetbit\fP(x\->marked, \fBBLACKBIT\fP)"
+
+.PP
+在文件 lgc\&.c 第 72 行定义\&.
+.SS "#define checkconsistency(obj)     \fBlua_longassert\fP(!\fBiscollectable\fP(obj) || \fBrighttt\fP(obj))"
+
+.PP
+在文件 lgc\&.c 第 80 行定义\&.
+.SS "#define GCFINALIZECOST   50"
+
+.PP
+在文件 lgc\&.c 第 46 行定义\&.
+.SS "#define GCFINMAX   10"
+
+.PP
+在文件 lgc\&.c 第 40 行定义\&.
+.SS "#define GCSWEEPMAX   100"
+
+.PP
+在文件 lgc\&.c 第 35 行定义\&.
+.SS "#define gcvalueN(o)   (\fBiscollectable\fP(o) ? \fBgcvalue\fP(o) : NULL)"
+
+.PP
+在文件 lgc\&.c 第 86 行定义\&.
+.SS "#define gnodelast(h)   \fBgnode\fP(h, \fBcast_sizet\fP(\fBsizenode\fP(h)))"
+
+.PP
+在文件 lgc\&.c 第 117 行定义\&.
+.SS "#define keyiswhite(n)   (\fBkeyiscollectable\fP(n) && \fBiswhite\fP(\fBgckey\fP(n)))"
+
+.PP
+在文件 lgc\&.c 第 77 行定义\&.
+.SS "#define lgc_c"
+
+.PP
+在文件 lgc\&.c 第 7 行定义\&.
+.SS "#define linkgclist(o, p)   ((o)\->gclist = (p), (p) = \fBobj2gco\fP(o))"
+
+.PP
+在文件 lgc\&.c 第 140 行定义\&.
+.SS "#define linkobjgclist(o, p)   (*\fBgetgclist\fP(o) = (p), (p) = \fBobj2gco\fP(o))"
+
+.PP
+在文件 lgc\&.c 第 146 行定义\&.
+.SS "#define LUA_CORE"
+
+.PP
+在文件 lgc\&.c 第 8 行定义\&.
+.SS "#define makewhite(g, x)    (x\->marked = \fBcast_byte\fP((x\->marked & \fBmaskcolors\fP) | \fBluaC_white\fP(g)))"
+
+.PP
+在文件 lgc\&.c 第 68 行定义\&.
+.SS "#define markkey(g, n)   { if \fBkeyiswhite\fP(n) \fBreallymarkobject\fP(g,\fBgckey\fP(n)); }"
+
+.PP
+在文件 lgc\&.c 第 92 行定义\&.
+.SS "#define markobject(g, t)   { if (\fBiswhite\fP(t)) \fBreallymarkobject\fP(g, \fBobj2gco\fP(t)); }"
+
+.PP
+在文件 lgc\&.c 第 94 行定义\&.
+.SS "#define markobjectN(g, t)   { if (t) \fBmarkobject\fP(g,t); }"
+
+.PP
+在文件 lgc\&.c 第 100 行定义\&.
+.SS "#define markvalue(g, o)"
+\fB值:\fP
+.PP
+.nf
+  { checkconsistency(o); \
+  if (valiswhite(o)) reallymarkobject(g,gcvalue(o)); }
+.fi
+.PP
+在文件 lgc\&.c 第 89 行定义\&.
+.SS "#define maskcolors   (~(\fBbitmask\fP(\fBBLACKBIT\fP) | \fBWHITEBITS\fP | \fBAGEBITS\fP))"
+
+.PP
+在文件 lgc\&.c 第 64 行定义\&.
+.SS "#define maskgencolors   (~(\fBbitmask\fP(\fBBLACKBIT\fP) | \fBWHITEBITS\fP))"
+
+.PP
+在文件 lgc\&.c 第 969 行定义\&.
+.SS "#define PAUSEADJ   100"
+
+.PP
+在文件 lgc\&.c 第 60 行定义\&.
+.SS "#define valiswhite(x)   (\fBiscollectable\fP(x) && \fBiswhite\fP(\fBgcvalue\fP(x)))"
+
+.PP
+在文件 lgc\&.c 第 75 行定义\&.
+.SS "#define white2gray(x)   \fBresetbits\fP(x\->marked, \fBWHITEBITS\fP)"
+
+.PP
+在文件 lgc\&.c 第 71 行定义\&.
+.SS "#define WORK2MEM   sizeof(\fBTValue\fP)"
+
+.PP
+在文件 lgc\&.c 第 53 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static \fBlu_mem\fP atomic (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1416 行定义\&.
+.SS "static void atomic2gen (\fBlua_State\fP * L, \fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1169 行定义\&.
+.SS "static void callallpendingfinalizers (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 879 行定义\&.
+.SS "static void checkSizes (\fBlua_State\fP * L, \fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 802 行定义\&.
+.SS "static void clearbykeys (\fBglobal_State\fP * g, \fBGCObject\fP * l)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 664 行定义\&.
+.SS "static void clearbyvalues (\fBglobal_State\fP * g, \fBGCObject\fP * l, \fBGCObject\fP * f)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 683 行定义\&.
+.SS "static void clearkey (\fBNode\fP * n)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 159 行定义\&.
+.SS "static void convergeephemerons (\fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 632 行定义\&.
+.SS "static \fBGCObject\fP** correctgraylist (\fBGCObject\fP ** p)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1048 行定义\&.
+.SS "static void correctgraylists (\fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1091 行定义\&.
+.SS "static void deletelist (\fBlua_State\fP * L, \fBGCObject\fP * p, \fBGCObject\fP * limit)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1390 行定义\&.
+.SS "static void dothecall (\fBlua_State\fP * L, void * ud)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 830 行定义\&.
+.SS "static \fBlu_mem\fP entergen (\fBlua_State\fP * L, \fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1193 行定义\&.
+.SS "static void enterinc (\fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1208 行定义\&.
+.SS "static void entersweep (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1378 行定义\&.
+.SS "static \fBGCObject\fP** findlast (\fBGCObject\fP ** p)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 889 行定义\&.
+.SS "static void finishgencycle (\fBlua_State\fP * L, \fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1124 行定义\&.
+.SS "static void freeobj (\fBlua_State\fP * L, \fBGCObject\fP * o)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 711 行定义\&.
+.SS "static void freeupval (\fBlua_State\fP * L, \fBUpVal\fP * uv)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 704 行定义\&.
+.SS "static \fBlu_mem\fP fullgen (\fBlua_State\fP * L, \fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1238 行定义\&.
+.SS "static void fullinc (\fBlua_State\fP * L, \fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1585 行定义\&.
+.SS "static void GCTM (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 836 行定义\&.
+.SS "static void genstep (\fBlua_State\fP * L, \fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1314 行定义\&.
+.SS "static \fBGCObject\fP** getgclist (\fBGCObject\fP * o)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 120 行定义\&.
+.SS "static void incstep (\fBlua_State\fP * L, \fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1545 行定义\&.
+.SS "static int iscleared (\fBglobal_State\fP * g, const \fBGCObject\fP * o)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 173 行定义\&.
+.SS "void luaC_barrier_ (\fBlua_State\fP * L, \fBGCObject\fP * o, \fBGCObject\fP * v)"
+
+.PP
+在文件 lgc\&.c 第 193 行定义\&.
+.SS "void luaC_barrierback_ (\fBlua_State\fP * L, \fBGCObject\fP * o)"
+
+.PP
+在文件 lgc\&.c 第 214 行定义\&.
+.SS "void luaC_changemode (\fBlua_State\fP * L, int newmode)"
+
+.PP
+在文件 lgc\&.c 第 1223 行定义\&.
+.SS "void luaC_checkfinalizer (\fBlua_State\fP * L, \fBGCObject\fP * o, \fBTable\fP * mt)"
+
+.PP
+在文件 lgc\&.c 第 927 行定义\&.
+.SS "void luaC_fix (\fBlua_State\fP * L, \fBGCObject\fP * o)"
+
+.PP
+在文件 lgc\&.c 第 225 行定义\&.
+.SS "void luaC_freeallobjects (\fBlua_State\fP * L)"
+
+.PP
+在文件 lgc\&.c 第 1403 行定义\&.
+.SS "void luaC_fullgc (\fBlua_State\fP * L, int isemergency)"
+
+.PP
+在文件 lgc\&.c 第 1603 行定义\&.
+.SS "\fBGCObject\fP* luaC_newobj (\fBlua_State\fP * L, int tt, size_t sz)"
+
+.PP
+在文件 lgc\&.c 第 240 行定义\&.
+.SS "void luaC_runtilstate (\fBlua_State\fP * L, int statesmask)"
+
+.PP
+在文件 lgc\&.c 第 1531 行定义\&.
+.SS "void luaC_step (\fBlua_State\fP * L)"
+
+.PP
+在文件 lgc\&.c 第 1566 行定义\&.
+.SS "static \fBlu_mem\fP markbeingfnz (\fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 315 行定义\&.
+.SS "static void markmt (\fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 305 行定义\&.
+.SS "static void markold (\fBglobal_State\fP * g, \fBGCObject\fP * from, \fBGCObject\fP * to)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1107 行定义\&.
+.SS "static \fBlu_mem\fP propagateall (\fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 617 行定义\&.
+.SS "static \fBlu_mem\fP propagatemark (\fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 596 行定义\&.
+.SS "static void reallymarkobject (\fBglobal_State\fP * g, \fBGCObject\fP * o)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 268 行定义\&.
+.SS "static int remarkupvals (\fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 332 行定义\&.
+.SS "static void restartcollection (\fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 359 行定义\&.
+.SS "static int runafewfinalizers (\fBlua_State\fP * L, int n)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 867 行定义\&.
+.SS "static void separatetobefnz (\fBglobal_State\fP * g, int all)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 903 行定义\&.
+.SS "static void setminordebt (\fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1248 行定义\&.
+.SS "static void setpause (\fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1357 行定义\&.
+.SS "static \fBlu_mem\fP singlestep (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1476 行定义\&.
+.SS "static void stepgenfull (\fBlua_State\fP * L, \fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1274 行定义\&.
+.SS "static void sweep2old (\fBlua_State\fP * L, \fBGCObject\fP ** p)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 976 行定义\&.
+.SS "static \fBGCObject\fP** sweepgen (\fBlua_State\fP * L, \fBglobal_State\fP * g, \fBGCObject\fP ** p, \fBGCObject\fP * limit)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 999 行定义\&.
+.SS "static \fBGCObject\fP** sweeplist (\fBlua_State\fP * L, \fBGCObject\fP ** p, int countin, int * countout)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 755 行定义\&.
+.SS "static int sweepstep (\fBlua_State\fP * L, \fBglobal_State\fP * g, int nextstate, \fBGCObject\fP ** nextlist)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1459 行定义\&.
+.SS "static \fBGCObject\fP** sweeptolive (\fBlua_State\fP * L, \fBGCObject\fP ** p)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 782 行定义\&.
+.SS "static int traverseCclosure (\fBglobal_State\fP * g, \fBCClosure\fP * cl)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 538 行定义\&.
+.SS "static int traverseephemeron (\fBglobal_State\fP * g, \fBTable\fP * h, int inv)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 416 行定义\&.
+.SS "static int traverseLclosure (\fBglobal_State\fP * g, \fBLClosure\fP * cl)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 549 行定义\&.
+.SS "static int traverseproto (\fBglobal_State\fP * g, \fBProto\fP * f)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 523 行定义\&.
+.SS "static void traversestrongtable (\fBglobal_State\fP * g, \fBTable\fP * h)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 461 行定义\&.
+.SS "static \fBlu_mem\fP traversetable (\fBglobal_State\fP * g, \fBTable\fP * h)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 483 行定义\&.
+.SS "static int traversethread (\fBglobal_State\fP * g, \fBlua_State\fP * th)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 565 行定义\&.
+.SS "static int traverseudata (\fBglobal_State\fP * g, \fBUdata\fP * u)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 505 行定义\&.
+.SS "static void traverseweakvalue (\fBglobal_State\fP * g, \fBTable\fP * h)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 383 行定义\&.
+.SS "static \fBGCObject\fP* udata2finalize (\fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 817 行定义\&.
+.SS "static void whitelist (\fBglobal_State\fP * g, \fBGCObject\fP * p)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1033 行定义\&.
+.SS "static void youngcollection (\fBlua_State\fP * L, \fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lgc\&.c 第 1140 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

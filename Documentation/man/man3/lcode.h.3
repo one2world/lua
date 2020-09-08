@@ -1,0 +1,429 @@
+.TH "D:/gitworkspace/lua/src/lcode.h" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lcode.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'llex\&.h'\fP
+.br
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'lopcodes\&.h'\fP
+.br
+\fC#include 'lparser\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBNO_JUMP\fP   (\-1)"
+.br
+.ti -1c
+.RI "#define \fBfoldbinop\fP(op)   ((op) <= \fBOPR_SHR\fP)"
+.br
+.ti -1c
+.RI "#define \fBluaK_codeABC\fP(fs,  o,  a,  b,  c)   \fBluaK_codeABCk\fP(fs,o,a,b,c,0)"
+.br
+.ti -1c
+.RI "#define \fBgetinstruction\fP(fs,  e)   ((fs)\->f\->code[(e)\->u\&.info])"
+.br
+.ti -1c
+.RI "#define \fBluaK_setmultret\fP(fs,  e)   \fBluaK_setreturns\fP(fs, e, \fBLUA_MULTRET\fP)"
+.br
+.ti -1c
+.RI "#define \fBluaK_jumpto\fP(fs,  t)   \fBluaK_patchlist\fP(fs, \fBluaK_jump\fP(fs), t)"
+.br
+.in -1c
+.SS "类型定义"
+
+.in +1c
+.ti -1c
+.RI "typedef enum \fBBinOpr\fP \fBBinOpr\fP"
+.br
+.ti -1c
+.RI "typedef enum \fBUnOpr\fP \fBUnOpr\fP"
+.br
+.in -1c
+.SS "枚举"
+
+.in +1c
+.ti -1c
+.RI "enum \fBBinOpr\fP { \fBOPR_ADD\fP, \fBOPR_SUB\fP, \fBOPR_MUL\fP, \fBOPR_MOD\fP, \fBOPR_POW\fP, \fBOPR_DIV\fP, \fBOPR_IDIV\fP, \fBOPR_BAND\fP, \fBOPR_BOR\fP, \fBOPR_BXOR\fP, \fBOPR_SHL\fP, \fBOPR_SHR\fP, \fBOPR_CONCAT\fP, \fBOPR_EQ\fP, \fBOPR_LT\fP, \fBOPR_LE\fP, \fBOPR_NE\fP, \fBOPR_GT\fP, \fBOPR_GE\fP, \fBOPR_AND\fP, \fBOPR_OR\fP, \fBOPR_NOBINOPR\fP }"
+.br
+.ti -1c
+.RI "enum \fBUnOpr\fP { \fBOPR_MINUS\fP, \fBOPR_BNOT\fP, \fBOPR_NOT\fP, \fBOPR_LEN\fP, \fBOPR_NOUNOPR\fP }"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaK_code\fP (\fBFuncState\fP *fs, \fBInstruction\fP i)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaK_codeABx\fP (\fBFuncState\fP *fs, \fBOpCode\fP o, int A, unsigned int Bx)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaK_codeAsBx\fP (\fBFuncState\fP *fs, \fBOpCode\fP o, int A, int Bx)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaK_codeABCk\fP (\fBFuncState\fP *fs, \fBOpCode\fP o, int A, int B, int C, int k)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaK_isKint\fP (\fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaK_exp2const\fP (\fBFuncState\fP *fs, const \fBexpdesc\fP *e, \fBTValue\fP *v)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_fixline\fP (\fBFuncState\fP *fs, int line)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_nil\fP (\fBFuncState\fP *fs, int from, int n)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_reserveregs\fP (\fBFuncState\fP *fs, int n)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_checkstack\fP (\fBFuncState\fP *fs, int n)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_int\fP (\fBFuncState\fP *fs, int reg, \fBlua_Integer\fP n)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_dischargevars\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaK_exp2anyreg\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_exp2anyregup\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_exp2nextreg\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_exp2val\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaK_exp2RK\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_self\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e, \fBexpdesc\fP *key)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_indexed\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *t, \fBexpdesc\fP *k)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_goiftrue\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_goiffalse\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_storevar\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *var, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_setreturns\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e, int nresults)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_setoneret\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaK_jump\fP (\fBFuncState\fP *fs)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_ret\fP (\fBFuncState\fP *fs, int first, int nret)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_patchlist\fP (\fBFuncState\fP *fs, int list, int target)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_patchtohere\fP (\fBFuncState\fP *fs, int list)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_concat\fP (\fBFuncState\fP *fs, int *l1, int l2)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaK_getlabel\fP (\fBFuncState\fP *fs)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_prefix\fP (\fBFuncState\fP *fs, \fBUnOpr\fP op, \fBexpdesc\fP *v, int line)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_infix\fP (\fBFuncState\fP *fs, \fBBinOpr\fP op, \fBexpdesc\fP *v)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_posfix\fP (\fBFuncState\fP *fs, \fBBinOpr\fP op, \fBexpdesc\fP *v1, \fBexpdesc\fP *v2, int line)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_settablesize\fP (\fBFuncState\fP *fs, int pc, int ra, int asize, int hsize)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_setlist\fP (\fBFuncState\fP *fs, int base, int nelems, int tostore)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaK_finish\fP (\fBFuncState\fP *fs)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP \fBl_noret\fP \fBluaK_semerror\fP (\fBLexState\fP *ls, const char *msg)"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define foldbinop(op)   ((op) <= \fBOPR_SHR\fP)"
+
+.PP
+在文件 lcode\&.h 第 45 行定义\&.
+.SS "#define getinstruction(fs, e)   ((fs)\->f\->code[(e)\->u\&.info])"
+
+.PP
+在文件 lcode\&.h 第 55 行定义\&.
+.SS "#define luaK_codeABC(fs, o, a, b, c)   \fBluaK_codeABCk\fP(fs,o,a,b,c,0)"
+
+.PP
+在文件 lcode\&.h 第 48 行定义\&.
+.SS "#define luaK_jumpto(fs, t)   \fBluaK_patchlist\fP(fs, \fBluaK_jump\fP(fs), t)"
+
+.PP
+在文件 lcode\&.h 第 60 行定义\&.
+.SS "#define luaK_setmultret(fs, e)   \fBluaK_setreturns\fP(fs, e, \fBLUA_MULTRET\fP)"
+
+.PP
+在文件 lcode\&.h 第 58 行定义\&.
+.SS "#define NO_JUMP   (\-1)"
+
+.PP
+在文件 lcode\&.h 第 20 行定义\&.
+.SH "类型定义说明"
+.PP 
+.SS "typedef enum \fBBinOpr\fP \fBBinOpr\fP"
+
+.SS "typedef enum \fBUnOpr\fP \fBUnOpr\fP"
+
+.SH "枚举类型说明"
+.PP 
+.SS "enum \fBBinOpr\fP"
+
+.PP
+\fB枚举值\fP
+.in +1c
+.TP
+\fB\fIOPR_ADD \fP\fP
+.TP
+\fB\fIOPR_SUB \fP\fP
+.TP
+\fB\fIOPR_MUL \fP\fP
+.TP
+\fB\fIOPR_MOD \fP\fP
+.TP
+\fB\fIOPR_POW \fP\fP
+.TP
+\fB\fIOPR_DIV \fP\fP
+.TP
+\fB\fIOPR_IDIV \fP\fP
+.TP
+\fB\fIOPR_BAND \fP\fP
+.TP
+\fB\fIOPR_BOR \fP\fP
+.TP
+\fB\fIOPR_BXOR \fP\fP
+.TP
+\fB\fIOPR_SHL \fP\fP
+.TP
+\fB\fIOPR_SHR \fP\fP
+.TP
+\fB\fIOPR_CONCAT \fP\fP
+.TP
+\fB\fIOPR_EQ \fP\fP
+.TP
+\fB\fIOPR_LT \fP\fP
+.TP
+\fB\fIOPR_LE \fP\fP
+.TP
+\fB\fIOPR_NE \fP\fP
+.TP
+\fB\fIOPR_GT \fP\fP
+.TP
+\fB\fIOPR_GE \fP\fP
+.TP
+\fB\fIOPR_AND \fP\fP
+.TP
+\fB\fIOPR_OR \fP\fP
+.TP
+\fB\fIOPR_NOBINOPR \fP\fP
+.PP
+在文件 lcode\&.h 第 26 行定义\&.
+.SS "enum \fBUnOpr\fP"
+
+.PP
+\fB枚举值\fP
+.in +1c
+.TP
+\fB\fIOPR_MINUS \fP\fP
+.TP
+\fB\fIOPR_BNOT \fP\fP
+.TP
+\fB\fIOPR_NOT \fP\fP
+.TP
+\fB\fIOPR_LEN \fP\fP
+.TP
+\fB\fIOPR_NOUNOPR \fP\fP
+.PP
+在文件 lcode\&.h 第 51 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "\fBLUAI_FUNC\fP void luaK_checkstack (\fBFuncState\fP * fs, int n)"
+
+.PP
+在文件 lcode\&.c 第 474 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaK_code (\fBFuncState\fP * fs, \fBInstruction\fP i)"
+
+.PP
+在文件 lcode\&.c 第 390 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaK_codeABCk (\fBFuncState\fP * fs, \fBOpCode\fP o, int A, int B, int C, int k)"
+
+.PP
+在文件 lcode\&.c 第 405 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaK_codeABx (\fBFuncState\fP * fs, \fBOpCode\fP o, int A, unsigned int Bx)"
+
+.PP
+在文件 lcode\&.c 第 416 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaK_codeAsBx (\fBFuncState\fP * fs, \fBOpCode\fP o, int A, int Bx)"
+
+.PP
+在文件 lcode\&.c 第 426 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_concat (\fBFuncState\fP * fs, int * l1, int l2)"
+
+.PP
+在文件 lcode\&.c 第 180 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_dischargevars (\fBFuncState\fP * fs, \fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 759 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaK_exp2anyreg (\fBFuncState\fP * fs, \fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 940 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_exp2anyregup (\fBFuncState\fP * fs, \fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 959 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaK_exp2const (\fBFuncState\fP * fs, const \fBexpdesc\fP * e, \fBTValue\fP * v)"
+
+.PP
+在文件 lcode\&.c 第 83 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_exp2nextreg (\fBFuncState\fP * fs, \fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 928 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaK_exp2RK (\fBFuncState\fP * fs, \fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 1011 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_exp2val (\fBFuncState\fP * fs, \fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 969 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_finish (\fBFuncState\fP * fs)"
+
+.PP
+在文件 lcode\&.c 第 1786 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_fixline (\fBFuncState\fP * fs, int line)"
+
+.PP
+在文件 lcode\&.c 第 1726 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaK_getlabel (\fBFuncState\fP * fs)"
+
+.PP
+在文件 lcode\&.c 第 231 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_goiffalse (\fBFuncState\fP * fs, \fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 1143 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_goiftrue (\fBFuncState\fP * fs, \fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 1116 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_indexed (\fBFuncState\fP * fs, \fBexpdesc\fP * t, \fBexpdesc\fP * k)"
+
+.PP
+在文件 lcode\&.c 第 1261 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_infix (\fBFuncState\fP * fs, \fBBinOpr\fP op, \fBexpdesc\fP * v)"
+
+.PP
+在文件 lcode\&.c 第 1574 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_int (\fBFuncState\fP * fs, int reg, \fBlua_Integer\fP n)"
+
+.PP
+在文件 lcode\&.c 第 659 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaK_isKint (\fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 1211 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaK_jump (\fBFuncState\fP * fs)"
+
+.PP
+在文件 lcode\&.c 第 198 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_nil (\fBFuncState\fP * fs, int from, int n)"
+
+.PP
+在文件 lcode\&.c 第 130 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_patchlist (\fBFuncState\fP * fs, int list, int target)"
+
+.PP
+在文件 lcode\&.c 第 305 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_patchtohere (\fBFuncState\fP * fs, int list)"
+
+.PP
+在文件 lcode\&.c 第 311 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_posfix (\fBFuncState\fP * fs, \fBBinOpr\fP op, \fBexpdesc\fP * v1, \fBexpdesc\fP * v2, int line)"
+
+.PP
+在文件 lcode\&.c 第 1642 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_prefix (\fBFuncState\fP * fs, \fBUnOpr\fP op, \fBexpdesc\fP * v, int line)"
+
+.PP
+在文件 lcode\&.c 第 1553 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_reserveregs (\fBFuncState\fP * fs, int n)"
+
+.PP
+在文件 lcode\&.c 第 488 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_ret (\fBFuncState\fP * fs, int first, int nret)"
+
+.PP
+在文件 lcode\&.c 第 206 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_self (\fBFuncState\fP * fs, \fBexpdesc\fP * e, \fBexpdesc\fP * key)"
+
+.PP
+在文件 lcode\&.c 第 1068 行定义\&.
+.SS "\fBLUAI_FUNC\fP \fBl_noret\fP luaK_semerror (\fBLexState\fP * ls, const char * msg)"
+
+.PP
+在文件 lcode\&.c 第 45 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_setlist (\fBFuncState\fP * fs, int base, int nelems, int tostore)"
+
+.PP
+在文件 lcode\&.c 第 1750 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_setoneret (\fBFuncState\fP * fs, \fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 741 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_setreturns (\fBFuncState\fP * fs, \fBexpdesc\fP * e, int nresults)"
+
+.PP
+在文件 lcode\&.c 第 708 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_settablesize (\fBFuncState\fP * fs, int pc, int ra, int asize, int hsize)"
+
+.PP
+在文件 lcode\&.c 第 1732 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaK_storevar (\fBFuncState\fP * fs, \fBexpdesc\fP * var, \fBexpdesc\fP * e)"
+
+.PP
+在文件 lcode\&.c 第 1031 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

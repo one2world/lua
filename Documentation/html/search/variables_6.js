@@ -1,0 +1,21 @@
+var searchData=
+[
+  ['g_3925',['g',['../struct_l_g.html#ac8ead23c868ff18a35ed08bd8ffe1dfa',1,'LG']]],
+  ['gc_3926',['gc',['../union_value.html#a5b04ba62f6ed32ca290d545fe2927c23',1,'Value::gc()'],['../union_g_c_union.html#a0a1ced10a8ece177a7484f2a94b0c287',1,'GCUnion::gc()']]],
+  ['gcdebt_3927',['GCdebt',['../structglobal___state.html#ae466d806319d4ba1b672bbff60f369f9',1,'global_State']]],
+  ['gcemergency_3928',['gcemergency',['../structglobal___state.html#ae6cc757dac1c965fb147c2886d48e1fa',1,'global_State']]],
+  ['gcestimate_3929',['GCestimate',['../structglobal___state.html#a6a108191b7f626df294d49cbb4380da1',1,'global_State']]],
+  ['gckind_3930',['gckind',['../structglobal___state.html#a603b7a85bbaf95ecc2ac48bf08ffe0e6',1,'global_State']]],
+  ['gclist_3931',['gclist',['../struct_udata.html#a9e83d376257d9d775ce3e9c6f40ef0f1',1,'Udata::gclist()'],['../struct_proto.html#a9e83d376257d9d775ce3e9c6f40ef0f1',1,'Proto::gclist()'],['../struct_table.html#a9e83d376257d9d775ce3e9c6f40ef0f1',1,'Table::gclist()'],['../structlua___state.html#a9e83d376257d9d775ce3e9c6f40ef0f1',1,'lua_State::gclist()']]],
+  ['gcpause_3932',['gcpause',['../structglobal___state.html#af8555bb94d52c1ab47ba9f877ae40494',1,'global_State']]],
+  ['gcrunning_3933',['gcrunning',['../structglobal___state.html#a39557d352dfca7f1553b694d54c0b662',1,'global_State']]],
+  ['gcstate_3934',['gcstate',['../structglobal___state.html#aec22885c483e649f2d65368c3507cd9a',1,'global_State']]],
+  ['gcstepmul_3935',['gcstepmul',['../structglobal___state.html#aaf11518fe18dec6b3e2e4d8a9a95f428',1,'global_State']]],
+  ['gcstepsize_3936',['gcstepsize',['../structglobal___state.html#a20818519922dad51df664111576a73b8',1,'global_State']]],
+  ['genmajormul_3937',['genmajormul',['../structglobal___state.html#af742f5e67f1ead7df0044b4903a65771',1,'global_State']]],
+  ['genminormul_3938',['genminormul',['../structglobal___state.html#a8c94405dfaa56f002f0df59c53598658',1,'global_State']]],
+  ['globall_3939',['globalL',['../lua_8c.html#af2f256e94f7ca1748abb736e9b311cc4',1,'lua.c']]],
+  ['gray_3940',['gray',['../structglobal___state.html#a212d17a5d31cf9cd949ba66f16d63139',1,'global_State']]],
+  ['grayagain_3941',['grayagain',['../structglobal___state.html#af6b3198325143bc0a9a529e9b14ff29a',1,'global_State']]],
+  ['gt_3942',['gt',['../struct_dyndata.html#a4c6dec0d9e4a816e2717a8b8534afaed',1,'Dyndata']]]
+];

@@ -1,0 +1,419 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_llex_8h" xml:lang="zh">
+<title>D:/gitworkspace/lua/llex.h 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/llex.h</primary></indexterm>
+<programlisting>#include &quot;lobject.h&quot;
+#include &quot;lzio.h&quot;
+</programlisting>llex.h 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8h__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8h__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>结构体    </title>
+        <itemizedlist>
+            <listitem><para>union <link linkend="_union_sem_info">SemInfo</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_token">Token</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_lex_state">LexState</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_llex_8h_1a6bc8e20ff15b7aa178aceea51e691e44">FIRST_RESERVED</link>   257</para>
+</listitem>
+            <listitem><para>#define <link linkend="_llex_8h_1af868e4c2b4c8551dad769502e7c3ec32">LUA_ENV</link>   &quot;_ENV&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_llex_8h_1a24f40ac0891b0d584c0e432b2c6e1c71">NUM_RESERVED</link>   (<link linkend="_llimits_8h_1a37a9e2c4b53433d34bad0f12a1500c08">cast_int</link>(<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a592e99387742b5748aa5e341c99dffd0">TK_WHILE</link>-<link linkend="_llex_8h_1a6bc8e20ff15b7aa178aceea51e691e44">FIRST_RESERVED</link> + 1))</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>类型定义    </title>
+        <itemizedlist>
+            <listitem><para>typedef struct <link linkend="_struct_token">Token</link> <link linkend="_llex_8h_1ae88d5c0259051080fda097b92d99d7ee">Token</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_lex_state">LexState</link> <link linkend="_llex_8h_1a9f82fde07775e272863638db15ba8401">LexState</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>枚举    </title>
+        <itemizedlist>
+            <listitem><para>enum <link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04">RESERVED</link> { 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04adbea546e357b70d29f631824a4f9cfed">TK_AND</link> = FIRST_RESERVED, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a37065a9cb3cc1cc8a17537dc1ee5e0f0">TK_BREAK</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a2fbaee0c1e87c30a1809ff22893fe2f9">TK_DO</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a3f50a3a010dc1ba1401d460900575b47">TK_ELSE</link>, 
+
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04af85f1d50bab033c17f7341b5e71f4d60">TK_ELSEIF</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a541ef482a7317bd2a54032f165d90db7">TK_END</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a065bdf8569f3a1ab4130f7e1ff2203ae">TK_FALSE</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a7dcf533a644fc9cb697137a8a9b54f4b">TK_FOR</link>, 
+
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04aafc8fa070d8d0bb9569b875cbc6b1a8c">TK_FUNCTION</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04af41cf088c658a62b2381424416171445">TK_GOTO</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a601b374145c8554a0dc2d1663cbdfeb1">TK_IF</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a88b8f5e56057cb0d4e633046b2b9e66e">TK_IN</link>, 
+
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a5d6f51dd7b248ee46da5de8e33f34992">TK_LOCAL</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a905f67bd8b8ac9b5e0236aa5dec2e7b5">TK_NIL</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a985342409492de2e599c6202e9180ad9">TK_NOT</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04ab4578d7ddbacda8286ad2205d3d917e9">TK_OR</link>, 
+
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a9f9929bcc6f4a87310869eaf9efed4cd">TK_REPEAT</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04aba4fafc284c6c6aa99340efdba0b76e8">TK_RETURN</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a757e31c13acf13af22615dca8c1b7c97">TK_THEN</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a67fdd8ec6c80ac2163c8d3e7d0ac50c1">TK_TRUE</link>, 
+
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04ab7232de731ef17fbc644b370c783719c">TK_UNTIL</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a592e99387742b5748aa5e341c99dffd0">TK_WHILE</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a7f7c69f2e524e3ab183318cf52575ba8">TK_IDIV</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a8367a7a9a88e9ea3cef16ab15887a278">TK_CONCAT</link>, 
+
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a500efed658259c56ef30938c20c3b6c4">TK_DOTS</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04ae9b97178246db483138ab3d18039bfb2">TK_EQ</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a39306a802115256cf2099f6c724a95b0">TK_GE</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04ace38c3f7b08d6ffe00acdd0706ba35de">TK_LE</link>, 
+
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a6897243f49a32e90ca094af33c16374b">TK_NE</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04afe39400ab62457e9a823aa8521d0610b">TK_SHL</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04ad15c43ae39b99d8f834419ec74183185">TK_SHR</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a3a767e0c4ce0407785d87a1a56980de2">TK_DBCOLON</link>, 
+
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a9fcd34e2e50a0afb82f0dae65836187b">TK_EOS</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a81df881e62ebf1fe93b4820b7b54984d">TK_FLT</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a9f48ed12541fab691e25e3ca9e38ac9f">TK_INT</link>, 
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a84e5aed35515b2881005d88dccaf0c30">TK_NAME</link>, 
+
+<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a2f748d118b4a20e2b1dc12538ccd9876">TK_STRING</link>
+ }</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_llex_8h_1a5f7573e2f03006437bd01422a0e390df">luaX_init</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_llex_8h_1aac9c3f80c74f7d861348e74f5fda1452">luaX_setinput</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17">ZIO</link> *z, <link linkend="_struct_t_string">TString</link> *source, int firstchar)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> <link linkend="_struct_t_string">TString</link> * <link linkend="_llex_8h_1aa6e79179f823cf156f61899a09239ca6">luaX_newstring</link> (<link linkend="_struct_lex_state">LexState</link> *ls, const char *str, size_t l)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_llex_8h_1a626896648b5c598666b1e051fd70a568">luaX_next</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> int <link linkend="_llex_8h_1ad024d435463fc54e7e592d9bb8a7b26b">luaX_lookahead</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> <link linkend="_llex_8h_1a189ff2bb7bd23c89531fdad321fccd02">luaX_syntaxerror</link> (<link linkend="_struct_lex_state">LexState</link> *ls, const char *s)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> const char * <link linkend="_llex_8h_1a3e3a9d8e2c65ba5fc79b156c342fdb25">luaX_token2str</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int token)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_llex_8h_1a6bc8e20ff15b7aa178aceea51e691e44"/>    <section>
+    <title>FIRST_RESERVED</title>
+<indexterm><primary>FIRST_RESERVED</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>FIRST_RESERVED</secondary></indexterm>
+<para><computeroutput>#define FIRST_RESERVED   257</computeroutput></para><para>
+在文件 <link linkend="_llex_8h_source">llex.h</link> 第 <link linkend="_llex_8h_source_1l00014">14</link> 行定义.</para>
+    </section><anchor xml:id="_llex_8h_1af868e4c2b4c8551dad769502e7c3ec32"/>    <section>
+    <title>LUA_ENV</title>
+<indexterm><primary>LUA_ENV</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>LUA_ENV</secondary></indexterm>
+<para><computeroutput>#define LUA_ENV   &quot;_ENV&quot;</computeroutput></para><para>
+在文件 <link linkend="_llex_8h_source">llex.h</link> 第 <link linkend="_llex_8h_source_1l00018">18</link> 行定义.</para>
+    </section><anchor xml:id="_llex_8h_1a24f40ac0891b0d584c0e432b2c6e1c71"/>    <section>
+    <title>NUM_RESERVED</title>
+<indexterm><primary>NUM_RESERVED</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>NUM_RESERVED</secondary></indexterm>
+<para><computeroutput>#define NUM_RESERVED   (<link linkend="_llimits_8h_1a37a9e2c4b53433d34bad0f12a1500c08">cast_int</link>(<link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a592e99387742b5748aa5e341c99dffd0">TK_WHILE</link>-<link linkend="_llex_8h_1a6bc8e20ff15b7aa178aceea51e691e44">FIRST_RESERVED</link> + 1))</computeroutput></para><para>
+在文件 <link linkend="_llex_8h_source">llex.h</link> 第 <link linkend="_llex_8h_source_1l00040">40</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>类型定义说明</title>
+<anchor xml:id="_llex_8h_1a9f82fde07775e272863638db15ba8401"/>    <section>
+    <title>LexState</title>
+<indexterm><primary>LexState</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>LexState</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_lex_state">LexState</link> <link linkend="_struct_lex_state">LexState</link></computeroutput></para>    </section><anchor xml:id="_llex_8h_1ae88d5c0259051080fda097b92d99d7ee"/>    <section>
+    <title>Token</title>
+<indexterm><primary>Token</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>Token</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_token">Token</link> <link linkend="_struct_token">Token</link></computeroutput></para></section>
+</section>
+<section>
+<title>枚举类型说明</title>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04"/>    <section>
+    <title>RESERVED</title>
+<indexterm><primary>RESERVED</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>RESERVED</secondary></indexterm>
+<para><computeroutput>enum <link linkend="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04">RESERVED</link></computeroutput></para><informaltable frame="all">
+<title>枚举值</title>
+    <tgroup cols="2" align="left" colsep="1" rowsep="1">
+      <colspec colname='c1'/>
+      <colspec colname='c2'/>
+<tbody>
+<row><entry><indexterm><primary>TK_AND</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_AND</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04adbea546e357b70d29f631824a4f9cfed"/>TK_AND</entry><entry></entry></row><row><entry><indexterm><primary>TK_BREAK</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_BREAK</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a37065a9cb3cc1cc8a17537dc1ee5e0f0"/>TK_BREAK</entry><entry></entry></row><row><entry><indexterm><primary>TK_DO</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_DO</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a2fbaee0c1e87c30a1809ff22893fe2f9"/>TK_DO</entry><entry></entry></row><row><entry><indexterm><primary>TK_ELSE</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_ELSE</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a3f50a3a010dc1ba1401d460900575b47"/>TK_ELSE</entry><entry></entry></row><row><entry><indexterm><primary>TK_ELSEIF</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_ELSEIF</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04af85f1d50bab033c17f7341b5e71f4d60"/>TK_ELSEIF</entry><entry></entry></row><row><entry><indexterm><primary>TK_END</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_END</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a541ef482a7317bd2a54032f165d90db7"/>TK_END</entry><entry></entry></row><row><entry><indexterm><primary>TK_FALSE</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_FALSE</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a065bdf8569f3a1ab4130f7e1ff2203ae"/>TK_FALSE</entry><entry></entry></row><row><entry><indexterm><primary>TK_FOR</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_FOR</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a7dcf533a644fc9cb697137a8a9b54f4b"/>TK_FOR</entry><entry></entry></row><row><entry><indexterm><primary>TK_FUNCTION</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_FUNCTION</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04aafc8fa070d8d0bb9569b875cbc6b1a8c"/>TK_FUNCTION</entry><entry></entry></row><row><entry><indexterm><primary>TK_GOTO</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_GOTO</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04af41cf088c658a62b2381424416171445"/>TK_GOTO</entry><entry></entry></row><row><entry><indexterm><primary>TK_IF</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_IF</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a601b374145c8554a0dc2d1663cbdfeb1"/>TK_IF</entry><entry></entry></row><row><entry><indexterm><primary>TK_IN</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_IN</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a88b8f5e56057cb0d4e633046b2b9e66e"/>TK_IN</entry><entry></entry></row><row><entry><indexterm><primary>TK_LOCAL</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_LOCAL</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a5d6f51dd7b248ee46da5de8e33f34992"/>TK_LOCAL</entry><entry></entry></row><row><entry><indexterm><primary>TK_NIL</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_NIL</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a905f67bd8b8ac9b5e0236aa5dec2e7b5"/>TK_NIL</entry><entry></entry></row><row><entry><indexterm><primary>TK_NOT</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_NOT</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a985342409492de2e599c6202e9180ad9"/>TK_NOT</entry><entry></entry></row><row><entry><indexterm><primary>TK_OR</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_OR</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04ab4578d7ddbacda8286ad2205d3d917e9"/>TK_OR</entry><entry></entry></row><row><entry><indexterm><primary>TK_REPEAT</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_REPEAT</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a9f9929bcc6f4a87310869eaf9efed4cd"/>TK_REPEAT</entry><entry></entry></row><row><entry><indexterm><primary>TK_RETURN</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_RETURN</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04aba4fafc284c6c6aa99340efdba0b76e8"/>TK_RETURN</entry><entry></entry></row><row><entry><indexterm><primary>TK_THEN</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_THEN</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a757e31c13acf13af22615dca8c1b7c97"/>TK_THEN</entry><entry></entry></row><row><entry><indexterm><primary>TK_TRUE</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_TRUE</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a67fdd8ec6c80ac2163c8d3e7d0ac50c1"/>TK_TRUE</entry><entry></entry></row><row><entry><indexterm><primary>TK_UNTIL</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_UNTIL</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04ab7232de731ef17fbc644b370c783719c"/>TK_UNTIL</entry><entry></entry></row><row><entry><indexterm><primary>TK_WHILE</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_WHILE</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a592e99387742b5748aa5e341c99dffd0"/>TK_WHILE</entry><entry></entry></row><row><entry><indexterm><primary>TK_IDIV</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_IDIV</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a7f7c69f2e524e3ab183318cf52575ba8"/>TK_IDIV</entry><entry></entry></row><row><entry><indexterm><primary>TK_CONCAT</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_CONCAT</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a8367a7a9a88e9ea3cef16ab15887a278"/>TK_CONCAT</entry><entry></entry></row><row><entry><indexterm><primary>TK_DOTS</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_DOTS</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a500efed658259c56ef30938c20c3b6c4"/>TK_DOTS</entry><entry></entry></row><row><entry><indexterm><primary>TK_EQ</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_EQ</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04ae9b97178246db483138ab3d18039bfb2"/>TK_EQ</entry><entry></entry></row><row><entry><indexterm><primary>TK_GE</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_GE</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a39306a802115256cf2099f6c724a95b0"/>TK_GE</entry><entry></entry></row><row><entry><indexterm><primary>TK_LE</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_LE</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04ace38c3f7b08d6ffe00acdd0706ba35de"/>TK_LE</entry><entry></entry></row><row><entry><indexterm><primary>TK_NE</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_NE</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a6897243f49a32e90ca094af33c16374b"/>TK_NE</entry><entry></entry></row><row><entry><indexterm><primary>TK_SHL</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_SHL</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04afe39400ab62457e9a823aa8521d0610b"/>TK_SHL</entry><entry></entry></row><row><entry><indexterm><primary>TK_SHR</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_SHR</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04ad15c43ae39b99d8f834419ec74183185"/>TK_SHR</entry><entry></entry></row><row><entry><indexterm><primary>TK_DBCOLON</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_DBCOLON</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a3a767e0c4ce0407785d87a1a56980de2"/>TK_DBCOLON</entry><entry></entry></row><row><entry><indexterm><primary>TK_EOS</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_EOS</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a9fcd34e2e50a0afb82f0dae65836187b"/>TK_EOS</entry><entry></entry></row><row><entry><indexterm><primary>TK_FLT</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_FLT</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a81df881e62ebf1fe93b4820b7b54984d"/>TK_FLT</entry><entry></entry></row><row><entry><indexterm><primary>TK_INT</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_INT</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a9f48ed12541fab691e25e3ca9e38ac9f"/>TK_INT</entry><entry></entry></row><row><entry><indexterm><primary>TK_NAME</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_NAME</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a84e5aed35515b2881005d88dccaf0c30"/>TK_NAME</entry><entry></entry></row><row><entry><indexterm><primary>TK_STRING</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>TK_STRING</secondary></indexterm>
+<anchor xml:id="_llex_8h_1ae5bd761f37716726f95e4be16a08ac04a2f748d118b4a20e2b1dc12538ccd9876"/>TK_STRING</entry><entry></entry></row>    </tbody>
+    </tgroup>
+</informaltable>
+<para>
+在文件 <link linkend="_llex_8h_source">llex.h</link> 第 <link linkend="_llex_8h_source_1l00026">26</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_llex_8h_1a5f7573e2f03006437bd01422a0e390df"/>    <section>
+    <title>luaX_init()</title>
+<indexterm><primary>luaX_init</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>luaX_init</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaX_init (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00070">70</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8h_a5f7573e2f03006437bd01422a0e390df_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8h_a5f7573e2f03006437bd01422a0e390df_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8h_1ad024d435463fc54e7e592d9bb8a7b26b"/>    <section>
+    <title>luaX_lookahead()</title>
+<indexterm><primary>luaX_lookahead</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>luaX_lookahead</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> int luaX_lookahead (<link linkend="_struct_lex_state">LexState</link> * ls)</computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00573">573</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8h_ad024d435463fc54e7e592d9bb8a7b26b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8h_ad024d435463fc54e7e592d9bb8a7b26b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8h_1aa6e79179f823cf156f61899a09239ca6"/>    <section>
+    <title>luaX_newstring()</title>
+<indexterm><primary>luaX_newstring</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>luaX_newstring</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> <link linkend="_struct_t_string">TString</link>* luaX_newstring (<link linkend="_struct_lex_state">LexState</link> * ls, const char * str, size_t l)</computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00130">130</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8h_aa6e79179f823cf156f61899a09239ca6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8h_aa6e79179f823cf156f61899a09239ca6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8h_1a626896648b5c598666b1e051fd70a568"/>    <section>
+    <title>luaX_next()</title>
+<indexterm><primary>luaX_next</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>luaX_next</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaX_next (<link linkend="_struct_lex_state">LexState</link> * ls)</computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00562">562</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8h_a626896648b5c598666b1e051fd70a568_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8h_a626896648b5c598666b1e051fd70a568_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8h_1aac9c3f80c74f7d861348e74f5fda1452"/>    <section>
+    <title>luaX_setinput()</title>
+<indexterm><primary>luaX_setinput</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>luaX_setinput</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaX_setinput (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17">ZIO</link> * z, <link linkend="_struct_t_string">TString</link> * source, int firstchar)</computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00165">165</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8h_aac9c3f80c74f7d861348e74f5fda1452_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8h_1a189ff2bb7bd23c89531fdad321fccd02"/>    <section>
+    <title>luaX_syntaxerror()</title>
+<indexterm><primary>luaX_syntaxerror</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>luaX_syntaxerror</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> luaX_syntaxerror (<link linkend="_struct_lex_state">LexState</link> * ls, const char * s)</computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00120">120</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8h_a189ff2bb7bd23c89531fdad321fccd02_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8h_a189ff2bb7bd23c89531fdad321fccd02_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_llex_8h_1a3e3a9d8e2c65ba5fc79b156c342fdb25"/>    <section>
+    <title>luaX_token2str()</title>
+<indexterm><primary>luaX_token2str</primary><secondary>llex.h</secondary></indexterm>
+<indexterm><primary>llex.h</primary><secondary>luaX_token2str</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> const char* luaX_token2str (<link linkend="_struct_lex_state">LexState</link> * ls, int token)</computeroutput></para><para>
+在文件 <link linkend="_llex_8c_source">llex.c</link> 第 <link linkend="_llex_8c_source_1l00082">82</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8h_a3e3a9d8e2c65ba5fc79b156c342fdb25_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="llex_8h_a3e3a9d8e2c65ba5fc79b156c342fdb25_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+</section>

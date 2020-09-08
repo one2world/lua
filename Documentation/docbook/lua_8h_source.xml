@@ -1,0 +1,521 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lua_8h_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/lua.h</title>
+<programlisting><anchor xml:id="_lua_8h_source_1l00001"/><link linkend="_lua_8h_1a28186297f2e9f2de0652504633de8fb3">00001</link> <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;lua.h&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Lua&#32;-&#32;A&#32;Scripting&#32;Language</emphasis>
+00004 <emphasis role="comment">**&#32;Lua.org,&#32;PUC-Rio,&#32;Brazil&#32;(http://www.lua.org)</emphasis>
+00005 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;at&#32;the&#32;end&#32;of&#32;this&#32;file</emphasis>
+00006 <emphasis role="comment">*/</emphasis>
+00007 
+00008 
+00009 <emphasis role="preprocessor">#ifndef&#32;lua_h</emphasis>
+00010 <emphasis role="preprocessor">#define&#32;lua_h</emphasis>
+00011 
+00012 <emphasis role="preprocessor">#include&#32;&lt;stdarg.h&gt;</emphasis>
+00013 <emphasis role="preprocessor">#include&#32;&lt;stddef.h&gt;</emphasis>
+00014 
+00015 
+00016 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_luaconf_8h">luaconf.h</link>&quot;</emphasis>
+00017 
+00018 
+<anchor xml:id="_lua_8h_source_1l00019"/><link linkend="_lua_8h_1a63a596b6a839201a9461aefb2b5297c3">00019</link> <emphasis role="preprocessor">#define&#32;LUA_VERSION_MAJOR&#32;&#32;&#32;&quot;5&quot;</emphasis>
+<anchor xml:id="_lua_8h_source_1l00020"/><link linkend="_lua_8h_1a6650b301b9f1e26623859bd07a6952c5">00020</link> <emphasis role="preprocessor">#define&#32;LUA_VERSION_MINOR&#32;&#32;&#32;&quot;4&quot;</emphasis>
+<anchor xml:id="_lua_8h_source_1l00021"/><link linkend="_lua_8h_1a5443a01f69acbb1eee51f4e9795410c0">00021</link> <emphasis role="preprocessor">#define&#32;LUA_VERSION_RELEASE&#32;&quot;0&quot;</emphasis>
+00022 
+<anchor xml:id="_lua_8h_source_1l00023"/><link linkend="_lua_8h_1a4c575ef5fb9bad1872613a9d832486a5">00023</link> <emphasis role="preprocessor">#define&#32;LUA_VERSION_NUM&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;504</emphasis>
+<anchor xml:id="_lua_8h_source_1l00024"/><link linkend="_lua_8h_1ac106ccf99c03d9f3919f989cff921990">00024</link> <emphasis role="preprocessor">#define&#32;LUA_VERSION_RELEASE_NUM&#32;&#32;&#32;&#32;&#32;(LUA_VERSION_NUM&#32;*&#32;100&#32;+&#32;0)</emphasis>
+00025 
+<anchor xml:id="_lua_8h_source_1l00026"/><link linkend="_lua_8h_1a3818e6f6538c9f42e9522c74334df03d">00026</link> <emphasis role="preprocessor">#define&#32;LUA_VERSION&#32;&quot;Lua&#32;&quot;&#32;LUA_VERSION_MAJOR&#32;&quot;.&quot;&#32;LUA_VERSION_MINOR</emphasis>
+<anchor xml:id="_lua_8h_source_1l00027"/><link linkend="_lua_8h_1abeb7a5ea7080e8ef597181124801f759">00027</link> <emphasis role="preprocessor">#define&#32;LUA_RELEASE&#32;LUA_VERSION&#32;&quot;.&quot;&#32;LUA_VERSION_RELEASE</emphasis>
+<anchor xml:id="_lua_8h_source_1l00028"/><link linkend="_lua_8h_1a5126fa04dbeee0b9118c769beadcd62d">00028</link> <emphasis role="preprocessor">#define&#32;LUA_COPYRIGHT&#32;&#32;&#32;LUA_RELEASE&#32;&quot;&#32;&#32;Copyright&#32;(C)&#32;1994-2020&#32;Lua.org,&#32;PUC-Rio&quot;</emphasis>
+<anchor xml:id="_lua_8h_source_1l00029"/><link linkend="_lua_8h_1ab6ff0964a416a9a7c1e90337c965f102">00029</link> <emphasis role="preprocessor">#define&#32;LUA_AUTHORS&#32;&quot;R.&#32;Ierusalimschy,&#32;L.&#32;H.&#32;de&#32;Figueiredo,&#32;W.&#32;Celes&quot;</emphasis>
+00030 
+00031 
+00032 <emphasis role="comment">/*&#32;mark&#32;for&#32;precompiled&#32;code&#32;(&apos;&lt;esc&gt;Lua&apos;)&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00033"/><link linkend="_lua_8h_1af21c9fa681dc005c17a7b288882cae1b">00033</link> <emphasis role="preprocessor">#define&#32;LUA_SIGNATURE&#32;&#32;&#32;&quot;\x1bLua&quot;</emphasis>
+00034 
+00035 <emphasis role="comment">/*&#32;option&#32;for&#32;multiple&#32;returns&#32;in&#32;&apos;lua_pcall&apos;&#32;and&#32;&apos;lua_call&apos;&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00036"/><link linkend="_lua_8h_1ace3545adc11664c2f2b152fbe8b6283c">00036</link> <emphasis role="preprocessor">#define&#32;LUA_MULTRET&#32;(-1)</emphasis>
+00037 
+00038 
+00039 <emphasis role="comment">/*</emphasis>
+00040 <emphasis role="comment">**&#32;Pseudo-indices</emphasis>
+00041 <emphasis role="comment">**&#32;(-LUAI_MAXSTACK&#32;is&#32;the&#32;minimum&#32;valid&#32;index;&#32;we&#32;keep&#32;some&#32;free&#32;empty</emphasis>
+00042 <emphasis role="comment">**&#32;space&#32;after&#32;that&#32;to&#32;help&#32;overflow&#32;detection)</emphasis>
+00043 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00044"/><link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">00044</link> <emphasis role="preprocessor">#define&#32;LUA_REGISTRYINDEX&#32;&#32;&#32;(-LUAI_MAXSTACK&#32;-&#32;1000)</emphasis>
+<anchor xml:id="_lua_8h_source_1l00045"/><link linkend="_lua_8h_1ac3aa6665c25070f282c9827ec919fe6a">00045</link> <emphasis role="preprocessor">#define&#32;lua_upvalueindex(i)&#32;(LUA_REGISTRYINDEX&#32;-&#32;(i))</emphasis>
+00046 
+00047 
+00048 <emphasis role="comment">/*&#32;thread&#32;status&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00049"/><link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">00049</link> <emphasis role="preprocessor">#define&#32;LUA_OK&#32;&#32;&#32;&#32;&#32;&#32;0</emphasis>
+<anchor xml:id="_lua_8h_source_1l00050"/><link linkend="_lua_8h_1ab69f4bd0c0693d4c8fcfc0ebaeb2806b">00050</link> <emphasis role="preprocessor">#define&#32;LUA_YIELD&#32;&#32;&#32;1</emphasis>
+<anchor xml:id="_lua_8h_source_1l00051"/><link linkend="_lua_8h_1af4bd6d4de5f10de738f81d007982abed">00051</link> <emphasis role="preprocessor">#define&#32;LUA_ERRRUN&#32;&#32;2</emphasis>
+<anchor xml:id="_lua_8h_source_1l00052"/><link linkend="_lua_8h_1a779d4c0fc1c9da41b7d983646267e11f">00052</link> <emphasis role="preprocessor">#define&#32;LUA_ERRSYNTAX&#32;&#32;&#32;3</emphasis>
+<anchor xml:id="_lua_8h_source_1l00053"/><link linkend="_lua_8h_1ac28ced8d63f58b5164a298d7d254f658">00053</link> <emphasis role="preprocessor">#define&#32;LUA_ERRMEM&#32;&#32;4</emphasis>
+<anchor xml:id="_lua_8h_source_1l00054"/><link linkend="_lua_8h_1a295ea44b6036e266b06e5de0f8ff24e0">00054</link> <emphasis role="preprocessor">#define&#32;LUA_ERRERR&#32;&#32;5</emphasis>
+00055 
+00056 
+00057 <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_structlua___state">lua_State</link>&#32;<link linkend="_structlua___state">lua_State</link>;
+00058 
+00059 
+00060 <emphasis role="comment">/*</emphasis>
+00061 <emphasis role="comment">**&#32;basic&#32;types</emphasis>
+00062 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00063"/><link linkend="_lua_8h_1a39c27eef097c704eee3536906dea5380">00063</link> <emphasis role="preprocessor">#define&#32;LUA_TNONE&#32;&#32;&#32;&#32;&#32;&#32;&#32;(-1)</emphasis>
+00064 
+<anchor xml:id="_lua_8h_source_1l00065"/><link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">00065</link> <emphasis role="preprocessor">#define&#32;LUA_TNIL&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;0</emphasis>
+<anchor xml:id="_lua_8h_source_1l00066"/><link linkend="_lua_8h_1a611808ed12d4c2aee2a9e298a9d9a9bf">00066</link> <emphasis role="preprocessor">#define&#32;LUA_TBOOLEAN&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;1</emphasis>
+<anchor xml:id="_lua_8h_source_1l00067"/><link linkend="_lua_8h_1aa030c2d649070173902c8094d8e0e2cd">00067</link> <emphasis role="preprocessor">#define&#32;LUA_TLIGHTUSERDATA&#32;&#32;2</emphasis>
+<anchor xml:id="_lua_8h_source_1l00068"/><link linkend="_lua_8h_1a7f62ecb240cb38da9c8a53b41fe21ed9">00068</link> <emphasis role="preprocessor">#define&#32;LUA_TNUMBER&#32;&#32;&#32;&#32;&#32;3</emphasis>
+<anchor xml:id="_lua_8h_source_1l00069"/><link linkend="_lua_8h_1a57de20d87bb5131a3159f2bd52e3fab6">00069</link> <emphasis role="preprocessor">#define&#32;LUA_TSTRING&#32;&#32;&#32;&#32;&#32;4</emphasis>
+<anchor xml:id="_lua_8h_source_1l00070"/><link linkend="_lua_8h_1a31620fd8da5b655b7879e16a116ec31a">00070</link> <emphasis role="preprocessor">#define&#32;LUA_TTABLE&#32;&#32;&#32;&#32;&#32;&#32;5</emphasis>
+<anchor xml:id="_lua_8h_source_1l00071"/><link linkend="_lua_8h_1adaa7fa6e2561c1bc428ba8d265171494">00071</link> <emphasis role="preprocessor">#define&#32;LUA_TFUNCTION&#32;&#32;&#32;&#32;&#32;&#32;&#32;6</emphasis>
+<anchor xml:id="_lua_8h_source_1l00072"/><link linkend="_lua_8h_1a84fd4c52cea4073671a4cd0eb7026dc7">00072</link> <emphasis role="preprocessor">#define&#32;LUA_TUSERDATA&#32;&#32;&#32;&#32;&#32;&#32;&#32;7</emphasis>
+<anchor xml:id="_lua_8h_source_1l00073"/><link linkend="_lua_8h_1a028a8d8aae9580c465aabcd0c11334d9">00073</link> <emphasis role="preprocessor">#define&#32;LUA_TTHREAD&#32;&#32;&#32;&#32;&#32;8</emphasis>
+00074 
+<anchor xml:id="_lua_8h_source_1l00075"/><link linkend="_lua_8h_1a99a031e2239fe191c2a4e1dfb7511d87">00075</link> <emphasis role="preprocessor">#define&#32;LUA_NUMTYPES&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;9</emphasis>
+00076 
+00077 
+00078 
+00079 <emphasis role="comment">/*&#32;minimum&#32;Lua&#32;stack&#32;available&#32;to&#32;a&#32;C&#32;function&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00080"/><link linkend="_lua_8h_1ad0180b89de8a4425cb2a1a3e3f793aa5">00080</link> <emphasis role="preprocessor">#define&#32;LUA_MINSTACK&#32;&#32;&#32;&#32;20</emphasis>
+00081 
+00082 
+00083 <emphasis role="comment">/*&#32;predefined&#32;values&#32;in&#32;the&#32;registry&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00084"/><link linkend="_lua_8h_1aafaecd92640c28ca5bc0169bfcdd2f30">00084</link> <emphasis role="preprocessor">#define&#32;LUA_RIDX_MAINTHREAD&#32;1</emphasis>
+<anchor xml:id="_lua_8h_source_1l00085"/><link linkend="_lua_8h_1a08ad697e382a0042a439bc9748fa2d8c">00085</link> <emphasis role="preprocessor">#define&#32;LUA_RIDX_GLOBALS&#32;&#32;&#32;&#32;2</emphasis>
+<anchor xml:id="_lua_8h_source_1l00086"/><link linkend="_lua_8h_1a559a3977ef268b67c8b84ff44af58130">00086</link> <emphasis role="preprocessor">#define&#32;LUA_RIDX_LAST&#32;&#32;&#32;&#32;&#32;&#32;&#32;LUA_RIDX_GLOBALS</emphasis>
+00087 
+00088 
+00089 <emphasis role="comment">/*&#32;type&#32;of&#32;numbers&#32;in&#32;Lua&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00090"/><link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">00090</link> <emphasis role="keyword">typedef</emphasis>&#32;<link linkend="_luaconf_8h_1a459532244178d9e61e65aaf40fb42de1">LUA_NUMBER</link>&#32;<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link>;
+00091 
+00092 
+00093 <emphasis role="comment">/*&#32;type&#32;for&#32;integer&#32;functions&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00094"/><link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">00094</link> <emphasis role="keyword">typedef</emphasis>&#32;LUA_INTEGER&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>;
+00095 
+00096 <emphasis role="comment">/*&#32;unsigned&#32;integer&#32;type&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00097"/><link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">00097</link> <emphasis role="keyword">typedef</emphasis>&#32;<link linkend="_luaconf_8h_1aebcf6bf84bcfb38b3004d9ff0b937c35">LUA_UNSIGNED</link>&#32;<link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link>;
+00098 
+00099 <emphasis role="comment">/*&#32;type&#32;for&#32;continuation-function&#32;contexts&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00100"/><link linkend="_lua_8h_1a0c565e13b66764da08aa2c68fe4365f0">00100</link> <emphasis role="keyword">typedef</emphasis>&#32;<link linkend="_luaconf_8h_1aa0ee03595b0ac0cf402754071af956de">LUA_KCONTEXT</link>&#32;<link linkend="_lua_8h_1a0c565e13b66764da08aa2c68fe4365f0">lua_KContext</link>;
+00101 
+00102 
+00103 <emphasis role="comment">/*</emphasis>
+00104 <emphasis role="comment">**&#32;Type&#32;for&#32;C&#32;functions&#32;registered&#32;with&#32;Lua</emphasis>
+00105 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00106"/><link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">00106</link> <emphasis role="keyword">typedef</emphasis>&#32;int&#32;(*<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00107 
+00108 <emphasis role="comment">/*</emphasis>
+00109 <emphasis role="comment">**&#32;Type&#32;for&#32;continuation&#32;functions</emphasis>
+00110 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00111"/><link linkend="_lua_8h_1a4bfd58d9192edfdcb7238de00bd0202c">00111</link> <emphasis role="keyword">typedef</emphasis>&#32;int&#32;(*<link linkend="_lua_8h_1a4bfd58d9192edfdcb7238de00bd0202c">lua_KFunction</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_structlua___state_1ab7ebe75445d38e722cbc077aec768b14">status</link>,&#32;<link linkend="_lua_8h_1a0c565e13b66764da08aa2c68fe4365f0">lua_KContext</link>&#32;ctx);
+00112 
+00113 
+00114 <emphasis role="comment">/*</emphasis>
+00115 <emphasis role="comment">**&#32;Type&#32;for&#32;functions&#32;that&#32;read/write&#32;blocks&#32;when&#32;loading/dumping&#32;Lua&#32;chunks</emphasis>
+00116 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00117"/><link linkend="_lua_8h_1a4081d57135fee907807ba5070d528fdf">00117</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*&#32;(*lua_Reader)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*ud,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;*sz);
+00118 
+<anchor xml:id="_lua_8h_source_1l00119"/><link linkend="_lua_8h_1a855729196d7066b2da21178284868a8d">00119</link> <emphasis role="keyword">typedef</emphasis>&#32;int&#32;(*<link linkend="_lua_8h_1a855729196d7066b2da21178284868a8d">lua_Writer</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*p,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;sz,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*ud);
+00120 
+00121 
+00122 <emphasis role="comment">/*</emphasis>
+00123 <emphasis role="comment">**&#32;Type&#32;for&#32;memory-allocation&#32;functions</emphasis>
+00124 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00125"/><link linkend="_lua_8h_1a2fee348bffcc82b15c626b27f66a748b">00125</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*&#32;(*lua_Alloc)&#32;(<emphasis role="keywordtype">void</emphasis>&#32;*ud,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*ptr,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;osize,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;nsize);
+00126 
+00127 
+00128 <emphasis role="comment">/*</emphasis>
+00129 <emphasis role="comment">**&#32;Type&#32;for&#32;warning&#32;functions</emphasis>
+00130 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00131"/><link linkend="_lua_8h_1a01be53d7e053b2703a9a0ee91aff4974">00131</link> <emphasis role="keyword">typedef</emphasis>&#32;void&#32;(*<link linkend="_lua_8h_1a01be53d7e053b2703a9a0ee91aff4974">lua_WarnFunction</link>)&#32;(<emphasis role="keywordtype">void</emphasis>&#32;*ud,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg,&#32;<emphasis role="keywordtype">int</emphasis>&#32;tocont);
+00132 
+00133 
+00134 
+00135 
+00136 <emphasis role="comment">/*</emphasis>
+00137 <emphasis role="comment">**&#32;generic&#32;extra&#32;include&#32;file</emphasis>
+00138 <emphasis role="comment">*/</emphasis>
+00139 <emphasis role="preprocessor">#if&#32;defined(LUA_USER_H)</emphasis>
+00140 <emphasis role="preprocessor">#include&#32;LUA_USER_H</emphasis>
+00141 <emphasis role="preprocessor">#endif</emphasis>
+00142 
+00143 
+00144 <emphasis role="comment">/*</emphasis>
+00145 <emphasis role="comment">**&#32;RCS&#32;ident&#32;string</emphasis>
+00146 <emphasis role="comment">*/</emphasis>
+00147 <emphasis role="keyword">extern</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;<link linkend="_lua_8h_1acbf4dc2e5f80547c7f54f41a179258b2">lua_ident</link>[];
+00148 
+00149 
+00150 <emphasis role="comment">/*</emphasis>
+00151 <emphasis role="comment">**&#32;state&#32;manipulation</emphasis>
+00152 <emphasis role="comment">*/</emphasis>
+00153 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<link linkend="_structlua___state">lua_State</link>&#32;*(<link linkend="_lua_8h_1af722e4ac7fc0eba5920f59f0162c1b97">lua_newstate</link>)&#32;(<link linkend="_lua_8h_1a2fee348bffcc82b15c626b27f66a748b">lua_Alloc</link>&#32;f,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*ud);
+00154 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;&#32;&#32;&#32;&#32;&#32;(<link linkend="_lua_8h_1afe030a97e84f24dfab3afb598faa2fff">lua_close</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00155 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<link linkend="_structlua___state">lua_State</link>&#32;*(<link linkend="_lua_8h_1a6a7867e39b589ae581e2ed837cbc6ea4">lua_newthread</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00156 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(<link linkend="_lua_8h_1ac774e7acb4416363aa205bf4caf06f67">lua_resetthread</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00157 
+00158 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>&#32;(<link linkend="_lua_8h_1a21ccd6b330c56c62fc3d0f15dd59f7a7">lua_atpanic</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>&#32;panicf);
+00159 
+00160 
+00161 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link>&#32;(<link linkend="_lua_8h_1aa7bd1663f4030328b921dbdd6ee2070b">lua_version</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00162 
+00163 
+00164 <emphasis role="comment">/*</emphasis>
+00165 <emphasis role="comment">**&#32;basic&#32;stack&#32;manipulation</emphasis>
+00166 <emphasis role="comment">*/</emphasis>
+00167 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;(<link linkend="_lua_8h_1a0b801f6cd9f8420053c0bb053a38cc9a">lua_absindex</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00168 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;(<link linkend="_lua_8h_1ac5d7d4db9186b87ab018916e8826f008">lua_gettop</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00169 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1a6cb9c62b9d85b1ad2a04d72bcb733816">lua_settop</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00170 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1a95e1c0a61aff11059655e6d246bcace7">lua_pushvalue</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00171 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1af42436f02336933ec56d0db874b4d97b">lua_rotate</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n);
+00172 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1a7ca1468a179ad07411a0caf7d7dba9f4">lua_copy</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;fromidx,&#32;<emphasis role="keywordtype">int</emphasis>&#32;toidx);
+00173 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;(<link linkend="_lua_8h_1a3da4830349a139e15b4c08ced6739f0a">lua_checkstack</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n);
+00174 
+00175 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1a389cf4bf773f353508a28293143d403e">lua_xmove</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*from,&#32;<link linkend="_structlua___state">lua_State</link>&#32;*to,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n);
+00176 
+00177 
+00178 <emphasis role="comment">/*</emphasis>
+00179 <emphasis role="comment">**&#32;access&#32;functions&#32;(stack&#32;-&gt;&#32;C)</emphasis>
+00180 <emphasis role="comment">*/</emphasis>
+00181 
+00182 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(<link linkend="_lua_8h_1a2b5321e5370d82564c138e9dd8ffc9a5">lua_isnumber</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00183 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(<link linkend="_lua_8h_1a70f6031d538713cb3b6093adbc658909">lua_isstring</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00184 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(<link linkend="_lua_8h_1a6b2ce32286576a8e36fe4629662cb536">lua_iscfunction</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00185 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(<link linkend="_lua_8h_1af8f87f4e8a57a2168837c00c1ea4a41d">lua_isinteger</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00186 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(<link linkend="_lua_8h_1af4cc013f4e4e84fc89bab292bd410981">lua_isuserdata</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00187 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(<link linkend="_lua_8h_1aa988ba5b97ff838ccb92babd63063273">lua_type</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00188 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;&#32;&#32;&#32;&#32;*(<link linkend="_lua_8h_1a963a421b920cd7ce229f82091eab18a9">lua_typename</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;tp);
+00189 
+00190 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link>&#32;&#32;&#32;&#32;&#32;&#32;(<link linkend="_lua_8h_1a5da44cbd6acc89833d4941bf044989c3">lua_tonumberx</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx,&#32;<emphasis role="keywordtype">int</emphasis>&#32;*isnum);
+00191 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;&#32;&#32;&#32;&#32;(<link linkend="_lua_8h_1a46cfc259a847998dfaf2db69e3f4f9f8">lua_tointegerx</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx,&#32;<emphasis role="keywordtype">int</emphasis>&#32;*isnum);
+00192 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(<link linkend="_lua_8h_1a0f530f104aeaddeeb63b27dc18b42d27">lua_toboolean</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00193 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;&#32;&#32;&#32;&#32;*(<link linkend="_lua_8h_1aabf845b1c7ffc0462988b67ba83955cf">lua_tolstring</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;*len);
+00194 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link>&#32;&#32;&#32;&#32;(<link linkend="_lua_8h_1a5185311c77540dbec9b192a16903f477">lua_rawlen</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00195 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>&#32;&#32;&#32;(<link linkend="_lua_8h_1a8c9a532a84b03d90b0a103c007f871b8">lua_tocfunction</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00196 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*(<link linkend="_lua_8h_1a3b3106346d9739a64d48be4e30368dec">lua_touserdata</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00197 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<link linkend="_structlua___state">lua_State</link>&#32;&#32;&#32;&#32;&#32;&#32;*(<link linkend="_lua_8h_1a8ad0bb2b578f5b6e84511431260a5818">lua_tothread</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00198 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;&#32;&#32;&#32;&#32;*(<link linkend="_lua_8h_1ae00a730cd408773f7a4122fccfbbb91a">lua_topointer</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00199 
+00200 
+00201 <emphasis role="comment">/*</emphasis>
+00202 <emphasis role="comment">**&#32;Comparison&#32;and&#32;arithmetic&#32;functions</emphasis>
+00203 <emphasis role="comment">*/</emphasis>
+00204 
+<anchor xml:id="_lua_8h_source_1l00205"/><link linkend="_lua_8h_1acfd183382ff4ae12fc5f987e969f9e30">00205</link> <emphasis role="preprocessor">#define&#32;LUA_OPADD&#32;&#32;&#32;0&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;ORDER&#32;TM,&#32;ORDER&#32;OP&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lua_8h_source_1l00206"/><link linkend="_lua_8h_1a4f3cb6128bd199ff110a205f9807be29">00206</link> <emphasis role="preprocessor">#define&#32;LUA_OPSUB&#32;&#32;&#32;1</emphasis>
+<anchor xml:id="_lua_8h_source_1l00207"/><link linkend="_lua_8h_1a62ad68cacfd4a6add7757e7c9515389f">00207</link> <emphasis role="preprocessor">#define&#32;LUA_OPMUL&#32;&#32;&#32;2</emphasis>
+<anchor xml:id="_lua_8h_source_1l00208"/><link linkend="_lua_8h_1a92ae2587e93cb450c82ce23682e4a222">00208</link> <emphasis role="preprocessor">#define&#32;LUA_OPMOD&#32;&#32;&#32;3</emphasis>
+<anchor xml:id="_lua_8h_source_1l00209"/><link linkend="_lua_8h_1ad9cff37d2d620494406c11d285c166a6">00209</link> <emphasis role="preprocessor">#define&#32;LUA_OPPOW&#32;&#32;&#32;4</emphasis>
+<anchor xml:id="_lua_8h_source_1l00210"/><link linkend="_lua_8h_1aec6bf4df427174d6e5f1eb67fa2a39b5">00210</link> <emphasis role="preprocessor">#define&#32;LUA_OPDIV&#32;&#32;&#32;5</emphasis>
+<anchor xml:id="_lua_8h_source_1l00211"/><link linkend="_lua_8h_1af47e0652301e786beec5c429ae6ac5ea">00211</link> <emphasis role="preprocessor">#define&#32;LUA_OPIDIV&#32;&#32;6</emphasis>
+<anchor xml:id="_lua_8h_source_1l00212"/><link linkend="_lua_8h_1a77e346c2c567a526f648076bebe49784">00212</link> <emphasis role="preprocessor">#define&#32;LUA_OPBAND&#32;&#32;7</emphasis>
+<anchor xml:id="_lua_8h_source_1l00213"/><link linkend="_lua_8h_1a1209ad5d9fd73655cb81d30a9e10762e">00213</link> <emphasis role="preprocessor">#define&#32;LUA_OPBOR&#32;&#32;&#32;8</emphasis>
+<anchor xml:id="_lua_8h_source_1l00214"/><link linkend="_lua_8h_1a0891e610cda9a66b8e914ff8646da47b">00214</link> <emphasis role="preprocessor">#define&#32;LUA_OPBXOR&#32;&#32;9</emphasis>
+<anchor xml:id="_lua_8h_source_1l00215"/><link linkend="_lua_8h_1a08b0a2e07d6449b3424453f32283319c">00215</link> <emphasis role="preprocessor">#define&#32;LUA_OPSHL&#32;&#32;&#32;10</emphasis>
+<anchor xml:id="_lua_8h_source_1l00216"/><link linkend="_lua_8h_1a2544bce8f2417ba242131c8dc466f454">00216</link> <emphasis role="preprocessor">#define&#32;LUA_OPSHR&#32;&#32;&#32;11</emphasis>
+<anchor xml:id="_lua_8h_source_1l00217"/><link linkend="_lua_8h_1ae976b4a61ff4d4b3bb8cd85cdcceda10">00217</link> <emphasis role="preprocessor">#define&#32;LUA_OPUNM&#32;&#32;&#32;12</emphasis>
+<anchor xml:id="_lua_8h_source_1l00218"/><link linkend="_lua_8h_1a57e9cb582d0a570cd482936771be1ead">00218</link> <emphasis role="preprocessor">#define&#32;LUA_OPBNOT&#32;&#32;13</emphasis>
+00219 
+00220 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1ab0a8e0d4a119fa51c2785e25d5b5aa08">lua_arith</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;op);
+00221 
+<anchor xml:id="_lua_8h_source_1l00222"/><link linkend="_lua_8h_1ac03b3a20eb47ae78f0ba9de673dbbc18">00222</link> <emphasis role="preprocessor">#define&#32;LUA_OPEQ&#32;&#32;&#32;&#32;0</emphasis>
+<anchor xml:id="_lua_8h_source_1l00223"/><link linkend="_lua_8h_1a0386da34771797273cad6b7a4b2ce53e">00223</link> <emphasis role="preprocessor">#define&#32;LUA_OPLT&#32;&#32;&#32;&#32;1</emphasis>
+<anchor xml:id="_lua_8h_source_1l00224"/><link linkend="_lua_8h_1a110fe48591b6c46a89fdb0028a461717">00224</link> <emphasis role="preprocessor">#define&#32;LUA_OPLE&#32;&#32;&#32;&#32;2</emphasis>
+00225 
+00226 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;(<link linkend="_lua_8h_1a2cd7fef8e86adabbfec04ddb15aeebda">lua_rawequal</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx1,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx2);
+00227 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;(<link linkend="_lua_8h_1a603a5975f5a19c1824e6af53c1326b5c">lua_compare</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx1,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx2,&#32;<emphasis role="keywordtype">int</emphasis>&#32;op);
+00228 
+00229 
+00230 <emphasis role="comment">/*</emphasis>
+00231 <emphasis role="comment">**&#32;push&#32;functions&#32;(C&#32;-&gt;&#32;stack)</emphasis>
+00232 <emphasis role="comment">*/</emphasis>
+00233 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(<link linkend="_lua_8h_1a8bd9c4137a90833221f48dd16659c9e4">lua_pushnil</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00234 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(<link linkend="_lua_8h_1a77807056ba032d64b2def2b57dc53d53">lua_pushnumber</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link>&#32;n);
+00235 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(<link linkend="_lua_8h_1aea46fa9bf358947f5c0a1bf266b26154">lua_pushinteger</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;n);
+00236 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*(<link linkend="_lua_8h_1a48a8d31a66ddacf1ea049b980cf09ab2">lua_pushlstring</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*s,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;len);
+00237 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*(<link linkend="_lua_8h_1a341ab0333f0da3035bb3a1266b3bb41e">lua_pushstring</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*s);
+00238 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*(<link linkend="_lua_8h_1a13fb1100c2e3942aa6c69baaf7e3f7cd">lua_pushvfstring</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*fmt,
+00239 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;va_list&#32;argp);
+00240 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*(<link linkend="_lua_8h_1af4a7bd8fa65e507e36aff61af8db117d">lua_pushfstring</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*fmt,&#32;...);
+00241 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1a89f758ed8996c5f405cb7dfb41f78337">lua_pushcclosure</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>&#32;fn,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n);
+00242 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1a9d7bacf1769dcf7cff7ba7271041e61c">lua_pushboolean</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;b);
+00243 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1a9d6c960026cbee9ffb95a9d1753675e2">lua_pushlightuserdata</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*p);
+00244 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;(<link linkend="_lua_8h_1a118bd9effa8d54ddcbe37bd5cb70a4b6">lua_pushthread</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00245 
+00246 
+00247 <emphasis role="comment">/*</emphasis>
+00248 <emphasis role="comment">**&#32;get&#32;functions&#32;(Lua&#32;-&gt;&#32;stack)</emphasis>
+00249 <emphasis role="comment">*/</emphasis>
+00250 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;(<link linkend="_lua_8h_1aed0bba8f94a9dc573ac77becd0f0c5e9">lua_getglobal</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name);
+00251 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;(<link linkend="_lua_8h_1aaf6927ff4c73814c84d8ffca44d2fda6">lua_gettable</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00252 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;(<link linkend="_lua_8h_1aa97386935b690dd478abd7c6fb89bef8">lua_getfield</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*k);
+00253 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;(<link linkend="_lua_8h_1aa61540e05598186dd6afb26e0f37716c">lua_geti</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx,&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;n);
+00254 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;(<link linkend="_lua_8h_1ae8f0d7f0543fcfe008d5ab1bab1fcd21">lua_rawget</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00255 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;(<link linkend="_lua_8h_1a4cb16fd79ac268b68742136d6db8d288">lua_rawgeti</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx,&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;n);
+00256 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;(<link linkend="_lua_8h_1a8aaccfd5ff3c7acbbd8a48f325a0b779">lua_rawgetp</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*p);
+00257 
+00258 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1a022ddaeee46ccb89860c78480e54db05">lua_createtable</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;narr,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nrec);
+00259 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*(<link linkend="_lua_8h_1a77a7f314b801aa279d602da51ee9601b">lua_newuserdatauv</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;sz,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nuvalue);
+00260 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;(<link linkend="_lua_8h_1a15b983a1c2fd3c7ab7810c4aa0096567">lua_getmetatable</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;objindex);
+00261 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;(<link linkend="_lua_8h_1ab60a0f9aae241a62868972a2e606aff8">lua_getiuservalue</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n);
+00262 
+00263 
+00264 <emphasis role="comment">/*</emphasis>
+00265 <emphasis role="comment">**&#32;set&#32;functions&#32;(stack&#32;-&gt;&#32;Lua)</emphasis>
+00266 <emphasis role="comment">*/</emphasis>
+00267 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1a8da855aa334f38b822cbaceda0d633be">lua_setglobal</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name);
+00268 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1aeda173d104e3a566ccaac89a1f64a5eb">lua_settable</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00269 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1a9580a15c141cbe4bf2a63fea625c3878">lua_setfield</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*k);
+00270 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1a12ba17fc94b8cf0122aa367170688453">lua_seti</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx,&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;n);
+00271 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1a3db5cd3ce7ae703c39d54495be44aafc">lua_rawset</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00272 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1a5e58b5585938f5b4eac93d8dc2c3348c">lua_rawseti</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx,&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;n);
+00273 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1ab919ec94612961d8ca6eebaddd43c5f6">lua_rawsetp</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*p);
+00274 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;(<link linkend="_lua_8h_1a0b834b6a9cd96b141385df14bd0272a4">lua_setmetatable</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;objindex);
+00275 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;(<link linkend="_lua_8h_1a276937f1e400751decda710e59fa1913">lua_setiuservalue</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n);
+00276 
+00277 
+00278 <emphasis role="comment">/*</emphasis>
+00279 <emphasis role="comment">**&#32;&apos;load&apos;&#32;and&#32;&apos;call&apos;&#32;functions&#32;(load&#32;and&#32;run&#32;Lua&#32;code)</emphasis>
+00280 <emphasis role="comment">*/</emphasis>
+00281 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1aeebb647cb91c051b1955fac1207de386">lua_callk</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nargs,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nresults,
+00282 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a0c565e13b66764da08aa2c68fe4365f0">lua_KContext</link>&#32;ctx,&#32;<link linkend="_lua_8h_1a4bfd58d9192edfdcb7238de00bd0202c">lua_KFunction</link>&#32;k);
+<anchor xml:id="_lua_8h_source_1l00283"/><link linkend="_lua_8h_1a89cbf40f871b6fae2dd2df814c7ac1ba">00283</link> <emphasis role="preprocessor">#define&#32;lua_call(L,n,r)&#32;&#32;&#32;&#32;&#32;lua_callk(L,&#32;(n),&#32;(r),&#32;0,&#32;NULL)</emphasis>
+00284 
+00285 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;(<link linkend="_lua_8h_1ab03ab465d4ca870dc66e228b8dfd3f06">lua_pcallk</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nargs,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nresults,&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_structlua___state_1acd673156213ded9f5159d761e9db2bc3">errfunc</link>,
+00286 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a0c565e13b66764da08aa2c68fe4365f0">lua_KContext</link>&#32;ctx,&#32;<link linkend="_lua_8h_1a4bfd58d9192edfdcb7238de00bd0202c">lua_KFunction</link>&#32;k);
+<anchor xml:id="_lua_8h_source_1l00287"/><link linkend="_lua_8h_1a589d7e3fd4c388d64056c88bf4672431">00287</link> <emphasis role="preprocessor">#define&#32;lua_pcall(L,n,r,f)&#32;&#32;lua_pcallk(L,&#32;(n),&#32;(r),&#32;(f),&#32;0,&#32;NULL)</emphasis>
+00288 
+00289 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;(<link linkend="_lua_8h_1a3f4c1ed5e0bd437dc527d62c5768b463">lua_load</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_lua_8h_1a4081d57135fee907807ba5070d528fdf">lua_Reader</link>&#32;reader,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*dt,
+00290 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*chunkname,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*mode);
+00291 
+00292 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;(<link linkend="_lua_8h_1a9ddf288a81529204406f6d88eaa4486d">lua_dump</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_lua_8h_1a855729196d7066b2da21178284868a8d">lua_Writer</link>&#32;<link linkend="_lstrlib_8c_1a1f7ab2869b4517a93412ce096243ead0">writer</link>,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*data,&#32;<emphasis role="keywordtype">int</emphasis>&#32;strip);
+00293 
+00294 
+00295 <emphasis role="comment">/*</emphasis>
+00296 <emphasis role="comment">**&#32;coroutine&#32;functions</emphasis>
+00297 <emphasis role="comment">*/</emphasis>
+00298 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;(<link linkend="_lua_8h_1af2786755dac30d9e89f9a02948a84def">lua_yieldk</link>)&#32;&#32;&#32;&#32;&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nresults,&#32;<link linkend="_lua_8h_1a0c565e13b66764da08aa2c68fe4365f0">lua_KContext</link>&#32;ctx,
+00299 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a4bfd58d9192edfdcb7238de00bd0202c">lua_KFunction</link>&#32;k);
+00300 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;(<link linkend="_lua_8h_1a534ce5b580fb7c5391f931b272eff0a0">lua_resume</link>)&#32;&#32;&#32;&#32;&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_structlua___state">lua_State</link>&#32;*from,&#32;<emphasis role="keywordtype">int</emphasis>&#32;narg,
+00301 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;*nres);
+00302 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;(<link linkend="_lua_8h_1af5cd8db0ed930193f1bf67c583666f91">lua_status</link>)&#32;&#32;&#32;&#32;&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00303 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;(<link linkend="_lua_8h_1ab93620938b5c1b2ea729923d888404a9">lua_isyieldable</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00304 
+<anchor xml:id="_lua_8h_source_1l00305"/><link linkend="_lua_8h_1a19e4e5528fbd5bf4c31e5ff6604e5a38">00305</link> <emphasis role="preprocessor">#define&#32;lua_yield(L,n)&#32;&#32;&#32;&#32;&#32;&#32;lua_yieldk(L,&#32;(n),&#32;0,&#32;NULL)</emphasis>
+00306 
+00307 
+00308 <emphasis role="comment">/*</emphasis>
+00309 <emphasis role="comment">**&#32;Warning-related&#32;functions</emphasis>
+00310 <emphasis role="comment">*/</emphasis>
+00311 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;(<link linkend="_lua_8h_1a4306d6a079b2b3ad7ee416b0a6fff3e7">lua_setwarnf</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_lua_8h_1a01be53d7e053b2703a9a0ee91aff4974">lua_WarnFunction</link>&#32;f,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*ud);
+00312 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;(<link linkend="_lua_8h_1ab1427d47a6a2d111c62756c0c8c778b5">lua_warning</link>)&#32;&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg,&#32;<emphasis role="keywordtype">int</emphasis>&#32;tocont);
+00313 
+00314 
+00315 <emphasis role="comment">/*</emphasis>
+00316 <emphasis role="comment">**&#32;garbage-collection&#32;function&#32;and&#32;options</emphasis>
+00317 <emphasis role="comment">*/</emphasis>
+00318 
+<anchor xml:id="_lua_8h_source_1l00319"/><link linkend="_lua_8h_1a7080a7110a1b37afc6ea2f706e944bc3">00319</link> <emphasis role="preprocessor">#define&#32;LUA_GCSTOP&#32;&#32;&#32;&#32;&#32;&#32;0</emphasis>
+<anchor xml:id="_lua_8h_source_1l00320"/><link linkend="_lua_8h_1a73701e5990022e938e90828a2c8291a4">00320</link> <emphasis role="preprocessor">#define&#32;LUA_GCRESTART&#32;&#32;&#32;&#32;&#32;&#32;&#32;1</emphasis>
+<anchor xml:id="_lua_8h_source_1l00321"/><link linkend="_lua_8h_1a59b8b65be08a10442ea2ae41289f5073">00321</link> <emphasis role="preprocessor">#define&#32;LUA_GCCOLLECT&#32;&#32;&#32;&#32;&#32;&#32;&#32;2</emphasis>
+<anchor xml:id="_lua_8h_source_1l00322"/><link linkend="_lua_8h_1a3f8f1ebdffa4dbfe2dd89c2fd86bd7f4">00322</link> <emphasis role="preprocessor">#define&#32;LUA_GCCOUNT&#32;&#32;&#32;&#32;&#32;3</emphasis>
+<anchor xml:id="_lua_8h_source_1l00323"/><link linkend="_lua_8h_1a99f1685cd6789e0b9bbd2a4c080fbaed">00323</link> <emphasis role="preprocessor">#define&#32;LUA_GCCOUNTB&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;4</emphasis>
+<anchor xml:id="_lua_8h_source_1l00324"/><link linkend="_lua_8h_1a9e7f3eaf2e269c3422aea3fd7c8973ef">00324</link> <emphasis role="preprocessor">#define&#32;LUA_GCSTEP&#32;&#32;&#32;&#32;&#32;&#32;5</emphasis>
+<anchor xml:id="_lua_8h_source_1l00325"/><link linkend="_lua_8h_1a28342bd4f96a077c7447489073dfa376">00325</link> <emphasis role="preprocessor">#define&#32;LUA_GCSETPAUSE&#32;&#32;&#32;&#32;&#32;&#32;6</emphasis>
+<anchor xml:id="_lua_8h_source_1l00326"/><link linkend="_lua_8h_1af07b3449c8e3ffdd62649443f32e1931">00326</link> <emphasis role="preprocessor">#define&#32;LUA_GCSETSTEPMUL&#32;&#32;&#32;&#32;7</emphasis>
+<anchor xml:id="_lua_8h_source_1l00327"/><link linkend="_lua_8h_1a5bdb85acea7589c5b21ea88dcb4d6179">00327</link> <emphasis role="preprocessor">#define&#32;LUA_GCISRUNNING&#32;&#32;&#32;&#32;&#32;9</emphasis>
+<anchor xml:id="_lua_8h_source_1l00328"/><link linkend="_lua_8h_1a1d84f39f245a70f10e74bb5b9026fefd">00328</link> <emphasis role="preprocessor">#define&#32;LUA_GCGEN&#32;&#32;&#32;&#32;&#32;&#32;&#32;10</emphasis>
+<anchor xml:id="_lua_8h_source_1l00329"/><link linkend="_lua_8h_1a50d1226a69fe8049b110d4a3577cc797">00329</link> <emphasis role="preprocessor">#define&#32;LUA_GCINC&#32;&#32;&#32;&#32;&#32;&#32;&#32;11</emphasis>
+00330 
+00331 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;(<link linkend="_lua_8h_1aa4d179f50309744049e26166ee956ffd">lua_gc</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;what,&#32;...);
+00332 
+00333 
+00334 <emphasis role="comment">/*</emphasis>
+00335 <emphasis role="comment">**&#32;miscellaneous&#32;functions</emphasis>
+00336 <emphasis role="comment">*/</emphasis>
+00337 
+00338 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;(<link linkend="_lua_8h_1aae6c05ddea7bd110a3e84595ef92e601">lua_error</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00339 
+00340 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;&#32;&#32;(<link linkend="_lua_8h_1a2a62b957ab95d9b542bf7d02794181e6">lua_next</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00341 
+00342 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1a4eba0457df5bafff4d44071d1d8080b6">lua_concat</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n);
+00343 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1ac7ade66f92b5e325c42371926f879818">lua_len</link>)&#32;&#32;&#32;&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00344 
+00345 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;size_t&#32;&#32;&#32;(<link linkend="_lua_8h_1af4d885e44232f561cfc508a71e144f8f">lua_stringtonumber</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*s);
+00346 
+00347 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<link linkend="_lua_8h_1a2fee348bffcc82b15c626b27f66a748b">lua_Alloc</link>&#32;(<link linkend="_lua_8h_1ab5b8729206c208fbb794c9c2840b0812">lua_getallocf</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">void</emphasis>&#32;**ud);
+00348 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;&#32;&#32;&#32;&#32;(<link linkend="_lua_8h_1a9d88848772cf14b58792115fedf4cd3c">lua_setallocf</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_lua_8h_1a2fee348bffcc82b15c626b27f66a748b">lua_Alloc</link>&#32;f,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*ud);
+00349 
+<anchor xml:id="_lua_8h_source_1l00350"/><link linkend="_lua_8h_1a13a607c625e9cb25bf453b41323857f8">00350</link> <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1a0a4a79d6be16534af93a7c4de2c86724">lua_toclose</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00351 
+00352 
+00353 <emphasis role="comment">/*</emphasis>
+00354 <emphasis role="comment">**&#32;{==============================================================</emphasis>
+00355 <emphasis role="comment">**&#32;some&#32;useful&#32;macros</emphasis>
+00356 <emphasis role="comment">**&#32;===============================================================</emphasis>
+00357 <emphasis role="comment">*/</emphasis>
+00358 
+<anchor xml:id="_lua_8h_source_1l00359"/><link linkend="_lua_8h_1ab1c3cbd392803fa526251bea4867dee1">00359</link> <emphasis role="preprocessor">#define&#32;lua_getextraspace(L)&#32;&#32;&#32;&#32;((void&#32;*)((char&#32;*)(L)&#32;-&#32;LUA_EXTRASPACE))</emphasis>
+00360 
+<anchor xml:id="_lua_8h_source_1l00361"/><link linkend="_lua_8h_1a3237a0507d51d772dadd4c560a75af17">00361</link> <emphasis role="preprocessor">#define&#32;lua_tonumber(L,i)&#32;&#32;&#32;lua_tonumberx(L,(i),NULL)</emphasis>
+<anchor xml:id="_lua_8h_source_1l00362"/><link linkend="_lua_8h_1a1365e48377a3b567e9d88423b2a6345c">00362</link> <emphasis role="preprocessor">#define&#32;lua_tointeger(L,i)&#32;&#32;lua_tointegerx(L,(i),NULL)</emphasis>
+00363 
+<anchor xml:id="_lua_8h_source_1l00364"/><link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">00364</link> <emphasis role="preprocessor">#define&#32;lua_pop(L,n)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;lua_settop(L,&#32;-(n)-1)</emphasis>
+00365 
+<anchor xml:id="_lua_8h_source_1l00366"/><link linkend="_lua_8h_1aa59db6b784aa1ec954599a44168c7761">00366</link> <emphasis role="preprocessor">#define&#32;lua_newtable(L)&#32;&#32;&#32;&#32;&#32;lua_createtable(L,&#32;0,&#32;0)</emphasis>
+00367 
+<anchor xml:id="_lua_8h_source_1l00368"/><link linkend="_lua_8h_1ae1162e4a80396145544aa03312c60d8c">00368</link> <emphasis role="preprocessor">#define&#32;lua_register(L,n,f)&#32;(lua_pushcfunction(L,&#32;(f)),&#32;lua_setglobal(L,&#32;(n)))</emphasis>
+00369 
+<anchor xml:id="_lua_8h_source_1l00370"/><link linkend="_lua_8h_1a2e4fbbe97182bf90004379202202f2b9">00370</link> <emphasis role="preprocessor">#define&#32;lua_pushcfunction(L,f)&#32;&#32;lua_pushcclosure(L,&#32;(f),&#32;0)</emphasis>
+00371 
+<anchor xml:id="_lua_8h_source_1l00372"/><link linkend="_lua_8h_1a7537af276c81906c144f29cd25b93315">00372</link> <emphasis role="preprocessor">#define&#32;lua_isfunction(L,n)&#32;(lua_type(L,&#32;(n))&#32;==&#32;LUA_TFUNCTION)</emphasis>
+<anchor xml:id="_lua_8h_source_1l00373"/><link linkend="_lua_8h_1a161af51893c5f79dacc1c382416a5f27">00373</link> <emphasis role="preprocessor">#define&#32;lua_istable(L,n)&#32;&#32;&#32;&#32;(lua_type(L,&#32;(n))&#32;==&#32;LUA_TTABLE)</emphasis>
+<anchor xml:id="_lua_8h_source_1l00374"/><link linkend="_lua_8h_1a46c0d924f3492bbe10007a74e00b43aa">00374</link> <emphasis role="preprocessor">#define&#32;lua_islightuserdata(L,n)&#32;&#32;&#32;&#32;(lua_type(L,&#32;(n))&#32;==&#32;LUA_TLIGHTUSERDATA)</emphasis>
+<anchor xml:id="_lua_8h_source_1l00375"/><link linkend="_lua_8h_1a86d737d7002e7e94023765397c6eef20">00375</link> <emphasis role="preprocessor">#define&#32;lua_isnil(L,n)&#32;&#32;&#32;&#32;&#32;&#32;(lua_type(L,&#32;(n))&#32;==&#32;LUA_TNIL)</emphasis>
+<anchor xml:id="_lua_8h_source_1l00376"/><link linkend="_lua_8h_1af4f579ead7d5ea837d8d708186033502">00376</link> <emphasis role="preprocessor">#define&#32;lua_isboolean(L,n)&#32;&#32;(lua_type(L,&#32;(n))&#32;==&#32;LUA_TBOOLEAN)</emphasis>
+<anchor xml:id="_lua_8h_source_1l00377"/><link linkend="_lua_8h_1a0c346eeb2eee1d2e9b9920fb9b9d7fc9">00377</link> <emphasis role="preprocessor">#define&#32;lua_isthread(L,n)&#32;&#32;&#32;(lua_type(L,&#32;(n))&#32;==&#32;LUA_TTHREAD)</emphasis>
+<anchor xml:id="_lua_8h_source_1l00378"/><link linkend="_lua_8h_1ad054300429f1094d3692313abc733ddf">00378</link> <emphasis role="preprocessor">#define&#32;lua_isnone(L,n)&#32;&#32;&#32;&#32;&#32;(lua_type(L,&#32;(n))&#32;==&#32;LUA_TNONE)</emphasis>
+<anchor xml:id="_lua_8h_source_1l00379"/><link linkend="_lua_8h_1af51702bb75a31bb4a279953ee386d533">00379</link> <emphasis role="preprocessor">#define&#32;lua_isnoneornil(L,&#32;n)&#32;&#32;&#32;(lua_type(L,&#32;(n))&#32;&lt;=&#32;0)</emphasis>
+00380 
+<anchor xml:id="_lua_8h_source_1l00381"/><link linkend="_lua_8h_1a47854189a679002ed743ebbcb30b1b26">00381</link> <emphasis role="preprocessor">#define&#32;lua_pushliteral(L,&#32;s)&#32;&#32;&#32;lua_pushstring(L,&#32;&quot;&quot;&#32;s)</emphasis>
+00382 
+<anchor xml:id="_lua_8h_source_1l00383"/><link linkend="_lua_8h_1abf88c897458bd9848010301cb46ade18">00383</link> <emphasis role="preprocessor">#define&#32;lua_pushglobaltable(L)&#32;&#32;\</emphasis>
+00384 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;((void)lua_rawgeti(L,&#32;LUA_REGISTRYINDEX,&#32;LUA_RIDX_GLOBALS))</emphasis>
+00385 
+<anchor xml:id="_lua_8h_source_1l00386"/><link linkend="_lua_8h_1ac813fc3bc1886ba17c363d5b4c6e7ef1">00386</link> <emphasis role="preprocessor">#define&#32;lua_tostring(L,i)&#32;&#32;&#32;lua_tolstring(L,&#32;(i),&#32;NULL)</emphasis>
+00387 
+00388 
+<anchor xml:id="_lua_8h_source_1l00389"/><link linkend="_lua_8h_1a1ba55afa0e7f756a4599e86cf46d92e0">00389</link> <emphasis role="preprocessor">#define&#32;lua_insert(L,idx)&#32;&#32;&#32;lua_rotate(L,&#32;(idx),&#32;1)</emphasis>
+00390 
+<anchor xml:id="_lua_8h_source_1l00391"/><link linkend="_lua_8h_1a7664dec8f7220c706b7e71ad3227cc78">00391</link> <emphasis role="preprocessor">#define&#32;lua_remove(L,idx)&#32;&#32;&#32;(lua_rotate(L,&#32;(idx),&#32;-1),&#32;lua_pop(L,&#32;1))</emphasis>
+00392 
+<anchor xml:id="_lua_8h_source_1l00393"/><link linkend="_lua_8h_1a09daca42852c6356e4b415c46eba5955">00393</link> <emphasis role="preprocessor">#define&#32;lua_replace(L,idx)&#32;&#32;(lua_copy(L,&#32;-1,&#32;(idx)),&#32;lua_pop(L,&#32;1))</emphasis>
+00394 
+00395 <emphasis role="comment">/*&#32;}==============================================================&#32;*/</emphasis>
+00396 
+00397 
+00398 <emphasis role="comment">/*</emphasis>
+00399 <emphasis role="comment">**&#32;{==============================================================</emphasis>
+00400 <emphasis role="comment">**&#32;compatibility&#32;macros</emphasis>
+00401 <emphasis role="comment">**&#32;===============================================================</emphasis>
+00402 <emphasis role="comment">*/</emphasis>
+00403 <emphasis role="preprocessor">#if&#32;defined(LUA_COMPAT_APIINTCASTS)</emphasis>
+00404 
+00405 <emphasis role="preprocessor">#define&#32;lua_pushunsigned(L,n)&#32;&#32;&#32;lua_pushinteger(L,&#32;(lua_Integer)(n))</emphasis>
+00406 <emphasis role="preprocessor">#define&#32;lua_tounsignedx(L,i,is)&#32;((lua_Unsigned)lua_tointegerx(L,i,is))</emphasis>
+00407 <emphasis role="preprocessor">#define&#32;lua_tounsigned(L,i)&#32;lua_tounsignedx(L,(i),NULL)</emphasis>
+00408 
+00409 <emphasis role="preprocessor">#endif</emphasis>
+00410 
+<anchor xml:id="_lua_8h_source_1l00411"/><link linkend="_lua_8h_1a1123eb282211547f4951ae0d126708af">00411</link> <emphasis role="preprocessor">#define&#32;lua_newuserdata(L,s)&#32;&#32;&#32;&#32;lua_newuserdatauv(L,s,1)</emphasis>
+<anchor xml:id="_lua_8h_source_1l00412"/><link linkend="_lua_8h_1acea5f41b6afb92b708fdc6f8d4349bf4">00412</link> <emphasis role="preprocessor">#define&#32;lua_getuservalue(L,idx)&#32;lua_getiuservalue(L,idx,1)</emphasis>
+<anchor xml:id="_lua_8h_source_1l00413"/><link linkend="_lua_8h_1a3af988472991ea37fdb50c38bc48cb38">00413</link> <emphasis role="preprocessor">#define&#32;lua_setuservalue(L,idx)&#32;lua_setiuservalue(L,idx,1)</emphasis>
+00414 
+<anchor xml:id="_lua_8h_source_1l00415"/><link linkend="_lua_8h_1abf59b4e3180540d3ee3b10da19d02ee7">00415</link> <emphasis role="preprocessor">#define&#32;LUA_NUMTAGS&#32;&#32;&#32;&#32;&#32;LUA_NUMTYPES</emphasis>
+00416 
+00417 <emphasis role="comment">/*&#32;}==============================================================&#32;*/</emphasis>
+00418 
+00419 <emphasis role="comment">/*</emphasis>
+00420 <emphasis role="comment">**&#32;{======================================================================</emphasis>
+00421 <emphasis role="comment">**&#32;Debug&#32;API</emphasis>
+00422 <emphasis role="comment">**&#32;=======================================================================</emphasis>
+00423 <emphasis role="comment">*/</emphasis>
+00424 
+00425 
+00426 <emphasis role="comment">/*</emphasis>
+00427 <emphasis role="comment">**&#32;Event&#32;codes</emphasis>
+00428 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00429"/><link linkend="_lua_8h_1ab7cc83a523db06d92466167ebc3a65f2">00429</link> <emphasis role="preprocessor">#define&#32;LUA_HOOKCALL&#32;&#32;&#32;&#32;0</emphasis>
+<anchor xml:id="_lua_8h_source_1l00430"/><link linkend="_lua_8h_1a86f6d196d7c800de07bafe9603881485">00430</link> <emphasis role="preprocessor">#define&#32;LUA_HOOKRET&#32;1</emphasis>
+<anchor xml:id="_lua_8h_source_1l00431"/><link linkend="_lua_8h_1af2e15cf6167fde2aab753f2a8228de06">00431</link> <emphasis role="preprocessor">#define&#32;LUA_HOOKLINE&#32;&#32;&#32;&#32;2</emphasis>
+<anchor xml:id="_lua_8h_source_1l00432"/><link linkend="_lua_8h_1a6c7cb905c4d6a2d21e6261b6ccec7298">00432</link> <emphasis role="preprocessor">#define&#32;LUA_HOOKCOUNT&#32;&#32;&#32;3</emphasis>
+<anchor xml:id="_lua_8h_source_1l00433"/><link linkend="_lua_8h_1a88e40511ed11dc891fec34612a496327">00433</link> <emphasis role="preprocessor">#define&#32;LUA_HOOKTAILCALL&#32;4</emphasis>
+00434 
+00435 
+00436 <emphasis role="comment">/*</emphasis>
+00437 <emphasis role="comment">**&#32;Event&#32;masks</emphasis>
+00438 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00439"/><link linkend="_lua_8h_1a3b3ff95f914cf6ff4d46c87e8a648489">00439</link> <emphasis role="preprocessor">#define&#32;LUA_MASKCALL&#32;&#32;&#32;&#32;(1&#32;&lt;&lt;&#32;LUA_HOOKCALL)</emphasis>
+<anchor xml:id="_lua_8h_source_1l00440"/><link linkend="_lua_8h_1af0345e20a0268525a82cd71ab3ecb5da">00440</link> <emphasis role="preprocessor">#define&#32;LUA_MASKRET&#32;(1&#32;&lt;&lt;&#32;LUA_HOOKRET)</emphasis>
+<anchor xml:id="_lua_8h_source_1l00441"/><link linkend="_lua_8h_1a671bc8ae0eddd679411c7f2401a594cf">00441</link> <emphasis role="preprocessor">#define&#32;LUA_MASKLINE&#32;&#32;&#32;&#32;(1&#32;&lt;&lt;&#32;LUA_HOOKLINE)</emphasis>
+<anchor xml:id="_lua_8h_source_1l00442"/><link linkend="_lua_8h_1a29927bc26e642df4f842e0235d290c56">00442</link> <emphasis role="preprocessor">#define&#32;LUA_MASKCOUNT&#32;&#32;&#32;(1&#32;&lt;&lt;&#32;LUA_HOOKCOUNT)</emphasis>
+00443 
+00444 <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_structlua___debug">lua_Debug</link>&#32;<link linkend="_structlua___debug">lua_Debug</link>;&#32;&#32;<emphasis role="comment">/*&#32;activation&#32;record&#32;*/</emphasis>
+00445 
+00446 
+00447 <emphasis role="comment">/*&#32;Functions&#32;to&#32;be&#32;called&#32;by&#32;the&#32;debugger&#32;in&#32;specific&#32;events&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00448"/><link linkend="_lua_8h_1aa00de66eff087aef1fdd44f5b3bb9a0b">00448</link> <emphasis role="keyword">typedef</emphasis>&#32;void&#32;(*<link linkend="_lua_8h_1aa00de66eff087aef1fdd44f5b3bb9a0b">lua_Hook</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_structlua___debug">lua_Debug</link>&#32;*ar);
+00449 
+00450 
+00451 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;(<link linkend="_lua_8h_1a8b921d13d8b79983b19e1a7964219bc6">lua_getstack</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;level,&#32;<link linkend="_structlua___debug">lua_Debug</link>&#32;*ar);
+00452 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;(<link linkend="_lua_8h_1a9cf23593facaabc7fb42e4d232a507d7">lua_getinfo</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_structlua___debug_1a951a98f1e2d69ca61adcd53c0f8faca3">what</link>,&#32;<link linkend="_structlua___debug">lua_Debug</link>&#32;*ar);
+00453 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*(<link linkend="_lua_8h_1afab4c753a151dd222a3de6ca5daf4ce2">lua_getlocal</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_structlua___debug">lua_Debug</link>&#32;*ar,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n);
+00454 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*(<link linkend="_lua_8h_1a009cbda7b68bd7047677d280db4ea064">lua_setlocal</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_structlua___debug">lua_Debug</link>&#32;*ar,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n);
+00455 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*(<link linkend="_lua_8h_1af30136978fa4de5e7fa8a434b8ca8611">lua_getupvalue</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;funcindex,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n);
+00456 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*(<link linkend="_lua_8h_1a6a2640dd28d1b773dcf36f1c8112835e">lua_setupvalue</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;funcindex,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n);
+00457 
+00458 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*(<link linkend="_lua_8h_1ac0df7bf2b2de17979cb3e2d96dc78bcb">lua_upvalueid</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;fidx,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n);
+00459 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;&#32;(<link linkend="_lua_8h_1a62aee315ee713d18eefced3cedade7ae">lua_upvaluejoin</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;fidx1,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n1,
+00460 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;fidx2,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n2);
+00461 
+00462 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;void&#32;(<link linkend="_lua_8h_1aed21cb21ee0b784d2b0aff1f7b3806c1">lua_sethook</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_lua_8h_1aa00de66eff087aef1fdd44f5b3bb9a0b">lua_Hook</link>&#32;func,&#32;<emphasis role="keywordtype">int</emphasis>&#32;mask,&#32;<emphasis role="keywordtype">int</emphasis>&#32;count);
+00463 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<link linkend="_lua_8h_1aa00de66eff087aef1fdd44f5b3bb9a0b">lua_Hook</link>&#32;(<link linkend="_lua_8h_1a2bd2c84200d910a5eb375b24ec4b34b6">lua_gethook</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00464 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;(<link linkend="_lua_8h_1adb80071bb21edac0ca5bd9608b78c8b4">lua_gethookmask</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00465 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;(<link linkend="_lua_8h_1a7c56ea7a2c0c7320c26abe013ebd9bf3">lua_gethookcount</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00466 
+00467 <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;int&#32;(<link linkend="_lua_8h_1a0c1ada857215d34a84a602e10878c7bc">lua_setcstacklimit</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;limit);
+00468 
+<anchor xml:id="_lua_8h_source_1l00469"/><link linkend="_structlua___debug">00469</link> <emphasis role="keyword">struct&#32;</emphasis><link linkend="_structlua___debug">lua_Debug</link>&#32;{
+<anchor xml:id="_lua_8h_source_1l00470"/><link linkend="_structlua___debug_1acafe4c229c051e50e7e55ba9ce3e5893">00470</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_structlua___debug_1acafe4c229c051e50e7e55ba9ce3e5893">event</link>;
+<anchor xml:id="_lua_8h_source_1l00471"/><link linkend="_structlua___debug_1a8f8f80d37794cde9472343e4487ba3eb">00471</link> &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_structlua___debug_1a8f8f80d37794cde9472343e4487ba3eb">name</link>;&#32;<emphasis role="comment">/*&#32;(n)&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00472"/><link linkend="_structlua___debug_1a37bd506f9c90a2199c60ed511c2c56dc">00472</link> &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_structlua___debug_1a37bd506f9c90a2199c60ed511c2c56dc">namewhat</link>;&#32;<emphasis role="comment">/*&#32;(n)&#32;&apos;global&apos;,&#32;&apos;local&apos;,&#32;&apos;field&apos;,&#32;&apos;method&apos;&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00473"/><link linkend="_structlua___debug_1a951a98f1e2d69ca61adcd53c0f8faca3">00473</link> &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_structlua___debug_1a951a98f1e2d69ca61adcd53c0f8faca3">what</link>;&#32;<emphasis role="comment">/*&#32;(S)&#32;&apos;Lua&apos;,&#32;&apos;C&apos;,&#32;&apos;main&apos;,&#32;&apos;tail&apos;&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00474"/><link linkend="_structlua___debug_1af2ed45b90afa2ef4ec6e09625335a082">00474</link> &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_structlua___debug_1af2ed45b90afa2ef4ec6e09625335a082">source</link>;&#32;&#32;&#32;<emphasis role="comment">/*&#32;(S)&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00475"/><link linkend="_structlua___debug_1a3272ffa9b40871a9265ac4d0570206b3">00475</link> &#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;<link linkend="_structlua___debug_1a3272ffa9b40871a9265ac4d0570206b3">srclen</link>;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;(S)&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00476"/><link linkend="_structlua___debug_1a1be7dfac6c204d2592700475b5d73fd2">00476</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_structlua___debug_1a1be7dfac6c204d2592700475b5d73fd2">currentline</link>;&#32;&#32;<emphasis role="comment">/*&#32;(l)&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00477"/><link linkend="_structlua___debug_1a4dfda1a3839aa77fb8fc7626075151dd">00477</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_structlua___debug_1a4dfda1a3839aa77fb8fc7626075151dd">linedefined</link>;&#32;&#32;<emphasis role="comment">/*&#32;(S)&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00478"/><link linkend="_structlua___debug_1a0129a289db231fbe2c6c3b3d6062979e">00478</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_structlua___debug_1a0129a289db231fbe2c6c3b3d6062979e">lastlinedefined</link>;&#32;&#32;<emphasis role="comment">/*&#32;(S)&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00479"/><link linkend="_structlua___debug_1a752e0c1314877c70a6fdebe1616bd63c">00479</link> &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;<link linkend="_structlua___debug_1a752e0c1314877c70a6fdebe1616bd63c">nups</link>;&#32;&#32;&#32;<emphasis role="comment">/*&#32;(u)&#32;number&#32;of&#32;upvalues&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00480"/><link linkend="_structlua___debug_1a4f5b0b53ea9dc4548f85b28cd77d4fb3">00480</link> &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;<link linkend="_structlua___debug_1a4f5b0b53ea9dc4548f85b28cd77d4fb3">nparams</link>;<emphasis role="comment">/*&#32;(u)&#32;number&#32;of&#32;parameters&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00481"/><link linkend="_structlua___debug_1a6e37131e4962b40bdbab3540cd5f306e">00481</link> &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;<link linkend="_structlua___debug_1a6e37131e4962b40bdbab3540cd5f306e">isvararg</link>;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;(u)&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00482"/><link linkend="_structlua___debug_1aa30e4bb574536d40b6aaa3c24c1fa725">00482</link> &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;<link linkend="_structlua___debug_1aa30e4bb574536d40b6aaa3c24c1fa725">istailcall</link>;&#32;&#32;<emphasis role="comment">/*&#32;(t)&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00483"/><link linkend="_structlua___debug_1a094d76a8d8b0428b743d44bdde3518ac">00483</link> &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">short</emphasis>&#32;<link linkend="_structlua___debug_1a094d76a8d8b0428b743d44bdde3518ac">ftransfer</link>;&#32;&#32;&#32;<emphasis role="comment">/*&#32;(r)&#32;index&#32;of&#32;first&#32;value&#32;transferred&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00484"/><link linkend="_structlua___debug_1ad200601700ff51b853a6760e5b010b91">00484</link> &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">short</emphasis>&#32;<link linkend="_structlua___debug_1ad200601700ff51b853a6760e5b010b91">ntransfer</link>;&#32;&#32;&#32;<emphasis role="comment">/*&#32;(r)&#32;number&#32;of&#32;transferred&#32;values&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00485"/><link linkend="_structlua___debug_1af9d2e23fe50a49dc12c41f7276c2143d">00485</link> &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;<link linkend="_structlua___debug_1af9d2e23fe50a49dc12c41f7276c2143d">short_src</link>[<link linkend="_luaconf_8h_1a49c31c00aa2852af25a2c43046a21aeb">LUA_IDSIZE</link>];&#32;<emphasis role="comment">/*&#32;(S)&#32;*/</emphasis>
+00486 &#32;&#32;<emphasis role="comment">/*&#32;private&#32;part&#32;*/</emphasis>
+<anchor xml:id="_lua_8h_source_1l00487"/><link linkend="_structlua___debug_1a057e0b4acf19b9c7c3cb42ae5704371f">00487</link> &#32;&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_call_info">CallInfo</link>&#32;*<link linkend="_structlua___debug_1a057e0b4acf19b9c7c3cb42ae5704371f">i_ci</link>;&#32;&#32;<emphasis role="comment">/*&#32;active&#32;function&#32;*/</emphasis>
+00488 };
+00489 
+00490 <emphasis role="comment">/*&#32;}======================================================================&#32;*/</emphasis>
+00491 
+00492 
+00493 <emphasis role="comment">/******************************************************************************</emphasis>
+00494 <emphasis role="comment">*&#32;Copyright&#32;(C)&#32;1994-2020&#32;Lua.org,&#32;PUC-Rio.</emphasis>
+00495 <emphasis role="comment">*</emphasis>
+00496 <emphasis role="comment">*&#32;Permission&#32;is&#32;hereby&#32;granted,&#32;free&#32;of&#32;charge,&#32;to&#32;any&#32;person&#32;obtaining</emphasis>
+00497 <emphasis role="comment">*&#32;a&#32;copy&#32;of&#32;this&#32;software&#32;and&#32;associated&#32;documentation&#32;files&#32;(the</emphasis>
+00498 <emphasis role="comment">*&#32;&quot;Software&quot;),&#32;to&#32;deal&#32;in&#32;the&#32;Software&#32;without&#32;restriction,&#32;including</emphasis>
+00499 <emphasis role="comment">*&#32;without&#32;limitation&#32;the&#32;rights&#32;to&#32;use,&#32;copy,&#32;modify,&#32;merge,&#32;publish,</emphasis>
+00500 <emphasis role="comment">*&#32;distribute,&#32;sublicense,&#32;and/or&#32;sell&#32;copies&#32;of&#32;the&#32;Software,&#32;and&#32;to</emphasis>
+00501 <emphasis role="comment">*&#32;permit&#32;persons&#32;to&#32;whom&#32;the&#32;Software&#32;is&#32;furnished&#32;to&#32;do&#32;so,&#32;subject&#32;to</emphasis>
+00502 <emphasis role="comment">*&#32;the&#32;following&#32;conditions:</emphasis>
+00503 <emphasis role="comment">*</emphasis>
+00504 <emphasis role="comment">*&#32;The&#32;above&#32;copyright&#32;notice&#32;and&#32;this&#32;permission&#32;notice&#32;shall&#32;be</emphasis>
+00505 <emphasis role="comment">*&#32;included&#32;in&#32;all&#32;copies&#32;or&#32;substantial&#32;portions&#32;of&#32;the&#32;Software.</emphasis>
+00506 <emphasis role="comment">*</emphasis>
+00507 <emphasis role="comment">*&#32;THE&#32;SOFTWARE&#32;IS&#32;PROVIDED&#32;&quot;AS&#32;IS&quot;,&#32;WITHOUT&#32;WARRANTY&#32;OF&#32;ANY&#32;KIND,</emphasis>
+00508 <emphasis role="comment">*&#32;EXPRESS&#32;OR&#32;IMPLIED,&#32;INCLUDING&#32;BUT&#32;NOT&#32;LIMITED&#32;TO&#32;THE&#32;WARRANTIES&#32;OF</emphasis>
+00509 <emphasis role="comment">*&#32;MERCHANTABILITY,&#32;FITNESS&#32;FOR&#32;A&#32;PARTICULAR&#32;PURPOSE&#32;AND&#32;NONINFRINGEMENT.</emphasis>
+00510 <emphasis role="comment">*&#32;IN&#32;NO&#32;EVENT&#32;SHALL&#32;THE&#32;AUTHORS&#32;OR&#32;COPYRIGHT&#32;HOLDERS&#32;BE&#32;LIABLE&#32;FOR&#32;ANY</emphasis>
+00511 <emphasis role="comment">*&#32;CLAIM,&#32;DAMAGES&#32;OR&#32;OTHER&#32;LIABILITY,&#32;WHETHER&#32;IN&#32;AN&#32;ACTION&#32;OF&#32;CONTRACT,</emphasis>
+00512 <emphasis role="comment">*&#32;TORT&#32;OR&#32;OTHERWISE,&#32;ARISING&#32;FROM,&#32;OUT&#32;OF&#32;OR&#32;IN&#32;CONNECTION&#32;WITH&#32;THE</emphasis>
+00513 <emphasis role="comment">*&#32;SOFTWARE&#32;OR&#32;THE&#32;USE&#32;OR&#32;OTHER&#32;DEALINGS&#32;IN&#32;THE&#32;SOFTWARE.</emphasis>
+00514 <emphasis role="comment">******************************************************************************/</emphasis>
+00515 
+00516 
+00517 <emphasis role="preprocessor">#endif</emphasis>
+</programlisting></section>

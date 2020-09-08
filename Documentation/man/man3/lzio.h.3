@@ -1,0 +1,153 @@
+.TH "D:/gitworkspace/lua/src/lzio.h" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lzio.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lmem\&.h'\fP
+.br
+
+.SS "结构体"
+
+.in +1c
+.ti -1c
+.RI "struct \fBMbuffer\fP"
+.br
+.ti -1c
+.RI "struct \fBZio\fP"
+.br
+.in -1c
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBEOZ\fP   (\-1)			/* end of stream */"
+.br
+.ti -1c
+.RI "#define \fBzgetc\fP(z)   (((z)\->n\-\-)>0 ?  \fBcast_uchar\fP(*(z)\->p++) : \fBluaZ_fill\fP(z))"
+.br
+.ti -1c
+.RI "#define \fBluaZ_initbuffer\fP(L,  buff)   ((buff)\->buffer = NULL, (buff)\->buffsize = 0)"
+.br
+.ti -1c
+.RI "#define \fBluaZ_buffer\fP(buff)   ((buff)\->buffer)"
+.br
+.ti -1c
+.RI "#define \fBluaZ_sizebuffer\fP(buff)   ((buff)\->buffsize)"
+.br
+.ti -1c
+.RI "#define \fBluaZ_bufflen\fP(buff)   ((buff)\->n)"
+.br
+.ti -1c
+.RI "#define \fBluaZ_buffremove\fP(buff,  i)   ((buff)\->n \-= (i))"
+.br
+.ti -1c
+.RI "#define \fBluaZ_resetbuffer\fP(buff)   ((buff)\->n = 0)"
+.br
+.ti -1c
+.RI "#define \fBluaZ_resizebuffer\fP(L,  buff,  size)"
+.br
+.ti -1c
+.RI "#define \fBluaZ_freebuffer\fP(L,  buff)   \fBluaZ_resizebuffer\fP(L, buff, 0)"
+.br
+.in -1c
+.SS "类型定义"
+
+.in +1c
+.ti -1c
+.RI "typedef struct \fBZio\fP \fBZIO\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBMbuffer\fP \fBMbuffer\fP"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaZ_init\fP (\fBlua_State\fP *L, \fBZIO\fP *z, \fBlua_Reader\fP \fBreader\fP, void *data)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP size_t \fBluaZ_read\fP (\fBZIO\fP *z, void *b, size_t n)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaZ_fill\fP (\fBZIO\fP *z)"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define EOZ   (\-1)			/* end of stream */"
+
+.PP
+在文件 lzio\&.h 第 16 行定义\&.
+.SS "#define luaZ_buffer(buff)   ((buff)\->buffer)"
+
+.PP
+在文件 lzio\&.h 第 31 行定义\&.
+.SS "#define luaZ_bufflen(buff)   ((buff)\->n)"
+
+.PP
+在文件 lzio\&.h 第 33 行定义\&.
+.SS "#define luaZ_buffremove(buff, i)   ((buff)\->n \-= (i))"
+
+.PP
+在文件 lzio\&.h 第 35 行定义\&.
+.SS "#define luaZ_freebuffer(L, buff)   \fBluaZ_resizebuffer\fP(L, buff, 0)"
+
+.PP
+在文件 lzio\&.h 第 44 行定义\&.
+.SS "#define luaZ_initbuffer(L, buff)   ((buff)\->buffer = NULL, (buff)\->buffsize = 0)"
+
+.PP
+在文件 lzio\&.h 第 29 行定义\&.
+.SS "#define luaZ_resetbuffer(buff)   ((buff)\->n = 0)"
+
+.PP
+在文件 lzio\&.h 第 36 行定义\&.
+.SS "#define luaZ_resizebuffer(L, buff, size)"
+\fB值:\fP
+.PP
+.nf
+  ((buff)->buffer = luaM_reallocvchar(L, (buff)->buffer, \
+                (buff)->buffsize, size), \
+    (buff)->buffsize = size)
+.fi
+.PP
+在文件 lzio\&.h 第 39 行定义\&.
+.SS "#define luaZ_sizebuffer(buff)   ((buff)\->buffsize)"
+
+.PP
+在文件 lzio\&.h 第 32 行定义\&.
+.SS "#define zgetc(z)   (((z)\->n\-\-)>0 ?  \fBcast_uchar\fP(*(z)\->p++) : \fBluaZ_fill\fP(z))"
+
+.PP
+在文件 lzio\&.h 第 20 行定义\&.
+.SH "类型定义说明"
+.PP 
+.SS "typedef struct \fBMbuffer\fP \fBMbuffer\fP"
+
+.SS "typedef struct \fBZio\fP \fBZIO\fP"
+
+.PP
+在文件 lzio\&.h 第 1 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "\fBLUAI_FUNC\fP int luaZ_fill (\fBZIO\fP * z)"
+
+.PP
+在文件 lzio\&.c 第 23 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaZ_init (\fBlua_State\fP * L, \fBZIO\fP * z, \fBlua_Reader\fP reader, void * data)"
+
+.PP
+在文件 lzio\&.c 第 38 行定义\&.
+.SS "\fBLUAI_FUNC\fP size_t luaZ_read (\fBZIO\fP * z, void * b, size_t n)"
+
+.PP
+在文件 lzio\&.c 第 48 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

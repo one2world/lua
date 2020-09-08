@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_ltable_8h_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/ltable.h</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;ltable.h&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Lua&#32;tables&#32;(hash)</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+00007 <emphasis role="preprocessor">#ifndef&#32;ltable_h</emphasis>
+00008 <emphasis role="preprocessor">#define&#32;ltable_h</emphasis>
+00009 
+00010 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lobject_8h">lobject.h</link>&quot;</emphasis>
+00011 
+00012 
+<anchor xml:id="_ltable_8h_source_1l00013"/><link linkend="_ltable_8h_1a644cfa3b6d4be1782e818a8340b5f78b">00013</link> <emphasis role="preprocessor">#define&#32;gnode(t,i)&#32;&#32;(&amp;(t)-&gt;node[i])</emphasis>
+<anchor xml:id="_ltable_8h_source_1l00014"/><link linkend="_ltable_8h_1acbbecd9bd8fbb72a17f6e2f5acf7113d">00014</link> <emphasis role="preprocessor">#define&#32;gval(n)&#32;&#32;&#32;&#32;&#32;(&amp;(n)-&gt;i_val)</emphasis>
+<anchor xml:id="_ltable_8h_source_1l00015"/><link linkend="_ltable_8h_1aac0e00b2296e00cfc818b74f1aff4f8b">00015</link> <emphasis role="preprocessor">#define&#32;gnext(n)&#32;&#32;&#32;&#32;((n)-&gt;u.next)</emphasis>
+00016 
+00017 
+00018 <emphasis role="comment">/*</emphasis>
+00019 <emphasis role="comment">**&#32;Clear&#32;all&#32;bits&#32;of&#32;fast-access&#32;metamethods,&#32;which&#32;means&#32;that&#32;the&#32;table</emphasis>
+00020 <emphasis role="comment">**&#32;may&#32;have&#32;any&#32;of&#32;these&#32;metamethods.&#32;(First&#32;access&#32;that&#32;fails&#32;after&#32;the</emphasis>
+00021 <emphasis role="comment">**&#32;clearing&#32;will&#32;set&#32;the&#32;bit&#32;again.)</emphasis>
+00022 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ltable_8h_source_1l00023"/><link linkend="_ltable_8h_1a69534d37fbaf464430636bf437108530">00023</link> <emphasis role="preprocessor">#define&#32;invalidateTMcache(t)&#32;&#32;&#32;&#32;((t)-&gt;flags&#32;&amp;=&#32;~maskflags)</emphasis>
+00024 
+00025 
+00026 <emphasis role="comment">/*&#32;true&#32;when&#32;&apos;t&apos;&#32;is&#32;using&#32;&apos;dummynode&apos;&#32;as&#32;its&#32;hash&#32;part&#32;*/</emphasis>
+<anchor xml:id="_ltable_8h_source_1l00027"/><link linkend="_ltable_8h_1a97b22167368e065caf9d8d11ae7ca1de">00027</link> <emphasis role="preprocessor">#define&#32;isdummy(t)&#32;&#32;&#32;&#32;&#32;&#32;((t)-&gt;lastfree&#32;==&#32;NULL)</emphasis>
+00028 
+00029 
+00030 <emphasis role="comment">/*&#32;allocated&#32;size&#32;for&#32;hash&#32;nodes&#32;*/</emphasis>
+<anchor xml:id="_ltable_8h_source_1l00031"/><link linkend="_ltable_8h_1af3ab680af234ee7ea0f7e6078b4b73bf">00031</link> <emphasis role="preprocessor">#define&#32;allocsizenode(t)&#32;&#32;&#32;&#32;(isdummy(t)&#32;?&#32;0&#32;:&#32;sizenode(t))</emphasis>
+00032 
+00033 
+00034 <emphasis role="comment">/*&#32;returns&#32;the&#32;Node,&#32;given&#32;the&#32;value&#32;of&#32;a&#32;table&#32;entry&#32;*/</emphasis>
+<anchor xml:id="_ltable_8h_source_1l00035"/><link linkend="_ltable_8h_1aa318820e0b85f1a9b1c34821e3d37a10">00035</link> <emphasis role="preprocessor">#define&#32;nodefromval(v)&#32;&#32;cast(Node&#32;*,&#32;(v))</emphasis>
+00036 
+00037 
+00038 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*<link linkend="_ltable_8h_1a9334b69708639205cd6692e5d72b1b37">luaH_getint</link>&#32;(<link linkend="_struct_table">Table</link>&#32;*t,&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;key);
+00039 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ltable_8h_1ac62838e269732b63812012592c454462">luaH_setint</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_table">Table</link>&#32;*t,&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;key,
+00040 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_struct_t_value">TValue</link>&#32;*value);
+00041 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*<link linkend="_ltable_8h_1afaf2c4ded84b66a01946bec42e992e9c">luaH_getshortstr</link>&#32;(<link linkend="_struct_table">Table</link>&#32;*t,&#32;<link linkend="_struct_t_string">TString</link>&#32;*key);
+00042 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*<link linkend="_ltable_8h_1aa15b03691edbc1f540a568518753f2d0">luaH_getstr</link>&#32;(<link linkend="_struct_table">Table</link>&#32;*t,&#32;<link linkend="_struct_t_string">TString</link>&#32;*key);
+00043 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*<link linkend="_ltable_8h_1ad2db74e05e39b56bde8e580759ac2144">luaH_get</link>&#32;(<link linkend="_struct_table">Table</link>&#32;*t,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*key);
+00044 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*<link linkend="_ltable_8h_1a61547e63b2d74aa68da53a7fd235e77e">luaH_newkey</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_table">Table</link>&#32;*t,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*key);
+00045 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*<link linkend="_ltable_8h_1aad12092dcea6ae55728aadeeb0210d91">luaH_set</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_table">Table</link>&#32;*t,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*key);
+00046 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_struct_table">Table</link>&#32;*<link linkend="_ltable_8h_1a6c2bd58b13986496a52f597b005a0016">luaH_new</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00047 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ltable_8h_1ae5c4f9153b2f7118209c50711409b4d4">luaH_resize</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_table">Table</link>&#32;*t,&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;nasize,
+00048 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;nhsize);
+00049 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ltable_8h_1a5a11320761545d5a718dd0dd57ae1d7e">luaH_resizearray</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_table">Table</link>&#32;*t,&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;nasize);
+00050 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_ltable_8h_1aa2e2ed92ac2178bb87aa3a178c0a83bb">luaH_free</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_table">Table</link>&#32;*t);
+00051 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ltable_8h_1a55be2c48e6e2c113dabda3819f5301e7">luaH_next</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_table">Table</link>&#32;*t,&#32;<link linkend="_union_stack_value">StkId</link>&#32;key);
+00052 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link>&#32;<link linkend="_ltable_8h_1a4d485656e3b0f1bead63b2f27904c1eb">luaH_getn</link>&#32;(<link linkend="_struct_table">Table</link>&#32;*t);
+00053 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ltable_8h_1a8f20a204b7a78780847939086b847781">luaH_realasize</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_table">Table</link>&#32;*t);
+00054 
+00055 
+00056 <emphasis role="preprocessor">#if&#32;defined(LUA_DEBUG)</emphasis>
+00057 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_union_node">Node</link>&#32;*luaH_mainposition&#32;(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_table">Table</link>&#32;*t,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*key);
+00058 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;luaH_isdummy&#32;(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_table">Table</link>&#32;*t);
+00059 <emphasis role="preprocessor">#endif</emphasis>
+00060 
+00061 
+00062 <emphasis role="preprocessor">#endif</emphasis>
+</programlisting></section>

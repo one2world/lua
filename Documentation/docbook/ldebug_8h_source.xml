@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_ldebug_8h_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/ldebug.h</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;ldebug.h&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Auxiliary&#32;functions&#32;from&#32;Debug&#32;Interface&#32;module</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+00007 <emphasis role="preprocessor">#ifndef&#32;ldebug_h</emphasis>
+00008 <emphasis role="preprocessor">#define&#32;ldebug_h</emphasis>
+00009 
+00010 
+00011 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lstate_8h">lstate.h</link>&quot;</emphasis>
+00012 
+00013 
+<anchor xml:id="_ldebug_8h_source_1l00014"/><link linkend="_ldebug_8h_1a90cad524ed41d15bada161ecd74037ad">00014</link> <emphasis role="preprocessor">#define&#32;pcRel(pc,&#32;p)&#32;&#32;&#32;&#32;(cast_int((pc)&#32;-&#32;(p)-&gt;code)&#32;-&#32;1)</emphasis>
+00015 
+00016 
+00017 <emphasis role="comment">/*&#32;Active&#32;Lua&#32;function&#32;(given&#32;call&#32;info)&#32;*/</emphasis>
+<anchor xml:id="_ldebug_8h_source_1l00018"/><link linkend="_ldebug_8h_1a12b504eee786ce8f2c703a22c03d477e">00018</link> <emphasis role="preprocessor">#define&#32;ci_func(ci)&#32;&#32;&#32;&#32;&#32;(clLvalue(s2v((ci)-&gt;func)))</emphasis>
+00019 
+00020 
+<anchor xml:id="_ldebug_8h_source_1l00021"/><link linkend="_ldebug_8h_1ac42e5618900e7522d70474fcfbddab58">00021</link> <emphasis role="preprocessor">#define&#32;resethookcount(L)&#32;&#32;&#32;(L-&gt;hookcount&#32;=&#32;L-&gt;basehookcount)</emphasis>
+00022 
+00023 <emphasis role="comment">/*</emphasis>
+00024 <emphasis role="comment">**&#32;mark&#32;for&#32;entries&#32;in&#32;&apos;lineinfo&apos;&#32;array&#32;that&#32;has&#32;absolute&#32;information&#32;in</emphasis>
+00025 <emphasis role="comment">**&#32;&apos;abslineinfo&apos;&#32;array</emphasis>
+00026 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_ldebug_8h_source_1l00027"/><link linkend="_ldebug_8h_1a62320b24b15c9fc1185526504649633f">00027</link> <emphasis role="preprocessor">#define&#32;ABSLINEINFO&#32;(-0x80)</emphasis>
+00028 
+00029 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldebug_8h_1a5cdc0fc8aceee489738c9a474c5e6211">luaG_getfuncline</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_proto">Proto</link>&#32;*f,&#32;<emphasis role="keywordtype">int</emphasis>&#32;pc);
+00030 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_ldebug_8h_1a80c1d8a3c6dea62d717ad25d2b018c4d">luaG_findlocal</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*ci,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n,
+00031 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_union_stack_value">StkId</link>&#32;*pos);
+00032 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_ldebug_8h_1a375161dd1513420561f20f0b4c7b7e66">luaG_typeerror</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*o,
+00033 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*opname);
+00034 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_ldebug_8h_1a85c3a2c2c78c0e6d60a9b90ecf42252d">luaG_forerror</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*o,
+00035 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*what);
+00036 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_ldebug_8h_1af54afa3e0397d5d99cb1b47bf0314b34">luaG_concaterror</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p1,
+00037 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p2);
+00038 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_ldebug_8h_1a2cd0d4056a77c01bf1bc52a2054570d1">luaG_opinterror</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p1,
+00039 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p2,
+00040 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg);
+00041 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_ldebug_8h_1a74cd5eddc3de05ee203215f97aeacdfa">luaG_tointerror</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p1,
+00042 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p2);
+00043 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_ldebug_8h_1a7ae9c3f6343c93b4a8bb80e68706a6a3">luaG_ordererror</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p1,
+00044 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p2);
+00045 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_ldebug_8h_1a6f27f64630215e18a11be9ba21d3c4bf">luaG_runerror</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*fmt,&#32;...);
+00046 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_ldebug_8h_1af411ad9b6b5018b481308c6ca6895411">luaG_addinfo</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg,
+00047 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_struct_t_string">TString</link>&#32;*src,&#32;<emphasis role="keywordtype">int</emphasis>&#32;line);
+00048 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link>&#32;<link linkend="_ldebug_8h_1acd5ef9f67a8e9d08f6540636fdbeafe6">luaG_errormsg</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00049 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_ldebug_8h_1a28dc49658eeb012ee095c580e7064d64">luaG_traceexec</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link>&#32;*pc);
+00050 
+00051 
+00052 <emphasis role="preprocessor">#endif</emphasis>
+</programlisting></section>

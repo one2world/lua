@@ -1,0 +1,282 @@
+.TH "D:/gitworkspace/lua/src/llex.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/llex.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <locale\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lctype\&.h'\fP
+.br
+\fC#include 'ldebug\&.h'\fP
+.br
+\fC#include 'ldo\&.h'\fP
+.br
+\fC#include 'lgc\&.h'\fP
+.br
+\fC#include 'llex\&.h'\fP
+.br
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'lparser\&.h'\fP
+.br
+\fC#include 'lstate\&.h'\fP
+.br
+\fC#include 'lstring\&.h'\fP
+.br
+\fC#include 'ltable\&.h'\fP
+.br
+\fC#include 'lzio\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBllex_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_CORE\fP"
+.br
+.ti -1c
+.RI "#define \fBnext\fP(ls)   (ls\->current = \fBzgetc\fP(ls\->z))"
+.br
+.ti -1c
+.RI "#define \fBcurrIsNewline\fP(ls)   (ls\->current == '\\n' || ls\->current == '\\r')"
+.br
+.ti -1c
+.RI "#define \fBsave_and_next\fP(ls)   (\fBsave\fP(ls, ls\->current), \fBnext\fP(ls))"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static \fBl_noret\fP \fBlexerror\fP (\fBLexState\fP *ls, const char *msg, int token)"
+.br
+.ti -1c
+.RI "static void \fBsave\fP (\fBLexState\fP *ls, int c)"
+.br
+.ti -1c
+.RI "void \fBluaX_init\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "const char * \fBluaX_token2str\fP (\fBLexState\fP *ls, int token)"
+.br
+.ti -1c
+.RI "static const char * \fBtxtToken\fP (\fBLexState\fP *ls, int token)"
+.br
+.ti -1c
+.RI "\fBl_noret\fP \fBluaX_syntaxerror\fP (\fBLexState\fP *ls, const char *msg)"
+.br
+.ti -1c
+.RI "\fBTString\fP * \fBluaX_newstring\fP (\fBLexState\fP *ls, const char *str, size_t l)"
+.br
+.ti -1c
+.RI "static void \fBinclinenumber\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "void \fBluaX_setinput\fP (\fBlua_State\fP *L, \fBLexState\fP *ls, \fBZIO\fP *z, \fBTString\fP *source, int firstchar)"
+.br
+.ti -1c
+.RI "static int \fBcheck_next1\fP (\fBLexState\fP *ls, int c)"
+.br
+.ti -1c
+.RI "static int \fBcheck_next2\fP (\fBLexState\fP *ls, const char *set)"
+.br
+.ti -1c
+.RI "static int \fBread_numeral\fP (\fBLexState\fP *ls, \fBSemInfo\fP *seminfo)"
+.br
+.ti -1c
+.RI "static size_t \fBskip_sep\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static void \fBread_long_string\fP (\fBLexState\fP *ls, \fBSemInfo\fP *seminfo, size_t sep)"
+.br
+.ti -1c
+.RI "static void \fBesccheck\fP (\fBLexState\fP *ls, int c, const char *msg)"
+.br
+.ti -1c
+.RI "static int \fBgethexa\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static int \fBreadhexaesc\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static unsigned long \fBreadutf8esc\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static void \fButf8esc\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static int \fBreaddecesc\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static void \fBread_string\fP (\fBLexState\fP *ls, int del, \fBSemInfo\fP *seminfo)"
+.br
+.ti -1c
+.RI "static int \fBllex\fP (\fBLexState\fP *ls, \fBSemInfo\fP *seminfo)"
+.br
+.ti -1c
+.RI "void \fBluaX_next\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "int \fBluaX_lookahead\fP (\fBLexState\fP *ls)"
+.br
+.in -1c
+.SS "变量"
+
+.in +1c
+.ti -1c
+.RI "static const char *const \fBluaX_tokens\fP []"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define currIsNewline(ls)   (ls\->current == '\\n' || ls\->current == '\\r')"
+
+.PP
+在文件 llex\&.c 第 36 行定义\&.
+.SS "#define llex_c"
+
+.PP
+在文件 llex\&.c 第 7 行定义\&.
+.SS "#define LUA_CORE"
+
+.PP
+在文件 llex\&.c 第 8 行定义\&.
+.SS "#define next(ls)   (ls\->current = \fBzgetc\fP(ls\->z))"
+
+.PP
+在文件 llex\&.c 第 32 行定义\&.
+.SS "#define save_and_next(ls)   (\fBsave\fP(ls, ls\->current), \fBnext\fP(ls))"
+
+.PP
+在文件 llex\&.c 第 51 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static int check_next1 (\fBLexState\fP * ls, int c)\fC [static]\fP"
+
+.PP
+在文件 llex\&.c 第 189 行定义\&.
+.SS "static int check_next2 (\fBLexState\fP * ls, const char * set)\fC [static]\fP"
+
+.PP
+在文件 llex\&.c 第 202 行定义\&.
+.SS "static void esccheck (\fBLexState\fP * ls, int c, const char * msg)\fC [static]\fP"
+
+.PP
+在文件 llex\&.c 第 316 行定义\&.
+.SS "static int gethexa (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 llex\&.c 第 325 行定义\&.
+.SS "static void inclinenumber (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 llex\&.c 第 154 行定义\&.
+.SS "static \fBl_noret\fP lexerror (\fBLexState\fP * ls, const char * msg, int token)\fC [static]\fP"
+
+.PP
+在文件 llex\&.c 第 112 行定义\&.
+.SS "static int llex (\fBLexState\fP * ls, \fBSemInfo\fP * seminfo)\fC [static]\fP"
+
+.PP
+在文件 llex\&.c 第 442 行定义\&.
+.SS "void luaX_init (\fBlua_State\fP * L)"
+
+.PP
+在文件 llex\&.c 第 70 行定义\&.
+.SS "int luaX_lookahead (\fBLexState\fP * ls)"
+
+.PP
+在文件 llex\&.c 第 573 行定义\&.
+.SS "\fBTString\fP* luaX_newstring (\fBLexState\fP * ls, const char * str, size_t l)"
+
+.PP
+在文件 llex\&.c 第 130 行定义\&.
+.SS "void luaX_next (\fBLexState\fP * ls)"
+
+.PP
+在文件 llex\&.c 第 562 行定义\&.
+.SS "void luaX_setinput (\fBlua_State\fP * L, \fBLexState\fP * ls, \fBZIO\fP * z, \fBTString\fP * source, int firstchar)"
+
+.PP
+在文件 llex\&.c 第 165 行定义\&.
+.SS "\fBl_noret\fP luaX_syntaxerror (\fBLexState\fP * ls, const char * msg)"
+
+.PP
+在文件 llex\&.c 第 120 行定义\&.
+.SS "const char* luaX_token2str (\fBLexState\fP * ls, int token)"
+
+.PP
+在文件 llex\&.c 第 82 行定义\&.
+.SS "static void read_long_string (\fBLexState\fP * ls, \fBSemInfo\fP * seminfo, size_t sep)\fC [static]\fP"
+
+.PP
+在文件 llex\&.c 第 277 行定义\&.
+.SS "static int read_numeral (\fBLexState\fP * ls, \fBSemInfo\fP * seminfo)\fC [static]\fP"
+
+.PP
+在文件 llex\&.c 第 225 行定义\&.
+.SS "static void read_string (\fBLexState\fP * ls, int del, \fBSemInfo\fP * seminfo)\fC [static]\fP"
+
+.PP
+在文件 llex\&.c 第 379 行定义\&.
+.SS "static int readdecesc (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 llex\&.c 第 366 行定义\&.
+.SS "static int readhexaesc (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 llex\&.c 第 332 行定义\&.
+.SS "static unsigned long readutf8esc (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 llex\&.c 第 340 行定义\&.
+.SS "static void save (\fBLexState\fP * ls, int c)\fC [static]\fP"
+
+.PP
+在文件 llex\&.c 第 57 行定义\&.
+.SS "static size_t skip_sep (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 llex\&.c 第 262 行定义\&.
+.SS "static const char* txtToken (\fBLexState\fP * ls, int token)\fC [static]\fP"
+
+.PP
+在文件 llex\&.c 第 100 行定义\&.
+.SS "static void utf8esc (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 llex\&.c 第 358 行定义\&.
+.SH "变量说明"
+.PP 
+.SS "const char* const luaX_tokens[]\fC [static]\fP"
+\fB初始值:\fP
+.PP
+.nf
+= {
+    "and", "break", "do", "else", "elseif",
+    "end", "false", "for", "function", "goto", "if",
+    "in", "local", "nil", "not", "or", "repeat",
+    "return", "then", "true", "until", "while",
+    "//", "\&.\&.", "\&.\&.\&.", "==", ">=", "<=", "~=",
+    "<<", ">>", "::", "<eof>",
+    "<number>", "<integer>", "<name>", "<string>"
+}
+.fi
+.PP
+在文件 llex\&.c 第 40 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

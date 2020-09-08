@@ -1,0 +1,190 @@
+.TH "D:/gitworkspace/lua/src/ldump.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/ldump.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <stddef\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'lstate\&.h'\fP
+.br
+\fC#include 'lundump\&.h'\fP
+.br
+
+.SS "结构体"
+
+.in +1c
+.ti -1c
+.RI "struct \fBDumpState\fP"
+.br
+.in -1c
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBldump_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_CORE\fP"
+.br
+.ti -1c
+.RI "#define \fBdumpVector\fP(D,  v,  n)   \fBdumpBlock\fP(D,v,(n)*sizeof((v)[0]))"
+.br
+.ti -1c
+.RI "#define \fBdumpLiteral\fP(D,  s)   \fBdumpBlock\fP(D,s,sizeof(s) \- sizeof(char))"
+.br
+.ti -1c
+.RI "#define \fBdumpVar\fP(D,  x)   \fBdumpVector\fP(D,&x,1)"
+.br
+.ti -1c
+.RI "#define \fBDIBS\fP   ((sizeof(size_t) * 8 / 7) + 1)"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static void \fBdumpBlock\fP (\fBDumpState\fP *D, const void *b, size_t size)"
+.br
+.ti -1c
+.RI "static void \fBdumpByte\fP (\fBDumpState\fP *D, int y)"
+.br
+.ti -1c
+.RI "static void \fBdumpSize\fP (\fBDumpState\fP *D, size_t x)"
+.br
+.ti -1c
+.RI "static void \fBdumpInt\fP (\fBDumpState\fP *D, int x)"
+.br
+.ti -1c
+.RI "static void \fBdumpNumber\fP (\fBDumpState\fP *D, \fBlua_Number\fP x)"
+.br
+.ti -1c
+.RI "static void \fBdumpInteger\fP (\fBDumpState\fP *D, \fBlua_Integer\fP x)"
+.br
+.ti -1c
+.RI "static void \fBdumpString\fP (\fBDumpState\fP *D, const \fBTString\fP *s)"
+.br
+.ti -1c
+.RI "static void \fBdumpCode\fP (\fBDumpState\fP *D, const \fBProto\fP *f)"
+.br
+.ti -1c
+.RI "static void \fBdumpFunction\fP (\fBDumpState\fP *D, const \fBProto\fP *f, \fBTString\fP *psource)"
+.br
+.ti -1c
+.RI "static void \fBdumpConstants\fP (\fBDumpState\fP *D, const \fBProto\fP *f)"
+.br
+.ti -1c
+.RI "static void \fBdumpProtos\fP (\fBDumpState\fP *D, const \fBProto\fP *f)"
+.br
+.ti -1c
+.RI "static void \fBdumpUpvalues\fP (\fBDumpState\fP *D, const \fBProto\fP *f)"
+.br
+.ti -1c
+.RI "static void \fBdumpDebug\fP (\fBDumpState\fP *D, const \fBProto\fP *f)"
+.br
+.ti -1c
+.RI "static void \fBdumpHeader\fP (\fBDumpState\fP *D)"
+.br
+.ti -1c
+.RI "int \fBluaU_dump\fP (\fBlua_State\fP *L, const \fBProto\fP *f, \fBlua_Writer\fP w, void *data, int strip)"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define DIBS   ((sizeof(size_t) * 8 / 7) + 1)"
+
+.PP
+在文件 ldump\&.c 第 59 行定义\&.
+.SS "#define dumpLiteral(D, s)   \fBdumpBlock\fP(D,s,sizeof(s) \- sizeof(char))"
+
+.PP
+在文件 ldump\&.c 第 37 行定义\&.
+.SS "#define dumpVar(D, x)   \fBdumpVector\fP(D,&x,1)"
+
+.PP
+在文件 ldump\&.c 第 49 行定义\&.
+.SS "#define dumpVector(D, v, n)   \fBdumpBlock\fP(D,v,(n)*sizeof((v)[0]))"
+
+.PP
+在文件 ldump\&.c 第 35 行定义\&.
+.SS "#define ldump_c"
+
+.PP
+在文件 ldump\&.c 第 7 行定义\&.
+.SS "#define LUA_CORE"
+
+.PP
+在文件 ldump\&.c 第 8 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static void dumpBlock (\fBDumpState\fP * D, const void * b, size_t size)\fC [static]\fP"
+
+.PP
+在文件 ldump\&.c 第 40 行定义\&.
+.SS "static void dumpByte (\fBDumpState\fP * D, int y)\fC [static]\fP"
+
+.PP
+在文件 ldump\&.c 第 52 行定义\&.
+.SS "static void dumpCode (\fBDumpState\fP * D, const \fBProto\fP * f)\fC [static]\fP"
+
+.PP
+在文件 ldump\&.c 第 100 行定义\&.
+.SS "static void dumpConstants (\fBDumpState\fP * D, const \fBProto\fP * f)\fC [static]\fP"
+
+.PP
+在文件 ldump\&.c 第 108 行定义\&.
+.SS "static void dumpDebug (\fBDumpState\fP * D, const \fBProto\fP * f)\fC [static]\fP"
+
+.PP
+在文件 ldump\&.c 第 154 行定义\&.
+.SS "static void dumpFunction (\fBDumpState\fP * D, const \fBProto\fP * f, \fBTString\fP * psource)\fC [static]\fP"
+
+.PP
+在文件 ldump\&.c 第 179 行定义\&.
+.SS "static void dumpHeader (\fBDumpState\fP * D)\fC [static]\fP"
+
+.PP
+在文件 ldump\&.c 第 197 行定义\&.
+.SS "static void dumpInt (\fBDumpState\fP * D, int x)\fC [static]\fP"
+
+.PP
+在文件 ldump\&.c 第 73 行定义\&.
+.SS "static void dumpInteger (\fBDumpState\fP * D, \fBlua_Integer\fP x)\fC [static]\fP"
+
+.PP
+在文件 ldump\&.c 第 83 行定义\&.
+.SS "static void dumpNumber (\fBDumpState\fP * D, \fBlua_Number\fP x)\fC [static]\fP"
+
+.PP
+在文件 ldump\&.c 第 78 行定义\&.
+.SS "static void dumpProtos (\fBDumpState\fP * D, const \fBProto\fP * f)\fC [static]\fP"
+
+.PP
+在文件 ldump\&.c 第 134 行定义\&.
+.SS "static void dumpSize (\fBDumpState\fP * D, size_t x)\fC [static]\fP"
+
+.PP
+在文件 ldump\&.c 第 61 行定义\&.
+.SS "static void dumpString (\fBDumpState\fP * D, const \fBTString\fP * s)\fC [static]\fP"
+
+.PP
+在文件 ldump\&.c 第 88 行定义\&.
+.SS "static void dumpUpvalues (\fBDumpState\fP * D, const \fBProto\fP * f)\fC [static]\fP"
+
+.PP
+在文件 ldump\&.c 第 143 行定义\&.
+.SS "int luaU_dump (\fBlua_State\fP * L, const \fBProto\fP * f, \fBlua_Writer\fP w, void * data, int strip)"
+
+.PP
+在文件 ldump\&.c 第 213 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

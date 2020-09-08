@@ -1,0 +1,361 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_llimits_8h_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/llimits.h</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;llimits.h&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Limits,&#32;basic&#32;types,&#32;and&#32;some&#32;other&#32;&apos;installation-dependent&apos;&#32;definitions</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+00007 <emphasis role="preprocessor">#ifndef&#32;llimits_h</emphasis>
+00008 <emphasis role="preprocessor">#define&#32;llimits_h</emphasis>
+00009 
+00010 
+00011 <emphasis role="preprocessor">#include&#32;&lt;limits.h&gt;</emphasis>
+00012 <emphasis role="preprocessor">#include&#32;&lt;stddef.h&gt;</emphasis>
+00013 
+00014 
+00015 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lua_8h">lua.h</link>&quot;</emphasis>
+00016 
+00017 
+00018 <emphasis role="comment">/*</emphasis>
+00019 <emphasis role="comment">**&#32;&apos;lu_mem&apos;&#32;and&#32;&apos;l_mem&apos;&#32;are&#32;unsigned/signed&#32;integers&#32;big&#32;enough&#32;to&#32;count</emphasis>
+00020 <emphasis role="comment">**&#32;the&#32;total&#32;memory&#32;used&#32;by&#32;Lua&#32;(in&#32;bytes).&#32;Usually,&#32;&apos;size_t&apos;&#32;and</emphasis>
+00021 <emphasis role="comment">**&#32;&apos;ptrdiff_t&apos;&#32;should&#32;work,&#32;but&#32;we&#32;use&#32;&apos;long&apos;&#32;for&#32;16-bit&#32;machines.</emphasis>
+00022 <emphasis role="comment">*/</emphasis>
+00023 <emphasis role="preprocessor">#if&#32;defined(LUAI_MEM)&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;external&#32;definitions?&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00024 <emphasis role="keyword">typedef</emphasis>&#32;LUAI_UMEM&#32;<link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link>;
+00025 <emphasis role="keyword">typedef</emphasis>&#32;LUAI_MEM&#32;<link linkend="_llimits_8h_1a24fc195087e262c99a4cf0f9b346a684">l_mem</link>;
+00026 <emphasis role="preprocessor">#elif&#32;LUAI_IS32INT&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00027 <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;<link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link>;
+00028 <emphasis role="keyword">typedef</emphasis>&#32;ptrdiff_t&#32;<link linkend="_llimits_8h_1a24fc195087e262c99a4cf0f9b346a684">l_mem</link>;
+00029 <emphasis role="preprocessor">#else&#32;&#32;</emphasis><emphasis role="comment">/*&#32;16-bit&#32;ints&#32;*/</emphasis><emphasis role="preprocessor">&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_llimits_8h_source_1l00030"/><link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">00030</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">long</emphasis>&#32;<link linkend="_llimits_8h_1aac8c50ca0aa51c80523376da77c2c4d8">lu_mem</link>;
+<anchor xml:id="_llimits_8h_source_1l00031"/><link linkend="_llimits_8h_1a24fc195087e262c99a4cf0f9b346a684">00031</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keywordtype">long</emphasis>&#32;<link linkend="_llimits_8h_1a24fc195087e262c99a4cf0f9b346a684">l_mem</link>;
+00032 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00033 
+00034 
+00035 <emphasis role="comment">/*&#32;chars&#32;used&#32;as&#32;small&#32;naturals&#32;(so&#32;that&#32;&apos;char&apos;&#32;is&#32;reserved&#32;for&#32;characters)&#32;*/</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00036"/><link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">00036</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;<link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link>;
+<anchor xml:id="_llimits_8h_source_1l00037"/><link linkend="_llimits_8h_1aab58a246c9e0a85c4c2ed0fd8d6724bb">00037</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keywordtype">signed</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;<link linkend="_llimits_8h_1aab58a246c9e0a85c4c2ed0fd8d6724bb">ls_byte</link>;
+00038 
+00039 
+00040 <emphasis role="comment">/*&#32;maximum&#32;value&#32;for&#32;size_t&#32;*/</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00041"/><link linkend="_llimits_8h_1aa927c7bf177c162feda3483e1e972b3a">00041</link> <emphasis role="preprocessor">#define&#32;MAX_SIZET&#32;&#32;&#32;((size_t)(~(size_t)0))</emphasis>
+00042 
+00043 <emphasis role="comment">/*&#32;maximum&#32;size&#32;visible&#32;for&#32;Lua&#32;(must&#32;be&#32;representable&#32;in&#32;a&#32;lua_Integer)&#32;*/</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00044"/><link linkend="_llimits_8h_1a0592dba56693fad79136250c11e5a7fe">00044</link> <emphasis role="preprocessor">#define&#32;MAX_SIZE&#32;&#32;&#32;&#32;(sizeof(size_t)&#32;&lt;&#32;sizeof(lua_Integer)&#32;?&#32;MAX_SIZET&#32;\</emphasis>
+00045 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;:&#32;(size_t)(LUA_MAXINTEGER))</emphasis>
+00046 
+00047 
+<anchor xml:id="_llimits_8h_source_1l00048"/><link linkend="_llimits_8h_1a5e67dd5554c315bda4b54cd5ed0e846e">00048</link> <emphasis role="preprocessor">#define&#32;MAX_LUMEM&#32;&#32;&#32;((lu_mem)(~(lu_mem)0))</emphasis>
+00049 
+<anchor xml:id="_llimits_8h_source_1l00050"/><link linkend="_llimits_8h_1a99e52005f8b99ce8e36df841b281078e">00050</link> <emphasis role="preprocessor">#define&#32;MAX_LMEM&#32;&#32;&#32;&#32;((l_mem)(MAX_LUMEM&#32;&gt;&gt;&#32;1))</emphasis>
+00051 
+00052 
+<anchor xml:id="_llimits_8h_source_1l00053"/><link linkend="_llimits_8h_1aaa1ac5caef84256eaeb39594e58e096f">00053</link> <emphasis role="preprocessor">#define&#32;MAX_INT&#32;&#32;&#32;&#32;&#32;INT_MAX&#32;&#32;</emphasis><emphasis role="comment">/*&#32;maximum&#32;value&#32;of&#32;an&#32;int&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00054 
+00055 
+00056 <emphasis role="comment">/*</emphasis>
+00057 <emphasis role="comment">**&#32;floor&#32;of&#32;the&#32;log2&#32;of&#32;the&#32;maximum&#32;signed&#32;value&#32;for&#32;integral&#32;type&#32;&apos;t&apos;.</emphasis>
+00058 <emphasis role="comment">**&#32;(That&#32;is,&#32;maximum&#32;&apos;n&apos;&#32;such&#32;that&#32;&apos;2^n&apos;&#32;fits&#32;in&#32;the&#32;given&#32;signed&#32;type.)</emphasis>
+00059 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00060"/><link linkend="_llimits_8h_1a201d8e40e2923328862d720d0dc6a952">00060</link> <emphasis role="preprocessor">#define&#32;log2maxs(t)&#32;(sizeof(t)&#32;*&#32;8&#32;-&#32;2)</emphasis>
+00061 
+00062 
+00063 <emphasis role="comment">/*</emphasis>
+00064 <emphasis role="comment">**&#32;test&#32;whether&#32;an&#32;unsigned&#32;value&#32;is&#32;a&#32;power&#32;of&#32;2&#32;(or&#32;zero)</emphasis>
+00065 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00066"/><link linkend="_llimits_8h_1ada65e002d4b7df9ebfa7dde2d12357db">00066</link> <emphasis role="preprocessor">#define&#32;ispow2(x)&#32;&#32;&#32;(((x)&#32;&amp;&#32;((x)&#32;-&#32;1))&#32;==&#32;0)</emphasis>
+00067 
+00068 
+00069 <emphasis role="comment">/*&#32;number&#32;of&#32;chars&#32;of&#32;a&#32;literal&#32;string&#32;without&#32;the&#32;ending&#32;\0&#32;*/</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00070"/><link linkend="_llimits_8h_1a6185afb135442b229d91201b1a3c6eb2">00070</link> <emphasis role="preprocessor">#define&#32;LL(x)&#32;&#32;&#32;(sizeof(x)/sizeof(char)&#32;-&#32;1)</emphasis>
+00071 
+00072 
+00073 <emphasis role="comment">/*</emphasis>
+00074 <emphasis role="comment">**&#32;conversion&#32;of&#32;pointer&#32;to&#32;unsigned&#32;integer:</emphasis>
+00075 <emphasis role="comment">**&#32;this&#32;is&#32;for&#32;hashing&#32;only;&#32;there&#32;is&#32;no&#32;problem&#32;if&#32;the&#32;integer</emphasis>
+00076 <emphasis role="comment">**&#32;cannot&#32;hold&#32;the&#32;whole&#32;pointer&#32;value</emphasis>
+00077 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00078"/><link linkend="_llimits_8h_1ad861f24ac9e8c32f78455aab3d2e7b51">00078</link> <emphasis role="preprocessor">#define&#32;point2uint(p)&#32;&#32;&#32;((unsigned&#32;int)((size_t)(p)&#32;&amp;&#32;UINT_MAX))</emphasis>
+00079 
+00080 
+00081 
+00082 <emphasis role="comment">/*&#32;types&#32;of&#32;&apos;usual&#32;argument&#32;conversions&apos;&#32;for&#32;lua_Number&#32;and&#32;lua_Integer&#32;*/</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00083"/><link linkend="_llimits_8h_1a792eefbf119f914b73400c314411c3e2">00083</link> <emphasis role="keyword">typedef</emphasis>&#32;<link linkend="_luaconf_8h_1ae3594e990592ab0bf7243dad64c76d2a">LUAI_UACNUMBER</link>&#32;<link linkend="_llimits_8h_1a792eefbf119f914b73400c314411c3e2">l_uacNumber</link>;
+<anchor xml:id="_llimits_8h_source_1l00084"/><link linkend="_llimits_8h_1ac8d5f795aedd7e084ef2dab7b5d81bde">00084</link> <emphasis role="keyword">typedef</emphasis>&#32;<link linkend="_luaconf_8h_1a7a9d650ef5ea12d81160db595fe9f177">LUAI_UACINT</link>&#32;<link linkend="_llimits_8h_1ac8d5f795aedd7e084ef2dab7b5d81bde">l_uacInt</link>;
+00085 
+00086 
+00087 <emphasis role="comment">/*</emphasis>
+00088 <emphasis role="comment">**&#32;Internal&#32;assertions&#32;for&#32;in-house&#32;debugging</emphasis>
+00089 <emphasis role="comment">*/</emphasis>
+00090 <emphasis role="preprocessor">#if&#32;defined&#32;LUAI_ASSERT</emphasis>
+00091 <emphasis role="preprocessor">#undef&#32;NDEBUG</emphasis>
+00092 <emphasis role="preprocessor">#include&#32;&lt;assert.h&gt;</emphasis>
+00093 <emphasis role="preprocessor">#define&#32;lua_assert(c)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;assert(c)</emphasis>
+00094 <emphasis role="preprocessor">#endif</emphasis>
+00095 
+00096 <emphasis role="preprocessor">#if&#32;defined(lua_assert)</emphasis>
+00097 <emphasis role="preprocessor">#define&#32;check_exp(c,e)&#32;&#32;&#32;&#32;&#32;&#32;(lua_assert(c),&#32;(e))</emphasis>
+00098 <emphasis role="comment">/*&#32;to&#32;avoid&#32;problems&#32;with&#32;conditions&#32;too&#32;long&#32;*/</emphasis>
+00099 <emphasis role="preprocessor">#define&#32;lua_longassert(c)&#32;&#32;&#32;((c)&#32;?&#32;(void)0&#32;:&#32;lua_assert(0))</emphasis>
+00100 <emphasis role="preprocessor">#else</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00101"/><link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">00101</link> <emphasis role="preprocessor">#define&#32;lua_assert(c)&#32;&#32;&#32;&#32;&#32;&#32;&#32;((void)0)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00102"/><link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">00102</link> <emphasis role="preprocessor">#define&#32;check_exp(c,e)&#32;&#32;&#32;&#32;&#32;&#32;(e)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00103"/><link linkend="_llimits_8h_1a825f22ba1e16fd60e3aae8fe8efc1c4d">00103</link> <emphasis role="preprocessor">#define&#32;lua_longassert(c)&#32;&#32;&#32;((void)0)</emphasis>
+00104 <emphasis role="preprocessor">#endif</emphasis>
+00105 
+00106 <emphasis role="comment">/*</emphasis>
+00107 <emphasis role="comment">**&#32;assertion&#32;for&#32;checking&#32;API&#32;calls</emphasis>
+00108 <emphasis role="comment">*/</emphasis>
+00109 <emphasis role="preprocessor">#if&#32;!defined(luai_apicheck)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00110"/><link linkend="_llimits_8h_1a5e99efda77b5660d36828d61d92b5cdf">00110</link> <emphasis role="preprocessor">#define&#32;luai_apicheck(l,e)&#32;&#32;((void)l,&#32;lua_assert(e))</emphasis>
+00111 <emphasis role="preprocessor">#endif</emphasis>
+00112 
+<anchor xml:id="_llimits_8h_source_1l00113"/><link linkend="_llimits_8h_1ad7a42e1cc11f94e1f06ed80814fcb606">00113</link> <emphasis role="preprocessor">#define&#32;api_check(l,e,msg)&#32;&#32;luai_apicheck(l,(e)&#32;&amp;&amp;&#32;msg)</emphasis>
+00114 
+00115 
+00116 <emphasis role="comment">/*&#32;macro&#32;to&#32;avoid&#32;warnings&#32;about&#32;unused&#32;variables&#32;*/</emphasis>
+00117 <emphasis role="preprocessor">#if&#32;!defined(UNUSED)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00118"/><link linkend="_llimits_8h_1a86d500a34c624c2cae56bc25a31b12f3">00118</link> <emphasis role="preprocessor">#define&#32;UNUSED(x)&#32;&#32;&#32;((void)(x))</emphasis>
+00119 <emphasis role="preprocessor">#endif</emphasis>
+00120 
+00121 
+00122 <emphasis role="comment">/*&#32;type&#32;casts&#32;(a&#32;macro&#32;highlights&#32;casts&#32;in&#32;the&#32;code)&#32;*/</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00123"/><link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">00123</link> <emphasis role="preprocessor">#define&#32;cast(t,&#32;exp)&#32;&#32;&#32;&#32;((t)(exp))</emphasis>
+00124 
+<anchor xml:id="_llimits_8h_source_1l00125"/><link linkend="_llimits_8h_1a52a5166d7dc0590b63a9331cfc0f4564">00125</link> <emphasis role="preprocessor">#define&#32;cast_void(i)&#32;&#32;&#32;&#32;cast(void,&#32;(i))</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00126"/><link linkend="_llimits_8h_1a672c0fddf71f33d86ed8aa62ad914d52">00126</link> <emphasis role="preprocessor">#define&#32;cast_voidp(i)&#32;&#32;&#32;cast(void&#32;*,&#32;(i))</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00127"/><link linkend="_llimits_8h_1ac92cecb12c5aba1164877e81e76e2cb6">00127</link> <emphasis role="preprocessor">#define&#32;cast_num(i)&#32;cast(lua_Number,&#32;(i))</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00128"/><link linkend="_llimits_8h_1a37a9e2c4b53433d34bad0f12a1500c08">00128</link> <emphasis role="preprocessor">#define&#32;cast_int(i)&#32;cast(int,&#32;(i))</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00129"/><link linkend="_llimits_8h_1a6ce2ddc5b419ed6f302573db3cc03e56">00129</link> <emphasis role="preprocessor">#define&#32;cast_uint(i)&#32;&#32;&#32;&#32;cast(unsigned&#32;int,&#32;(i))</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00130"/><link linkend="_llimits_8h_1a596f5b6e992f53a5a4e5732083448dd4">00130</link> <emphasis role="preprocessor">#define&#32;cast_byte(i)&#32;&#32;&#32;&#32;cast(lu_byte,&#32;(i))</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00131"/><link linkend="_llimits_8h_1aa0c49a2b32329cc39df5ccafd1f720e0">00131</link> <emphasis role="preprocessor">#define&#32;cast_uchar(i)&#32;&#32;&#32;cast(unsigned&#32;char,&#32;(i))</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00132"/><link linkend="_llimits_8h_1a045e548576226e8c7e9ab5de8a59f4bc">00132</link> <emphasis role="preprocessor">#define&#32;cast_char(i)&#32;&#32;&#32;&#32;cast(char,&#32;(i))</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00133"/><link linkend="_llimits_8h_1a1d905979f8c901b7143b43ee98341206">00133</link> <emphasis role="preprocessor">#define&#32;cast_charp(i)&#32;&#32;&#32;cast(char&#32;*,&#32;(i))</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00134"/><link linkend="_llimits_8h_1a025d385a5ce274fa6eade82b6e1458d1">00134</link> <emphasis role="preprocessor">#define&#32;cast_sizet(i)&#32;&#32;&#32;cast(size_t,&#32;(i))</emphasis>
+00135 
+00136 
+00137 <emphasis role="comment">/*&#32;cast&#32;a&#32;signed&#32;lua_Integer&#32;to&#32;lua_Unsigned&#32;*/</emphasis>
+00138 <emphasis role="preprocessor">#if&#32;!defined(l_castS2U)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00139"/><link linkend="_llimits_8h_1a5871309e671ba9f938fcb1e0d3bcbeca">00139</link> <emphasis role="preprocessor">#define&#32;l_castS2U(i)&#32;&#32;&#32;&#32;((lua_Unsigned)(i))</emphasis>
+00140 <emphasis role="preprocessor">#endif</emphasis>
+00141 
+00142 <emphasis role="comment">/*</emphasis>
+00143 <emphasis role="comment">**&#32;cast&#32;a&#32;lua_Unsigned&#32;to&#32;a&#32;signed&#32;lua_Integer;&#32;this&#32;cast&#32;is</emphasis>
+00144 <emphasis role="comment">**&#32;not&#32;strict&#32;ISO&#32;C,&#32;but&#32;two-complement&#32;architectures&#32;should</emphasis>
+00145 <emphasis role="comment">**&#32;work&#32;fine.</emphasis>
+00146 <emphasis role="comment">*/</emphasis>
+00147 <emphasis role="preprocessor">#if&#32;!defined(l_castU2S)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00148"/><link linkend="_llimits_8h_1a873fa1b216f8caed046edbcebd4c1bc8">00148</link> <emphasis role="preprocessor">#define&#32;l_castU2S(i)&#32;&#32;&#32;&#32;((lua_Integer)(i))</emphasis>
+00149 <emphasis role="preprocessor">#endif</emphasis>
+00150 
+00151 
+00152 <emphasis role="comment">/*</emphasis>
+00153 <emphasis role="comment">**&#32;macros&#32;to&#32;improve&#32;jump&#32;prediction&#32;(used&#32;mainly&#32;for&#32;error&#32;handling)</emphasis>
+00154 <emphasis role="comment">*/</emphasis>
+00155 <emphasis role="preprocessor">#if&#32;!defined(likely)</emphasis>
+00156 
+00157 <emphasis role="preprocessor">#if&#32;defined(__GNUC__)</emphasis>
+00158 <emphasis role="preprocessor">#define&#32;likely(x)&#32;&#32;&#32;(__builtin_expect(((x)&#32;!=&#32;0),&#32;1))</emphasis>
+00159 <emphasis role="preprocessor">#define&#32;unlikely(x)&#32;(__builtin_expect(((x)&#32;!=&#32;0),&#32;0))</emphasis>
+00160 <emphasis role="preprocessor">#else</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00161"/><link linkend="_llimits_8h_1a217a0bd562b98ae8c2ffce44935351e1">00161</link> <emphasis role="preprocessor">#define&#32;likely(x)&#32;&#32;&#32;(x)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00162"/><link linkend="_llimits_8h_1ac6c45889010c1bd68631771b64f18101">00162</link> <emphasis role="preprocessor">#define&#32;unlikely(x)&#32;(x)</emphasis>
+00163 <emphasis role="preprocessor">#endif</emphasis>
+00164 
+00165 <emphasis role="preprocessor">#endif</emphasis>
+00166 
+00167 
+00168 <emphasis role="comment">/*</emphasis>
+00169 <emphasis role="comment">**&#32;non-return&#32;type</emphasis>
+00170 <emphasis role="comment">*/</emphasis>
+00171 <emphasis role="preprocessor">#if&#32;!defined(l_noret)</emphasis>
+00172 
+00173 <emphasis role="preprocessor">#if&#32;defined(__GNUC__)</emphasis>
+00174 <emphasis role="preprocessor">#define&#32;l_noret&#32;&#32;&#32;&#32;&#32;void&#32;__attribute__((noreturn))</emphasis>
+00175 <emphasis role="preprocessor">#elif&#32;defined(_MSC_VER)&#32;&amp;&amp;&#32;_MSC_VER&#32;&gt;=&#32;1200</emphasis>
+00176 <emphasis role="preprocessor">#define&#32;l_noret&#32;&#32;&#32;&#32;&#32;void&#32;__declspec(noreturn)</emphasis>
+00177 <emphasis role="preprocessor">#else</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00178"/><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">00178</link> <emphasis role="preprocessor">#define&#32;l_noret&#32;&#32;&#32;&#32;&#32;void</emphasis>
+00179 <emphasis role="preprocessor">#endif</emphasis>
+00180 
+00181 <emphasis role="preprocessor">#endif</emphasis>
+00182 
+00183 
+00184 <emphasis role="comment">/*</emphasis>
+00185 <emphasis role="comment">**&#32;type&#32;for&#32;virtual-machine&#32;instructions;</emphasis>
+00186 <emphasis role="comment">**&#32;must&#32;be&#32;an&#32;unsigned&#32;with&#32;(at&#32;least)&#32;4&#32;bytes&#32;(see&#32;details&#32;in&#32;lopcodes.h)</emphasis>
+00187 <emphasis role="comment">*/</emphasis>
+00188 <emphasis role="preprocessor">#if&#32;LUAI_IS32INT</emphasis>
+00189 <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_llimits_8h_1abeb00a444eb1dc99a4a2baee15bd898a">l_uint32</link>;
+00190 <emphasis role="preprocessor">#else</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00191"/><link linkend="_llimits_8h_1abeb00a444eb1dc99a4a2baee15bd898a">00191</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">long</emphasis>&#32;<link linkend="_llimits_8h_1abeb00a444eb1dc99a4a2baee15bd898a">l_uint32</link>;
+00192 <emphasis role="preprocessor">#endif</emphasis>
+00193 
+<anchor xml:id="_llimits_8h_source_1l00194"/><link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">00194</link> <emphasis role="keyword">typedef</emphasis>&#32;<link linkend="_llimits_8h_1abeb00a444eb1dc99a4a2baee15bd898a">l_uint32</link>&#32;<link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link>;
+00195 
+00196 
+00197 
+00198 <emphasis role="comment">/*</emphasis>
+00199 <emphasis role="comment">**&#32;Maximum&#32;length&#32;for&#32;short&#32;strings,&#32;that&#32;is,&#32;strings&#32;that&#32;are</emphasis>
+00200 <emphasis role="comment">**&#32;internalized.&#32;(Cannot&#32;be&#32;smaller&#32;than&#32;reserved&#32;words&#32;or&#32;tags&#32;for</emphasis>
+00201 <emphasis role="comment">**&#32;metamethods,&#32;as&#32;these&#32;strings&#32;must&#32;be&#32;internalized;</emphasis>
+00202 <emphasis role="comment">**&#32;#(&quot;function&quot;)&#32;=&#32;8,&#32;#(&quot;__newindex&quot;)&#32;=&#32;10.)</emphasis>
+00203 <emphasis role="comment">*/</emphasis>
+00204 <emphasis role="preprocessor">#if&#32;!defined(LUAI_MAXSHORTLEN)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00205"/><link linkend="_llimits_8h_1a54fe4797308d6b24bf84fa0129a155bd">00205</link> <emphasis role="preprocessor">#define&#32;LUAI_MAXSHORTLEN&#32;&#32;&#32;&#32;40</emphasis>
+00206 <emphasis role="preprocessor">#endif</emphasis>
+00207 
+00208 
+00209 <emphasis role="comment">/*</emphasis>
+00210 <emphasis role="comment">**&#32;Initial&#32;size&#32;for&#32;the&#32;string&#32;table&#32;(must&#32;be&#32;power&#32;of&#32;2).</emphasis>
+00211 <emphasis role="comment">**&#32;The&#32;Lua&#32;core&#32;alone&#32;registers&#32;~50&#32;strings&#32;(reserved&#32;words&#32;+</emphasis>
+00212 <emphasis role="comment">**&#32;metaevent&#32;keys&#32;+&#32;a&#32;few&#32;others).&#32;Libraries&#32;would&#32;typically&#32;add</emphasis>
+00213 <emphasis role="comment">**&#32;a&#32;few&#32;dozens&#32;more.</emphasis>
+00214 <emphasis role="comment">*/</emphasis>
+00215 <emphasis role="preprocessor">#if&#32;!defined(MINSTRTABSIZE)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00216"/><link linkend="_llimits_8h_1a91604f8876fd042d7b1cdbade17927e6">00216</link> <emphasis role="preprocessor">#define&#32;MINSTRTABSIZE&#32;&#32;&#32;128</emphasis>
+00217 <emphasis role="preprocessor">#endif</emphasis>
+00218 
+00219 
+00220 <emphasis role="comment">/*</emphasis>
+00221 <emphasis role="comment">**&#32;Size&#32;of&#32;cache&#32;for&#32;strings&#32;in&#32;the&#32;API.&#32;&apos;N&apos;&#32;is&#32;the&#32;number&#32;of</emphasis>
+00222 <emphasis role="comment">**&#32;sets&#32;(better&#32;be&#32;a&#32;prime)&#32;and&#32;&quot;M&quot;&#32;is&#32;the&#32;size&#32;of&#32;each&#32;set&#32;(M&#32;==&#32;1</emphasis>
+00223 <emphasis role="comment">**&#32;makes&#32;a&#32;direct&#32;cache.)</emphasis>
+00224 <emphasis role="comment">*/</emphasis>
+00225 <emphasis role="preprocessor">#if&#32;!defined(STRCACHE_N)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00226"/><link linkend="_llimits_8h_1aa8382779dd8eeb2dea3deb97dec0ed1c">00226</link> <emphasis role="preprocessor">#define&#32;STRCACHE_N&#32;&#32;&#32;&#32;&#32;&#32;53</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00227"/><link linkend="_llimits_8h_1a3e028bcc45ab536a37bb6860caf3d2ca">00227</link> <emphasis role="preprocessor">#define&#32;STRCACHE_M&#32;&#32;&#32;&#32;&#32;&#32;2</emphasis>
+00228 <emphasis role="preprocessor">#endif</emphasis>
+00229 
+00230 
+00231 <emphasis role="comment">/*&#32;minimum&#32;size&#32;for&#32;string&#32;buffer&#32;*/</emphasis>
+00232 <emphasis role="preprocessor">#if&#32;!defined(LUA_MINBUFFER)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00233"/><link linkend="_llimits_8h_1aa0320f75a72bf131ae24d39111ac9938">00233</link> <emphasis role="preprocessor">#define&#32;LUA_MINBUFFER&#32;&#32;&#32;32</emphasis>
+00234 <emphasis role="preprocessor">#endif</emphasis>
+00235 
+00236 
+00237 <emphasis role="comment">/*</emphasis>
+00238 <emphasis role="comment">**&#32;macros&#32;that&#32;are&#32;executed&#32;whenever&#32;program&#32;enters&#32;the&#32;Lua&#32;core</emphasis>
+00239 <emphasis role="comment">**&#32;(&apos;lua_lock&apos;)&#32;and&#32;leaves&#32;the&#32;core&#32;(&apos;lua_unlock&apos;)</emphasis>
+00240 <emphasis role="comment">*/</emphasis>
+00241 <emphasis role="preprocessor">#if&#32;!defined(lua_lock)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00242"/><link linkend="_llimits_8h_1aa68a48b9104aeadf4842c25c12a9b8c9">00242</link> <emphasis role="preprocessor">#define&#32;lua_lock(L)&#32;((void)&#32;0)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00243"/><link linkend="_llimits_8h_1a1781f2a7d9161848a246d475a9171875">00243</link> <emphasis role="preprocessor">#define&#32;lua_unlock(L)&#32;&#32;&#32;((void)&#32;0)</emphasis>
+00244 <emphasis role="preprocessor">#endif</emphasis>
+00245 
+00246 <emphasis role="comment">/*</emphasis>
+00247 <emphasis role="comment">**&#32;macro&#32;executed&#32;during&#32;Lua&#32;functions&#32;at&#32;points&#32;where&#32;the</emphasis>
+00248 <emphasis role="comment">**&#32;function&#32;can&#32;yield.</emphasis>
+00249 <emphasis role="comment">*/</emphasis>
+00250 <emphasis role="preprocessor">#if&#32;!defined(luai_threadyield)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00251"/><link linkend="_llimits_8h_1a7bf655fe36dca3227f9e7e04226d3e6a">00251</link> <emphasis role="preprocessor">#define&#32;luai_threadyield(L)&#32;{lua_unlock(L);&#32;lua_lock(L);}</emphasis>
+00252 <emphasis role="preprocessor">#endif</emphasis>
+00253 
+00254 
+00255 <emphasis role="comment">/*</emphasis>
+00256 <emphasis role="comment">**&#32;these&#32;macros&#32;allow&#32;user-specific&#32;actions&#32;when&#32;a&#32;thread&#32;is</emphasis>
+00257 <emphasis role="comment">**&#32;created/deleted/resumed/yielded.</emphasis>
+00258 <emphasis role="comment">*/</emphasis>
+00259 <emphasis role="preprocessor">#if&#32;!defined(luai_userstateopen)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00260"/><link linkend="_llimits_8h_1a05bbfa34e58a82e39cc19701e5359881">00260</link> <emphasis role="preprocessor">#define&#32;luai_userstateopen(L)&#32;&#32;&#32;&#32;&#32;&#32;&#32;((void)L)</emphasis>
+00261 <emphasis role="preprocessor">#endif</emphasis>
+00262 
+00263 <emphasis role="preprocessor">#if&#32;!defined(luai_userstateclose)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00264"/><link linkend="_llimits_8h_1ae269d75893fce50868b37c32214648e5">00264</link> <emphasis role="preprocessor">#define&#32;luai_userstateclose(L)&#32;&#32;&#32;&#32;&#32;&#32;((void)L)</emphasis>
+00265 <emphasis role="preprocessor">#endif</emphasis>
+00266 
+00267 <emphasis role="preprocessor">#if&#32;!defined(luai_userstatethread)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00268"/><link linkend="_llimits_8h_1a533eae4cf709fa76f3974823354e4067">00268</link> <emphasis role="preprocessor">#define&#32;luai_userstatethread(L,L1)&#32;&#32;((void)L)</emphasis>
+00269 <emphasis role="preprocessor">#endif</emphasis>
+00270 
+00271 <emphasis role="preprocessor">#if&#32;!defined(luai_userstatefree)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00272"/><link linkend="_llimits_8h_1a7c5595955dfef0964d1286b3f29e2aad">00272</link> <emphasis role="preprocessor">#define&#32;luai_userstatefree(L,L1)&#32;&#32;&#32;&#32;((void)L)</emphasis>
+00273 <emphasis role="preprocessor">#endif</emphasis>
+00274 
+00275 <emphasis role="preprocessor">#if&#32;!defined(luai_userstateresume)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00276"/><link linkend="_llimits_8h_1af110e056a602175437e5cda45dd7db5e">00276</link> <emphasis role="preprocessor">#define&#32;luai_userstateresume(L,n)&#32;&#32;&#32;((void)L)</emphasis>
+00277 <emphasis role="preprocessor">#endif</emphasis>
+00278 
+00279 <emphasis role="preprocessor">#if&#32;!defined(luai_userstateyield)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00280"/><link linkend="_llimits_8h_1ade427932b2d70d9f0b04c4d6a2af177a">00280</link> <emphasis role="preprocessor">#define&#32;luai_userstateyield(L,n)&#32;&#32;&#32;&#32;((void)L)</emphasis>
+00281 <emphasis role="preprocessor">#endif</emphasis>
+00282 
+00283 
+00284 
+00285 <emphasis role="comment">/*</emphasis>
+00286 <emphasis role="comment">**&#32;The&#32;luai_num*&#32;macros&#32;define&#32;the&#32;primitive&#32;operations&#32;over&#32;numbers.</emphasis>
+00287 <emphasis role="comment">*/</emphasis>
+00288 
+00289 <emphasis role="comment">/*&#32;floor&#32;division&#32;(defined&#32;as&#32;&apos;floor(a/b)&apos;)&#32;*/</emphasis>
+00290 <emphasis role="preprocessor">#if&#32;!defined(luai_numidiv)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00291"/><link linkend="_llimits_8h_1a9ca37a98a6032ab21dcfd63d42e66f89">00291</link> <emphasis role="preprocessor">#define&#32;luai_numidiv(L,a,b)&#32;&#32;&#32;&#32;&#32;((void)L,&#32;l_floor(luai_numdiv(L,a,b)))</emphasis>
+00292 <emphasis role="preprocessor">#endif</emphasis>
+00293 
+00294 <emphasis role="comment">/*&#32;float&#32;division&#32;*/</emphasis>
+00295 <emphasis role="preprocessor">#if&#32;!defined(luai_numdiv)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00296"/><link linkend="_llimits_8h_1a2a095b8d523b51332eb223df531367d2">00296</link> <emphasis role="preprocessor">#define&#32;luai_numdiv(L,a,b)&#32;&#32;&#32;&#32;&#32;&#32;((a)/(b))</emphasis>
+00297 <emphasis role="preprocessor">#endif</emphasis>
+00298 
+00299 <emphasis role="comment">/*</emphasis>
+00300 <emphasis role="comment">**&#32;modulo:&#32;defined&#32;as&#32;&apos;a&#32;-&#32;floor(a/b)*b&apos;;&#32;the&#32;direct&#32;computation</emphasis>
+00301 <emphasis role="comment">**&#32;using&#32;this&#32;definition&#32;has&#32;several&#32;problems&#32;with&#32;rounding&#32;errors,</emphasis>
+00302 <emphasis role="comment">**&#32;so&#32;it&#32;is&#32;better&#32;to&#32;use&#32;&apos;fmod&apos;.&#32;&apos;fmod&apos;&#32;gives&#32;the&#32;result&#32;of</emphasis>
+00303 <emphasis role="comment">**&#32;&apos;a&#32;-&#32;trunc(a/b)*b&apos;,&#32;and&#32;therefore&#32;must&#32;be&#32;corrected&#32;when</emphasis>
+00304 <emphasis role="comment">**&#32;&apos;trunc(a/b)&#32;~=&#32;floor(a/b)&apos;.&#32;That&#32;happens&#32;when&#32;the&#32;division&#32;has&#32;a</emphasis>
+00305 <emphasis role="comment">**&#32;non-integer&#32;negative&#32;result:&#32;non-integer&#32;result&#32;is&#32;equivalent&#32;to</emphasis>
+00306 <emphasis role="comment">**&#32;a&#32;non-zero&#32;remainder&#32;&apos;m&apos;;&#32;negative&#32;result&#32;is&#32;equivalent&#32;to&#32;&apos;a&apos;&#32;and</emphasis>
+00307 <emphasis role="comment">**&#32;&apos;b&apos;&#32;with&#32;different&#32;signs,&#32;or&#32;&apos;m&apos;&#32;and&#32;&apos;b&apos;&#32;with&#32;different&#32;signs</emphasis>
+00308 <emphasis role="comment">**&#32;(as&#32;the&#32;result&#32;&apos;m&apos;&#32;of&#32;&apos;fmod&apos;&#32;has&#32;the&#32;same&#32;sign&#32;of&#32;&apos;a&apos;).</emphasis>
+00309 <emphasis role="comment">*/</emphasis>
+00310 <emphasis role="preprocessor">#if&#32;!defined(luai_nummod)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00311"/><link linkend="_llimits_8h_1ac6e6bfca420c761a89eee023103c34f4">00311</link> <emphasis role="preprocessor">#define&#32;luai_nummod(L,a,b,m)&#32;&#32;\</emphasis>
+00312 <emphasis role="preprocessor">&#32;&#32;{&#32;(void)L;&#32;(m)&#32;=&#32;l_mathop(fmod)(a,b);&#32;\</emphasis>
+00313 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;if&#32;(((m)&#32;&gt;&#32;0)&#32;?&#32;(b)&#32;&lt;&#32;0&#32;:&#32;((m)&#32;&lt;&#32;0&#32;&amp;&amp;&#32;(b)&#32;&gt;&#32;0))&#32;(m)&#32;+=&#32;(b);&#32;}</emphasis>
+00314 <emphasis role="preprocessor">#endif</emphasis>
+00315 
+00316 <emphasis role="comment">/*&#32;exponentiation&#32;*/</emphasis>
+00317 <emphasis role="preprocessor">#if&#32;!defined(luai_numpow)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00318"/><link linkend="_llimits_8h_1a4a3b06f2c7239f8dcbd101ca20cc507a">00318</link> <emphasis role="preprocessor">#define&#32;luai_numpow(L,a,b)&#32;&#32;&#32;&#32;&#32;&#32;((void)L,&#32;l_mathop(pow)(a,b))</emphasis>
+00319 <emphasis role="preprocessor">#endif</emphasis>
+00320 
+00321 <emphasis role="comment">/*&#32;the&#32;others&#32;are&#32;quite&#32;standard&#32;operations&#32;*/</emphasis>
+00322 <emphasis role="preprocessor">#if&#32;!defined(luai_numadd)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00323"/><link linkend="_llimits_8h_1af3eb5d1884e4512d2701bbc97bb82e81">00323</link> <emphasis role="preprocessor">#define&#32;luai_numadd(L,a,b)&#32;&#32;&#32;&#32;&#32;&#32;((a)+(b))</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00324"/><link linkend="_llimits_8h_1a93e733c7e860d7fb838b6af414405662">00324</link> <emphasis role="preprocessor">#define&#32;luai_numsub(L,a,b)&#32;&#32;&#32;&#32;&#32;&#32;((a)-(b))</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00325"/><link linkend="_llimits_8h_1a1cbcef9e269f0ac1a5f34898a7c4ae36">00325</link> <emphasis role="preprocessor">#define&#32;luai_nummul(L,a,b)&#32;&#32;&#32;&#32;&#32;&#32;((a)*(b))</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00326"/><link linkend="_llimits_8h_1a84c57a852cdc4b46c678cb3fab715846">00326</link> <emphasis role="preprocessor">#define&#32;luai_numunm(L,a)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(-(a))</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00327"/><link linkend="_llimits_8h_1ae06bbbe345c8bb028e233120466d387d">00327</link> <emphasis role="preprocessor">#define&#32;luai_numeq(a,b)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;((a)==(b))</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00328"/><link linkend="_llimits_8h_1ae035faaeb068720ee8540210870ee5c9">00328</link> <emphasis role="preprocessor">#define&#32;luai_numlt(a,b)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;((a)&lt;(b))</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00329"/><link linkend="_llimits_8h_1af803655e8c9be7ba1f3f3fb0c4f730d7">00329</link> <emphasis role="preprocessor">#define&#32;luai_numle(a,b)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;((a)&lt;=(b))</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00330"/><link linkend="_llimits_8h_1a252c8bc400dc44bd996b19e7cf487871">00330</link> <emphasis role="preprocessor">#define&#32;luai_numgt(a,b)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;((a)&gt;(b))</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00331"/><link linkend="_llimits_8h_1a727a96f18bda273bd57dee105a274abe">00331</link> <emphasis role="preprocessor">#define&#32;luai_numge(a,b)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;((a)&gt;=(b))</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00332"/><link linkend="_llimits_8h_1a5ec99a344dba64c30c3ddc6eed8e2e51">00332</link> <emphasis role="preprocessor">#define&#32;luai_numisnan(a)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(!luai_numeq((a),&#32;(a)))</emphasis>
+00333 <emphasis role="preprocessor">#endif</emphasis>
+00334 
+00335 
+00336 
+00337 
+00338 
+00339 <emphasis role="comment">/*</emphasis>
+00340 <emphasis role="comment">**&#32;macro&#32;to&#32;control&#32;inclusion&#32;of&#32;some&#32;hard&#32;tests&#32;on&#32;stack&#32;reallocation</emphasis>
+00341 <emphasis role="comment">*/</emphasis>
+00342 <emphasis role="preprocessor">#if&#32;!defined(HARDSTACKTESTS)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00343"/><link linkend="_llimits_8h_1a51890ff33a337eee53fc73934fa7ba89">00343</link> <emphasis role="preprocessor">#define&#32;condmovestack(L,pre,pos)&#32;&#32;&#32;&#32;((void)0)</emphasis>
+00344 <emphasis role="preprocessor">#else</emphasis>
+00345 <emphasis role="comment">/*&#32;realloc&#32;stack&#32;keeping&#32;its&#32;size&#32;*/</emphasis>
+00346 <emphasis role="preprocessor">#define&#32;condmovestack(L,pre,pos)&#32;&#32;\</emphasis>
+00347 <emphasis role="preprocessor">&#32;&#32;{&#32;int&#32;sz_&#32;=&#32;(L)-&gt;stacksize;&#32;pre;&#32;luaD_reallocstack((L),&#32;sz_,&#32;0);&#32;pos;&#32;}</emphasis>
+00348 <emphasis role="preprocessor">#endif</emphasis>
+00349 
+00350 <emphasis role="preprocessor">#if&#32;!defined(HARDMEMTESTS)</emphasis>
+<anchor xml:id="_llimits_8h_source_1l00351"/><link linkend="_llimits_8h_1ac9968fbda6cf783c96a635cd891931f8">00351</link> <emphasis role="preprocessor">#define&#32;condchangemem(L,pre,pos)&#32;&#32;&#32;&#32;((void)0)</emphasis>
+00352 <emphasis role="preprocessor">#else</emphasis>
+00353 <emphasis role="preprocessor">#define&#32;condchangemem(L,pre,pos)&#32;&#32;\</emphasis>
+00354 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;{&#32;if&#32;(G(L)-&gt;gcrunning)&#32;{&#32;pre;&#32;luaC_fullgc(L,&#32;0);&#32;pos;&#32;}&#32;}</emphasis>
+00355 <emphasis role="preprocessor">#endif</emphasis>
+00356 
+00357 <emphasis role="preprocessor">#endif</emphasis>
+</programlisting></section>

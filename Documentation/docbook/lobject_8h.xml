@@ -1,0 +1,1623 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lobject_8h" xml:lang="zh">
+<title>D:/gitworkspace/lua/lobject.h 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lobject.h</primary></indexterm>
+<programlisting>#include &lt;stdarg.h&gt;
+#include &quot;llimits.h&quot;
+#include &quot;lua.h&quot;
+</programlisting>lobject.h 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8h__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8h__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>结构体    </title>
+        <itemizedlist>
+            <listitem><para>union <link linkend="_union_value">Value</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_t_value">TValue</link></para>
+</listitem>
+            <listitem><para>union <link linkend="_union_stack_value">StackValue</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_g_c_object">GCObject</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_t_string">TString</link></para>
+</listitem>
+            <listitem><para>union <link linkend="_union_u_value">UValue</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_udata">Udata</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_udata0">Udata0</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_upvaldesc">Upvaldesc</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_loc_var">LocVar</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_abs_line_info">AbsLineInfo</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_proto">Proto</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_up_val">UpVal</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_c_closure">CClosure</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_l_closure">LClosure</link></para>
+</listitem>
+            <listitem><para>union <link linkend="_union_closure">Closure</link></para>
+</listitem>
+            <listitem><para>union <link linkend="_union_node">Node</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_node_1_1_node_key">Node::NodeKey</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_table">Table</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lobject_8h_1a3175b6b959953f781a14a9291d9e22b6">LUA_TUPVAL</link>   <link linkend="_lua_8h_1a99a031e2239fe191c2a4e1dfb7511d87">LUA_NUMTYPES</link>  /* upvalues */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1aa2a683d9e42dac5846eefa108297cbf0">LUA_TPROTO</link>   (<link linkend="_lua_8h_1a99a031e2239fe191c2a4e1dfb7511d87">LUA_NUMTYPES</link>+1)  /* function prototypes */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a19bae920c9c442143f021d1c4301b8cb">LUA_TOTALTYPES</link>   (<link linkend="_lobject_8h_1aa2a683d9e42dac5846eefa108297cbf0">LUA_TPROTO</link> + 2)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(t,  v)   ((t) | ((v) &lt;&lt; 4))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a33c298ced3df4f041dd86a19a6c0dae2">TValuefields</link>   <link linkend="_union_value">Value</link> value_; <link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> tt_</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o)   ((o)-&gt;value_)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a8a47bf030949aef5df2fd844415e2501">valraw</link>(o)   (&amp;<link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a4e4078cdfa594d60186ec4369b582acf">rawtt</link>(o)   ((o)-&gt;tt_)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a40d12e88a0d8249d226109e0d6d70dd6">novariant</link>(t)   ((t) &amp; 0x0F)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a97f74541c5efde62e7dc88e8cebd75d9">withvariant</link>(t)   ((t) &amp; 0x3F)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a01db083f8bc8b2eb51a45c0ba9967043">ttypetag</link>(o)   <link linkend="_lobject_8h_1a97f74541c5efde62e7dc88e8cebd75d9">withvariant</link>(<link linkend="_lobject_8h_1a4e4078cdfa594d60186ec4369b582acf">rawtt</link>(o))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1acd205ab396b96fba48e1f758c17a2cf3">ttype</link>(o)   (<link linkend="_lobject_8h_1a40d12e88a0d8249d226109e0d6d70dd6">novariant</link>(<link linkend="_lobject_8h_1a4e4078cdfa594d60186ec4369b582acf">rawtt</link>(o)))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>(o,  t)   (<link linkend="_lobject_8h_1a4e4078cdfa594d60186ec4369b582acf">rawtt</link>(o) == (t))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a591e9cc1db9d9f210702bdbf2ba10d02">checktype</link>(o,  t)   (<link linkend="_lobject_8h_1acd205ab396b96fba48e1f758c17a2cf3">ttype</link>(o) == (t))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a08f554017b8314e2dfc0dfd05b1d8167">righttt</link>(obj)   (<link linkend="_lobject_8h_1a01db083f8bc8b2eb51a45c0ba9967043">ttypetag</link>(obj) == <link linkend="_lobject_8h_1a05cdf6070135f10ad37e1048a730b634">gcvalue</link>(obj)-&gt;tt)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1aeec8842aa72396b2719685ad7e131f37">checkliveness</link>(L,  obj)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(o,  t)   ((o)-&gt;tt_=(t))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1acf2af15f3d5cceca8e8870f96634bc2d">setobj</link>(L,  obj1,  obj2)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1af9258d87e8f082be8a2adb731d90f1a5">setobjs2s</link>(L,  o1,  o2)   <link linkend="_lobject_8h_1acf2af15f3d5cceca8e8870f96634bc2d">setobj</link>(L,<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(o1),<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(o2))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1add70d29b431f66a1dee29a0cb286de6e">setobj2s</link>(L,  o1,  o2)   <link linkend="_lobject_8h_1acf2af15f3d5cceca8e8870f96634bc2d">setobj</link>(L,<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(o1),o2)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a0b6916971c4766bf58d942bf7a426c80">setobjt2t</link>   <link linkend="_lobject_8h_1acf2af15f3d5cceca8e8870f96634bc2d">setobj</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1ad6d8d3d900cff1b02c3b269eabccccf9">setobj2n</link>   <link linkend="_lobject_8h_1acf2af15f3d5cceca8e8870f96634bc2d">setobj</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1adefdd17d98f1f5734ee296395e1805d4">setobj2t</link>   <link linkend="_lobject_8h_1acf2af15f3d5cceca8e8870f96634bc2d">setobj</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(o)   (&amp;(o)-&gt;val)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1aac7a0aeb62c96ba16c7638e707bfaac0">LUA_VNIL</link>   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">LUA_TNIL</link>, 0)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1abc8b34ab48ffd99b6d7a48e8e4f269e2">LUA_VEMPTY</link>   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">LUA_TNIL</link>, 1)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1acbec62756a4a34ca07969e71ac30f7f1">LUA_VABSTKEY</link>   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">LUA_TNIL</link>, 2)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a39af019fafa202841da3bf7c427bf090">ttisnil</link>(v)   <link linkend="_lobject_8h_1a591e9cc1db9d9f210702bdbf2ba10d02">checktype</link>((v), <link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">LUA_TNIL</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1afae62ae42d03ff2600208b109bad8070">ttisstrictnil</link>(o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1aac7a0aeb62c96ba16c7638e707bfaac0">LUA_VNIL</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1ad9034def7bbc1965ec3d714d84620b07">setnilvalue</link>(obj)   <link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(obj, <link linkend="_lobject_8h_1aac7a0aeb62c96ba16c7638e707bfaac0">LUA_VNIL</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1abb0534795c360c0ac007d3729758f908">isabstkey</link>(v)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((v), <link linkend="_lobject_8h_1acbec62756a4a34ca07969e71ac30f7f1">LUA_VABSTKEY</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a792b40c39dcc3d6b158e202919a61197">isnonstrictnil</link>(v)   (<link linkend="_lobject_8h_1a39af019fafa202841da3bf7c427bf090">ttisnil</link>(v) &amp;&amp; !<link linkend="_lobject_8h_1afae62ae42d03ff2600208b109bad8070">ttisstrictnil</link>(v))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a5345ae49ed16dfecdfef95ec5399b000">isempty</link>(v)   <link linkend="_lobject_8h_1a39af019fafa202841da3bf7c427bf090">ttisnil</link>(v)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a003630137c8fd4d1378bee8017c4fb92">ABSTKEYCONSTANT</link>   {NULL}, <link linkend="_lobject_8h_1acbec62756a4a34ca07969e71ac30f7f1">LUA_VABSTKEY</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a1504584244b6d1260c52a41cab9306d0">setempty</link>(v)   <link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(v, <link linkend="_lobject_8h_1abc8b34ab48ffd99b6d7a48e8e4f269e2">LUA_VEMPTY</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a95236d400066ed64a37c72d3dada7e9d">LUA_VFALSE</link>   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1a611808ed12d4c2aee2a9e298a9d9a9bf">LUA_TBOOLEAN</link>, 0)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1aed66cd95aa3f518c947b5bd9e17bab47">LUA_VTRUE</link>   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1a611808ed12d4c2aee2a9e298a9d9a9bf">LUA_TBOOLEAN</link>, 1)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a44a87a5873bd05973d6e3a4747175c06">ttisboolean</link>(o)   <link linkend="_lobject_8h_1a591e9cc1db9d9f210702bdbf2ba10d02">checktype</link>((o), <link linkend="_lua_8h_1a611808ed12d4c2aee2a9e298a9d9a9bf">LUA_TBOOLEAN</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1aebb0fc4ab25fdfc7d01e834cc24b6048">ttisfalse</link>(o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a95236d400066ed64a37c72d3dada7e9d">LUA_VFALSE</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a31a5a1c03da9886f462929d023ec00f8">ttistrue</link>(o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1aed66cd95aa3f518c947b5bd9e17bab47">LUA_VTRUE</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a188e1a95c8c6d547a13431a6e1edd5b3">l_isfalse</link>(o)   (<link linkend="_lobject_8h_1aebb0fc4ab25fdfc7d01e834cc24b6048">ttisfalse</link>(o) || <link linkend="_lobject_8h_1a39af019fafa202841da3bf7c427bf090">ttisnil</link>(o))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1ad0259526a10884432dd2e7ea10b90e0f">setbfvalue</link>(obj)   <link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(obj, <link linkend="_lobject_8h_1a95236d400066ed64a37c72d3dada7e9d">LUA_VFALSE</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a1b86e0dccf6b92c4c89d47af26e3a8e3">setbtvalue</link>(obj)   <link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(obj, <link linkend="_lobject_8h_1aed66cd95aa3f518c947b5bd9e17bab47">LUA_VTRUE</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1ad224258ccc4e8f79f148d54d32ddbd00">LUA_VTHREAD</link>   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1a028a8d8aae9580c465aabcd0c11334d9">LUA_TTHREAD</link>, 0)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a5ae8a42aa33c44ef3c98fcda8b7ab4c5">ttisthread</link>(o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1ad224258ccc4e8f79f148d54d32ddbd00">LUA_VTHREAD</link>))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a516f32427f1c43ee187ce4c0db042959">thvalue</link>(o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a5ae8a42aa33c44ef3c98fcda8b7ab4c5">ttisthread</link>(o), <link linkend="_lstate_8h_1a52c467e11bd40cad5ca78372f7f67b4d">gco2th</link>(<link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).gc))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a9c2bad449e8e998bb9d937642923a225">setthvalue</link>(L,  obj,  x)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a538e049061af97a32cc2e59ff979c409">setthvalue2s</link>(L,  o,  t)   <link linkend="_lobject_8h_1a9c2bad449e8e998bb9d937642923a225">setthvalue</link>(L,<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(o),t)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a5ee24faa024428a3c176895fe9925031">CommonHeader</link>   struct <link linkend="_struct_g_c_object">GCObject</link> *<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>; <link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> tt; <link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> marked</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a6301e5933254618c0434a55a500b2282">BIT_ISCOLLECTABLE</link>   (1 &lt;&lt; 6)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1aaabdb414706e6a904461e39967557185">iscollectable</link>(o)   (<link linkend="_lobject_8h_1a4e4078cdfa594d60186ec4369b582acf">rawtt</link>(o) &amp; <link linkend="_lobject_8h_1a6301e5933254618c0434a55a500b2282">BIT_ISCOLLECTABLE</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(t)   ((t) | <link linkend="_lobject_8h_1a6301e5933254618c0434a55a500b2282">BIT_ISCOLLECTABLE</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a05cdf6070135f10ad37e1048a730b634">gcvalue</link>(o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1aaabdb414706e6a904461e39967557185">iscollectable</link>(o), <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).gc)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a719248356281fe83215c94961ad9226f">gcvalueraw</link>(v)   ((v).gc)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a977fe2a01691b55cdd5eabefb4114434">setgcovalue</link>(L,  obj,  x)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a69aa5cae89d634d458e0da4957257745">LUA_VNUMINT</link>   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1a7f62ecb240cb38da9c8a53b41fe21ed9">LUA_TNUMBER</link>, 0)  /* integer numbers */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a19aaaf978586be9032b63b7a8807631a">LUA_VNUMFLT</link>   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1a7f62ecb240cb38da9c8a53b41fe21ed9">LUA_TNUMBER</link>, 1)  /* float numbers */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a7a1392f89b1f29ed3b1afa37a22d0be2">ttisnumber</link>(o)   <link linkend="_lobject_8h_1a591e9cc1db9d9f210702bdbf2ba10d02">checktype</link>((o), <link linkend="_lua_8h_1a7f62ecb240cb38da9c8a53b41fe21ed9">LUA_TNUMBER</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1ac1338b5ac67cadf27489f5ae7e939c29">ttisfloat</link>(o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a19aaaf978586be9032b63b7a8807631a">LUA_VNUMFLT</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1abade243295a9140f7b86838fbb049054">ttisinteger</link>(o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a69aa5cae89d634d458e0da4957257745">LUA_VNUMINT</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a690ab618235691bb5a82610f07dd8684">nvalue</link>(o)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a7d7d6b08f40350c9e7364e9cb984d744">fltvalue</link>(o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1ac1338b5ac67cadf27489f5ae7e939c29">ttisfloat</link>(o), <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).n)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1af1a59636db050b842a791cd19086d925">ivalue</link>(o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1abade243295a9140f7b86838fbb049054">ttisinteger</link>(o), <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).i)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a7410757b6ced9fdf3cba7cc7e18cc8e6">fltvalueraw</link>(v)   ((v).n)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a570028d77ace5fea06c305e11921dccc">ivalueraw</link>(v)   ((v).i)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1ae357382324a8220a3cf77607752de887">setfltvalue</link>(obj,  x)     { <link linkend="_struct_t_value">TValue</link> *io=(obj); <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(io).n=(x); <link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(io, <link linkend="_lobject_8h_1a19aaaf978586be9032b63b7a8807631a">LUA_VNUMFLT</link>); }</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1afb905ab8008c82b24755df25012408f2">chgfltvalue</link>(obj,  x)     { <link linkend="_struct_t_value">TValue</link> *io=(obj); <link linkend="_lualib_8h_1abea1f576564ec516f6efe8c014bdef2d">lua_assert</link>(<link linkend="_lobject_8h_1ac1338b5ac67cadf27489f5ae7e939c29">ttisfloat</link>(io)); <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(io).n=(x); }</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1af9dd109ba186841ab26efb2d62baf4f6">setivalue</link>(obj,  x)     { <link linkend="_struct_t_value">TValue</link> *io=(obj); <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(io).i=(x); <link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(io, <link linkend="_lobject_8h_1a69aa5cae89d634d458e0da4957257745">LUA_VNUMINT</link>); }</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1ad7adb5b383285a385eb64b01de30966e">chgivalue</link>(obj,  x)     { <link linkend="_struct_t_value">TValue</link> *io=(obj); <link linkend="_lualib_8h_1abea1f576564ec516f6efe8c014bdef2d">lua_assert</link>(<link linkend="_lobject_8h_1abade243295a9140f7b86838fbb049054">ttisinteger</link>(io)); <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(io).i=(x); }</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a794410ffd7267ef873eb05ac695b1ba6">LUA_VSHRSTR</link>   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1a57de20d87bb5131a3159f2bd52e3fab6">LUA_TSTRING</link>, 0)  /* short strings */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a6869fcb0a0178b6d70d431eae1683199">LUA_VLNGSTR</link>   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1a57de20d87bb5131a3159f2bd52e3fab6">LUA_TSTRING</link>, 1)  /* long strings */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a9bdf057a0de8da2ffae3ac35662dd255">ttisstring</link>(o)   <link linkend="_lobject_8h_1a591e9cc1db9d9f210702bdbf2ba10d02">checktype</link>((o), <link linkend="_lua_8h_1a57de20d87bb5131a3159f2bd52e3fab6">LUA_TSTRING</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a6513e161c7e8cc7276a9677d50a99b76">ttisshrstring</link>(o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1a794410ffd7267ef873eb05ac695b1ba6">LUA_VSHRSTR</link>))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a70613f10396708b6099f5e96fd9f668f">ttislngstring</link>(o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1a6869fcb0a0178b6d70d431eae1683199">LUA_VLNGSTR</link>))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a04fc217567b22a15b06483a8977c7914">tsvalueraw</link>(v)   (<link linkend="_lstate_8h_1af6c16f3aa27ad97ea1bcaa31e05e0b06">gco2ts</link>((v).gc))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a8661397faed512ccc9c70a4661f1a83d">tsvalue</link>(o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a9bdf057a0de8da2ffae3ac35662dd255">ttisstring</link>(o), <link linkend="_lstate_8h_1af6c16f3aa27ad97ea1bcaa31e05e0b06">gco2ts</link>(<link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).gc))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a251a2d3bada66aaed6249a89a0afe5f0">setsvalue</link>(L,  obj,  x)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1aa60b4c3bb90063dcaa2f90e77d4a61f6">setsvalue2s</link>(L,  o,  s)   <link linkend="_lobject_8h_1a251a2d3bada66aaed6249a89a0afe5f0">setsvalue</link>(L,<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(o),s)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1aa7a9ab918b0322fa100f3f7af16d2375">setsvalue2n</link>   <link linkend="_lobject_8h_1a251a2d3bada66aaed6249a89a0afe5f0">setsvalue</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1acb05d3ab238923581a9c629b8e11a6ac">getstr</link>(ts)   ((ts)-&gt;contents)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1ac2c9eedf3ff2c3042445b3b534f161e1">svalue</link>(o)   <link linkend="_lobject_8h_1acb05d3ab238923581a9c629b8e11a6ac">getstr</link>(<link linkend="_lobject_8h_1a8661397faed512ccc9c70a4661f1a83d">tsvalue</link>(o))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a3a62185cfa9345aedfc3a581dfdbb4f3">tsslen</link>(s)   ((s)-&gt;tt == <link linkend="_lobject_8h_1a794410ffd7267ef873eb05ac695b1ba6">LUA_VSHRSTR</link> ? (s)-&gt;shrlen : (s)-&gt;u.lnglen)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a9753d5f343806e0cb16293f53143098c">vslen</link>(o)   <link linkend="_lobject_8h_1a3a62185cfa9345aedfc3a581dfdbb4f3">tsslen</link>(<link linkend="_lobject_8h_1a8661397faed512ccc9c70a4661f1a83d">tsvalue</link>(o))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a0fe81163ea67e644d5a85078c4a6d25c">LUA_VLIGHTUSERDATA</link>   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1aa030c2d649070173902c8094d8e0e2cd">LUA_TLIGHTUSERDATA</link>, 0)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1af45b44d4031e7e869195dd97759d2ca3">LUA_VUSERDATA</link>   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1a84fd4c52cea4073671a4cd0eb7026dc7">LUA_TUSERDATA</link>, 0)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a6440445277dce2e73af1e043f9884d7a">ttislightuserdata</link>(o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a0fe81163ea67e644d5a85078c4a6d25c">LUA_VLIGHTUSERDATA</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a2b0d95af67f53d9fe2bdde605f9cd957">ttisfulluserdata</link>(o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1af45b44d4031e7e869195dd97759d2ca3">LUA_VUSERDATA</link>))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a16c0267c035b3e4edda082e25069e8cf">pvalue</link>(o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a6440445277dce2e73af1e043f9884d7a">ttislightuserdata</link>(o), <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).p)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a1c49f55d93297e833141fb62903af3ad">uvalue</link>(o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a2b0d95af67f53d9fe2bdde605f9cd957">ttisfulluserdata</link>(o), <link linkend="_lstate_8h_1a55e9a228ad0d3a82ee9cfc353002fd8a">gco2u</link>(<link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).gc))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1ac63f7b6c7f725eaece22d3e7ea198001">pvalueraw</link>(v)   ((v).p)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a0784c90d154ccf7c643b56a00c62412a">setpvalue</link>(obj,  x)     { <link linkend="_struct_t_value">TValue</link> *io=(obj); <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(io).p=(x); <link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(io, <link linkend="_lobject_8h_1a0fe81163ea67e644d5a85078c4a6d25c">LUA_VLIGHTUSERDATA</link>); }</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1ab358ecf44046d8def185fed182944fc1">setuvalue</link>(L,  obj,  x)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1aef06056b207ac5efd6fb0b0a2b3165d5">udatamemoffset</link>(nuv)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a2caa96489ffdf9759e50fda47d69f605">getudatamem</link>(u)   (<link linkend="_llimits_8h_1a1d905979f8c901b7143b43ee98341206">cast_charp</link>(u) + <link linkend="_lobject_8h_1aef06056b207ac5efd6fb0b0a2b3165d5">udatamemoffset</link>((u)-&gt;nuvalue))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a762595cf399516b83e0f5580a9a3a7b9">sizeudata</link>(nuv,  nb)   (<link linkend="_lobject_8h_1aef06056b207ac5efd6fb0b0a2b3165d5">udatamemoffset</link>(nuv) + (nb))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a1c6c32cba3e6d0c897f68ceb273dd757">LUA_VPROTO</link>   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lobject_8h_1aa2a683d9e42dac5846eefa108297cbf0">LUA_TPROTO</link>, 0)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1ae982db94518ed52587579ed70d822ad5">LUA_VUPVAL</link>   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lobject_8h_1a3175b6b959953f781a14a9291d9e22b6">LUA_TUPVAL</link>, 0)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a5d0e6e41ea93960667095501aa5745c1">LUA_VLCL</link>   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1adaa7fa6e2561c1bc428ba8d265171494">LUA_TFUNCTION</link>, 0)  /* Lua closure */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a9b9abbdd10fec20fc7a746efd903872d">LUA_VLCF</link>   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1adaa7fa6e2561c1bc428ba8d265171494">LUA_TFUNCTION</link>, 1)  /* light C function */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a2361d923ddb7fc1468b978fe043e35c2">LUA_VCCL</link>   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1adaa7fa6e2561c1bc428ba8d265171494">LUA_TFUNCTION</link>, 2)  /* C closure */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a48587dcb78721d149d3184d0768f4950">ttisfunction</link>(o)   <link linkend="_lobject_8h_1a591e9cc1db9d9f210702bdbf2ba10d02">checktype</link>(o, <link linkend="_lua_8h_1adaa7fa6e2561c1bc428ba8d265171494">LUA_TFUNCTION</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a3254d5797537bb83d10a5b48dc6b4377">ttisclosure</link>(o)   ((<link linkend="_lobject_8h_1a4e4078cdfa594d60186ec4369b582acf">rawtt</link>(o) &amp; 0x1F) == <link linkend="_lobject_8h_1a5d0e6e41ea93960667095501aa5745c1">LUA_VLCL</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a6f8bada57bc9f224609af800d399693f">ttisLclosure</link>(o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1a5d0e6e41ea93960667095501aa5745c1">LUA_VLCL</link>))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a8d43f35dfc5fcd0ee49a6206d63bec18">ttislcf</link>(o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a9b9abbdd10fec20fc7a746efd903872d">LUA_VLCF</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a9510da9838a8f17b4eef364549a4c7a8">ttisCclosure</link>(o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1a2361d923ddb7fc1468b978fe043e35c2">LUA_VCCL</link>))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a6e8ea4626fad5e23912d4e26d0b09200">isLfunction</link>(o)   <link linkend="_lobject_8h_1a6f8bada57bc9f224609af800d399693f">ttisLclosure</link>(o)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a4b49383d348897fe282c0d51354d8bc9">clvalue</link>(o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a3254d5797537bb83d10a5b48dc6b4377">ttisclosure</link>(o), <link linkend="_lstate_8h_1a003658bade3405a30fe2cf7fee2f7e10">gco2cl</link>(<link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).gc))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1afb9e65b01574a1135c582cf28883062e">clLvalue</link>(o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a6f8bada57bc9f224609af800d399693f">ttisLclosure</link>(o), <link linkend="_lstate_8h_1adaac0379079b200986d6ae72b65aefaf">gco2lcl</link>(<link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).gc))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a27d0b4b700445d8c82ddc634c0252d10">fvalue</link>(o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a8d43f35dfc5fcd0ee49a6206d63bec18">ttislcf</link>(o), <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).f)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a2c2d10bdd241446b4c9e1b68268159bc">clCvalue</link>(o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a9510da9838a8f17b4eef364549a4c7a8">ttisCclosure</link>(o), <link linkend="_lstate_8h_1a1dcf2ea170c68fe70adb5af7ae04c71e">gco2ccl</link>(<link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).gc))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a5bfafd2ed3da7d3e31562ffb9d73fc7c">fvalueraw</link>(v)   ((v).f)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1ac1765c700e6c8eaa1e36b397cc5439f7">setclLvalue</link>(L,  obj,  x)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a3e4e5270b0c50551ed8c3a0367f56d14">setclLvalue2s</link>(L,  o,  cl)   <link linkend="_lobject_8h_1ac1765c700e6c8eaa1e36b397cc5439f7">setclLvalue</link>(L,<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(o),cl)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a449f6c91562897c555ff32b360a6042f">setfvalue</link>(obj,  x)     { <link linkend="_struct_t_value">TValue</link> *io=(obj); <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(io).f=(x); <link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(io, <link linkend="_lobject_8h_1a9b9abbdd10fec20fc7a746efd903872d">LUA_VLCF</link>); }</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a57d9fee6a3a8d1eb4b36c95cf76ab09d">setclCvalue</link>(L,  obj,  x)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1aa6994808abcc30f100e21e34b84d3ae0">ClosureHeader</link>   	<link linkend="_lobject_8h_1a5ee24faa024428a3c176895fe9925031">CommonHeader</link>; <link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> nupvalues; <link linkend="_struct_g_c_object">GCObject</link> *gclist</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a36095400a8ca3ad1e6120f507b421331">getproto</link>(o)   (<link linkend="_lobject_8h_1afb9e65b01574a1135c582cf28883062e">clLvalue</link>(o)-&gt;p)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1afaf24d5b79b9027ad768d023778669df">LUA_VTABLE</link>   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1a31620fd8da5b655b7879e16a116ec31a">LUA_TTABLE</link>, 0)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1ac5338f5fe3885d1ee65412e00a44384e">ttistable</link>(o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1afaf24d5b79b9027ad768d023778669df">LUA_VTABLE</link>))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a336a6ce5e8340e6de133ec249cf47ebf">hvalue</link>(o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1ac5338f5fe3885d1ee65412e00a44384e">ttistable</link>(o), <link linkend="_lstate_8h_1a4f233ba369144fad9fd5fc6c513da1ac">gco2t</link>(<link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).gc))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1ab9379699ac579d54410e3542f061bbad">sethvalue</link>(L,  obj,  x)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1aea789832f6c549f64cb3903216a7aeac">sethvalue2s</link>(L,  o,  h)   <link linkend="_lobject_8h_1ab9379699ac579d54410e3542f061bbad">sethvalue</link>(L,<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(o),h)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1aa7874cc7dfe741ad55075fd32ee1ff10">setnodekey</link>(L,  node,  obj)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1aa7b8fdb54ee8ce0235270f7d0b41e430">getnodekey</link>(L,  obj,  node)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a4e9e4a26da0e928c0896fb8c1e0bc9de">BITRAS</link>   (1 &lt;&lt; 7)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1ab8a9474c584f41823442bb17f1f06970">isrealasize</link>(t)   (!((t)-&gt;flags &amp; <link linkend="_lobject_8h_1a4e9e4a26da0e928c0896fb8c1e0bc9de">BITRAS</link>))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1aa88e534c311fb58886306dbcba0aacd2">setrealasize</link>(t)   ((t)-&gt;flags &amp;= <link linkend="_llimits_8h_1a596f5b6e992f53a5a4e5732083448dd4">cast_byte</link>(~<link linkend="_lobject_8h_1a4e9e4a26da0e928c0896fb8c1e0bc9de">BITRAS</link>))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a2b2746c3988215fc84fcde1bf7548f6f">setnorealasize</link>(t)   ((t)-&gt;flags |= <link linkend="_lobject_8h_1a4e9e4a26da0e928c0896fb8c1e0bc9de">BITRAS</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1af89f4367b6adf6c6708feae2667736cb">keytt</link>(node)   ((node)-&gt;u.key_tt)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1ac2aa0ae587e918878c9c310734d81d56">keyval</link>(node)   ((node)-&gt;u.key_val)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a64e2e5b8ce53a1dc7a528b13947d7ff3">keyisnil</link>(node)   (<link linkend="_lobject_8h_1af89f4367b6adf6c6708feae2667736cb">keytt</link>(node) == <link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">LUA_TNIL</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1affab919da1b667cc1a98f2bd040aa94e">keyisinteger</link>(node)   (<link linkend="_lobject_8h_1af89f4367b6adf6c6708feae2667736cb">keytt</link>(node) == <link linkend="_lobject_8h_1a69aa5cae89d634d458e0da4957257745">LUA_VNUMINT</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a03d51823d7893e729288cff396e16120">keyival</link>(node)   (<link linkend="_lobject_8h_1ac2aa0ae587e918878c9c310734d81d56">keyval</link>(node).i)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a06a6d0eeb65723526d00bdf71402d518">keyisshrstr</link>(node)   (<link linkend="_lobject_8h_1af89f4367b6adf6c6708feae2667736cb">keytt</link>(node) == <link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1a794410ffd7267ef873eb05ac695b1ba6">LUA_VSHRSTR</link>))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1af0d29f0c2bdfa023abc9e7a0d34e8e24">keystrval</link>(node)   (<link linkend="_lstate_8h_1af6c16f3aa27ad97ea1bcaa31e05e0b06">gco2ts</link>(<link linkend="_lobject_8h_1ac2aa0ae587e918878c9c310734d81d56">keyval</link>(node).gc))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1abc95de76b69ef4abed8c40959657208a">setnilkey</link>(node)   (<link linkend="_lobject_8h_1af89f4367b6adf6c6708feae2667736cb">keytt</link>(node) = <link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">LUA_TNIL</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1ad5d0afe3e47112e0136e0d6afb6c4536">keyiscollectable</link>(n)   (<link linkend="_lobject_8h_1af89f4367b6adf6c6708feae2667736cb">keytt</link>(n) &amp; <link linkend="_lobject_8h_1a6301e5933254618c0434a55a500b2282">BIT_ISCOLLECTABLE</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1ac3dbc3b85a58d872c002e6cbea675bac">gckey</link>(n)   (<link linkend="_lobject_8h_1ac2aa0ae587e918878c9c310734d81d56">keyval</link>(n).gc)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a228a192019c3bf44b6027d8f4a38c904">gckeyN</link>(n)   (<link linkend="_lobject_8h_1ad5d0afe3e47112e0136e0d6afb6c4536">keyiscollectable</link>(n) ? <link linkend="_lobject_8h_1ac3dbc3b85a58d872c002e6cbea675bac">gckey</link>(n) : NULL)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1af8e25f008b9446cacc6cd5e2e5508f5d">setdeadkey</link>(n)   (<link linkend="_lobject_8h_1af89f4367b6adf6c6708feae2667736cb">keytt</link>(n) = <link linkend="_lua_8h_1a31620fd8da5b655b7879e16a116ec31a">LUA_TTABLE</link>, <link linkend="_lobject_8h_1ac3dbc3b85a58d872c002e6cbea675bac">gckey</link>(n) = NULL)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a528d710ddad324002e3cb47992740b6a">lmod</link>(s,  size)   	(<link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((size&amp;(size-1))==0, (<link linkend="_llimits_8h_1a37a9e2c4b53433d34bad0f12a1500c08">cast_int</link>((s) &amp; ((size)-1)))))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1aa341ef742b199e1c29a19d2c490ad74e">twoto</link>(x)   (1&lt;&lt;(x))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1a2fbf715e78eaa889ed0fb9d4514e736a">sizenode</link>(t)   (<link linkend="_lobject_8h_1aa341ef742b199e1c29a19d2c490ad74e">twoto</link>((t)-&gt;lsizenode))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8h_1ae0741e99030a23e3c24b0eb828fbbe4b">UTF8BUFFSZ</link>   8</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>类型定义    </title>
+        <itemizedlist>
+            <listitem><para>typedef union <link linkend="_union_value">Value</link> <link linkend="_lobject_8h_1a33d0ee7f37b6b7cf753e159ea8ae8a52">Value</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_t_value">TValue</link> <link linkend="_lobject_8h_1a1f32c523a9a46759690a7acc24eedc19">TValue</link></para>
+</listitem>
+            <listitem><para>typedef union <link linkend="_union_stack_value">StackValue</link> <link linkend="_lobject_8h_1a7e5934136714a2f3d01cf4515d5258a0">StackValue</link></para>
+</listitem>
+            <listitem><para>typedef <link linkend="_union_stack_value">StackValue</link> * <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_g_c_object">GCObject</link> <link linkend="_lobject_8h_1a695cc6eaef4f2d539a5fe6e3582a2847">GCObject</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_t_string">TString</link> <link linkend="_lobject_8h_1ad2189b9dc6af3f33b8aa3090dcde1535">TString</link></para>
+</listitem>
+            <listitem><para>typedef union <link linkend="_union_u_value">UValue</link> <link linkend="_lobject_8h_1a4a9abc9c2064ec3a4620a1f1c30f18af">UValue</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_udata">Udata</link> <link linkend="_lobject_8h_1a5bc1974b5ddc941b400e1b1b058f95f1">Udata</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_udata0">Udata0</link> <link linkend="_lobject_8h_1a33aa9feb0273304758472bccb2a6a4a6">Udata0</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_upvaldesc">Upvaldesc</link> <link linkend="_lobject_8h_1a8e51aa6ac9ae7599a39adc3bb297bd86">Upvaldesc</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_loc_var">LocVar</link> <link linkend="_lobject_8h_1abfe5d6df698ce5c78a1e911fe5860466">LocVar</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_abs_line_info">AbsLineInfo</link> <link linkend="_lobject_8h_1a5c84f9e449c687325b7ad4359474aa22">AbsLineInfo</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_proto">Proto</link> <link linkend="_lobject_8h_1aecc6ed5be1952ae8617cbcbebe2a530c">Proto</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_up_val">UpVal</link> <link linkend="_lobject_8h_1a420f4f4eeb467ce750d00e5d3a21c109">UpVal</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_c_closure">CClosure</link> <link linkend="_lobject_8h_1af6216773b23b5805654970e1271e1c7b">CClosure</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_l_closure">LClosure</link> <link linkend="_lobject_8h_1a17bc5d9d02f31c043f5d144531c58531">LClosure</link></para>
+</listitem>
+            <listitem><para>typedef union <link linkend="_union_closure">Closure</link> <link linkend="_lobject_8h_1a7010360932a52c6bb0f85eac9da1d775">Closure</link></para>
+</listitem>
+            <listitem><para>typedef union <link linkend="_union_node">Node</link> <link linkend="_lobject_8h_1a945b262d2678b7e3ca2f38381fdaad4d">Node</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_table">Table</link> <link linkend="_lobject_8h_1aaa5713bb2ecdf81c430009179b806232">Table</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> int <link linkend="_lobject_8h_1a6376bff8a65affbbeb7dba84a34d3a87">luaO_utf8esc</link> (char *buff, unsigned long x)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> int <link linkend="_lobject_8h_1ae17e893f7b1221fd82d37a51bcc5ad3c">luaO_ceillog2</link> (unsigned int x)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> int <link linkend="_lobject_8h_1a5ea49a125e2848e4303dc10929302865">luaO_rawarith</link> (<link linkend="_structlua___state">lua_State</link> *L, int op, const <link linkend="_struct_t_value">TValue</link> *p1, const <link linkend="_struct_t_value">TValue</link> *p2, <link linkend="_struct_t_value">TValue</link> *res)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lobject_8h_1afb09097c7bc4723a274863f6a811edf5">luaO_arith</link> (<link linkend="_structlua___state">lua_State</link> *L, int op, const <link linkend="_struct_t_value">TValue</link> *p1, const <link linkend="_struct_t_value">TValue</link> *p2, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> res)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> size_t <link linkend="_lobject_8h_1ab56d8211e48dc3c70c3fa21d92d009af">luaO_str2num</link> (const char *s, <link linkend="_struct_t_value">TValue</link> *o)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> int <link linkend="_lobject_8h_1a621e15ee90edbdb71f1161b92617fcb9">luaO_hexavalue</link> (int c)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lobject_8h_1a007d2c6293fee953f3af21f60f8133ba">luaO_tostring</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_t_value">TValue</link> *obj)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> const char * <link linkend="_lobject_8h_1a0d323372aa00f179e1c070d305f879f3">luaO_pushvfstring</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *fmt, va_list argp)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> const char * <link linkend="_lobject_8h_1a8622279ff260ff226d9663c85ca467dd">luaO_pushfstring</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *fmt,...)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lobject_8h_1aa83e4edb8b62b06537c43c2ec8b97221">luaO_chunkid</link> (char *out, const char *source, size_t srclen)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lobject_8h_1a003630137c8fd4d1378bee8017c4fb92"/>    <section>
+    <title>ABSTKEYCONSTANT</title>
+<indexterm><primary>ABSTKEYCONSTANT</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ABSTKEYCONSTANT</secondary></indexterm>
+<para><computeroutput>#define ABSTKEYCONSTANT   {NULL}, <link linkend="_lobject_8h_1acbec62756a4a34ca07969e71ac30f7f1">LUA_VABSTKEY</link></computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00197">197</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a6301e5933254618c0434a55a500b2282"/>    <section>
+    <title>BIT_ISCOLLECTABLE</title>
+<indexterm><primary>BIT_ISCOLLECTABLE</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>BIT_ISCOLLECTABLE</secondary></indexterm>
+<para><computeroutput>#define BIT_ISCOLLECTABLE   (1 &lt;&lt; 6)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00274">274</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a4e9e4a26da0e928c0896fb8c1e0bc9de"/>    <section>
+    <title>BITRAS</title>
+<indexterm><primary>BITRAS</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>BITRAS</secondary></indexterm>
+<para><computeroutput>#define BITRAS   (1 &lt;&lt; 7)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00706">706</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1aeec8842aa72396b2719685ad7e131f37"/>    <section>
+    <title>checkliveness</title>
+<indexterm><primary>checkliveness</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>checkliveness</secondary></indexterm>
+<para><computeroutput>#define checkliveness( L,  obj)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;((void)L,&#32;<link linkend="_llimits_8h_1a825f22ba1e16fd60e3aae8fe8efc1c4d">lua_longassert</link>(!<link linkend="_lobject_8h_1aaabdb414706e6a904461e39967557185">iscollectable</link>(obj)&#32;||&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(<link linkend="_lobject_8h_1a08f554017b8314e2dfc0dfd05b1d8167">righttt</link>(obj)&#32;&amp;&amp;&#32;(L&#32;==&#32;NULL&#32;||&#32;!<link linkend="_lgc_8h_1acc409eb45f598d23d8388fc9e96189ea">isdead</link>(<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L),<link linkend="_lobject_8h_1a05cdf6070135f10ad37e1048a730b634">gcvalue</link>(obj))))))
+</programlisting><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00102">102</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76"/>    <section>
+    <title>checktag</title>
+<indexterm><primary>checktag</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>checktag</secondary></indexterm>
+<para><computeroutput>#define checktag( o,  t)   (<link linkend="_lobject_8h_1a4e4078cdfa594d60186ec4369b582acf">rawtt</link>(o) == (t))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00087">87</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a591e9cc1db9d9f210702bdbf2ba10d02"/>    <section>
+    <title>checktype</title>
+<indexterm><primary>checktype</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>checktype</secondary></indexterm>
+<para><computeroutput>#define checktype( o,  t)   (<link linkend="_lobject_8h_1acd205ab396b96fba48e1f758c17a2cf3">ttype</link>(o) == (t))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00088">88</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1afb905ab8008c82b24755df25012408f2"/>    <section>
+    <title>chgfltvalue</title>
+<indexterm><primary>chgfltvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>chgfltvalue</secondary></indexterm>
+<para><computeroutput>#define chgfltvalue( obj,  x)     { <link linkend="_struct_t_value">TValue</link> *io=(obj); <link linkend="_lualib_8h_1abea1f576564ec516f6efe8c014bdef2d">lua_assert</link>(<link linkend="_lobject_8h_1ac1338b5ac67cadf27489f5ae7e939c29">ttisfloat</link>(io)); <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(io).n=(x); }</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00317">317</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1ad7adb5b383285a385eb64b01de30966e"/>    <section>
+    <title>chgivalue</title>
+<indexterm><primary>chgivalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>chgivalue</secondary></indexterm>
+<para><computeroutput>#define chgivalue( obj,  x)     { <link linkend="_struct_t_value">TValue</link> *io=(obj); <link linkend="_lualib_8h_1abea1f576564ec516f6efe8c014bdef2d">lua_assert</link>(<link linkend="_lobject_8h_1abade243295a9140f7b86838fbb049054">ttisinteger</link>(io)); <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(io).i=(x); }</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00323">323</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a2c2d10bdd241446b4c9e1b68268159bc"/>    <section>
+    <title>clCvalue</title>
+<indexterm><primary>clCvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>clCvalue</secondary></indexterm>
+<para><computeroutput>#define clCvalue( o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a9510da9838a8f17b4eef364549a4c7a8">ttisCclosure</link>(o), <link linkend="_lstate_8h_1a1dcf2ea170c68fe70adb5af7ae04c71e">gco2ccl</link>(<link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).gc))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00581">581</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1afb9e65b01574a1135c582cf28883062e"/>    <section>
+    <title>clLvalue</title>
+<indexterm><primary>clLvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>clLvalue</secondary></indexterm>
+<para><computeroutput>#define clLvalue( o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a6f8bada57bc9f224609af800d399693f">ttisLclosure</link>(o), <link linkend="_lstate_8h_1adaac0379079b200986d6ae72b65aefaf">gco2lcl</link>(<link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).gc))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00579">579</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1aa6994808abcc30f100e21e34b84d3ae0"/>    <section>
+    <title>ClosureHeader</title>
+<indexterm><primary>ClosureHeader</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ClosureHeader</secondary></indexterm>
+<para><computeroutput>#define ClosureHeader   	<link linkend="_lobject_8h_1a5ee24faa024428a3c176895fe9925031">CommonHeader</link>; <link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> nupvalues; <link linkend="_struct_g_c_object">GCObject</link> *gclist</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00619">619</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a4b49383d348897fe282c0d51354d8bc9"/>    <section>
+    <title>clvalue</title>
+<indexterm><primary>clvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>clvalue</secondary></indexterm>
+<para><computeroutput>#define clvalue( o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a3254d5797537bb83d10a5b48dc6b4377">ttisclosure</link>(o), <link linkend="_lstate_8h_1a003658bade3405a30fe2cf7fee2f7e10">gco2cl</link>(<link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).gc))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00578">578</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a5ee24faa024428a3c176895fe9925031"/>    <section>
+    <title>CommonHeader</title>
+<indexterm><primary>CommonHeader</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>CommonHeader</secondary></indexterm>
+<para><computeroutput>#define CommonHeader   struct <link linkend="_struct_g_c_object">GCObject</link> *<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>; <link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> tt; <link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> marked</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00264">264</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0"/>    <section>
+    <title>ctb</title>
+<indexterm><primary>ctb</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ctb</secondary></indexterm>
+<para><computeroutput>#define ctb( t)   ((t) | <link linkend="_lobject_8h_1a6301e5933254618c0434a55a500b2282">BIT_ISCOLLECTABLE</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00279">279</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a7d7d6b08f40350c9e7364e9cb984d744"/>    <section>
+    <title>fltvalue</title>
+<indexterm><primary>fltvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>fltvalue</secondary></indexterm>
+<para><computeroutput>#define fltvalue( o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1ac1338b5ac67cadf27489f5ae7e939c29">ttisfloat</link>(o), <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).n)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00308">308</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a7410757b6ced9fdf3cba7cc7e18cc8e6"/>    <section>
+    <title>fltvalueraw</title>
+<indexterm><primary>fltvalueraw</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>fltvalueraw</secondary></indexterm>
+<para><computeroutput>#define fltvalueraw( v)   ((v).n)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00311">311</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a27d0b4b700445d8c82ddc634c0252d10"/>    <section>
+    <title>fvalue</title>
+<indexterm><primary>fvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>fvalue</secondary></indexterm>
+<para><computeroutput>#define fvalue( o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a8d43f35dfc5fcd0ee49a6206d63bec18">ttislcf</link>(o), <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).f)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00580">580</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a5bfafd2ed3da7d3e31562ffb9d73fc7c"/>    <section>
+    <title>fvalueraw</title>
+<indexterm><primary>fvalueraw</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>fvalueraw</secondary></indexterm>
+<para><computeroutput>#define fvalueraw( v)   ((v).f)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00583">583</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1ac3dbc3b85a58d872c002e6cbea675bac"/>    <section>
+    <title>gckey</title>
+<indexterm><primary>gckey</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>gckey</secondary></indexterm>
+<para><computeroutput>#define gckey( n)   (<link linkend="_lobject_8h_1ac2aa0ae587e918878c9c310734d81d56">keyval</link>(n).gc)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00741">741</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a228a192019c3bf44b6027d8f4a38c904"/>    <section>
+    <title>gckeyN</title>
+<indexterm><primary>gckeyN</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>gckeyN</secondary></indexterm>
+<para><computeroutput>#define gckeyN( n)   (<link linkend="_lobject_8h_1ad5d0afe3e47112e0136e0d6afb6c4536">keyiscollectable</link>(n) ? <link linkend="_lobject_8h_1ac3dbc3b85a58d872c002e6cbea675bac">gckey</link>(n) : NULL)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00742">742</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a05cdf6070135f10ad37e1048a730b634"/>    <section>
+    <title>gcvalue</title>
+<indexterm><primary>gcvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>gcvalue</secondary></indexterm>
+<para><computeroutput>#define gcvalue( o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1aaabdb414706e6a904461e39967557185">iscollectable</link>(o), <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).gc)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00281">281</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a719248356281fe83215c94961ad9226f"/>    <section>
+    <title>gcvalueraw</title>
+<indexterm><primary>gcvalueraw</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>gcvalueraw</secondary></indexterm>
+<para><computeroutput>#define gcvalueraw( v)   ((v).gc)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00283">283</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1aa7b8fdb54ee8ce0235270f7d0b41e430"/>    <section>
+    <title>getnodekey</title>
+<indexterm><primary>getnodekey</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>getnodekey</secondary></indexterm>
+<para><computeroutput>#define getnodekey( L,  obj,  node)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;{&#32;<link linkend="_struct_t_value">TValue</link>&#32;*io_=(obj);&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_union_node">Node</link>&#32;*n_=(node);&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;io_-&gt;value_&#32;=&#32;n_-&gt;<link linkend="_union_node_1a15f19ec95b2d497b3b0caf1627f2b63b">u</link>.<link linkend="_struct_node_1_1_node_key_1a4d18e73c431d39a7e6a5d24a406d1bc8">key_val</link>;&#32;io_-&gt;tt_&#32;=&#32;n_-&gt;<link linkend="_union_node_1a15f19ec95b2d497b3b0caf1627f2b63b">u</link>.<link linkend="_struct_node_1_1_node_key_1ad5260609e5f3d33ccb88eb746284b7f0">key_tt</link>;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;checkliveness(L,io_);&#32;}
+</programlisting><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00693">693</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a36095400a8ca3ad1e6120f507b421331"/>    <section>
+    <title>getproto</title>
+<indexterm><primary>getproto</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>getproto</secondary></indexterm>
+<para><computeroutput>#define getproto( o)   (<link linkend="_lobject_8h_1afb9e65b01574a1135c582cf28883062e">clLvalue</link>(o)-&gt;p)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00642">642</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1acb05d3ab238923581a9c629b8e11a6ac"/>    <section>
+    <title>getstr</title>
+<indexterm><primary>getstr</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>getstr</secondary></indexterm>
+<para><computeroutput>#define getstr( ts)   ((ts)-&gt;contents)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00379">379</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a2caa96489ffdf9759e50fda47d69f605"/>    <section>
+    <title>getudatamem</title>
+<indexterm><primary>getudatamem</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>getudatamem</secondary></indexterm>
+<para><computeroutput>#define getudatamem( u)   (<link linkend="_llimits_8h_1a1d905979f8c901b7143b43ee98341206">cast_charp</link>(u) + <link linkend="_lobject_8h_1aef06056b207ac5efd6fb0b0a2b3165d5">udatamemoffset</link>((u)-&gt;nuvalue))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00471">471</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a336a6ce5e8340e6de133ec249cf47ebf"/>    <section>
+    <title>hvalue</title>
+<indexterm><primary>hvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>hvalue</secondary></indexterm>
+<para><computeroutput>#define hvalue( o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1ac5338f5fe3885d1ee65412e00a44384e">ttistable</link>(o), <link linkend="_lstate_8h_1a4f233ba369144fad9fd5fc6c513da1ac">gco2t</link>(<link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).gc))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00657">657</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1abb0534795c360c0ac007d3729758f908"/>    <section>
+    <title>isabstkey</title>
+<indexterm><primary>isabstkey</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>isabstkey</secondary></indexterm>
+<para><computeroutput>#define isabstkey( v)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((v), <link linkend="_lobject_8h_1acbec62756a4a34ca07969e71ac30f7f1">LUA_VABSTKEY</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00179">179</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1aaabdb414706e6a904461e39967557185"/>    <section>
+    <title>iscollectable</title>
+<indexterm><primary>iscollectable</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>iscollectable</secondary></indexterm>
+<para><computeroutput>#define iscollectable( o)   (<link linkend="_lobject_8h_1a4e4078cdfa594d60186ec4369b582acf">rawtt</link>(o) &amp; <link linkend="_lobject_8h_1a6301e5933254618c0434a55a500b2282">BIT_ISCOLLECTABLE</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00276">276</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a5345ae49ed16dfecdfef95ec5399b000"/>    <section>
+    <title>isempty</title>
+<indexterm><primary>isempty</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>isempty</secondary></indexterm>
+<para><computeroutput>#define isempty( v)   <link linkend="_lobject_8h_1a39af019fafa202841da3bf7c427bf090">ttisnil</link>(v)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00193">193</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a6e8ea4626fad5e23912d4e26d0b09200"/>    <section>
+    <title>isLfunction</title>
+<indexterm><primary>isLfunction</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>isLfunction</secondary></indexterm>
+<para><computeroutput>#define isLfunction( o)   <link linkend="_lobject_8h_1a6f8bada57bc9f224609af800d399693f">ttisLclosure</link>(o)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00576">576</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a792b40c39dcc3d6b158e202919a61197"/>    <section>
+    <title>isnonstrictnil</title>
+<indexterm><primary>isnonstrictnil</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>isnonstrictnil</secondary></indexterm>
+<para><computeroutput>#define isnonstrictnil( v)   (<link linkend="_lobject_8h_1a39af019fafa202841da3bf7c427bf090">ttisnil</link>(v) &amp;&amp; !<link linkend="_lobject_8h_1afae62ae42d03ff2600208b109bad8070">ttisstrictnil</link>(v))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00185">185</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1ab8a9474c584f41823442bb17f1f06970"/>    <section>
+    <title>isrealasize</title>
+<indexterm><primary>isrealasize</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>isrealasize</secondary></indexterm>
+<para><computeroutput>#define isrealasize( t)   (!((t)-&gt;flags &amp; <link linkend="_lobject_8h_1a4e9e4a26da0e928c0896fb8c1e0bc9de">BITRAS</link>))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00707">707</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1af1a59636db050b842a791cd19086d925"/>    <section>
+    <title>ivalue</title>
+<indexterm><primary>ivalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ivalue</secondary></indexterm>
+<para><computeroutput>#define ivalue( o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1abade243295a9140f7b86838fbb049054">ttisinteger</link>(o), <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).i)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00309">309</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a570028d77ace5fea06c305e11921dccc"/>    <section>
+    <title>ivalueraw</title>
+<indexterm><primary>ivalueraw</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ivalueraw</secondary></indexterm>
+<para><computeroutput>#define ivalueraw( v)   ((v).i)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00312">312</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1ad5d0afe3e47112e0136e0d6afb6c4536"/>    <section>
+    <title>keyiscollectable</title>
+<indexterm><primary>keyiscollectable</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>keyiscollectable</secondary></indexterm>
+<para><computeroutput>#define keyiscollectable( n)   (<link linkend="_lobject_8h_1af89f4367b6adf6c6708feae2667736cb">keytt</link>(n) &amp; <link linkend="_lobject_8h_1a6301e5933254618c0434a55a500b2282">BIT_ISCOLLECTABLE</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00739">739</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1affab919da1b667cc1a98f2bd040aa94e"/>    <section>
+    <title>keyisinteger</title>
+<indexterm><primary>keyisinteger</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>keyisinteger</secondary></indexterm>
+<para><computeroutput>#define keyisinteger( node)   (<link linkend="_lobject_8h_1af89f4367b6adf6c6708feae2667736cb">keytt</link>(node) == <link linkend="_lobject_8h_1a69aa5cae89d634d458e0da4957257745">LUA_VNUMINT</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00732">732</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a64e2e5b8ce53a1dc7a528b13947d7ff3"/>    <section>
+    <title>keyisnil</title>
+<indexterm><primary>keyisnil</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>keyisnil</secondary></indexterm>
+<para><computeroutput>#define keyisnil( node)   (<link linkend="_lobject_8h_1af89f4367b6adf6c6708feae2667736cb">keytt</link>(node) == <link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">LUA_TNIL</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00731">731</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a06a6d0eeb65723526d00bdf71402d518"/>    <section>
+    <title>keyisshrstr</title>
+<indexterm><primary>keyisshrstr</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>keyisshrstr</secondary></indexterm>
+<para><computeroutput>#define keyisshrstr( node)   (<link linkend="_lobject_8h_1af89f4367b6adf6c6708feae2667736cb">keytt</link>(node) == <link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1a794410ffd7267ef873eb05ac695b1ba6">LUA_VSHRSTR</link>))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00734">734</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a03d51823d7893e729288cff396e16120"/>    <section>
+    <title>keyival</title>
+<indexterm><primary>keyival</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>keyival</secondary></indexterm>
+<para><computeroutput>#define keyival( node)   (<link linkend="_lobject_8h_1ac2aa0ae587e918878c9c310734d81d56">keyval</link>(node).i)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00733">733</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1af0d29f0c2bdfa023abc9e7a0d34e8e24"/>    <section>
+    <title>keystrval</title>
+<indexterm><primary>keystrval</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>keystrval</secondary></indexterm>
+<para><computeroutput>#define keystrval( node)   (<link linkend="_lstate_8h_1af6c16f3aa27ad97ea1bcaa31e05e0b06">gco2ts</link>(<link linkend="_lobject_8h_1ac2aa0ae587e918878c9c310734d81d56">keyval</link>(node).gc))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00735">735</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1af89f4367b6adf6c6708feae2667736cb"/>    <section>
+    <title>keytt</title>
+<indexterm><primary>keytt</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>keytt</secondary></indexterm>
+<para><computeroutput>#define keytt( node)   ((node)-&gt;u.key_tt)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00728">728</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1ac2aa0ae587e918878c9c310734d81d56"/>    <section>
+    <title>keyval</title>
+<indexterm><primary>keyval</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>keyval</secondary></indexterm>
+<para><computeroutput>#define keyval( node)   ((node)-&gt;u.key_val)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00729">729</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a188e1a95c8c6d547a13431a6e1edd5b3"/>    <section>
+    <title>l_isfalse</title>
+<indexterm><primary>l_isfalse</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>l_isfalse</secondary></indexterm>
+<para><computeroutput>#define l_isfalse( o)   (<link linkend="_lobject_8h_1aebb0fc4ab25fdfc7d01e834cc24b6048">ttisfalse</link>(o) || <link linkend="_lobject_8h_1a39af019fafa202841da3bf7c427bf090">ttisnil</link>(o))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00223">223</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a528d710ddad324002e3cb47992740b6a"/>    <section>
+    <title>lmod</title>
+<indexterm><primary>lmod</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>lmod</secondary></indexterm>
+<para><computeroutput>#define lmod( s,  size)   	(<link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((size&amp;(size-1))==0, (<link linkend="_llimits_8h_1a37a9e2c4b53433d34bad0f12a1500c08">cast_int</link>((s) &amp; ((size)-1)))))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00761">761</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a19bae920c9c442143f021d1c4301b8cb"/>    <section>
+    <title>LUA_TOTALTYPES</title>
+<indexterm><primary>LUA_TOTALTYPES</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_TOTALTYPES</secondary></indexterm>
+<para><computeroutput>#define LUA_TOTALTYPES   (<link linkend="_lobject_8h_1aa2a683d9e42dac5846eefa108297cbf0">LUA_TPROTO</link> + 2)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00029">29</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1aa2a683d9e42dac5846eefa108297cbf0"/>    <section>
+    <title>LUA_TPROTO</title>
+<indexterm><primary>LUA_TPROTO</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_TPROTO</secondary></indexterm>
+<para><computeroutput>#define LUA_TPROTO   (<link linkend="_lua_8h_1a99a031e2239fe191c2a4e1dfb7511d87">LUA_NUMTYPES</link>+1)  /* function prototypes */</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00023">23</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a3175b6b959953f781a14a9291d9e22b6"/>    <section>
+    <title>LUA_TUPVAL</title>
+<indexterm><primary>LUA_TUPVAL</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_TUPVAL</secondary></indexterm>
+<para><computeroutput>#define LUA_TUPVAL   <link linkend="_lua_8h_1a99a031e2239fe191c2a4e1dfb7511d87">LUA_NUMTYPES</link>  /* upvalues */</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00022">22</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1acbec62756a4a34ca07969e71ac30f7f1"/>    <section>
+    <title>LUA_VABSTKEY</title>
+<indexterm><primary>LUA_VABSTKEY</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_VABSTKEY</secondary></indexterm>
+<para><computeroutput>#define LUA_VABSTKEY   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">LUA_TNIL</link>, 2)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00165">165</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a2361d923ddb7fc1468b978fe043e35c2"/>    <section>
+    <title>LUA_VCCL</title>
+<indexterm><primary>LUA_VCCL</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_VCCL</secondary></indexterm>
+<para><computeroutput>#define LUA_VCCL   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1adaa7fa6e2561c1bc428ba8d265171494">LUA_TFUNCTION</link>, 2)  /* C closure */</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00568">568</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1abc8b34ab48ffd99b6d7a48e8e4f269e2"/>    <section>
+    <title>LUA_VEMPTY</title>
+<indexterm><primary>LUA_VEMPTY</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_VEMPTY</secondary></indexterm>
+<para><computeroutput>#define LUA_VEMPTY   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">LUA_TNIL</link>, 1)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00162">162</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a95236d400066ed64a37c72d3dada7e9d"/>    <section>
+    <title>LUA_VFALSE</title>
+<indexterm><primary>LUA_VFALSE</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_VFALSE</secondary></indexterm>
+<para><computeroutput>#define LUA_VFALSE   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1a611808ed12d4c2aee2a9e298a9d9a9bf">LUA_TBOOLEAN</link>, 0)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00215">215</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a9b9abbdd10fec20fc7a746efd903872d"/>    <section>
+    <title>LUA_VLCF</title>
+<indexterm><primary>LUA_VLCF</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_VLCF</secondary></indexterm>
+<para><computeroutput>#define LUA_VLCF   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1adaa7fa6e2561c1bc428ba8d265171494">LUA_TFUNCTION</link>, 1)  /* light C function */</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00567">567</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a5d0e6e41ea93960667095501aa5745c1"/>    <section>
+    <title>LUA_VLCL</title>
+<indexterm><primary>LUA_VLCL</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_VLCL</secondary></indexterm>
+<para><computeroutput>#define LUA_VLCL   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1adaa7fa6e2561c1bc428ba8d265171494">LUA_TFUNCTION</link>, 0)  /* Lua closure */</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00566">566</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a0fe81163ea67e644d5a85078c4a6d25c"/>    <section>
+    <title>LUA_VLIGHTUSERDATA</title>
+<indexterm><primary>LUA_VLIGHTUSERDATA</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_VLIGHTUSERDATA</secondary></indexterm>
+<para><computeroutput>#define LUA_VLIGHTUSERDATA   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1aa030c2d649070173902c8094d8e0e2cd">LUA_TLIGHTUSERDATA</link>, 0)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00405">405</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a6869fcb0a0178b6d70d431eae1683199"/>    <section>
+    <title>LUA_VLNGSTR</title>
+<indexterm><primary>LUA_VLNGSTR</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_VLNGSTR</secondary></indexterm>
+<para><computeroutput>#define LUA_VLNGSTR   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1a57de20d87bb5131a3159f2bd52e3fab6">LUA_TSTRING</link>, 1)  /* long strings */</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00337">337</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1aac7a0aeb62c96ba16c7638e707bfaac0"/>    <section>
+    <title>LUA_VNIL</title>
+<indexterm><primary>LUA_VNIL</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_VNIL</secondary></indexterm>
+<para><computeroutput>#define LUA_VNIL   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">LUA_TNIL</link>, 0)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00159">159</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a19aaaf978586be9032b63b7a8807631a"/>    <section>
+    <title>LUA_VNUMFLT</title>
+<indexterm><primary>LUA_VNUMFLT</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_VNUMFLT</secondary></indexterm>
+<para><computeroutput>#define LUA_VNUMFLT   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1a7f62ecb240cb38da9c8a53b41fe21ed9">LUA_TNUMBER</link>, 1)  /* float numbers */</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00300">300</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a69aa5cae89d634d458e0da4957257745"/>    <section>
+    <title>LUA_VNUMINT</title>
+<indexterm><primary>LUA_VNUMINT</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_VNUMINT</secondary></indexterm>
+<para><computeroutput>#define LUA_VNUMINT   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1a7f62ecb240cb38da9c8a53b41fe21ed9">LUA_TNUMBER</link>, 0)  /* integer numbers */</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00299">299</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a1c6c32cba3e6d0c897f68ceb273dd757"/>    <section>
+    <title>LUA_VPROTO</title>
+<indexterm><primary>LUA_VPROTO</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_VPROTO</secondary></indexterm>
+<para><computeroutput>#define LUA_VPROTO   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lobject_8h_1aa2a683d9e42dac5846eefa108297cbf0">LUA_TPROTO</link>, 0)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00485">485</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a794410ffd7267ef873eb05ac695b1ba6"/>    <section>
+    <title>LUA_VSHRSTR</title>
+<indexterm><primary>LUA_VSHRSTR</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_VSHRSTR</secondary></indexterm>
+<para><computeroutput>#define LUA_VSHRSTR   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1a57de20d87bb5131a3159f2bd52e3fab6">LUA_TSTRING</link>, 0)  /* short strings */</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00336">336</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1afaf24d5b79b9027ad768d023778669df"/>    <section>
+    <title>LUA_VTABLE</title>
+<indexterm><primary>LUA_VTABLE</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_VTABLE</secondary></indexterm>
+<para><computeroutput>#define LUA_VTABLE   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1a31620fd8da5b655b7879e16a116ec31a">LUA_TTABLE</link>, 0)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00653">653</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1ad224258ccc4e8f79f148d54d32ddbd00"/>    <section>
+    <title>LUA_VTHREAD</title>
+<indexterm><primary>LUA_VTHREAD</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_VTHREAD</secondary></indexterm>
+<para><computeroutput>#define LUA_VTHREAD   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1a028a8d8aae9580c465aabcd0c11334d9">LUA_TTHREAD</link>, 0)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00238">238</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1aed66cd95aa3f518c947b5bd9e17bab47"/>    <section>
+    <title>LUA_VTRUE</title>
+<indexterm><primary>LUA_VTRUE</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_VTRUE</secondary></indexterm>
+<para><computeroutput>#define LUA_VTRUE   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1a611808ed12d4c2aee2a9e298a9d9a9bf">LUA_TBOOLEAN</link>, 1)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00216">216</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1ae982db94518ed52587579ed70d822ad5"/>    <section>
+    <title>LUA_VUPVAL</title>
+<indexterm><primary>LUA_VUPVAL</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_VUPVAL</secondary></indexterm>
+<para><computeroutput>#define LUA_VUPVAL   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lobject_8h_1a3175b6b959953f781a14a9291d9e22b6">LUA_TUPVAL</link>, 0)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00562">562</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1af45b44d4031e7e869195dd97759d2ca3"/>    <section>
+    <title>LUA_VUSERDATA</title>
+<indexterm><primary>LUA_VUSERDATA</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LUA_VUSERDATA</secondary></indexterm>
+<para><computeroutput>#define LUA_VUSERDATA   <link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">makevariant</link>(<link linkend="_lua_8h_1a84fd4c52cea4073671a4cd0eb7026dc7">LUA_TUSERDATA</link>, 0)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00407">407</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602"/>    <section>
+    <title>makevariant</title>
+<indexterm><primary>makevariant</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>makevariant</secondary></indexterm>
+<para><computeroutput>#define makevariant( t,  v)   ((t) | ((v) &lt;&lt; 4))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00040">40</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a40d12e88a0d8249d226109e0d6d70dd6"/>    <section>
+    <title>novariant</title>
+<indexterm><primary>novariant</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>novariant</secondary></indexterm>
+<para><computeroutput>#define novariant( t)   ((t) &amp; 0x0F)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00076">76</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a690ab618235691bb5a82610f07dd8684"/>    <section>
+    <title>nvalue</title>
+<indexterm><primary>nvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>nvalue</secondary></indexterm>
+<para><computeroutput>#define nvalue( o)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a7a1392f89b1f29ed3b1afa37a22d0be2">ttisnumber</link>(o),&#32;\
+&#32;&#32;&#32;&#32;(<link linkend="_lobject_8h_1abade243295a9140f7b86838fbb049054">ttisinteger</link>(o)&#32;?&#32;<link linkend="_llimits_8h_1ac92cecb12c5aba1164877e81e76e2cb6">cast_num</link>(<link linkend="_lobject_8h_1af1a59636db050b842a791cd19086d925">ivalue</link>(o))&#32;:&#32;<link linkend="_lobject_8h_1a7d7d6b08f40350c9e7364e9cb984d744">fltvalue</link>(o)))
+</programlisting><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00306">306</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a16c0267c035b3e4edda082e25069e8cf"/>    <section>
+    <title>pvalue</title>
+<indexterm><primary>pvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>pvalue</secondary></indexterm>
+<para><computeroutput>#define pvalue( o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a6440445277dce2e73af1e043f9884d7a">ttislightuserdata</link>(o), <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).p)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00412">412</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1ac63f7b6c7f725eaece22d3e7ea198001"/>    <section>
+    <title>pvalueraw</title>
+<indexterm><primary>pvalueraw</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>pvalueraw</secondary></indexterm>
+<para><computeroutput>#define pvalueraw( v)   ((v).p)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00415">415</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a4e4078cdfa594d60186ec4369b582acf"/>    <section>
+    <title>rawtt</title>
+<indexterm><primary>rawtt</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>rawtt</secondary></indexterm>
+<para><computeroutput>#define rawtt( o)   ((o)-&gt;tt_)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00073">73</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a08f554017b8314e2dfc0dfd05b1d8167"/>    <section>
+    <title>righttt</title>
+<indexterm><primary>righttt</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>righttt</secondary></indexterm>
+<para><computeroutput>#define righttt( obj)   (<link linkend="_lobject_8h_1a01db083f8bc8b2eb51a45c0ba9967043">ttypetag</link>(obj) == <link linkend="_lobject_8h_1a05cdf6070135f10ad37e1048a730b634">gcvalue</link>(obj)-&gt;tt)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00094">94</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd"/>    <section>
+    <title>s2v</title>
+<indexterm><primary>s2v</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>s2v</secondary></indexterm>
+<para><computeroutput>#define s2v( o)   (&amp;(o)-&gt;val)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00148">148</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1ad0259526a10884432dd2e7ea10b90e0f"/>    <section>
+    <title>setbfvalue</title>
+<indexterm><primary>setbfvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setbfvalue</secondary></indexterm>
+<para><computeroutput>#define setbfvalue( obj)   <link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(obj, <link linkend="_lobject_8h_1a95236d400066ed64a37c72d3dada7e9d">LUA_VFALSE</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00226">226</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a1b86e0dccf6b92c4c89d47af26e3a8e3"/>    <section>
+    <title>setbtvalue</title>
+<indexterm><primary>setbtvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setbtvalue</secondary></indexterm>
+<para><computeroutput>#define setbtvalue( obj)   <link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(obj, <link linkend="_lobject_8h_1aed66cd95aa3f518c947b5bd9e17bab47">LUA_VTRUE</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00227">227</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a57d9fee6a3a8d1eb4b36c95cf76ab09d"/>    <section>
+    <title>setclCvalue</title>
+<indexterm><primary>setclCvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setclCvalue</secondary></indexterm>
+<para><computeroutput>#define setclCvalue( L,  obj,  x)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;{&#32;<link linkend="_struct_t_value">TValue</link>&#32;*io&#32;=&#32;(obj);&#32;<link linkend="_struct_c_closure">CClosure</link>&#32;*x_&#32;=&#32;(x);&#32;\
+&#32;&#32;&#32;&#32;val_(io).gc&#32;=&#32;<link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(x_);&#32;<link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(io,&#32;<link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1a2361d923ddb7fc1468b978fe043e35c2">LUA_VCCL</link>));&#32;\
+&#32;&#32;&#32;&#32;checkliveness(L,io);&#32;}
+</programlisting><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00595">595</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1ac1765c700e6c8eaa1e36b397cc5439f7"/>    <section>
+    <title>setclLvalue</title>
+<indexterm><primary>setclLvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setclLvalue</secondary></indexterm>
+<para><computeroutput>#define setclLvalue( L,  obj,  x)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;{&#32;<link linkend="_struct_t_value">TValue</link>&#32;*io&#32;=&#32;(obj);&#32;<link linkend="_struct_l_closure">LClosure</link>&#32;*x_&#32;=&#32;(x);&#32;\
+&#32;&#32;&#32;&#32;val_(io).gc&#32;=&#32;<link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(x_);&#32;<link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(io,&#32;<link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1a5d0e6e41ea93960667095501aa5745c1">LUA_VLCL</link>));&#32;\
+&#32;&#32;&#32;&#32;checkliveness(L,io);&#32;}
+</programlisting><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00585">585</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a3e4e5270b0c50551ed8c3a0367f56d14"/>    <section>
+    <title>setclLvalue2s</title>
+<indexterm><primary>setclLvalue2s</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setclLvalue2s</secondary></indexterm>
+<para><computeroutput>#define setclLvalue2s( L,  o,  cl)   <link linkend="_lobject_8h_1ac1765c700e6c8eaa1e36b397cc5439f7">setclLvalue</link>(L,<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(o),cl)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00590">590</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1af8e25f008b9446cacc6cd5e2e5508f5d"/>    <section>
+    <title>setdeadkey</title>
+<indexterm><primary>setdeadkey</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setdeadkey</secondary></indexterm>
+<para><computeroutput>#define setdeadkey( n)   (<link linkend="_lobject_8h_1af89f4367b6adf6c6708feae2667736cb">keytt</link>(n) = <link linkend="_lua_8h_1a31620fd8da5b655b7879e16a116ec31a">LUA_TTABLE</link>, <link linkend="_lobject_8h_1ac3dbc3b85a58d872c002e6cbea675bac">gckey</link>(n) = NULL)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00752">752</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a1504584244b6d1260c52a41cab9306d0"/>    <section>
+    <title>setempty</title>
+<indexterm><primary>setempty</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setempty</secondary></indexterm>
+<para><computeroutput>#define setempty( v)   <link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(v, <link linkend="_lobject_8h_1abc8b34ab48ffd99b6d7a48e8e4f269e2">LUA_VEMPTY</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00201">201</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1ae357382324a8220a3cf77607752de887"/>    <section>
+    <title>setfltvalue</title>
+<indexterm><primary>setfltvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setfltvalue</secondary></indexterm>
+<para><computeroutput>#define setfltvalue( obj,  x)     { <link linkend="_struct_t_value">TValue</link> *io=(obj); <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(io).n=(x); <link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(io, <link linkend="_lobject_8h_1a19aaaf978586be9032b63b7a8807631a">LUA_VNUMFLT</link>); }</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00314">314</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a449f6c91562897c555ff32b360a6042f"/>    <section>
+    <title>setfvalue</title>
+<indexterm><primary>setfvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setfvalue</secondary></indexterm>
+<para><computeroutput>#define setfvalue( obj,  x)     { <link linkend="_struct_t_value">TValue</link> *io=(obj); <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(io).f=(x); <link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(io, <link linkend="_lobject_8h_1a9b9abbdd10fec20fc7a746efd903872d">LUA_VLCF</link>); }</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00592">592</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a977fe2a01691b55cdd5eabefb4114434"/>    <section>
+    <title>setgcovalue</title>
+<indexterm><primary>setgcovalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setgcovalue</secondary></indexterm>
+<para><computeroutput>#define setgcovalue( L,  obj,  x)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;{&#32;<link linkend="_struct_t_value">TValue</link>&#32;*io&#32;=&#32;(obj);&#32;<link linkend="_struct_g_c_object">GCObject</link>&#32;*i_g=(x);&#32;\
+&#32;&#32;&#32;&#32;val_(io).gc&#32;=&#32;i_g;&#32;<link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(io,&#32;<link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(i_g-&gt;tt));&#32;}
+</programlisting><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00285">285</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1ab9379699ac579d54410e3542f061bbad"/>    <section>
+    <title>sethvalue</title>
+<indexterm><primary>sethvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>sethvalue</secondary></indexterm>
+<para><computeroutput>#define sethvalue( L,  obj,  x)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;{&#32;<link linkend="_struct_t_value">TValue</link>&#32;*io&#32;=&#32;(obj);&#32;<link linkend="_struct_table">Table</link>&#32;*x_&#32;=&#32;(x);&#32;\
+&#32;&#32;&#32;&#32;val_(io).gc&#32;=&#32;<link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(x_);&#32;<link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(io,&#32;<link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1afaf24d5b79b9027ad768d023778669df">LUA_VTABLE</link>));&#32;\
+&#32;&#32;&#32;&#32;checkliveness(L,io);&#32;}
+</programlisting><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00659">659</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1aea789832f6c549f64cb3903216a7aeac"/>    <section>
+    <title>sethvalue2s</title>
+<indexterm><primary>sethvalue2s</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>sethvalue2s</secondary></indexterm>
+<para><computeroutput>#define sethvalue2s( L,  o,  h)   <link linkend="_lobject_8h_1ab9379699ac579d54410e3542f061bbad">sethvalue</link>(L,<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(o),h)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00664">664</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1af9dd109ba186841ab26efb2d62baf4f6"/>    <section>
+    <title>setivalue</title>
+<indexterm><primary>setivalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setivalue</secondary></indexterm>
+<para><computeroutput>#define setivalue( obj,  x)     { <link linkend="_struct_t_value">TValue</link> *io=(obj); <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(io).i=(x); <link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(io, <link linkend="_lobject_8h_1a69aa5cae89d634d458e0da4957257745">LUA_VNUMINT</link>); }</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00320">320</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1abc95de76b69ef4abed8c40959657208a"/>    <section>
+    <title>setnilkey</title>
+<indexterm><primary>setnilkey</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setnilkey</secondary></indexterm>
+<para><computeroutput>#define setnilkey( node)   (<link linkend="_lobject_8h_1af89f4367b6adf6c6708feae2667736cb">keytt</link>(node) = <link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">LUA_TNIL</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00737">737</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1ad9034def7bbc1965ec3d714d84620b07"/>    <section>
+    <title>setnilvalue</title>
+<indexterm><primary>setnilvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setnilvalue</secondary></indexterm>
+<para><computeroutput>#define setnilvalue( obj)   <link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(obj, <link linkend="_lobject_8h_1aac7a0aeb62c96ba16c7638e707bfaac0">LUA_VNIL</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00176">176</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1aa7874cc7dfe741ad55075fd32ee1ff10"/>    <section>
+    <title>setnodekey</title>
+<indexterm><primary>setnodekey</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setnodekey</secondary></indexterm>
+<para><computeroutput>#define setnodekey( L,  node,  obj)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;{&#32;<link linkend="_union_node">Node</link>&#32;*n_=(node);&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*io_=(obj);&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;n_-&gt;u.key_val&#32;=&#32;io_-&gt;value_;&#32;n_-&gt;<link linkend="_union_node_1a15f19ec95b2d497b3b0caf1627f2b63b">u</link>.<link linkend="_struct_node_1_1_node_key_1ad5260609e5f3d33ccb88eb746284b7f0">key_tt</link>&#32;=&#32;io_-&gt;tt_;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;checkliveness(L,io_);&#32;}
+</programlisting><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00686">686</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a2b2746c3988215fc84fcde1bf7548f6f"/>    <section>
+    <title>setnorealasize</title>
+<indexterm><primary>setnorealasize</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setnorealasize</secondary></indexterm>
+<para><computeroutput>#define setnorealasize( t)   ((t)-&gt;flags |= <link linkend="_lobject_8h_1a4e9e4a26da0e928c0896fb8c1e0bc9de">BITRAS</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00709">709</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1acf2af15f3d5cceca8e8870f96634bc2d"/>    <section>
+    <title>setobj</title>
+<indexterm><primary>setobj</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setobj</secondary></indexterm>
+<para><computeroutput>#define setobj( L,  obj1,  obj2)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;{&#32;<link linkend="_struct_t_value">TValue</link>&#32;*io1=(obj1);&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*io2=(obj2);&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;io1-&gt;value_&#32;=&#32;io2-&gt;value_;&#32;<link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(io1,&#32;io2-&gt;tt_);&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;checkliveness(L,io1);&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(!<link linkend="_lobject_8h_1a792b40c39dcc3d6b158e202919a61197">isnonstrictnil</link>(io1));&#32;}
+</programlisting><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00114">114</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1ad6d8d3d900cff1b02c3b269eabccccf9"/>    <section>
+    <title>setobj2n</title>
+<indexterm><primary>setobj2n</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setobj2n</secondary></indexterm>
+<para><computeroutput>#define setobj2n   <link linkend="_lobject_8h_1acf2af15f3d5cceca8e8870f96634bc2d">setobj</link></computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00131">131</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1add70d29b431f66a1dee29a0cb286de6e"/>    <section>
+    <title>setobj2s</title>
+<indexterm><primary>setobj2s</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setobj2s</secondary></indexterm>
+<para><computeroutput>#define setobj2s( L,  o1,  o2)   <link linkend="_lobject_8h_1acf2af15f3d5cceca8e8870f96634bc2d">setobj</link>(L,<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(o1),o2)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00127">127</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1adefdd17d98f1f5734ee296395e1805d4"/>    <section>
+    <title>setobj2t</title>
+<indexterm><primary>setobj2t</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setobj2t</secondary></indexterm>
+<para><computeroutput>#define setobj2t   <link linkend="_lobject_8h_1acf2af15f3d5cceca8e8870f96634bc2d">setobj</link></computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00133">133</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1af9258d87e8f082be8a2adb731d90f1a5"/>    <section>
+    <title>setobjs2s</title>
+<indexterm><primary>setobjs2s</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setobjs2s</secondary></indexterm>
+<para><computeroutput>#define setobjs2s( L,  o1,  o2)   <link linkend="_lobject_8h_1acf2af15f3d5cceca8e8870f96634bc2d">setobj</link>(L,<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(o1),<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(o2))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00125">125</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a0b6916971c4766bf58d942bf7a426c80"/>    <section>
+    <title>setobjt2t</title>
+<indexterm><primary>setobjt2t</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setobjt2t</secondary></indexterm>
+<para><computeroutput>#define setobjt2t   <link linkend="_lobject_8h_1acf2af15f3d5cceca8e8870f96634bc2d">setobj</link></computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00129">129</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a0784c90d154ccf7c643b56a00c62412a"/>    <section>
+    <title>setpvalue</title>
+<indexterm><primary>setpvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setpvalue</secondary></indexterm>
+<para><computeroutput>#define setpvalue( obj,  x)     { <link linkend="_struct_t_value">TValue</link> *io=(obj); <link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(io).p=(x); <link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(io, <link linkend="_lobject_8h_1a0fe81163ea67e644d5a85078c4a6d25c">LUA_VLIGHTUSERDATA</link>); }</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00417">417</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1aa88e534c311fb58886306dbcba0aacd2"/>    <section>
+    <title>setrealasize</title>
+<indexterm><primary>setrealasize</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setrealasize</secondary></indexterm>
+<para><computeroutput>#define setrealasize( t)   ((t)-&gt;flags &amp;= <link linkend="_llimits_8h_1a596f5b6e992f53a5a4e5732083448dd4">cast_byte</link>(~<link linkend="_lobject_8h_1a4e9e4a26da0e928c0896fb8c1e0bc9de">BITRAS</link>))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00708">708</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a251a2d3bada66aaed6249a89a0afe5f0"/>    <section>
+    <title>setsvalue</title>
+<indexterm><primary>setsvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setsvalue</secondary></indexterm>
+<para><computeroutput>#define setsvalue( L,  obj,  x)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;{&#32;<link linkend="_struct_t_value">TValue</link>&#32;*io&#32;=&#32;(obj);&#32;<link linkend="_struct_t_string">TString</link>&#32;*x_&#32;=&#32;(x);&#32;\
+&#32;&#32;&#32;&#32;val_(io).gc&#32;=&#32;<link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(x_);&#32;<link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(io,&#32;<link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(x_-&gt;tt));&#32;\
+&#32;&#32;&#32;&#32;checkliveness(L,io);&#32;}
+</programlisting><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00347">347</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1aa7a9ab918b0322fa100f3f7af16d2375"/>    <section>
+    <title>setsvalue2n</title>
+<indexterm><primary>setsvalue2n</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setsvalue2n</secondary></indexterm>
+<para><computeroutput>#define setsvalue2n   <link linkend="_lobject_8h_1a251a2d3bada66aaed6249a89a0afe5f0">setsvalue</link></computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00356">356</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1aa60b4c3bb90063dcaa2f90e77d4a61f6"/>    <section>
+    <title>setsvalue2s</title>
+<indexterm><primary>setsvalue2s</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setsvalue2s</secondary></indexterm>
+<para><computeroutput>#define setsvalue2s( L,  o,  s)   <link linkend="_lobject_8h_1a251a2d3bada66aaed6249a89a0afe5f0">setsvalue</link>(L,<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(o),s)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00353">353</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a9c2bad449e8e998bb9d937642923a225"/>    <section>
+    <title>setthvalue</title>
+<indexterm><primary>setthvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setthvalue</secondary></indexterm>
+<para><computeroutput>#define setthvalue( L,  obj,  x)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;{&#32;<link linkend="_struct_t_value">TValue</link>&#32;*io&#32;=&#32;(obj);&#32;<link linkend="_structlua___state">lua_State</link>&#32;*x_&#32;=&#32;(x);&#32;\
+&#32;&#32;&#32;&#32;val_(io).gc&#32;=&#32;<link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(x_);&#32;<link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(io,&#32;<link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1ad224258ccc4e8f79f148d54d32ddbd00">LUA_VTHREAD</link>));&#32;\
+&#32;&#32;&#32;&#32;checkliveness(L,io);&#32;}
+</programlisting><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00244">244</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a538e049061af97a32cc2e59ff979c409"/>    <section>
+    <title>setthvalue2s</title>
+<indexterm><primary>setthvalue2s</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setthvalue2s</secondary></indexterm>
+<para><computeroutput>#define setthvalue2s( L,  o,  t)   <link linkend="_lobject_8h_1a9c2bad449e8e998bb9d937642923a225">setthvalue</link>(L,<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(o),t)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00249">249</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a60983604f73f556a06f84026b29ed840"/>    <section>
+    <title>settt_</title>
+<indexterm><primary>settt_</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>settt_</secondary></indexterm>
+<para><computeroutput>#define settt_( o,  t)   ((o)-&gt;tt_=(t))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00110">110</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1ab358ecf44046d8def185fed182944fc1"/>    <section>
+    <title>setuvalue</title>
+<indexterm><primary>setuvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>setuvalue</secondary></indexterm>
+<para><computeroutput>#define setuvalue( L,  obj,  x)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;{&#32;<link linkend="_struct_t_value">TValue</link>&#32;*io&#32;=&#32;(obj);&#32;<link linkend="_struct_udata">Udata</link>&#32;*x_&#32;=&#32;(x);&#32;\
+&#32;&#32;&#32;&#32;val_(io).gc&#32;=&#32;<link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(x_);&#32;<link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">settt_</link>(io,&#32;<link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1af45b44d4031e7e869195dd97759d2ca3">LUA_VUSERDATA</link>));&#32;\
+&#32;&#32;&#32;&#32;checkliveness(L,io);&#32;}
+</programlisting><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00420">420</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a2fbf715e78eaa889ed0fb9d4514e736a"/>    <section>
+    <title>sizenode</title>
+<indexterm><primary>sizenode</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>sizenode</secondary></indexterm>
+<para><computeroutput>#define sizenode( t)   (<link linkend="_lobject_8h_1aa341ef742b199e1c29a19d2c490ad74e">twoto</link>((t)-&gt;lsizenode))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00766">766</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a762595cf399516b83e0f5580a9a3a7b9"/>    <section>
+    <title>sizeudata</title>
+<indexterm><primary>sizeudata</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>sizeudata</secondary></indexterm>
+<para><computeroutput>#define sizeudata( nuv,  nb)   (<link linkend="_lobject_8h_1aef06056b207ac5efd6fb0b0a2b3165d5">udatamemoffset</link>(nuv) + (nb))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00474">474</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1ac2c9eedf3ff2c3042445b3b534f161e1"/>    <section>
+    <title>svalue</title>
+<indexterm><primary>svalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>svalue</secondary></indexterm>
+<para><computeroutput>#define svalue( o)   <link linkend="_lobject_8h_1acb05d3ab238923581a9c629b8e11a6ac">getstr</link>(<link linkend="_lobject_8h_1a8661397faed512ccc9c70a4661f1a83d">tsvalue</link>(o))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00383">383</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a516f32427f1c43ee187ce4c0db042959"/>    <section>
+    <title>thvalue</title>
+<indexterm><primary>thvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>thvalue</secondary></indexterm>
+<para><computeroutput>#define thvalue( o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a5ae8a42aa33c44ef3c98fcda8b7ab4c5">ttisthread</link>(o), <link linkend="_lstate_8h_1a52c467e11bd40cad5ca78372f7f67b4d">gco2th</link>(<link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).gc))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00242">242</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a3a62185cfa9345aedfc3a581dfdbb4f3"/>    <section>
+    <title>tsslen</title>
+<indexterm><primary>tsslen</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>tsslen</secondary></indexterm>
+<para><computeroutput>#define tsslen( s)   ((s)-&gt;tt == <link linkend="_lobject_8h_1a794410ffd7267ef873eb05ac695b1ba6">LUA_VSHRSTR</link> ? (s)-&gt;shrlen : (s)-&gt;u.lnglen)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00386">386</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a8661397faed512ccc9c70a4661f1a83d"/>    <section>
+    <title>tsvalue</title>
+<indexterm><primary>tsvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>tsvalue</secondary></indexterm>
+<para><computeroutput>#define tsvalue( o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a9bdf057a0de8da2ffae3ac35662dd255">ttisstring</link>(o), <link linkend="_lstate_8h_1af6c16f3aa27ad97ea1bcaa31e05e0b06">gco2ts</link>(<link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).gc))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00345">345</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a04fc217567b22a15b06483a8977c7914"/>    <section>
+    <title>tsvalueraw</title>
+<indexterm><primary>tsvalueraw</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>tsvalueraw</secondary></indexterm>
+<para><computeroutput>#define tsvalueraw( v)   (<link linkend="_lstate_8h_1af6c16f3aa27ad97ea1bcaa31e05e0b06">gco2ts</link>((v).gc))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00343">343</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a44a87a5873bd05973d6e3a4747175c06"/>    <section>
+    <title>ttisboolean</title>
+<indexterm><primary>ttisboolean</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttisboolean</secondary></indexterm>
+<para><computeroutput>#define ttisboolean( o)   <link linkend="_lobject_8h_1a591e9cc1db9d9f210702bdbf2ba10d02">checktype</link>((o), <link linkend="_lua_8h_1a611808ed12d4c2aee2a9e298a9d9a9bf">LUA_TBOOLEAN</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00218">218</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a9510da9838a8f17b4eef364549a4c7a8"/>    <section>
+    <title>ttisCclosure</title>
+<indexterm><primary>ttisCclosure</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttisCclosure</secondary></indexterm>
+<para><computeroutput>#define ttisCclosure( o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1a2361d923ddb7fc1468b978fe043e35c2">LUA_VCCL</link>))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00574">574</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a3254d5797537bb83d10a5b48dc6b4377"/>    <section>
+    <title>ttisclosure</title>
+<indexterm><primary>ttisclosure</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttisclosure</secondary></indexterm>
+<para><computeroutput>#define ttisclosure( o)   ((<link linkend="_lobject_8h_1a4e4078cdfa594d60186ec4369b582acf">rawtt</link>(o) &amp; 0x1F) == <link linkend="_lobject_8h_1a5d0e6e41ea93960667095501aa5745c1">LUA_VLCL</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00571">571</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1aebb0fc4ab25fdfc7d01e834cc24b6048"/>    <section>
+    <title>ttisfalse</title>
+<indexterm><primary>ttisfalse</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttisfalse</secondary></indexterm>
+<para><computeroutput>#define ttisfalse( o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a95236d400066ed64a37c72d3dada7e9d">LUA_VFALSE</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00219">219</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1ac1338b5ac67cadf27489f5ae7e939c29"/>    <section>
+    <title>ttisfloat</title>
+<indexterm><primary>ttisfloat</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttisfloat</secondary></indexterm>
+<para><computeroutput>#define ttisfloat( o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a19aaaf978586be9032b63b7a8807631a">LUA_VNUMFLT</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00303">303</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a2b0d95af67f53d9fe2bdde605f9cd957"/>    <section>
+    <title>ttisfulluserdata</title>
+<indexterm><primary>ttisfulluserdata</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttisfulluserdata</secondary></indexterm>
+<para><computeroutput>#define ttisfulluserdata( o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1af45b44d4031e7e869195dd97759d2ca3">LUA_VUSERDATA</link>))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00410">410</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a48587dcb78721d149d3184d0768f4950"/>    <section>
+    <title>ttisfunction</title>
+<indexterm><primary>ttisfunction</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttisfunction</secondary></indexterm>
+<para><computeroutput>#define ttisfunction( o)   <link linkend="_lobject_8h_1a591e9cc1db9d9f210702bdbf2ba10d02">checktype</link>(o, <link linkend="_lua_8h_1adaa7fa6e2561c1bc428ba8d265171494">LUA_TFUNCTION</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00570">570</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1abade243295a9140f7b86838fbb049054"/>    <section>
+    <title>ttisinteger</title>
+<indexterm><primary>ttisinteger</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttisinteger</secondary></indexterm>
+<para><computeroutput>#define ttisinteger( o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a69aa5cae89d634d458e0da4957257745">LUA_VNUMINT</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00304">304</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a8d43f35dfc5fcd0ee49a6206d63bec18"/>    <section>
+    <title>ttislcf</title>
+<indexterm><primary>ttislcf</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttislcf</secondary></indexterm>
+<para><computeroutput>#define ttislcf( o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a9b9abbdd10fec20fc7a746efd903872d">LUA_VLCF</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00573">573</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a6f8bada57bc9f224609af800d399693f"/>    <section>
+    <title>ttisLclosure</title>
+<indexterm><primary>ttisLclosure</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttisLclosure</secondary></indexterm>
+<para><computeroutput>#define ttisLclosure( o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1a5d0e6e41ea93960667095501aa5745c1">LUA_VLCL</link>))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00572">572</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a6440445277dce2e73af1e043f9884d7a"/>    <section>
+    <title>ttislightuserdata</title>
+<indexterm><primary>ttislightuserdata</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttislightuserdata</secondary></indexterm>
+<para><computeroutput>#define ttislightuserdata( o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a0fe81163ea67e644d5a85078c4a6d25c">LUA_VLIGHTUSERDATA</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00409">409</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a70613f10396708b6099f5e96fd9f668f"/>    <section>
+    <title>ttislngstring</title>
+<indexterm><primary>ttislngstring</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttislngstring</secondary></indexterm>
+<para><computeroutput>#define ttislngstring( o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1a6869fcb0a0178b6d70d431eae1683199">LUA_VLNGSTR</link>))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00341">341</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a39af019fafa202841da3bf7c427bf090"/>    <section>
+    <title>ttisnil</title>
+<indexterm><primary>ttisnil</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttisnil</secondary></indexterm>
+<para><computeroutput>#define ttisnil( v)   <link linkend="_lobject_8h_1a591e9cc1db9d9f210702bdbf2ba10d02">checktype</link>((v), <link linkend="_lua_8h_1ae38a6fb8c687b8bfab211b7675a695ef">LUA_TNIL</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00169">169</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a7a1392f89b1f29ed3b1afa37a22d0be2"/>    <section>
+    <title>ttisnumber</title>
+<indexterm><primary>ttisnumber</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttisnumber</secondary></indexterm>
+<para><computeroutput>#define ttisnumber( o)   <link linkend="_lobject_8h_1a591e9cc1db9d9f210702bdbf2ba10d02">checktype</link>((o), <link linkend="_lua_8h_1a7f62ecb240cb38da9c8a53b41fe21ed9">LUA_TNUMBER</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00302">302</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a6513e161c7e8cc7276a9677d50a99b76"/>    <section>
+    <title>ttisshrstring</title>
+<indexterm><primary>ttisshrstring</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttisshrstring</secondary></indexterm>
+<para><computeroutput>#define ttisshrstring( o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1a794410ffd7267ef873eb05ac695b1ba6">LUA_VSHRSTR</link>))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00340">340</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1afae62ae42d03ff2600208b109bad8070"/>    <section>
+    <title>ttisstrictnil</title>
+<indexterm><primary>ttisstrictnil</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttisstrictnil</secondary></indexterm>
+<para><computeroutput>#define ttisstrictnil( o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1aac7a0aeb62c96ba16c7638e707bfaac0">LUA_VNIL</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00173">173</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a9bdf057a0de8da2ffae3ac35662dd255"/>    <section>
+    <title>ttisstring</title>
+<indexterm><primary>ttisstring</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttisstring</secondary></indexterm>
+<para><computeroutput>#define ttisstring( o)   <link linkend="_lobject_8h_1a591e9cc1db9d9f210702bdbf2ba10d02">checktype</link>((o), <link linkend="_lua_8h_1a57de20d87bb5131a3159f2bd52e3fab6">LUA_TSTRING</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00339">339</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1ac5338f5fe3885d1ee65412e00a44384e"/>    <section>
+    <title>ttistable</title>
+<indexterm><primary>ttistable</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttistable</secondary></indexterm>
+<para><computeroutput>#define ttistable( o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1afaf24d5b79b9027ad768d023778669df">LUA_VTABLE</link>))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00655">655</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a5ae8a42aa33c44ef3c98fcda8b7ab4c5"/>    <section>
+    <title>ttisthread</title>
+<indexterm><primary>ttisthread</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttisthread</secondary></indexterm>
+<para><computeroutput>#define ttisthread( o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">ctb</link>(<link linkend="_lobject_8h_1ad224258ccc4e8f79f148d54d32ddbd00">LUA_VTHREAD</link>))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00240">240</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a31a5a1c03da9886f462929d023ec00f8"/>    <section>
+    <title>ttistrue</title>
+<indexterm><primary>ttistrue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttistrue</secondary></indexterm>
+<para><computeroutput>#define ttistrue( o)   <link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">checktag</link>((o), <link linkend="_lobject_8h_1aed66cd95aa3f518c947b5bd9e17bab47">LUA_VTRUE</link>)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00220">220</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1acd205ab396b96fba48e1f758c17a2cf3"/>    <section>
+    <title>ttype</title>
+<indexterm><primary>ttype</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttype</secondary></indexterm>
+<para><computeroutput>#define ttype( o)   (<link linkend="_lobject_8h_1a40d12e88a0d8249d226109e0d6d70dd6">novariant</link>(<link linkend="_lobject_8h_1a4e4078cdfa594d60186ec4369b582acf">rawtt</link>(o)))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00083">83</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a01db083f8bc8b2eb51a45c0ba9967043"/>    <section>
+    <title>ttypetag</title>
+<indexterm><primary>ttypetag</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>ttypetag</secondary></indexterm>
+<para><computeroutput>#define ttypetag( o)   <link linkend="_lobject_8h_1a97f74541c5efde62e7dc88e8cebd75d9">withvariant</link>(<link linkend="_lobject_8h_1a4e4078cdfa594d60186ec4369b582acf">rawtt</link>(o))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00080">80</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a33c298ced3df4f041dd86a19a6c0dae2"/>    <section>
+    <title>TValuefields</title>
+<indexterm><primary>TValuefields</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>TValuefields</secondary></indexterm>
+<para><computeroutput>#define TValuefields   <link linkend="_union_value">Value</link> value_; <link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> tt_</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00061">61</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1aa341ef742b199e1c29a19d2c490ad74e"/>    <section>
+    <title>twoto</title>
+<indexterm><primary>twoto</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>twoto</secondary></indexterm>
+<para><computeroutput>#define twoto( x)   (1&lt;&lt;(x))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00765">765</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1aef06056b207ac5efd6fb0b0a2b3165d5"/>    <section>
+    <title>udatamemoffset</title>
+<indexterm><primary>udatamemoffset</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>udatamemoffset</secondary></indexterm>
+<para><computeroutput>#define udatamemoffset( nuv)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;((nuv)&#32;==&#32;0&#32;?&#32;offsetof(<link linkend="_struct_udata0">Udata0</link>,&#32;bindata)&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;:&#32;offsetof(<link linkend="_struct_udata">Udata</link>,&#32;uv)&#32;+&#32;(<emphasis role="keyword">sizeof</emphasis>(<link linkend="_lobject_8h_1a4a9abc9c2064ec3a4620a1f1c30f18af">UValue</link>)&#32;*&#32;(nuv)))
+</programlisting><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00466">466</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1ae0741e99030a23e3c24b0eb828fbbe4b"/>    <section>
+    <title>UTF8BUFFSZ</title>
+<indexterm><primary>UTF8BUFFSZ</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>UTF8BUFFSZ</secondary></indexterm>
+<para><computeroutput>#define UTF8BUFFSZ   8</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00770">770</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a1c49f55d93297e833141fb62903af3ad"/>    <section>
+    <title>uvalue</title>
+<indexterm><primary>uvalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>uvalue</secondary></indexterm>
+<para><computeroutput>#define uvalue( o)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lobject_8h_1a2b0d95af67f53d9fe2bdde605f9cd957">ttisfulluserdata</link>(o), <link linkend="_lstate_8h_1a55e9a228ad0d3a82ee9cfc353002fd8a">gco2u</link>(<link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o).gc))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00413">413</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055"/>    <section>
+    <title>val_</title>
+<indexterm><primary>val_</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>val_</secondary></indexterm>
+<para><computeroutput>#define val_( o)   ((o)-&gt;value_)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00068">68</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a8a47bf030949aef5df2fd844415e2501"/>    <section>
+    <title>valraw</title>
+<indexterm><primary>valraw</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>valraw</secondary></indexterm>
+<para><computeroutput>#define valraw( o)   (&amp;<link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">val_</link>(o))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00069">69</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a9753d5f343806e0cb16293f53143098c"/>    <section>
+    <title>vslen</title>
+<indexterm><primary>vslen</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>vslen</secondary></indexterm>
+<para><computeroutput>#define vslen( o)   <link linkend="_lobject_8h_1a3a62185cfa9345aedfc3a581dfdbb4f3">tsslen</link>(<link linkend="_lobject_8h_1a8661397faed512ccc9c70a4661f1a83d">tsvalue</link>(o))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00389">389</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1a97f74541c5efde62e7dc88e8cebd75d9"/>    <section>
+    <title>withvariant</title>
+<indexterm><primary>withvariant</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>withvariant</secondary></indexterm>
+<para><computeroutput>#define withvariant( t)   ((t) &amp; 0x3F)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00079">79</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>类型定义说明</title>
+<anchor xml:id="_lobject_8h_1a5c84f9e449c687325b7ad4359474aa22"/>    <section>
+    <title>AbsLineInfo</title>
+<indexterm><primary>AbsLineInfo</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>AbsLineInfo</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_abs_line_info">AbsLineInfo</link> <link linkend="_struct_abs_line_info">AbsLineInfo</link></computeroutput></para>    </section><anchor xml:id="_lobject_8h_1af6216773b23b5805654970e1271e1c7b"/>    <section>
+    <title>CClosure</title>
+<indexterm><primary>CClosure</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>CClosure</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_c_closure">CClosure</link> <link linkend="_struct_c_closure">CClosure</link></computeroutput></para>    </section><anchor xml:id="_lobject_8h_1a7010360932a52c6bb0f85eac9da1d775"/>    <section>
+    <title>Closure</title>
+<indexterm><primary>Closure</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>Closure</secondary></indexterm>
+<para><computeroutput>typedef union <link linkend="_union_closure">Closure</link> <link linkend="_union_closure">Closure</link></computeroutput></para>    </section><anchor xml:id="_lobject_8h_1a695cc6eaef4f2d539a5fe6e3582a2847"/>    <section>
+    <title>GCObject</title>
+<indexterm><primary>GCObject</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>GCObject</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_g_c_object">GCObject</link> <link linkend="_struct_g_c_object">GCObject</link></computeroutput></para>    </section><anchor xml:id="_lobject_8h_1a17bc5d9d02f31c043f5d144531c58531"/>    <section>
+    <title>LClosure</title>
+<indexterm><primary>LClosure</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LClosure</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_l_closure">LClosure</link> <link linkend="_struct_l_closure">LClosure</link></computeroutput></para>    </section><anchor xml:id="_lobject_8h_1abfe5d6df698ce5c78a1e911fe5860466"/>    <section>
+    <title>LocVar</title>
+<indexterm><primary>LocVar</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>LocVar</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_loc_var">LocVar</link> <link linkend="_struct_loc_var">LocVar</link></computeroutput></para>    </section><anchor xml:id="_lobject_8h_1a945b262d2678b7e3ca2f38381fdaad4d"/>    <section>
+    <title>Node</title>
+<indexterm><primary>Node</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>Node</secondary></indexterm>
+<para><computeroutput>typedef union <link linkend="_union_node">Node</link> <link linkend="_union_node">Node</link></computeroutput></para>    </section><anchor xml:id="_lobject_8h_1aecc6ed5be1952ae8617cbcbebe2a530c"/>    <section>
+    <title>Proto</title>
+<indexterm><primary>Proto</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>Proto</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_proto">Proto</link> <link linkend="_struct_proto">Proto</link></computeroutput></para>    </section><anchor xml:id="_lobject_8h_1a7e5934136714a2f3d01cf4515d5258a0"/>    <section>
+    <title>StackValue</title>
+<indexterm><primary>StackValue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>StackValue</secondary></indexterm>
+<para><computeroutput>typedef union <link linkend="_union_stack_value">StackValue</link> <link linkend="_union_stack_value">StackValue</link></computeroutput></para>    </section><anchor xml:id="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073"/>    <section>
+    <title>StkId</title>
+<indexterm><primary>StkId</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>StkId</secondary></indexterm>
+<para><computeroutput>typedef <link linkend="_union_stack_value">StackValue</link>* <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link></computeroutput></para><para>
+在文件 <link linkend="_lobject_8h_source">lobject.h</link> 第 <link linkend="_lobject_8h_source_1l00145">145</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8h_1aaa5713bb2ecdf81c430009179b806232"/>    <section>
+    <title>Table</title>
+<indexterm><primary>Table</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>Table</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_table">Table</link> <link linkend="_struct_table">Table</link></computeroutput></para>    </section><anchor xml:id="_lobject_8h_1ad2189b9dc6af3f33b8aa3090dcde1535"/>    <section>
+    <title>TString</title>
+<indexterm><primary>TString</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>TString</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_t_string">TString</link> <link linkend="_struct_t_string">TString</link></computeroutput></para>    </section><anchor xml:id="_lobject_8h_1a1f32c523a9a46759690a7acc24eedc19"/>    <section>
+    <title>TValue</title>
+<indexterm><primary>TValue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>TValue</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_t_value">TValue</link> <link linkend="_struct_t_value">TValue</link></computeroutput></para>    </section><anchor xml:id="_lobject_8h_1a5bc1974b5ddc941b400e1b1b058f95f1"/>    <section>
+    <title>Udata</title>
+<indexterm><primary>Udata</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>Udata</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_udata">Udata</link> <link linkend="_struct_udata">Udata</link></computeroutput></para>    </section><anchor xml:id="_lobject_8h_1a33aa9feb0273304758472bccb2a6a4a6"/>    <section>
+    <title>Udata0</title>
+<indexterm><primary>Udata0</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>Udata0</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_udata0">Udata0</link> <link linkend="_struct_udata0">Udata0</link></computeroutput></para>    </section><anchor xml:id="_lobject_8h_1a420f4f4eeb467ce750d00e5d3a21c109"/>    <section>
+    <title>UpVal</title>
+<indexterm><primary>UpVal</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>UpVal</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_up_val">UpVal</link> <link linkend="_struct_up_val">UpVal</link></computeroutput></para>    </section><anchor xml:id="_lobject_8h_1a8e51aa6ac9ae7599a39adc3bb297bd86"/>    <section>
+    <title>Upvaldesc</title>
+<indexterm><primary>Upvaldesc</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>Upvaldesc</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_upvaldesc">Upvaldesc</link> <link linkend="_struct_upvaldesc">Upvaldesc</link></computeroutput></para>    </section><anchor xml:id="_lobject_8h_1a4a9abc9c2064ec3a4620a1f1c30f18af"/>    <section>
+    <title>UValue</title>
+<indexterm><primary>UValue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>UValue</secondary></indexterm>
+<para><computeroutput>typedef union <link linkend="_union_u_value">UValue</link> <link linkend="_union_u_value">UValue</link></computeroutput></para>    </section><anchor xml:id="_lobject_8h_1a33d0ee7f37b6b7cf753e159ea8ae8a52"/>    <section>
+    <title>Value</title>
+<indexterm><primary>Value</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>Value</secondary></indexterm>
+<para><computeroutput>typedef union <link linkend="_union_value">Value</link> <link linkend="_union_value">Value</link></computeroutput></para></section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lobject_8h_1afb09097c7bc4723a274863f6a811edf5"/>    <section>
+    <title>luaO_arith()</title>
+<indexterm><primary>luaO_arith</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>luaO_arith</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaO_arith (<link linkend="_structlua___state">lua_State</link> * L, int op, const <link linkend="_struct_t_value">TValue</link> * p1, const <link linkend="_struct_t_value">TValue</link> * p2, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> res)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00126">126</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8h_afb09097c7bc4723a274863f6a811edf5_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8h_afb09097c7bc4723a274863f6a811edf5_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8h_1ae17e893f7b1221fd82d37a51bcc5ad3c"/>    <section>
+    <title>luaO_ceillog2()</title>
+<indexterm><primary>luaO_ceillog2</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>luaO_ceillog2</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> int luaO_ceillog2 (unsigned int x)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00035">35</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8h_ae17e893f7b1221fd82d37a51bcc5ad3c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8h_1aa83e4edb8b62b06537c43c2ec8b97221"/>    <section>
+    <title>luaO_chunkid()</title>
+<indexterm><primary>luaO_chunkid</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>luaO_chunkid</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaO_chunkid (char * out, const char * source, size_t srclen)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00557">557</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8h_aa83e4edb8b62b06537c43c2ec8b97221_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8h_1a621e15ee90edbdb71f1161b92617fcb9"/>    <section>
+    <title>luaO_hexavalue()</title>
+<indexterm><primary>luaO_hexavalue</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>luaO_hexavalue</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> int luaO_hexavalue (int c)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00135">135</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8h_a621e15ee90edbdb71f1161b92617fcb9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8h_1a8622279ff260ff226d9663c85ca467dd"/>    <section>
+    <title>luaO_pushfstring()</title>
+<indexterm><primary>luaO_pushfstring</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>luaO_pushfstring</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> const char* luaO_pushfstring (<link linkend="_structlua___state">lua_State</link> * L, const char * fmt,  ...)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00539">539</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8h_a8622279ff260ff226d9663c85ca467dd_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8h_a8622279ff260ff226d9663c85ca467dd_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8h_1a0d323372aa00f179e1c070d305f879f3"/>    <section>
+    <title>luaO_pushvfstring()</title>
+<indexterm><primary>luaO_pushvfstring</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>luaO_pushvfstring</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> const char* luaO_pushvfstring (<link linkend="_structlua___state">lua_State</link> * L, const char * fmt, va_list argp)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00470">470</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8h_a0d323372aa00f179e1c070d305f879f3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8h_a0d323372aa00f179e1c070d305f879f3_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8h_1a5ea49a125e2848e4303dc10929302865"/>    <section>
+    <title>luaO_rawarith()</title>
+<indexterm><primary>luaO_rawarith</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>luaO_rawarith</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> int luaO_rawarith (<link linkend="_structlua___state">lua_State</link> * L, int op, const <link linkend="_struct_t_value">TValue</link> * p1, const <link linkend="_struct_t_value">TValue</link> * p2, <link linkend="_struct_t_value">TValue</link> * res)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00089">89</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8h_a5ea49a125e2848e4303dc10929302865_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8h_a5ea49a125e2848e4303dc10929302865_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8h_1ab56d8211e48dc3c70c3fa21d92d009af"/>    <section>
+    <title>luaO_str2num()</title>
+<indexterm><primary>luaO_str2num</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>luaO_str2num</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> size_t luaO_str2num (const char * s, <link linkend="_struct_t_value">TValue</link> * o)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00308">308</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8h_ab56d8211e48dc3c70c3fa21d92d009af_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8h_ab56d8211e48dc3c70c3fa21d92d009af_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8h_1a007d2c6293fee953f3af21f60f8133ba"/>    <section>
+    <title>luaO_tostring()</title>
+<indexterm><primary>luaO_tostring</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>luaO_tostring</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaO_tostring (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_t_value">TValue</link> * obj)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00374">374</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8h_a007d2c6293fee953f3af21f60f8133ba_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8h_a007d2c6293fee953f3af21f60f8133ba_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8h_1a6376bff8a65affbbeb7dba84a34d3a87"/>    <section>
+    <title>luaO_utf8esc()</title>
+<indexterm><primary>luaO_utf8esc</primary><secondary>lobject.h</secondary></indexterm>
+<indexterm><primary>lobject.h</primary><secondary>luaO_utf8esc</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> int luaO_utf8esc (char * buff, unsigned long x)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00323">323</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8h_a6376bff8a65affbbeb7dba84a34d3a87_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+</section>

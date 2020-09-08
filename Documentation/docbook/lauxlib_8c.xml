@@ -1,0 +1,1711 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lauxlib_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/lauxlib.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lauxlib.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;errno.h&gt;
+#include &lt;stdarg.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;lauxlib.h&quot;
+</programlisting>lauxlib.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>结构体    </title>
+        <itemizedlist>
+            <listitem><para>struct <link linkend="_struct_u_box">UBox</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_load_f">LoadF</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_load_s">LoadS</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lauxlib_8c_1a278591952532b1fb04508c2bc4acd385">lauxlib_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lauxlib_8c_1a884b19ad6094d6238c4072a8064aeb12">LUA_LIB</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lauxlib_8c_1aa927c7bf177c162feda3483e1e972b3a">MAX_SIZET</link>   ((size_t)(~(size_t)0))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lauxlib_8c_1a6e3d7fb82b885f522e902bcb0386a626">LEVELS1</link>   10	/* size of the first part of the stack */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lauxlib_8c_1a5f9e9ae6eacbd733a346ecdb14f0e69c">LEVELS2</link>   11	/* size of the second part of the stack */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lauxlib_8c_1a5dbc30b9986c3aeb0834ffcd615acb45">l_inspectstat</link>(stat,  what)   /* no op */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lauxlib_8c_1a58cb6b4ecea4192420347c2edc9e0ea0">buffonstack</link>(B)   ((B)-&gt;b != (B)-&gt;init.b)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lauxlib_8c_1a896e77038c659ca416b686f1e7a93eb8">freelist</link>   0</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>类型定义    </title>
+        <itemizedlist>
+            <listitem><para>typedef struct <link linkend="_struct_u_box">UBox</link> <link linkend="_lauxlib_8c_1acbefa8abd6262ef921e53fb16ae1bcd5">UBox</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_load_f">LoadF</link> <link linkend="_lauxlib_8c_1a482c2598b668c96a68dabb9fb5a6886d">LoadF</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_load_s">LoadS</link> <link linkend="_lauxlib_8c_1a717dbcc7ef165c8a810dff0bfb556ebd">LoadS</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static int <link linkend="_lauxlib_8c_1a36c8f149b779f8c9a5c042ea9784d80a">findfield</link> (<link linkend="_structlua___state">lua_State</link> *L, int objidx, int level)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lauxlib_8c_1a4f35430f7ecfcbd5f507e550937046b4">pushglobalfuncname</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structlua___debug">lua_Debug</link> *ar)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lauxlib_8c_1a0aa557042467d3f84d0663c742b32946">pushfuncname</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structlua___debug">lua_Debug</link> *ar)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lauxlib_8c_1af3eb164386f8acd9cfd63e7ea4ad4dad">lastlevel</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void <link linkend="_lauxlib_8c_1a67bf3728d34d2c9badb2bd2f57c75233">luaL_traceback</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structlua___state">lua_State</link> *L1, const char *msg, int level)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int <link linkend="_lauxlib_8c_1ac607576dd107a3120cd51948989f1ed2">luaL_argerror</link> (<link linkend="_structlua___state">lua_State</link> *L, int arg, const char *extramsg)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lauxlib_8c_1ab8ddc4ac13516f3548a6c102dd6fa114">luaL_typeerror</link> (<link linkend="_structlua___state">lua_State</link> *L, int arg, const char *tname)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lauxlib_8c_1ab8e946260debec8d4bbc714b76a1613b">tag_error</link> (<link linkend="_structlua___state">lua_State</link> *L, int arg, int tag)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void <link linkend="_lauxlib_8c_1a0f4d3c30c07eae36aa25605df84279a0">luaL_where</link> (<link linkend="_structlua___state">lua_State</link> *L, int level)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int <link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *fmt,...)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int <link linkend="_lauxlib_8c_1a86309080a5d45b232bcc240b45d06942">luaL_fileresult</link> (<link linkend="_structlua___state">lua_State</link> *L, int stat, const char *fname)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int <link linkend="_lauxlib_8c_1a3db3f3a0c7de522b5e494c3ad06186d8">luaL_execresult</link> (<link linkend="_structlua___state">lua_State</link> *L, int stat)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int <link linkend="_lauxlib_8c_1a2664eb7bcc85bbf6eeded2a81cf09b01">luaL_newmetatable</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *tname)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void <link linkend="_lauxlib_8c_1ae3907fc11c3e2af69f00ab4a37872cae">luaL_setmetatable</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *tname)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void * <link linkend="_lauxlib_8c_1af2ad56ae788ac3a59b4e0e29852ab460">luaL_testudata</link> (<link linkend="_structlua___state">lua_State</link> *L, int ud, const char *tname)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void * <link linkend="_lauxlib_8c_1a1799d8a48445b6f9d39462d8f1b0285a">luaL_checkudata</link> (<link linkend="_structlua___state">lua_State</link> *L, int ud, const char *tname)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int <link linkend="_lauxlib_8c_1a7a3959469b5643d9ea2313eb11a3946f">luaL_checkoption</link> (<link linkend="_structlua___state">lua_State</link> *L, int arg, const char *def, const char *const lst[])</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void <link linkend="_lauxlib_8c_1a7c46517055e0e8cb25e61b959709083a">luaL_checkstack</link> (<link linkend="_structlua___state">lua_State</link> *L, int space, const char *msg)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void <link linkend="_lauxlib_8c_1a0f8f78c4edc5cbf890690b3cf9615dc8">luaL_checktype</link> (<link linkend="_structlua___state">lua_State</link> *L, int arg, int t)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void <link linkend="_lauxlib_8c_1a8ebfe706b773eaaf50283e6583d4642e">luaL_checkany</link> (<link linkend="_structlua___state">lua_State</link> *L, int arg)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> const char * <link linkend="_lauxlib_8c_1a79405166c5a94624ebe0427e6b0c07e0">luaL_checklstring</link> (<link linkend="_structlua___state">lua_State</link> *L, int arg, size_t *len)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> const char * <link linkend="_lauxlib_8c_1a78e227b41b881001dc0e95a263690816">luaL_optlstring</link> (<link linkend="_structlua___state">lua_State</link> *L, int arg, const char *def, size_t *len)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> <link linkend="_lauxlib_8c_1a9f2c941bb5eb7d3a7746f35c4fe3cced">luaL_checknumber</link> (<link linkend="_structlua___state">lua_State</link> *L, int arg)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> <link linkend="_lauxlib_8c_1afa696696945ee6215c0033656ee64e97">luaL_optnumber</link> (<link linkend="_structlua___state">lua_State</link> *L, int arg, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> def)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lauxlib_8c_1ac900510f548ea0ea6d53358d2aedd100">interror</link> (<link linkend="_structlua___state">lua_State</link> *L, int arg)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> <link linkend="_lauxlib_8c_1aa15bea412c49bfdee1f3dbff096ce7d2">luaL_checkinteger</link> (<link linkend="_structlua___state">lua_State</link> *L, int arg)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> <link linkend="_lauxlib_8c_1ab10ff110a5ba19b4385947de7834ee3c">luaL_optinteger</link> (<link linkend="_structlua___state">lua_State</link> *L, int arg, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> def)</para>
+</listitem>
+            <listitem><para>static void * <link linkend="_lauxlib_8c_1acdf7f3169e55f9c8bd3d314358a9e778">resizebox</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx, size_t newsize)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lauxlib_8c_1a1957766835de815798e07848d3d14810">boxgc</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lauxlib_8c_1a22714b3538a1ad6943014db449d4ed19">newbox</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static size_t <link linkend="_lauxlib_8c_1a5a09a1507f8338fd07d77992e200c5d2">newbuffsize</link> (<link linkend="_structlua_l___buffer">luaL_Buffer</link> *B, size_t sz)</para>
+</listitem>
+            <listitem><para>static char * <link linkend="_lauxlib_8c_1a96b72c2bee2d49148b93676ea09818a5">prepbuffsize</link> (<link linkend="_structlua_l___buffer">luaL_Buffer</link> *B, size_t sz, int boxidx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> char * <link linkend="_lauxlib_8c_1ae695ed340bec54979c499b70d7d29318">luaL_prepbuffsize</link> (<link linkend="_structlua_l___buffer">luaL_Buffer</link> *B, size_t sz)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void <link linkend="_lauxlib_8c_1a0d56993399c45ae61ebb9b448dc30538">luaL_addlstring</link> (<link linkend="_structlua_l___buffer">luaL_Buffer</link> *B, const char *s, size_t l)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void <link linkend="_lauxlib_8c_1aced031f9a3f68375e9f80315933d9a88">luaL_addstring</link> (<link linkend="_structlua_l___buffer">luaL_Buffer</link> *B, const char *s)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void <link linkend="_lauxlib_8c_1a3a1f80033814e2057583a7d24cee23b4">luaL_pushresult</link> (<link linkend="_structlua_l___buffer">luaL_Buffer</link> *B)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void <link linkend="_lauxlib_8c_1aae36c3a2c184f1b2619ad7f99f2b4c16">luaL_pushresultsize</link> (<link linkend="_structlua_l___buffer">luaL_Buffer</link> *B, size_t sz)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void <link linkend="_lauxlib_8c_1a59a8ac34826fee305ad56101d97aee18">luaL_addvalue</link> (<link linkend="_structlua_l___buffer">luaL_Buffer</link> *B)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void <link linkend="_lauxlib_8c_1a0830ef75e335f6d7590b0e058f82a5eb">luaL_buffinit</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structlua_l___buffer">luaL_Buffer</link> *B)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> char * <link linkend="_lauxlib_8c_1a4f1a8d2f28779b1680587982b1385b61">luaL_buffinitsize</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structlua_l___buffer">luaL_Buffer</link> *B, size_t sz)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int <link linkend="_lauxlib_8c_1a1adeae26be7c2e3001c3583f43f70720">luaL_ref</link> (<link linkend="_structlua___state">lua_State</link> *L, int t)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void <link linkend="_lauxlib_8c_1ad5e8303f3809d26c336c3e18879b7f4e">luaL_unref</link> (<link linkend="_structlua___state">lua_State</link> *L, int t, int ref)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lauxlib_8c_1a51d79018e5cbe2f3cd784f3ae22a65fb">getF</link> (<link linkend="_structlua___state">lua_State</link> *L, void *ud, size_t *size)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lauxlib_8c_1a5899b2cf676252a49cc95a89536d0e38">errfile</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *what, int fnameindex)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lauxlib_8c_1a2166815af5654076fea257c99eca1789">skipBOM</link> (<link linkend="_struct_load_f">LoadF</link> *lf)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lauxlib_8c_1a6adfc638788adb7cb8c7eaa246dbea17">skipcomment</link> (<link linkend="_struct_load_f">LoadF</link> *lf, int *cp)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int <link linkend="_lauxlib_8c_1a6ac3b2572d5ce635c4617aed2a0eb649">luaL_loadfilex</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *filename, const char *mode)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lauxlib_8c_1a7fb82f42d22d1cbde5e3af0561389cbf">getS</link> (<link linkend="_structlua___state">lua_State</link> *L, void *ud, size_t *size)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int <link linkend="_lauxlib_8c_1a867ca33afe2cb3d07bfc238cbb438f61">luaL_loadbufferx</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *buff, size_t size, const char *name, const char *mode)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int <link linkend="_lauxlib_8c_1ac1503e3f7db09148f426164834c37a57">luaL_loadstring</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *s)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int <link linkend="_lauxlib_8c_1add7cea31816ff3f61014031248e0daa6">luaL_getmetafield</link> (<link linkend="_structlua___state">lua_State</link> *L, int obj, const char *event)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int <link linkend="_lauxlib_8c_1abfb23747df76e74d28ac48dabda0c3e1">luaL_callmeta</link> (<link linkend="_structlua___state">lua_State</link> *L, int obj, const char *event)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> <link linkend="_lauxlib_8c_1aa525c1b6aa90c90d684ef64cf2215e21">luaL_len</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> const char * <link linkend="_lauxlib_8c_1a0d4cbfd194d1919b3ff84000c0644cc0">luaL_tolstring</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx, size_t *len)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void <link linkend="_lauxlib_8c_1a4cab22d0cb403fa6b94f2542f4303096">luaL_setfuncs</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_structlua_l___reg">luaL_Reg</link> *l, int nup)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int <link linkend="_lauxlib_8c_1a4cd66d7b986316711233243a268e8e04">luaL_getsubtable</link> (<link linkend="_structlua___state">lua_State</link> *L, int idx, const char *fname)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void <link linkend="_lauxlib_8c_1a3cb8205f86c838d8f82b7d2360b1b0f4">luaL_requiref</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *modname, <link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link> openf, int glb)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void <link linkend="_lauxlib_8c_1a5dcf12b98ab3ef52b7885a27f48fadea">luaL_addgsub</link> (<link linkend="_structlua_l___buffer">luaL_Buffer</link> *b, const char *s, const char *p, const char *r)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> const char * <link linkend="_lauxlib_8c_1a65a9b27abc8408f98fbeac037a790ae9">luaL_gsub</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *s, const char *p, const char *r)</para>
+</listitem>
+            <listitem><para>static void * <link linkend="_lauxlib_8c_1ac69fc1fd1f00a5bdf07657b2e29bbedc">l_alloc</link> (void *ud, void *ptr, size_t osize, size_t nsize)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lauxlib_8c_1aa9ed62d0906c6d69ad16bd1b018d660b">panic</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lauxlib_8c_1acba9e22050fdbe52eb22f5f80cb809a4">warnf</link> (void *ud, const char *message, int tocont)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> <link linkend="_structlua___state">lua_State</link> * <link linkend="_lauxlib_8c_1aac01e11c3aeeec5ca26b28f285eadb9e">luaL_newstate</link> (void)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void <link linkend="_lauxlib_8c_1a8ad94df78305955cad1c698ea9d1eee9">luaL_checkversion_</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> ver, size_t sz)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>变量    </title>
+        <itemizedlist>
+            <listitem><para>static const <link linkend="_structlua_l___reg">luaL_Reg</link> <link linkend="_lauxlib_8c_1a73790a7785f0b5ecc0a57e8d9d2fbbcf">boxmt</link> []</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lauxlib_8c_1a58cb6b4ecea4192420347c2edc9e0ea0"/>    <section>
+    <title>buffonstack</title>
+<indexterm><primary>buffonstack</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>buffonstack</secondary></indexterm>
+<para><computeroutput>#define buffonstack( B)   ((B)-&gt;b != (B)-&gt;init.b)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00515">515</link> 行定义.</para>
+    </section><anchor xml:id="_lauxlib_8c_1a896e77038c659ca416b686f1e7a93eb8"/>    <section>
+    <title>freelist</title>
+<indexterm><primary>freelist</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>freelist</secondary></indexterm>
+<para><computeroutput>#define freelist   0</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00643">643</link> 行定义.</para>
+    </section><anchor xml:id="_lauxlib_8c_1a5dbc30b9986c3aeb0834ffcd615acb45"/>    <section>
+    <title>l_inspectstat</title>
+<indexterm><primary>l_inspectstat</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>l_inspectstat</secondary></indexterm>
+<para><computeroutput>#define l_inspectstat( stat,  what)   /* no op */</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00278">278</link> 行定义.</para>
+    </section><anchor xml:id="_lauxlib_8c_1a278591952532b1fb04508c2bc4acd385"/>    <section>
+    <title>lauxlib_c</title>
+<indexterm><primary>lauxlib_c</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>lauxlib_c</secondary></indexterm>
+<para><computeroutput>#define lauxlib_c</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_lauxlib_8c_1a6e3d7fb82b885f522e902bcb0386a626"/>    <section>
+    <title>LEVELS1</title>
+<indexterm><primary>LEVELS1</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>LEVELS1</secondary></indexterm>
+<para><computeroutput>#define LEVELS1   10	/* size of the first part of the stack */</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00043">43</link> 行定义.</para>
+    </section><anchor xml:id="_lauxlib_8c_1a5f9e9ae6eacbd733a346ecdb14f0e69c"/>    <section>
+    <title>LEVELS2</title>
+<indexterm><primary>LEVELS2</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>LEVELS2</secondary></indexterm>
+<para><computeroutput>#define LEVELS2   11	/* size of the second part of the stack */</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00044">44</link> 行定义.</para>
+    </section><anchor xml:id="_lauxlib_8c_1a884b19ad6094d6238c4072a8064aeb12"/>    <section>
+    <title>LUA_LIB</title>
+<indexterm><primary>LUA_LIB</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>LUA_LIB</secondary></indexterm>
+<para><computeroutput>#define LUA_LIB</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00008">8</link> 行定义.</para>
+    </section><anchor xml:id="_lauxlib_8c_1aa927c7bf177c162feda3483e1e972b3a"/>    <section>
+    <title>MAX_SIZET</title>
+<indexterm><primary>MAX_SIZET</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>MAX_SIZET</secondary></indexterm>
+<para><computeroutput>#define MAX_SIZET   ((size_t)(~(size_t)0))</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00032">32</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>类型定义说明</title>
+<anchor xml:id="_lauxlib_8c_1a482c2598b668c96a68dabb9fb5a6886d"/>    <section>
+    <title>LoadF</title>
+<indexterm><primary>LoadF</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>LoadF</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_load_f">LoadF</link> <link linkend="_struct_load_f">LoadF</link></computeroutput></para>    </section><anchor xml:id="_lauxlib_8c_1a717dbcc7ef165c8a810dff0bfb556ebd"/>    <section>
+    <title>LoadS</title>
+<indexterm><primary>LoadS</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>LoadS</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_load_s">LoadS</link> <link linkend="_struct_load_s">LoadS</link></computeroutput></para>    </section><anchor xml:id="_lauxlib_8c_1acbefa8abd6262ef921e53fb16ae1bcd5"/>    <section>
+    <title>UBox</title>
+<indexterm><primary>UBox</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>UBox</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_u_box">UBox</link> <link linkend="_struct_u_box">UBox</link></computeroutput></para></section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lauxlib_8c_1a1957766835de815798e07848d3d14810"/>    <section>
+    <title>boxgc()</title>
+<indexterm><primary>boxgc</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>boxgc</secondary></indexterm>
+<para><computeroutput>static int boxgc (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00488">488</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a1957766835de815798e07848d3d14810_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a5899b2cf676252a49cc95a89536d0e38"/>    <section>
+    <title>errfile()</title>
+<indexterm><primary>errfile</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>errfile</secondary></indexterm>
+<para><computeroutput>static int errfile (<link linkend="_structlua___state">lua_State</link> * L, const char * what, int fnameindex)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00711">711</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a5899b2cf676252a49cc95a89536d0e38_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a5899b2cf676252a49cc95a89536d0e38_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a36c8f149b779f8c9a5c042ea9784d80a"/>    <section>
+    <title>findfield()</title>
+<indexterm><primary>findfield</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>findfield</secondary></indexterm>
+<para><computeroutput>static int findfield (<link linkend="_structlua___state">lua_State</link> * L, int objidx, int level)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00052">52</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a36c8f149b779f8c9a5c042ea9784d80a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a36c8f149b779f8c9a5c042ea9784d80a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a51d79018e5cbe2f3cd784f3ae22a65fb"/>    <section>
+    <title>getF()</title>
+<indexterm><primary>getF</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>getF</secondary></indexterm>
+<para><computeroutput>static const char* getF (<link linkend="_structlua___state">lua_State</link> * L, void * ud, size_t * size)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00693">693</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a51d79018e5cbe2f3cd784f3ae22a65fb_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a7fb82f42d22d1cbde5e3af0561389cbf"/>    <section>
+    <title>getS()</title>
+<indexterm><primary>getS</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>getS</secondary></indexterm>
+<para><computeroutput>static const char* getS (<link linkend="_structlua___state">lua_State</link> * L, void * ud, size_t * size)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00796">796</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a7fb82f42d22d1cbde5e3af0561389cbf_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1ac900510f548ea0ea6d53358d2aedd100"/>    <section>
+    <title>interror()</title>
+<indexterm><primary>interror</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>interror</secondary></indexterm>
+<para><computeroutput>static void interror (<link linkend="_structlua___state">lua_State</link> * L, int arg)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00434">434</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_ac900510f548ea0ea6d53358d2aedd100_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_ac900510f548ea0ea6d53358d2aedd100_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1ac69fc1fd1f00a5bdf07657b2e29bbedc"/>    <section>
+    <title>l_alloc()</title>
+<indexterm><primary>l_alloc</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>l_alloc</secondary></indexterm>
+<para><computeroutput>static void* l_alloc (void * ud, void * ptr, size_t osize, size_t nsize)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00988">988</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_ac69fc1fd1f00a5bdf07657b2e29bbedc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1af3eb164386f8acd9cfd63e7ea4ad4dad"/>    <section>
+    <title>lastlevel()</title>
+<indexterm><primary>lastlevel</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>lastlevel</secondary></indexterm>
+<para><computeroutput>static int lastlevel (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00116">116</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_af3eb164386f8acd9cfd63e7ea4ad4dad_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_af3eb164386f8acd9cfd63e7ea4ad4dad_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a5dcf12b98ab3ef52b7885a27f48fadea"/>    <section>
+    <title>luaL_addgsub()</title>
+<indexterm><primary>luaL_addgsub</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_addgsub</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void luaL_addgsub (<link linkend="_structlua_l___buffer">luaL_Buffer</link> * b, const char * s, const char * p, const char * r)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00965">965</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a5dcf12b98ab3ef52b7885a27f48fadea_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a5dcf12b98ab3ef52b7885a27f48fadea_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a0d56993399c45ae61ebb9b448dc30538"/>    <section>
+    <title>luaL_addlstring()</title>
+<indexterm><primary>luaL_addlstring</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_addlstring</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void luaL_addlstring (<link linkend="_structlua_l___buffer">luaL_Buffer</link> * B, const char * s, size_t l)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00570">570</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a0d56993399c45ae61ebb9b448dc30538_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a0d56993399c45ae61ebb9b448dc30538_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1aced031f9a3f68375e9f80315933d9a88"/>    <section>
+    <title>luaL_addstring()</title>
+<indexterm><primary>luaL_addstring</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_addstring</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void luaL_addstring (<link linkend="_structlua_l___buffer">luaL_Buffer</link> * B, const char * s)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00579">579</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_aced031f9a3f68375e9f80315933d9a88_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_aced031f9a3f68375e9f80315933d9a88_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a59a8ac34826fee305ad56101d97aee18"/>    <section>
+    <title>luaL_addvalue()</title>
+<indexterm><primary>luaL_addvalue</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_addvalue</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void luaL_addvalue (<link linkend="_structlua_l___buffer">luaL_Buffer</link> * B)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00609">609</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a59a8ac34826fee305ad56101d97aee18_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a59a8ac34826fee305ad56101d97aee18_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1ac607576dd107a3120cd51948989f1ed2"/>    <section>
+    <title>luaL_argerror()</title>
+<indexterm><primary>luaL_argerror</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_argerror</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int luaL_argerror (<link linkend="_structlua___state">lua_State</link> * L, int arg, const char * extramsg)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00175">175</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_ac607576dd107a3120cd51948989f1ed2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_ac607576dd107a3120cd51948989f1ed2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a0830ef75e335f6d7590b0e058f82a5eb"/>    <section>
+    <title>luaL_buffinit()</title>
+<indexterm><primary>luaL_buffinit</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_buffinit</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void luaL_buffinit (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structlua_l___buffer">luaL_Buffer</link> * B)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00620">620</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a0830ef75e335f6d7590b0e058f82a5eb_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a4f1a8d2f28779b1680587982b1385b61"/>    <section>
+    <title>luaL_buffinitsize()</title>
+<indexterm><primary>luaL_buffinitsize</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_buffinitsize</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> char* luaL_buffinitsize (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structlua_l___buffer">luaL_Buffer</link> * B, size_t sz)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00628">628</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a4f1a8d2f28779b1680587982b1385b61_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a4f1a8d2f28779b1680587982b1385b61_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1abfb23747df76e74d28ac48dabda0c3e1"/>    <section>
+    <title>luaL_callmeta()</title>
+<indexterm><primary>luaL_callmeta</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_callmeta</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int luaL_callmeta (<link linkend="_structlua___state">lua_State</link> * L, int obj, const char * event)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00839">839</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_abfb23747df76e74d28ac48dabda0c3e1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_abfb23747df76e74d28ac48dabda0c3e1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a8ebfe706b773eaaf50283e6583d4642e"/>    <section>
+    <title>luaL_checkany()</title>
+<indexterm><primary>luaL_checkany</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_checkany</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void luaL_checkany (<link linkend="_structlua___state">lua_State</link> * L, int arg)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00396">396</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a8ebfe706b773eaaf50283e6583d4642e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a8ebfe706b773eaaf50283e6583d4642e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1aa15bea412c49bfdee1f3dbff096ce7d2"/>    <section>
+    <title>luaL_checkinteger()</title>
+<indexterm><primary>luaL_checkinteger</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_checkinteger</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> luaL_checkinteger (<link linkend="_structlua___state">lua_State</link> * L, int arg)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00442">442</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_aa15bea412c49bfdee1f3dbff096ce7d2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_aa15bea412c49bfdee1f3dbff096ce7d2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a79405166c5a94624ebe0427e6b0c07e0"/>    <section>
+    <title>luaL_checklstring()</title>
+<indexterm><primary>luaL_checklstring</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_checklstring</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> const char* luaL_checklstring (<link linkend="_structlua___state">lua_State</link> * L, int arg, size_t * len)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00402">402</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a79405166c5a94624ebe0427e6b0c07e0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a79405166c5a94624ebe0427e6b0c07e0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a9f2c941bb5eb7d3a7746f35c4fe3cced"/>    <section>
+    <title>luaL_checknumber()</title>
+<indexterm><primary>luaL_checknumber</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_checknumber</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> luaL_checknumber (<link linkend="_structlua___state">lua_State</link> * L, int arg)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00420">420</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a9f2c941bb5eb7d3a7746f35c4fe3cced_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a9f2c941bb5eb7d3a7746f35c4fe3cced_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a7a3959469b5643d9ea2313eb11a3946f"/>    <section>
+    <title>luaL_checkoption()</title>
+<indexterm><primary>luaL_checkoption</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_checkoption</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int luaL_checkoption (<link linkend="_structlua___state">lua_State</link> * L, int arg, const char * def, const char *const lst[])</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00360">360</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a7a3959469b5643d9ea2313eb11a3946f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a7a3959469b5643d9ea2313eb11a3946f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a7c46517055e0e8cb25e61b959709083a"/>    <section>
+    <title>luaL_checkstack()</title>
+<indexterm><primary>luaL_checkstack</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_checkstack</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void luaL_checkstack (<link linkend="_structlua___state">lua_State</link> * L, int space, const char * msg)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00380">380</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a7c46517055e0e8cb25e61b959709083a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a7c46517055e0e8cb25e61b959709083a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a0f8f78c4edc5cbf890690b3cf9615dc8"/>    <section>
+    <title>luaL_checktype()</title>
+<indexterm><primary>luaL_checktype</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_checktype</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void luaL_checktype (<link linkend="_structlua___state">lua_State</link> * L, int arg, int t)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00390">390</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a0f8f78c4edc5cbf890690b3cf9615dc8_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a0f8f78c4edc5cbf890690b3cf9615dc8_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a1799d8a48445b6f9d39462d8f1b0285a"/>    <section>
+    <title>luaL_checkudata()</title>
+<indexterm><primary>luaL_checkudata</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_checkudata</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void* luaL_checkudata (<link linkend="_structlua___state">lua_State</link> * L, int ud, const char * tname)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00345">345</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a1799d8a48445b6f9d39462d8f1b0285a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a8ad94df78305955cad1c698ea9d1eee9"/>    <section>
+    <title>luaL_checkversion_()</title>
+<indexterm><primary>luaL_checkversion_</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_checkversion_</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void luaL_checkversion_ (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> ver, size_t sz)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l01051">1051</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a8ad94df78305955cad1c698ea9d1eee9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a6c51d83d29244779392551388913e08a"/>    <section>
+    <title>luaL_error()</title>
+<indexterm><primary>luaL_error</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_error</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int luaL_error (<link linkend="_structlua___state">lua_State</link> * L, const char * fmt,  ...)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00234">234</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a6c51d83d29244779392551388913e08a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a3db3f3a0c7de522b5e494c3ad06186d8"/>    <section>
+    <title>luaL_execresult()</title>
+<indexterm><primary>luaL_execresult</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_execresult</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int luaL_execresult (<link linkend="_structlua___state">lua_State</link> * L, int stat)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00285">285</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a3db3f3a0c7de522b5e494c3ad06186d8_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a3db3f3a0c7de522b5e494c3ad06186d8_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a86309080a5d45b232bcc240b45d06942"/>    <section>
+    <title>luaL_fileresult()</title>
+<indexterm><primary>luaL_fileresult</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_fileresult</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int luaL_fileresult (<link linkend="_structlua___state">lua_State</link> * L, int stat, const char * fname)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00245">245</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a86309080a5d45b232bcc240b45d06942_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a86309080a5d45b232bcc240b45d06942_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1add7cea31816ff3f61014031248e0daa6"/>    <section>
+    <title>luaL_getmetafield()</title>
+<indexterm><primary>luaL_getmetafield</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_getmetafield</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int luaL_getmetafield (<link linkend="_structlua___state">lua_State</link> * L, int obj, const char * event)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00823">823</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_add7cea31816ff3f61014031248e0daa6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_add7cea31816ff3f61014031248e0daa6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a4cd66d7b986316711233243a268e8e04"/>    <section>
+    <title>luaL_getsubtable()</title>
+<indexterm><primary>luaL_getsubtable</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_getsubtable</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int luaL_getsubtable (<link linkend="_structlua___state">lua_State</link> * L, int idx, const char * fname)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00925">925</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a4cd66d7b986316711233243a268e8e04_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a4cd66d7b986316711233243a268e8e04_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a65a9b27abc8408f98fbeac037a790ae9"/>    <section>
+    <title>luaL_gsub()</title>
+<indexterm><primary>luaL_gsub</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_gsub</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> const char* luaL_gsub (<link linkend="_structlua___state">lua_State</link> * L, const char * s, const char * p, const char * r)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00978">978</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a65a9b27abc8408f98fbeac037a790ae9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a65a9b27abc8408f98fbeac037a790ae9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1aa525c1b6aa90c90d684ef64cf2215e21"/>    <section>
+    <title>luaL_len()</title>
+<indexterm><primary>luaL_len</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_len</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> luaL_len (<link linkend="_structlua___state">lua_State</link> * L, int idx)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00849">849</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_aa525c1b6aa90c90d684ef64cf2215e21_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_aa525c1b6aa90c90d684ef64cf2215e21_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a867ca33afe2cb3d07bfc238cbb438f61"/>    <section>
+    <title>luaL_loadbufferx()</title>
+<indexterm><primary>luaL_loadbufferx</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_loadbufferx</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int luaL_loadbufferx (<link linkend="_structlua___state">lua_State</link> * L, const char * buff, size_t size, const char * name, const char * mode)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00806">806</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a867ca33afe2cb3d07bfc238cbb438f61_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a867ca33afe2cb3d07bfc238cbb438f61_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a6ac3b2572d5ce635c4617aed2a0eb649"/>    <section>
+    <title>luaL_loadfilex()</title>
+<indexterm><primary>luaL_loadfilex</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_loadfilex</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int luaL_loadfilex (<link linkend="_structlua___state">lua_State</link> * L, const char * filename, const char * mode)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00754">754</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a6ac3b2572d5ce635c4617aed2a0eb649_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a6ac3b2572d5ce635c4617aed2a0eb649_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1ac1503e3f7db09148f426164834c37a57"/>    <section>
+    <title>luaL_loadstring()</title>
+<indexterm><primary>luaL_loadstring</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_loadstring</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int luaL_loadstring (<link linkend="_structlua___state">lua_State</link> * L, const char * s)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00815">815</link> 行定义.</para>
+    </section><anchor xml:id="_lauxlib_8c_1a2664eb7bcc85bbf6eeded2a81cf09b01"/>    <section>
+    <title>luaL_newmetatable()</title>
+<indexterm><primary>luaL_newmetatable</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_newmetatable</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int luaL_newmetatable (<link linkend="_structlua___state">lua_State</link> * L, const char * tname)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00311">311</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a2664eb7bcc85bbf6eeded2a81cf09b01_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a2664eb7bcc85bbf6eeded2a81cf09b01_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1aac01e11c3aeeec5ca26b28f285eadb9e"/>    <section>
+    <title>luaL_newstate()</title>
+<indexterm><primary>luaL_newstate</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_newstate</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> <link linkend="_structlua___state">lua_State</link>* luaL_newstate (void )</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l01037">1037</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_aac01e11c3aeeec5ca26b28f285eadb9e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_aac01e11c3aeeec5ca26b28f285eadb9e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1ab10ff110a5ba19b4385947de7834ee3c"/>    <section>
+    <title>luaL_optinteger()</title>
+<indexterm><primary>luaL_optinteger</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_optinteger</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> luaL_optinteger (<link linkend="_structlua___state">lua_State</link> * L, int arg, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> def)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00452">452</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_ab10ff110a5ba19b4385947de7834ee3c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_ab10ff110a5ba19b4385947de7834ee3c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a78e227b41b881001dc0e95a263690816"/>    <section>
+    <title>luaL_optlstring()</title>
+<indexterm><primary>luaL_optlstring</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_optlstring</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> const char* luaL_optlstring (<link linkend="_structlua___state">lua_State</link> * L, int arg, const char * def, size_t * len)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00409">409</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a78e227b41b881001dc0e95a263690816_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a78e227b41b881001dc0e95a263690816_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1afa696696945ee6215c0033656ee64e97"/>    <section>
+    <title>luaL_optnumber()</title>
+<indexterm><primary>luaL_optnumber</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_optnumber</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> luaL_optnumber (<link linkend="_structlua___state">lua_State</link> * L, int arg, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> def)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00429">429</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_afa696696945ee6215c0033656ee64e97_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_afa696696945ee6215c0033656ee64e97_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1ae695ed340bec54979c499b70d7d29318"/>    <section>
+    <title>luaL_prepbuffsize()</title>
+<indexterm><primary>luaL_prepbuffsize</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_prepbuffsize</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> char* luaL_prepbuffsize (<link linkend="_structlua_l___buffer">luaL_Buffer</link> * B, size_t sz)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00565">565</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_ae695ed340bec54979c499b70d7d29318_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_ae695ed340bec54979c499b70d7d29318_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a3a1f80033814e2057583a7d24cee23b4"/>    <section>
+    <title>luaL_pushresult()</title>
+<indexterm><primary>luaL_pushresult</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_pushresult</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void luaL_pushresult (<link linkend="_structlua_l___buffer">luaL_Buffer</link> * B)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00584">584</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a3a1f80033814e2057583a7d24cee23b4_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a3a1f80033814e2057583a7d24cee23b4_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1aae36c3a2c184f1b2619ad7f99f2b4c16"/>    <section>
+    <title>luaL_pushresultsize()</title>
+<indexterm><primary>luaL_pushresultsize</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_pushresultsize</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void luaL_pushresultsize (<link linkend="_structlua_l___buffer">luaL_Buffer</link> * B, size_t sz)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00594">594</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_aae36c3a2c184f1b2619ad7f99f2b4c16_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_aae36c3a2c184f1b2619ad7f99f2b4c16_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a1adeae26be7c2e3001c3583f43f70720"/>    <section>
+    <title>luaL_ref()</title>
+<indexterm><primary>luaL_ref</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_ref</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> int luaL_ref (<link linkend="_structlua___state">lua_State</link> * L, int t)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00646">646</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a1adeae26be7c2e3001c3583f43f70720_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a1adeae26be7c2e3001c3583f43f70720_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a3cb8205f86c838d8f82b7d2360b1b0f4"/>    <section>
+    <title>luaL_requiref()</title>
+<indexterm><primary>luaL_requiref</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_requiref</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void luaL_requiref (<link linkend="_structlua___state">lua_State</link> * L, const char * modname, <link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link> openf, int glb)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00945">945</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a3cb8205f86c838d8f82b7d2360b1b0f4_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a3cb8205f86c838d8f82b7d2360b1b0f4_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a4cab22d0cb403fa6b94f2542f4303096"/>    <section>
+    <title>luaL_setfuncs()</title>
+<indexterm><primary>luaL_setfuncs</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_setfuncs</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void luaL_setfuncs (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_structlua_l___reg">luaL_Reg</link> * l, int nup)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00904">904</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a4cab22d0cb403fa6b94f2542f4303096_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a4cab22d0cb403fa6b94f2542f4303096_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1ae3907fc11c3e2af69f00ab4a37872cae"/>    <section>
+    <title>luaL_setmetatable()</title>
+<indexterm><primary>luaL_setmetatable</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_setmetatable</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void luaL_setmetatable (<link linkend="_structlua___state">lua_State</link> * L, const char * tname)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00324">324</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_ae3907fc11c3e2af69f00ab4a37872cae_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_ae3907fc11c3e2af69f00ab4a37872cae_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1af2ad56ae788ac3a59b4e0e29852ab460"/>    <section>
+    <title>luaL_testudata()</title>
+<indexterm><primary>luaL_testudata</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_testudata</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void* luaL_testudata (<link linkend="_structlua___state">lua_State</link> * L, int ud, const char * tname)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00330">330</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_af2ad56ae788ac3a59b4e0e29852ab460_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_af2ad56ae788ac3a59b4e0e29852ab460_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a0d4cbfd194d1919b3ff84000c0644cc0"/>    <section>
+    <title>luaL_tolstring()</title>
+<indexterm><primary>luaL_tolstring</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_tolstring</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> const char* luaL_tolstring (<link linkend="_structlua___state">lua_State</link> * L, int idx, size_t * len)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00861">861</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a0d4cbfd194d1919b3ff84000c0644cc0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a0d4cbfd194d1919b3ff84000c0644cc0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a67bf3728d34d2c9badb2bd2f57c75233"/>    <section>
+    <title>luaL_traceback()</title>
+<indexterm><primary>luaL_traceback</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_traceback</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void luaL_traceback (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structlua___state">lua_State</link> * L1, const char * msg, int level)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00131">131</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a67bf3728d34d2c9badb2bd2f57c75233_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a67bf3728d34d2c9badb2bd2f57c75233_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1ab8ddc4ac13516f3548a6c102dd6fa114"/>    <section>
+    <title>luaL_typeerror()</title>
+<indexterm><primary>luaL_typeerror</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_typeerror</secondary></indexterm>
+<para><computeroutput>int luaL_typeerror (<link linkend="_structlua___state">lua_State</link> * L, int arg, const char * tname)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00193">193</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_ab8ddc4ac13516f3548a6c102dd6fa114_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_ab8ddc4ac13516f3548a6c102dd6fa114_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1ad5e8303f3809d26c336c3e18879b7f4e"/>    <section>
+    <title>luaL_unref()</title>
+<indexterm><primary>luaL_unref</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_unref</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void luaL_unref (<link linkend="_structlua___state">lua_State</link> * L, int t, int ref)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00667">667</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_ad5e8303f3809d26c336c3e18879b7f4e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a0f4d3c30c07eae36aa25605df84279a0"/>    <section>
+    <title>luaL_where()</title>
+<indexterm><primary>luaL_where</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>luaL_where</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link> void luaL_where (<link linkend="_structlua___state">lua_State</link> * L, int level)</computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00216">216</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a0f4d3c30c07eae36aa25605df84279a0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a0f4d3c30c07eae36aa25605df84279a0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a22714b3538a1ad6943014db449d4ed19"/>    <section>
+    <title>newbox()</title>
+<indexterm><primary>newbox</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>newbox</secondary></indexterm>
+<para><computeroutput>static void newbox (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00501">501</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a22714b3538a1ad6943014db449d4ed19_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a22714b3538a1ad6943014db449d4ed19_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a5a09a1507f8338fd07d77992e200c5d2"/>    <section>
+    <title>newbuffsize()</title>
+<indexterm><primary>newbuffsize</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>newbuffsize</secondary></indexterm>
+<para><computeroutput>static size_t newbuffsize (<link linkend="_structlua_l___buffer">luaL_Buffer</link> * B, size_t sz)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00522">522</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a5a09a1507f8338fd07d77992e200c5d2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a5a09a1507f8338fd07d77992e200c5d2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1aa9ed62d0906c6d69ad16bd1b018d660b"/>    <section>
+    <title>panic()</title>
+<indexterm><primary>panic</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>panic</secondary></indexterm>
+<para><computeroutput>static int panic (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00999">999</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_aa9ed62d0906c6d69ad16bd1b018d660b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a96b72c2bee2d49148b93676ea09818a5"/>    <section>
+    <title>prepbuffsize()</title>
+<indexterm><primary>prepbuffsize</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>prepbuffsize</secondary></indexterm>
+<para><computeroutput>static char* prepbuffsize (<link linkend="_structlua_l___buffer">luaL_Buffer</link> * B, size_t sz, int boxidx)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00537">537</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a96b72c2bee2d49148b93676ea09818a5_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a96b72c2bee2d49148b93676ea09818a5_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a0aa557042467d3f84d0663c742b32946"/>    <section>
+    <title>pushfuncname()</title>
+<indexterm><primary>pushfuncname</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>pushfuncname</secondary></indexterm>
+<para><computeroutput>static void pushfuncname (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structlua___debug">lua_Debug</link> * ar)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00100">100</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a0aa557042467d3f84d0663c742b32946_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a0aa557042467d3f84d0663c742b32946_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a4f35430f7ecfcbd5f507e550937046b4"/>    <section>
+    <title>pushglobalfuncname()</title>
+<indexterm><primary>pushglobalfuncname</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>pushglobalfuncname</secondary></indexterm>
+<para><computeroutput>static int pushglobalfuncname (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structlua___debug">lua_Debug</link> * ar)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00079">79</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a4f35430f7ecfcbd5f507e550937046b4_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a4f35430f7ecfcbd5f507e550937046b4_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1acdf7f3169e55f9c8bd3d314358a9e778"/>    <section>
+    <title>resizebox()</title>
+<indexterm><primary>resizebox</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>resizebox</secondary></indexterm>
+<para><computeroutput>static void* resizebox (<link linkend="_structlua___state">lua_State</link> * L, int idx, size_t newsize)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00473">473</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_acdf7f3169e55f9c8bd3d314358a9e778_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_acdf7f3169e55f9c8bd3d314358a9e778_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a2166815af5654076fea257c99eca1789"/>    <section>
+    <title>skipBOM()</title>
+<indexterm><primary>skipBOM</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>skipBOM</secondary></indexterm>
+<para><computeroutput>static int skipBOM (<link linkend="_struct_load_f">LoadF</link> * lf)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00720">720</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a2166815af5654076fea257c99eca1789_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1a6adfc638788adb7cb8c7eaa246dbea17"/>    <section>
+    <title>skipcomment()</title>
+<indexterm><primary>skipcomment</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>skipcomment</secondary></indexterm>
+<para><computeroutput>static int skipcomment (<link linkend="_struct_load_f">LoadF</link> * lf, int * cp)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00741">741</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a6adfc638788adb7cb8c7eaa246dbea17_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_a6adfc638788adb7cb8c7eaa246dbea17_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1ab8e946260debec8d4bbc714b76a1613b"/>    <section>
+    <title>tag_error()</title>
+<indexterm><primary>tag_error</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>tag_error</secondary></indexterm>
+<para><computeroutput>static void tag_error (<link linkend="_structlua___state">lua_State</link> * L, int arg, int tag)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00207">207</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_ab8e946260debec8d4bbc714b76a1613b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_ab8e946260debec8d4bbc714b76a1613b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lauxlib_8c_1acba9e22050fdbe52eb22f5f80cb809a4"/>    <section>
+    <title>warnf()</title>
+<indexterm><primary>warnf</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>warnf</secondary></indexterm>
+<para><computeroutput>static void warnf (void * ud, const char * message, int tocont)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l01014">1014</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lauxlib_8c_acba9e22050fdbe52eb22f5f80cb809a4_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+<section>
+<title>变量说明</title>
+<anchor xml:id="_lauxlib_8c_1a73790a7785f0b5ecc0a57e8d9d2fbbcf"/>    <section>
+    <title>boxmt</title>
+<indexterm><primary>boxmt</primary><secondary>lauxlib.c</secondary></indexterm>
+<indexterm><primary>lauxlib.c</primary><secondary>boxmt</secondary></indexterm>
+<para><computeroutput>const <link linkend="_structlua_l___reg">luaL_Reg</link> boxmt[]<computeroutput>[static]</computeroutput></computeroutput></para><emphasis role="strong">初始值:</emphasis><programlisting>=&#32;{&#32;&#32;
+&#32;&#32;{<emphasis role="stringliteral">&quot;__gc&quot;</emphasis>,&#32;<link linkend="_lauxlib_8c_1a1957766835de815798e07848d3d14810">boxgc</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;__close&quot;</emphasis>,&#32;<link linkend="_lauxlib_8c_1a1957766835de815798e07848d3d14810">boxgc</link>},
+&#32;&#32;{NULL,&#32;NULL}
+}
+</programlisting><para>
+在文件 <link linkend="_lauxlib_8c_source">lauxlib.c</link> 第 <link linkend="_lauxlib_8c_source_1l00494">494</link> 行定义.</para>
+</section>
+</section>
+</section>

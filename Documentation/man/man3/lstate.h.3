@@ -1,0 +1,450 @@
+.TH "D:/gitworkspace/lua/src/lstate.h" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lstate.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'ltm\&.h'\fP
+.br
+\fC#include 'lzio\&.h'\fP
+.br
+\fC#include <signal\&.h>\fP
+.br
+
+.SS "结构体"
+
+.in +1c
+.ti -1c
+.RI "struct \fBstringtable\fP"
+.br
+.ti -1c
+.RI "struct \fBCallInfo\fP"
+.br
+.ti -1c
+.RI "struct \fBglobal_State\fP"
+.br
+.ti -1c
+.RI "struct \fBlua_State\fP"
+.br
+.ti -1c
+.RI "union \fBGCUnion\fP"
+.br
+.in -1c
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBCSTACKCF\fP   10"
+.br
+.ti -1c
+.RI "#define \fBCSTACKERR\fP   (8 * \fBCSTACKCF\fP)"
+.br
+.ti -1c
+.RI "#define \fBCSTACKMARK\fP   (\fBCSTACKERR\fP \- (\fBCSTACKCF\fP + 2))"
+.br
+.ti -1c
+.RI "#define \fBCSTACKERRMARK\fP   (\fBCSTACKCF\fP + 2)"
+.br
+.ti -1c
+.RI "#define \fBCSTACKTHREAD\fP   (2 * \fBCSTACKERR\fP)"
+.br
+.ti -1c
+.RI "#define \fByieldable\fP(L)   (((L)\->nCcalls & 0xffff0000) == 0)"
+.br
+.ti -1c
+.RI "#define \fBgetCcalls\fP(L)   ((L)\->nCcalls & 0xffff)"
+.br
+.ti -1c
+.RI "#define \fBincnny\fP(L)   ((L)\->nCcalls += 0x10000)"
+.br
+.ti -1c
+.RI "#define \fBdecnny\fP(L)   ((L)\->nCcalls \-= 0x10000)"
+.br
+.ti -1c
+.RI "#define \fBincXCcalls\fP(L)   ((L)\->nCcalls += 0x10000 \- \fBCSTACKCF\fP)"
+.br
+.ti -1c
+.RI "#define \fBdecXCcalls\fP(L)   ((L)\->nCcalls \-= 0x10000 \- \fBCSTACKCF\fP)"
+.br
+.ti -1c
+.RI "#define \fBl_signalT\fP   sig_atomic_t"
+.br
+.ti -1c
+.RI "#define \fBEXTRA_STACK\fP   5"
+.br
+.ti -1c
+.RI "#define \fBBASIC_STACK_SIZE\fP   (2*\fBLUA_MINSTACK\fP)"
+.br
+.ti -1c
+.RI "#define \fBKGC_INC\fP   0	/* incremental gc */"
+.br
+.ti -1c
+.RI "#define \fBKGC_GEN\fP   1	/* generational gc */"
+.br
+.ti -1c
+.RI "#define \fBCIST_OAH\fP   (1<<0)	/* original value of 'allowhook' */"
+.br
+.ti -1c
+.RI "#define \fBCIST_C\fP   (1<<1)	/* call is running a C function */"
+.br
+.ti -1c
+.RI "#define \fBCIST_HOOKED\fP   (1<<2)	/* call is running a debug hook */"
+.br
+.ti -1c
+.RI "#define \fBCIST_YPCALL\fP   (1<<3)	/* call is a \fByieldable\fP protected call */"
+.br
+.ti -1c
+.RI "#define \fBCIST_TAIL\fP   (1<<4)	/* call was tail called */"
+.br
+.ti -1c
+.RI "#define \fBCIST_HOOKYIELD\fP   (1<<5)	/* last hook called yielded */"
+.br
+.ti -1c
+.RI "#define \fBCIST_FIN\fP   (1<<6)  /* call is running a finalizer */"
+.br
+.ti -1c
+.RI "#define \fBCIST_TRAN\fP   (1<<7)	/* 'ci' has transfer information */"
+.br
+.ti -1c
+.RI "#define \fBisLua\fP(ci)   (!((ci)\->callstatus & \fBCIST_C\fP))"
+.br
+.ti -1c
+.RI "#define \fBisLuacode\fP(ci)   (!((ci)\->callstatus & (\fBCIST_C\fP | \fBCIST_HOOKED\fP)))"
+.br
+.ti -1c
+.RI "#define \fBsetoah\fP(st,  v)   ((st) = ((st) & ~\fBCIST_OAH\fP) | (v))"
+.br
+.ti -1c
+.RI "#define \fBgetoah\fP(st)   ((st) & \fBCIST_OAH\fP)"
+.br
+.ti -1c
+.RI "#define \fBG\fP(L)   (L\->l_G)"
+.br
+.ti -1c
+.RI "#define \fBcast_u\fP(o)   \fBcast\fP(union \fBGCUnion\fP *, (o))"
+.br
+.ti -1c
+.RI "#define \fBgco2ts\fP(o)   	\fBcheck_exp\fP(\fBnovariant\fP((o)\->tt) == \fBLUA_TSTRING\fP, &((\fBcast_u\fP(o))\->ts))"
+.br
+.ti -1c
+.RI "#define \fBgco2u\fP(o)   \fBcheck_exp\fP((o)\->tt == \fBLUA_VUSERDATA\fP, &((\fBcast_u\fP(o))\->u))"
+.br
+.ti -1c
+.RI "#define \fBgco2lcl\fP(o)   \fBcheck_exp\fP((o)\->tt == \fBLUA_VLCL\fP, &((\fBcast_u\fP(o))\->cl\&.l))"
+.br
+.ti -1c
+.RI "#define \fBgco2ccl\fP(o)   \fBcheck_exp\fP((o)\->tt == \fBLUA_VCCL\fP, &((\fBcast_u\fP(o))\->cl\&.c))"
+.br
+.ti -1c
+.RI "#define \fBgco2cl\fP(o)   	\fBcheck_exp\fP(\fBnovariant\fP((o)\->tt) == \fBLUA_TFUNCTION\fP, &((\fBcast_u\fP(o))\->cl))"
+.br
+.ti -1c
+.RI "#define \fBgco2t\fP(o)   \fBcheck_exp\fP((o)\->tt == \fBLUA_VTABLE\fP, &((\fBcast_u\fP(o))\->h))"
+.br
+.ti -1c
+.RI "#define \fBgco2p\fP(o)   \fBcheck_exp\fP((o)\->tt == \fBLUA_VPROTO\fP, &((\fBcast_u\fP(o))\->p))"
+.br
+.ti -1c
+.RI "#define \fBgco2th\fP(o)   \fBcheck_exp\fP((o)\->tt == \fBLUA_VTHREAD\fP, &((\fBcast_u\fP(o))\->th))"
+.br
+.ti -1c
+.RI "#define \fBgco2upv\fP(o)   \fBcheck_exp\fP((o)\->tt == \fBLUA_VUPVAL\fP, &((\fBcast_u\fP(o))\->upv))"
+.br
+.ti -1c
+.RI "#define \fBobj2gco\fP(v)   \fBcheck_exp\fP((v)\->tt >= \fBLUA_TSTRING\fP, &(\fBcast_u\fP(v)\->gc))"
+.br
+.ti -1c
+.RI "#define \fBgettotalbytes\fP(g)   \fBcast\fP(\fBlu_mem\fP, (g)\->totalbytes + (g)\->GCdebt)"
+.br
+.ti -1c
+.RI "#define \fBluaE_exitCcall\fP(L)   ((L)\->nCcalls++)"
+.br
+.in -1c
+.SS "类型定义"
+
+.in +1c
+.ti -1c
+.RI "typedef struct \fBstringtable\fP \fBstringtable\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBCallInfo\fP \fBCallInfo\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBglobal_State\fP \fBglobal_State\fP"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaE_setdebt\fP (\fBglobal_State\fP *g, \fBl_mem\fP debt)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaE_freethread\fP (\fBlua_State\fP *L, \fBlua_State\fP *L1)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP \fBCallInfo\fP * \fBluaE_extendCI\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaE_freeCI\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaE_shrinkCI\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaE_enterCcall\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaE_warning\fP (\fBlua_State\fP *L, const char *msg, int tocont)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaE_warnerror\fP (\fBlua_State\fP *L, const char *where)"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define BASIC_STACK_SIZE   (2*\fBLUA_MINSTACK\fP)"
+
+.PP
+在文件 lstate\&.h 第 150 行定义\&.
+.SS "#define cast_u(o)   \fBcast\fP(union \fBGCUnion\fP *, (o))"
+
+.PP
+在文件 lstate\&.h 第 328 行定义\&.
+.SS "#define CIST_C   (1<<1)	/* call is running a C function */"
+
+.PP
+在文件 lstate\&.h 第 205 行定义\&.
+.SS "#define CIST_FIN   (1<<6)  /* call is running a finalizer */"
+
+.PP
+在文件 lstate\&.h 第 210 行定义\&.
+.SS "#define CIST_HOOKED   (1<<2)	/* call is running a debug hook */"
+
+.PP
+在文件 lstate\&.h 第 206 行定义\&.
+.SS "#define CIST_HOOKYIELD   (1<<5)	/* last hook called yielded */"
+
+.PP
+在文件 lstate\&.h 第 209 行定义\&.
+.SS "#define CIST_OAH   (1<<0)	/* original value of 'allowhook' */"
+
+.PP
+在文件 lstate\&.h 第 204 行定义\&.
+.SS "#define CIST_TAIL   (1<<4)	/* call was tail called */"
+
+.PP
+在文件 lstate\&.h 第 208 行定义\&.
+.SS "#define CIST_TRAN   (1<<7)	/* 'ci' has transfer information */"
+
+.PP
+在文件 lstate\&.h 第 211 行定义\&.
+.SS "#define CIST_YPCALL   (1<<3)	/* call is a \fByieldable\fP protected call */"
+
+.PP
+在文件 lstate\&.h 第 207 行定义\&.
+.SS "#define CSTACKCF   10"
+
+.PP
+在文件 lstate\&.h 第 88 行定义\&.
+.SS "#define CSTACKERR   (8 * \fBCSTACKCF\fP)"
+
+.PP
+在文件 lstate\&.h 第 101 行定义\&.
+.SS "#define CSTACKERRMARK   (\fBCSTACKCF\fP + 2)"
+
+.PP
+在文件 lstate\&.h 第 103 行定义\&.
+.SS "#define CSTACKMARK   (\fBCSTACKERR\fP \- (\fBCSTACKCF\fP + 2))"
+
+.PP
+在文件 lstate\&.h 第 102 行定义\&.
+.SS "#define CSTACKTHREAD   (2 * \fBCSTACKERR\fP)"
+
+.PP
+在文件 lstate\&.h 第 107 行定义\&.
+.SS "#define decnny(L)   ((L)\->nCcalls \-= 0x10000)"
+
+.PP
+在文件 lstate\&.h 第 121 行定义\&.
+.SS "#define decXCcalls(L)   ((L)\->nCcalls \-= 0x10000 \- \fBCSTACKCF\fP)"
+
+.PP
+在文件 lstate\&.h 第 127 行定义\&.
+.SS "#define EXTRA_STACK   5"
+
+.PP
+在文件 lstate\&.h 第 147 行定义\&.
+.SS "#define G(L)   (L\->l_G)"
+
+.PP
+在文件 lstate\&.h 第 310 行定义\&.
+.SS "#define gco2ccl(o)   \fBcheck_exp\fP((o)\->tt == \fBLUA_VCCL\fP, &((\fBcast_u\fP(o))\->cl\&.c))"
+
+.PP
+在文件 lstate\&.h 第 335 行定义\&.
+.SS "#define gco2cl(o)   	\fBcheck_exp\fP(\fBnovariant\fP((o)\->tt) == \fBLUA_TFUNCTION\fP, &((\fBcast_u\fP(o))\->cl))"
+
+.PP
+在文件 lstate\&.h 第 336 行定义\&.
+.SS "#define gco2lcl(o)   \fBcheck_exp\fP((o)\->tt == \fBLUA_VLCL\fP, &((\fBcast_u\fP(o))\->cl\&.l))"
+
+.PP
+在文件 lstate\&.h 第 334 行定义\&.
+.SS "#define gco2p(o)   \fBcheck_exp\fP((o)\->tt == \fBLUA_VPROTO\fP, &((\fBcast_u\fP(o))\->p))"
+
+.PP
+在文件 lstate\&.h 第 339 行定义\&.
+.SS "#define gco2t(o)   \fBcheck_exp\fP((o)\->tt == \fBLUA_VTABLE\fP, &((\fBcast_u\fP(o))\->h))"
+
+.PP
+在文件 lstate\&.h 第 338 行定义\&.
+.SS "#define gco2th(o)   \fBcheck_exp\fP((o)\->tt == \fBLUA_VTHREAD\fP, &((\fBcast_u\fP(o))\->th))"
+
+.PP
+在文件 lstate\&.h 第 340 行定义\&.
+.SS "#define gco2ts(o)   	\fBcheck_exp\fP(\fBnovariant\fP((o)\->tt) == \fBLUA_TSTRING\fP, &((\fBcast_u\fP(o))\->ts))"
+
+.PP
+在文件 lstate\&.h 第 331 行定义\&.
+.SS "#define gco2u(o)   \fBcheck_exp\fP((o)\->tt == \fBLUA_VUSERDATA\fP, &((\fBcast_u\fP(o))\->u))"
+
+.PP
+在文件 lstate\&.h 第 333 行定义\&.
+.SS "#define gco2upv(o)   \fBcheck_exp\fP((o)\->tt == \fBLUA_VUPVAL\fP, &((\fBcast_u\fP(o))\->upv))"
+
+.PP
+在文件 lstate\&.h 第 341 行定义\&.
+.SS "#define getCcalls(L)   ((L)\->nCcalls & 0xffff)"
+
+.PP
+在文件 lstate\&.h 第 114 行定义\&.
+.SS "#define getoah(st)   ((st) & \fBCIST_OAH\fP)"
+
+.PP
+在文件 lstate\&.h 第 224 行定义\&.
+.SS "#define gettotalbytes(g)   \fBcast\fP(\fBlu_mem\fP, (g)\->totalbytes + (g)\->GCdebt)"
+
+.PP
+在文件 lstate\&.h 第 352 行定义\&.
+.SS "#define incnny(L)   ((L)\->nCcalls += 0x10000)"
+
+.PP
+在文件 lstate\&.h 第 118 行定义\&.
+.SS "#define incXCcalls(L)   ((L)\->nCcalls += 0x10000 \- \fBCSTACKCF\fP)"
+
+.PP
+在文件 lstate\&.h 第 124 行定义\&.
+.SS "#define isLua(ci)   (!((ci)\->callstatus & \fBCIST_C\fP))"
+
+.PP
+在文件 lstate\&.h 第 217 行定义\&.
+.SS "#define isLuacode(ci)   (!((ci)\->callstatus & (\fBCIST_C\fP | \fBCIST_HOOKED\fP)))"
+
+.PP
+在文件 lstate\&.h 第 220 行定义\&.
+.SS "#define KGC_GEN   1	/* generational gc */"
+
+.PP
+在文件 lstate\&.h 第 155 行定义\&.
+.SS "#define KGC_INC   0	/* incremental gc */"
+
+.PP
+在文件 lstate\&.h 第 154 行定义\&.
+.SS "#define l_signalT   sig_atomic_t"
+
+.PP
+\fB参见\fP
+.RS 4
+\fBldo\&.c\fP 
+.RE
+.PP
+
+.PP
+在文件 lstate\&.h 第 142 行定义\&.
+.SS "#define luaE_exitCcall(L)   ((L)\->nCcalls++)"
+
+.PP
+在文件 lstate\&.h 第 364 行定义\&.
+.SS "#define obj2gco(v)   \fBcheck_exp\fP((v)\->tt >= \fBLUA_TSTRING\fP, &(\fBcast_u\fP(v)\->gc))"
+
+.PP
+在文件 lstate\&.h 第 348 行定义\&.
+.SS "#define setoah(st, v)   ((st) = ((st) & ~\fBCIST_OAH\fP) | (v))"
+
+.PP
+在文件 lstate\&.h 第 223 行定义\&.
+.SS "#define yieldable(L)   (((L)\->nCcalls & 0xffff0000) == 0)"
+
+.PP
+在文件 lstate\&.h 第 111 行定义\&.
+.SH "类型定义说明"
+.PP 
+.SS "typedef struct \fBCallInfo\fP \fBCallInfo\fP"
+Information about a call\&. 
+.PP
+\fB注解\fP
+.RS 4
+记录了函数在堆栈中的位置,函数top，前一个调用的函数(如果被调用者),后一个调用函数(如果调用者)。c func和 lua func区分公用union，调用状态、返回值个数。 
+.RE
+.PP
+\fB待办事项\fP
+.RS 4
+yields部分 TODO 
+.RE
+.PP
+
+.SS "typedef struct \fBglobal_State\fP \fBglobal_State\fP"
+
+.SS "typedef struct \fBstringtable\fP \fBstringtable\fP"
+hash table for strings 
+.PP
+\fB待办事项\fP
+.RS 4
+
+.RE
+.PP
+
+.SH "函数说明"
+.PP 
+.SS "\fBLUAI_FUNC\fP void luaE_enterCcall (\fBlua_State\fP * L)"
+
+.PP
+在文件 lstate\&.c 第 135 行定义\&.
+.SS "\fBLUAI_FUNC\fP \fBCallInfo\fP* luaE_extendCI (\fBlua_State\fP * L)"
+
+.PP
+在文件 lstate\&.c 第 156 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaE_freeCI (\fBlua_State\fP * L)"
+
+.PP
+在文件 lstate\&.c 第 174 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaE_freethread (\fBlua_State\fP * L, \fBlua_State\fP * L1)"
+
+.PP
+在文件 lstate\&.c 第 351 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaE_setdebt (\fBglobal_State\fP * g, \fBl_mem\fP debt)"
+
+.PP
+在文件 lstate\&.c 第 89 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaE_shrinkCI (\fBlua_State\fP * L)"
+
+.PP
+在文件 lstate\&.c 第 192 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaE_warnerror (\fBlua_State\fP * L, const char * where)"
+
+.PP
+在文件 lstate\&.c 第 455 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaE_warning (\fBlua_State\fP * L, const char * msg, int tocont)"
+
+.PP
+在文件 lstate\&.c 第 445 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

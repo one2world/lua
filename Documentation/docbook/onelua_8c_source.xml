@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_onelua_8c_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/onelua.c</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">*&#32;one.c&#32;--&#32;Lua&#32;core,&#32;libraries,&#32;and&#32;interpreter&#32;in&#32;a&#32;single&#32;file</emphasis>
+00003 <emphasis role="comment">*/</emphasis>
+00004 
+00005 <emphasis role="comment">/*&#32;default&#32;is&#32;to&#32;build&#32;the&#32;full&#32;interpreter&#32;*/</emphasis>
+00006 <emphasis role="preprocessor">#ifndef&#32;MAKE_LIB</emphasis>
+00007 <emphasis role="preprocessor">#ifndef&#32;MAKE_LUAC</emphasis>
+00008 <emphasis role="preprocessor">#ifndef&#32;MAKE_LUA</emphasis>
+<anchor xml:id="_onelua_8c_source_1l00009"/><link linkend="_onelua_8c_1a8c76edbee95f5aca059adf4fb0318254">00009</link> <emphasis role="preprocessor">#define&#32;MAKE_LUA</emphasis>
+00010 <emphasis role="preprocessor">#endif</emphasis>
+00011 <emphasis role="preprocessor">#endif</emphasis>
+00012 <emphasis role="preprocessor">#endif</emphasis>
+00013 
+00014 <emphasis role="comment">/*&#32;choose&#32;suitable&#32;platform-specific&#32;features&#32;*/</emphasis>
+00015 <emphasis role="comment">/*&#32;some&#32;of&#32;these&#32;may&#32;need&#32;extra&#32;libraries&#32;such&#32;as&#32;-ldl&#32;-lreadline&#32;-lncurses&#32;*/</emphasis>
+00016 <emphasis role="preprocessor">#if&#32;0</emphasis>
+00017 <emphasis role="preprocessor">#define&#32;LUA_USE_LINUX</emphasis>
+00018 <emphasis role="preprocessor">#define&#32;LUA_USE_MACOSX</emphasis>
+00019 <emphasis role="preprocessor">#define&#32;LUA_USE_POSIX</emphasis>
+00020 <emphasis role="preprocessor">#define&#32;LUA_ANSI</emphasis>
+00021 <emphasis role="preprocessor">#endif</emphasis>
+00022 
+00023 <emphasis role="comment">/*&#32;no&#32;need&#32;to&#32;change&#32;anything&#32;below&#32;this&#32;line&#32;-----------------------------&#32;*/</emphasis>
+00024 
+00025 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lprefix_8h">lprefix.h</link>&quot;</emphasis>
+00026 
+00027 <emphasis role="preprocessor">#include&#32;&lt;assert.h&gt;</emphasis>
+00028 <emphasis role="preprocessor">#include&#32;&lt;ctype.h&gt;</emphasis>
+00029 <emphasis role="preprocessor">#include&#32;&lt;errno.h&gt;</emphasis>
+00030 <emphasis role="preprocessor">#include&#32;&lt;float.h&gt;</emphasis>
+00031 <emphasis role="preprocessor">#include&#32;&lt;limits.h&gt;</emphasis>
+00032 <emphasis role="preprocessor">#include&#32;&lt;locale.h&gt;</emphasis>
+00033 <emphasis role="preprocessor">#include&#32;&lt;math.h&gt;</emphasis>
+00034 <emphasis role="preprocessor">#include&#32;&lt;setjmp.h&gt;</emphasis>
+00035 <emphasis role="preprocessor">#include&#32;&lt;signal.h&gt;</emphasis>
+00036 <emphasis role="preprocessor">#include&#32;&lt;stdarg.h&gt;</emphasis>
+00037 <emphasis role="preprocessor">#include&#32;&lt;stddef.h&gt;</emphasis>
+00038 <emphasis role="preprocessor">#include&#32;&lt;stdio.h&gt;</emphasis>
+00039 <emphasis role="preprocessor">#include&#32;&lt;stdlib.h&gt;</emphasis>
+00040 <emphasis role="preprocessor">#include&#32;&lt;string.h&gt;</emphasis>
+00041 <emphasis role="preprocessor">#include&#32;&lt;time.h&gt;</emphasis>
+00042 
+00043 
+00044 <emphasis role="comment">/*&#32;setup&#32;for&#32;luaconf.h&#32;*/</emphasis>
+<anchor xml:id="_onelua_8c_source_1l00045"/><link linkend="_onelua_8c_1abf0b3947b59218777a8e928a10be205b">00045</link> <emphasis role="preprocessor">#define&#32;LUA_CORE</emphasis>
+<anchor xml:id="_onelua_8c_source_1l00046"/><link linkend="_onelua_8c_1a884b19ad6094d6238c4072a8064aeb12">00046</link> <emphasis role="preprocessor">#define&#32;LUA_LIB</emphasis>
+<anchor xml:id="_onelua_8c_source_1l00047"/><link linkend="_onelua_8c_1aa114e7aec320ef3b294533e55b5d08d4">00047</link> <emphasis role="preprocessor">#define&#32;ltable_c</emphasis>
+<anchor xml:id="_onelua_8c_source_1l00048"/><link linkend="_onelua_8c_1a26fd89afa52fe8d2335f741f35611ea2">00048</link> <emphasis role="preprocessor">#define&#32;lvm_c</emphasis>
+00049 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_luaconf_8h">luaconf.h</link>&quot;</emphasis>
+00050 
+00051 <emphasis role="comment">/*&#32;do&#32;not&#32;export&#32;internal&#32;symbols&#32;*/</emphasis>
+00052 <emphasis role="preprocessor">#undef&#32;LUAI_FUNC</emphasis>
+00053 <emphasis role="preprocessor">#undef&#32;LUAI_DDEC</emphasis>
+00054 <emphasis role="preprocessor">#undef&#32;LUAI_DDEF</emphasis>
+<anchor xml:id="_onelua_8c_source_1l00055"/><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">00055</link> <emphasis role="preprocessor">#define&#32;LUAI_FUNC&#32;&#32;&#32;static</emphasis>
+<anchor xml:id="_onelua_8c_source_1l00056"/><link linkend="_onelua_8c_1ae01d2e260d03ac10163f81ac91cd723d">00056</link> <emphasis role="preprocessor">#define&#32;LUAI_DDEC(def)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;empty&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_onelua_8c_source_1l00057"/><link linkend="_onelua_8c_1affa3a74c87c69373c262fdbdc7f97837">00057</link> <emphasis role="preprocessor">#define&#32;LUAI_DDEF&#32;&#32;&#32;static</emphasis>
+00058 
+00059 <emphasis role="comment">/*&#32;core&#32;--&#32;used&#32;by&#32;all&#32;*/</emphasis>
+00060 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lzio_8c">lzio.c</link>&quot;</emphasis>
+00061 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lctype_8c">lctype.c</link>&quot;</emphasis>
+00062 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lopcodes_8c">lopcodes.c</link>&quot;</emphasis>
+00063 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lmem_8c">lmem.c</link>&quot;</emphasis>
+00064 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lundump_8c">lundump.c</link>&quot;</emphasis>
+00065 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ldump_8c">ldump.c</link>&quot;</emphasis>
+00066 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lstate_8c">lstate.c</link>&quot;</emphasis>
+00067 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lgc_8c">lgc.c</link>&quot;</emphasis>
+00068 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_llex_8c">llex.c</link>&quot;</emphasis>
+00069 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lcode_8c">lcode.c</link>&quot;</emphasis>
+00070 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lparser_8c">lparser.c</link>&quot;</emphasis>
+00071 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ldebug_8c">ldebug.c</link>&quot;</emphasis>
+00072 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lfunc_8c">lfunc.c</link>&quot;</emphasis>
+00073 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lobject_8c">lobject.c</link>&quot;</emphasis>
+00074 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ltm_8c">ltm.c</link>&quot;</emphasis>
+00075 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lstring_8c">lstring.c</link>&quot;</emphasis>
+00076 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ltable_8c">ltable.c</link>&quot;</emphasis>
+00077 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ldo_8c">ldo.c</link>&quot;</emphasis>
+00078 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lvm_8c">lvm.c</link>&quot;</emphasis>
+00079 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lapi_8c">lapi.c</link>&quot;</emphasis>
+00080 
+00081 <emphasis role="comment">/*&#32;auxiliary&#32;library&#32;--&#32;used&#32;by&#32;all&#32;*/</emphasis>
+00082 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lauxlib_8c">lauxlib.c</link>&quot;</emphasis>
+00083 
+00084 <emphasis role="comment">/*&#32;standard&#32;library&#32;&#32;--&#32;not&#32;used&#32;by&#32;luac&#32;*/</emphasis>
+00085 <emphasis role="preprocessor">#ifndef&#32;MAKE_LUAC</emphasis>
+00086 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lbaselib_8c">lbaselib.c</link>&quot;</emphasis>
+00087 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lcorolib_8c">lcorolib.c</link>&quot;</emphasis>
+00088 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ldblib_8c">ldblib.c</link>&quot;</emphasis>
+00089 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_liolib_8c">liolib.c</link>&quot;</emphasis>
+00090 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lmathlib_8c">lmathlib.c</link>&quot;</emphasis>
+00091 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_loadlib_8c">loadlib.c</link>&quot;</emphasis>
+00092 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_loslib_8c">loslib.c</link>&quot;</emphasis>
+00093 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lstrlib_8c">lstrlib.c</link>&quot;</emphasis>
+00094 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ltablib_8c">ltablib.c</link>&quot;</emphasis>
+00095 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lutf8lib_8c">lutf8lib.c</link>&quot;</emphasis>
+00096 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_linit_8c">linit.c</link>&quot;</emphasis>
+00097 <emphasis role="preprocessor">#endif</emphasis>
+00098 
+00099 <emphasis role="comment">/*&#32;lua&#32;*/</emphasis>
+00100 <emphasis role="preprocessor">#ifdef&#32;MAKE_LUA</emphasis>
+00101 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lua_8c">lua.c</link>&quot;</emphasis>
+00102 <emphasis role="preprocessor">#endif</emphasis>
+00103 
+00104 <emphasis role="comment">/*&#32;luac&#32;*/</emphasis>
+00105 <emphasis role="preprocessor">#ifdef&#32;MAKE_LUAC</emphasis>
+00106 <emphasis role="preprocessor">#include&#32;&quot;luac.c&quot;</emphasis>
+00107 <emphasis role="preprocessor">#endif</emphasis>
+</programlisting></section>

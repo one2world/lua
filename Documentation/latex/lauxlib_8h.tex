@@ -1,0 +1,990 @@
+\hypertarget{lauxlib_8h}{}\doxysection{D\+:/gitworkspace/lua/src/lauxlib.h 文件参考}
+\label{lauxlib_8h}\index{D:/gitworkspace/lua/src/lauxlib.h@{D:/gitworkspace/lua/src/lauxlib.h}}
+{\ttfamily \#include $<$stddef.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}lua.\+h\char`\"{}}\newline
+\doxysubsection*{结构体}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structlua_l___reg}{lua\+L\+\_\+\+Reg}}
+\item 
+struct \mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}}
+\item 
+struct \mbox{\hyperlink{structlua_l___stream}{lua\+L\+\_\+\+Stream}}
+\end{DoxyCompactItemize}
+\doxysubsection*{宏定义}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_a074d53b3afd2b899d4b986c9643fb41a}{L\+U\+A\+\_\+\+G\+N\+A\+ME}}~\char`\"{}\+\_\+G\char`\"{}
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_ab8d4418d33cd59728435db95ac2caf5a}{L\+U\+A\+\_\+\+E\+R\+R\+F\+I\+LE}}~(\mbox{\hyperlink{lua_8h_a295ea44b6036e266b06e5de0f8ff24e0}{L\+U\+A\+\_\+\+E\+R\+R\+E\+RR}}+1)
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_a0fbee1a8156dc622618c9f6048281a73}{L\+U\+A\+\_\+\+L\+O\+A\+D\+E\+D\+\_\+\+T\+A\+B\+LE}}~\char`\"{}\+\_\+\+L\+O\+A\+D\+ED\char`\"{}
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_ab654a257ab8f9de4ba519a64a9a9ea91}{L\+U\+A\+\_\+\+P\+R\+E\+L\+O\+A\+D\+\_\+\+T\+A\+B\+LE}}~\char`\"{}\+\_\+\+P\+R\+E\+L\+O\+AD\char`\"{}
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_ae6c79b83e1d493d4ab680e74e5a85a6a}{L\+U\+A\+L\+\_\+\+N\+U\+M\+S\+I\+Z\+ES}}~(sizeof(\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}})$\ast$16 + sizeof(\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}}))
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_aa538485cd28f143fabea2325b9ecd477}{lua\+L\+\_\+checkversion}}(L)~	  \mbox{\hyperlink{lauxlib_8h_ab42194a5a9cd8a6f6ee9123ef1807e52}{lua\+L\+\_\+checkversion\+\_\+}}(L, \mbox{\hyperlink{lua_8h_a4c575ef5fb9bad1872613a9d832486a5}{L\+U\+A\+\_\+\+V\+E\+R\+S\+I\+O\+N\+\_\+\+N\+UM}}, \mbox{\hyperlink{lauxlib_8h_ae6c79b83e1d493d4ab680e74e5a85a6a}{L\+U\+A\+L\+\_\+\+N\+U\+M\+S\+I\+Z\+ES}})
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_a3bfb758f2ac7c9ecb758e1aeaaa82d3d}{L\+U\+A\+\_\+\+N\+O\+R\+EF}}~(-\/2)
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_a004a6b76c047f3b94890a08dbdcbbee7}{L\+U\+A\+\_\+\+R\+E\+F\+N\+IL}}~(-\/1)
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_a023c745560d0ed613efb6eada57a3c13}{lua\+L\+\_\+loadfile}}(L,  f)~\mbox{\hyperlink{lauxlib_8h_a8c38c6dcf9db7e110e525b46742bacf8}{lua\+L\+\_\+loadfilex}}(L,f,N\+U\+LL)
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_ad575a4fd1f53fa454b5d9745fedecdc4}{lua\+L\+\_\+newlibtable}}(L,  l)~  \mbox{\hyperlink{lua_8h_a022ddaeee46ccb89860c78480e54db05}{lua\+\_\+createtable}}(L, 0, sizeof(l)/sizeof((l)\mbox{[}0\mbox{]}) -\/ 1)
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_a5088ff720ec66200d83eb78467b77239}{lua\+L\+\_\+newlib}}(L,  l)~  (\mbox{\hyperlink{lauxlib_8h_aa538485cd28f143fabea2325b9ecd477}{lua\+L\+\_\+checkversion}}(L), \mbox{\hyperlink{lauxlib_8h_ad575a4fd1f53fa454b5d9745fedecdc4}{lua\+L\+\_\+newlibtable}}(L,l), \mbox{\hyperlink{lauxlib_8h_a8750009b9bbc508e4c3818ebd15b4e14}{lua\+L\+\_\+setfuncs}}(L,l,0))
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_a48ce6cd86a7448e97f258097a7abc44d}{lua\+L\+\_\+argcheck}}(L,  \mbox{\hyperlink{lparser_8c_a24002c50a108445d916457eb3c21d5e1}{cond}},  arg,  extramsg)~		((void)((\mbox{\hyperlink{lparser_8c_a24002c50a108445d916457eb3c21d5e1}{cond}}) $\vert$$\vert$ \mbox{\hyperlink{lauxlib_8h_ad0599591343ae7836d46e685b16e69de}{lua\+L\+\_\+argerror}}(L, (arg), (extramsg))))
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_ad13737dbd230fffc0b9925b1c728c58e}{lua\+L\+\_\+argexpected}}(L,  \mbox{\hyperlink{lparser_8c_a24002c50a108445d916457eb3c21d5e1}{cond}},  arg,  tname)~		((void)((\mbox{\hyperlink{lparser_8c_a24002c50a108445d916457eb3c21d5e1}{cond}}) $\vert$$\vert$ \mbox{\hyperlink{lauxlib_8h_a38cc1bb8d85efadc840f38b33e37326b}{lua\+L\+\_\+typeerror}}(L, (arg), (tname))))
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_ad9917d22c79651fdd73d42c146b5056f}{lua\+L\+\_\+checkstring}}(L,  n)~(\mbox{\hyperlink{lauxlib_8h_aba7169b56524dab1c9f67f71b0417d86}{lua\+L\+\_\+checklstring}}(L, (n), N\+U\+LL))
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_a732bc5882c4a5da46b236649ab6db47b}{lua\+L\+\_\+optstring}}(L,  n,  d)~(\mbox{\hyperlink{lauxlib_8h_a3340783871347b1c95cf4ede72d5c67b}{lua\+L\+\_\+optlstring}}(L, (n), (d), N\+U\+LL))
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_a2bee94954917c5bccb05d6578f3c675b}{lua\+L\+\_\+typename}}(L,  i)~\mbox{\hyperlink{lua_8h_a963a421b920cd7ce229f82091eab18a9}{lua\+\_\+typename}}(L, \mbox{\hyperlink{lua_8h_aa988ba5b97ff838ccb92babd63063273}{lua\+\_\+type}}(L,(i)))
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_aa49a7a47a683d6e7868ede50ceb826be}{lua\+L\+\_\+dofile}}(L,  fn)~	(\mbox{\hyperlink{lauxlib_8h_a023c745560d0ed613efb6eada57a3c13}{lua\+L\+\_\+loadfile}}(L, fn) $\vert$$\vert$ \mbox{\hyperlink{lua_8h_a589d7e3fd4c388d64056c88bf4672431}{lua\+\_\+pcall}}(L, 0, \mbox{\hyperlink{lua_8h_ace3545adc11664c2f2b152fbe8b6283c}{L\+U\+A\+\_\+\+M\+U\+L\+T\+R\+ET}}, 0))
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_a1a0639bfde6b1e2f6181af45b0137cf5}{lua\+L\+\_\+dostring}}(L,  s)~	(\mbox{\hyperlink{lauxlib_8h_ac88130d6214ff6b3e2f1781f327807eb}{lua\+L\+\_\+loadstring}}(L, s) $\vert$$\vert$ \mbox{\hyperlink{lua_8h_a589d7e3fd4c388d64056c88bf4672431}{lua\+\_\+pcall}}(L, 0, \mbox{\hyperlink{lua_8h_ace3545adc11664c2f2b152fbe8b6283c}{L\+U\+A\+\_\+\+M\+U\+L\+T\+R\+ET}}, 0))
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_a201407aa41ff74577c67308372a130d9}{lua\+L\+\_\+getmetatable}}(L,  n)~(\mbox{\hyperlink{lua_8h_aa97386935b690dd478abd7c6fb89bef8}{lua\+\_\+getfield}}(L, \mbox{\hyperlink{lua_8h_a3524c2bbc8fcf847dc083246b62945dd}{L\+U\+A\+\_\+\+R\+E\+G\+I\+S\+T\+R\+Y\+I\+N\+D\+EX}}, (n)))
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_aca033280b0176012ef290131876f706e}{lua\+L\+\_\+opt}}(L,  f,  n,  d)~(\mbox{\hyperlink{lua_8h_af51702bb75a31bb4a279953ee386d533}{lua\+\_\+isnoneornil}}(L,(n)) ? (d) \+: f(L,(n)))
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_ae210c8b2a9a27ee62b2e846e93ae876f}{lua\+L\+\_\+loadbuffer}}(L,  s,  sz,  n)~\mbox{\hyperlink{lauxlib_8h_a3ab1955dd9322cf03e2d3626ebfae669}{lua\+L\+\_\+loadbufferx}}(L,s,sz,n,N\+U\+LL)
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_a8666135f7a1412f5eaa14857aec279f0}{lua\+L\+\_\+pushfail}}(L)~\mbox{\hyperlink{lua_8h_a8bd9c4137a90833221f48dd16659c9e4}{lua\+\_\+pushnil}}(L)
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_ab43380e8ecfabde7c32aec748df1cf59}{lua\+L\+\_\+bufflen}}(bf)~((bf)-\/$>$n)
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_a3328ae8405aac1707d4b400d0d2c26dd}{lua\+L\+\_\+buffaddr}}(bf)~((bf)-\/$>$b)
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_a63935c5b4cf5d45930c875f6cc5e1432}{lua\+L\+\_\+addchar}}(B,  c)
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_a7c0adb7401e0be1a843946cee0556684}{lua\+L\+\_\+addsize}}(B,  s)~((B)-\/$>$n += (s))
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_a1f4e8f07742faa5e6c25a971a53f1e7b}{lua\+L\+\_\+buffsub}}(B,  s)~((B)-\/$>$n -\/= (s))
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_acc49fd35fabb25016f7de3256eb9bc6c}{lua\+L\+\_\+prepbuffer}}(B)~\mbox{\hyperlink{lauxlib_8h_a0fb6d10de24960ceed452061b47c2c06}{lua\+L\+\_\+prepbuffsize}}(B, \mbox{\hyperlink{luaconf_8h_af360ad37a770dfdc29291a99c398f42d}{L\+U\+A\+L\+\_\+\+B\+U\+F\+F\+E\+R\+S\+I\+ZE}})
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_a36f3babeb54bee1ebba63fe4fa94189a}{L\+U\+A\+\_\+\+F\+I\+L\+E\+H\+A\+N\+D\+LE}}~\char`\"{}F\+I\+LE$\ast$\char`\"{}
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_a575f50815c13a7a99b8ed1ac03fe714a}{lua\+\_\+writestring}}(s,  l)~fwrite((s), sizeof(char), (l), stdout)
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_aa4791d9826315ea2d1c716f852026246}{lua\+\_\+writeline}}()~(\mbox{\hyperlink{lauxlib_8h_a575f50815c13a7a99b8ed1ac03fe714a}{lua\+\_\+writestring}}(\char`\"{}\textbackslash{}n\char`\"{}, 1), fflush(stdout))
+\item 
+\#define \mbox{\hyperlink{lauxlib_8h_a0706f68a79575584d365d033d613707b}{lua\+\_\+writestringerror}}(s,  p)~        (fprintf(stderr, (s), (p)), fflush(stderr))
+\end{DoxyCompactItemize}
+\doxysubsection*{类型定义}
+\begin{DoxyCompactItemize}
+\item 
+typedef struct \mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} \mbox{\hyperlink{lauxlib_8h_aaed907641807460fcee0e1cb9a9e9ed6}{lua\+L\+\_\+\+Buffer}}
+\item 
+typedef struct \mbox{\hyperlink{structlua_l___reg}{lua\+L\+\_\+\+Reg}} \mbox{\hyperlink{lauxlib_8h_ab5ca0c51890e3970d0db1df2a1922b34}{lua\+L\+\_\+\+Reg}}
+\item 
+typedef struct \mbox{\hyperlink{structlua_l___stream}{lua\+L\+\_\+\+Stream}} \mbox{\hyperlink{lauxlib_8h_a21bf593878812ad2cc1b962ae5efc064}{lua\+L\+\_\+\+Stream}}
+\end{DoxyCompactItemize}
+\doxysubsection*{函数}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() \mbox{\hyperlink{lauxlib_8h_ab42194a5a9cd8a6f6ee9123ef1807e52}{lua\+L\+\_\+checkversion\+\_\+}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} ver, size\+\_\+t sz)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() \mbox{\hyperlink{lauxlib_8h_aed3f129411ba1ec14f813d650f16384d}{lua\+L\+\_\+getmetafield}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int obj, const char $\ast$e)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() \mbox{\hyperlink{lauxlib_8h_af26aec8cce4a3f4448c60f402d78f17d}{lua\+L\+\_\+callmeta}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int obj, const char $\ast$e)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} const char $\ast$() \mbox{\hyperlink{lauxlib_8h_aef6da057d1e26ed6449b92177f1f2f5a}{lua\+L\+\_\+tolstring}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx, size\+\_\+t $\ast$len)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() \mbox{\hyperlink{lauxlib_8h_ad0599591343ae7836d46e685b16e69de}{lua\+L\+\_\+argerror}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int arg, const char $\ast$extramsg)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() \mbox{\hyperlink{lauxlib_8h_a38cc1bb8d85efadc840f38b33e37326b}{lua\+L\+\_\+typeerror}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int arg, const char $\ast$tname)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} const char $\ast$() \mbox{\hyperlink{lauxlib_8h_aba7169b56524dab1c9f67f71b0417d86}{lua\+L\+\_\+checklstring}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int arg, size\+\_\+t $\ast$l)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} const char $\ast$() \mbox{\hyperlink{lauxlib_8h_a3340783871347b1c95cf4ede72d5c67b}{lua\+L\+\_\+optlstring}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int arg, const char $\ast$def, size\+\_\+t $\ast$l)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}}() \mbox{\hyperlink{lauxlib_8h_ac0919af2e419b4b9e86d6ddb355cec65}{lua\+L\+\_\+checknumber}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int arg)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}}() \mbox{\hyperlink{lauxlib_8h_aa26a2aaafd22fe5c02c84eb9a7098fd8}{lua\+L\+\_\+optnumber}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int arg, \mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} def)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}() \mbox{\hyperlink{lauxlib_8h_a4fab48acb62fbf5344ff26e482afaab2}{lua\+L\+\_\+checkinteger}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int arg)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}() \mbox{\hyperlink{lauxlib_8h_aeb7f0d9ff0b8244215c2a5950a168bb8}{lua\+L\+\_\+optinteger}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int arg, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} def)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() \mbox{\hyperlink{lauxlib_8h_a724f5a5aeee97c0b40948c8bca91341c}{lua\+L\+\_\+checkstack}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int sz, const char $\ast$msg)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() \mbox{\hyperlink{lauxlib_8h_ae9c9f80f66ca2ff9567e4db4d1d704e3}{lua\+L\+\_\+checktype}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int arg, int t)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() \mbox{\hyperlink{lauxlib_8h_a21ba19f50ce2a499224d2710f6fa7728}{lua\+L\+\_\+checkany}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int arg)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() \mbox{\hyperlink{lauxlib_8h_a0e9e032108e7aedc05836b0c1d72a0fa}{lua\+L\+\_\+newmetatable}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$tname)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() \mbox{\hyperlink{lauxlib_8h_a4ef6497609d8cb52f8f4dc0ec489bb7a}{lua\+L\+\_\+setmetatable}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$tname)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void $\ast$() \mbox{\hyperlink{lauxlib_8h_ab40f618f7e65d9af23e01f3924c3d6c8}{lua\+L\+\_\+testudata}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int ud, const char $\ast$tname)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void $\ast$() \mbox{\hyperlink{lauxlib_8h_aed8d8e4f3b95c6bcac246ec9895027b1}{lua\+L\+\_\+checkudata}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int ud, const char $\ast$tname)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() \mbox{\hyperlink{lauxlib_8h_a269122a77674ca63c9193c2a30b4729e}{lua\+L\+\_\+where}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int lvl)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() \mbox{\hyperlink{lauxlib_8h_a994f73d7985c30672469a260d9e86ae6}{lua\+L\+\_\+error}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$fmt,...)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() \mbox{\hyperlink{lauxlib_8h_ae4a7f494cc400b09f5cbccfc3f8187c5}{lua\+L\+\_\+checkoption}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int arg, const char $\ast$def, const char $\ast$const lst\mbox{[}$\,$\mbox{]})
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() \mbox{\hyperlink{lauxlib_8h_ab94b3cb77f5a0ae622ae4ba5f99af4c7}{lua\+L\+\_\+fileresult}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int stat, const char $\ast$fname)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() \mbox{\hyperlink{lauxlib_8h_a2e009e523534f5ad087e7834e711b781}{lua\+L\+\_\+execresult}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int stat)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() \mbox{\hyperlink{lauxlib_8h_a2b69e67252d95df410818251f4b2d8e5}{lua\+L\+\_\+ref}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int t)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() \mbox{\hyperlink{lauxlib_8h_a6200030ecae784852045161274501e0e}{lua\+L\+\_\+unref}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int t, int ref)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() \mbox{\hyperlink{lauxlib_8h_a8c38c6dcf9db7e110e525b46742bacf8}{lua\+L\+\_\+loadfilex}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$filename, const char $\ast$mode)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() \mbox{\hyperlink{lauxlib_8h_a3ab1955dd9322cf03e2d3626ebfae669}{lua\+L\+\_\+loadbufferx}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$buff, size\+\_\+t sz, const char $\ast$name, const char $\ast$mode)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() \mbox{\hyperlink{lauxlib_8h_ac88130d6214ff6b3e2f1781f327807eb}{lua\+L\+\_\+loadstring}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$s)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} \mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$() \mbox{\hyperlink{lauxlib_8h_a7d8712fcede90ae93d5a9a7b409c586e}{lua\+L\+\_\+newstate}} (void)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}() \mbox{\hyperlink{lauxlib_8h_ac9d38b77e425247b630afdb212401a05}{lua\+L\+\_\+len}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void \mbox{\hyperlink{lauxlib_8h_a5dcf12b98ab3ef52b7885a27f48fadea}{lua\+L\+\_\+addgsub}} (\mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$b, const char $\ast$s, const char $\ast$p, const char $\ast$r)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} const char $\ast$() \mbox{\hyperlink{lauxlib_8h_a46672be75da57e1a464c5c6d80f19064}{lua\+L\+\_\+gsub}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$s, const char $\ast$p, const char $\ast$r)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() \mbox{\hyperlink{lauxlib_8h_a8750009b9bbc508e4c3818ebd15b4e14}{lua\+L\+\_\+setfuncs}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const \mbox{\hyperlink{structlua_l___reg}{lua\+L\+\_\+\+Reg}} $\ast$l, int nup)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() \mbox{\hyperlink{lauxlib_8h_a2605da7ef3a12d7e9cfa85939245f941}{lua\+L\+\_\+getsubtable}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int idx, const char $\ast$fname)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() \mbox{\hyperlink{lauxlib_8h_a664cc293d6c7a7dc67857fe95583a10e}{lua\+L\+\_\+traceback}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L1, const char $\ast$msg, int level)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() \mbox{\hyperlink{lauxlib_8h_af6e3e3ca0a445a50f34cfc26f89c7d61}{lua\+L\+\_\+requiref}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$modname, \mbox{\hyperlink{lua_8h_a878b7e392e78661a374cf1c3073029b9}{lua\+\_\+\+C\+Function}} openf, int glb)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() \mbox{\hyperlink{lauxlib_8h_aab6af54c782855fee2bef84eb41bdc00}{lua\+L\+\_\+buffinit}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$B)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} char $\ast$() \mbox{\hyperlink{lauxlib_8h_a0fb6d10de24960ceed452061b47c2c06}{lua\+L\+\_\+prepbuffsize}} (\mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$B, size\+\_\+t sz)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() \mbox{\hyperlink{lauxlib_8h_a06fceedb3abb1272566ca22c96e34b95}{lua\+L\+\_\+addlstring}} (\mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$B, const char $\ast$s, size\+\_\+t l)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() \mbox{\hyperlink{lauxlib_8h_ad9c038f6e108e216011aca1801f84f44}{lua\+L\+\_\+addstring}} (\mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$B, const char $\ast$s)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() \mbox{\hyperlink{lauxlib_8h_aeeb03d69681da0ec0e952b582ce3841c}{lua\+L\+\_\+addvalue}} (\mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$B)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() \mbox{\hyperlink{lauxlib_8h_aac5dfab9ba0ced4f5ae3b22aa35faffe}{lua\+L\+\_\+pushresult}} (\mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$B)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() \mbox{\hyperlink{lauxlib_8h_ac12082513e8da6bfd5b834e840789682}{lua\+L\+\_\+pushresultsize}} (\mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$B, size\+\_\+t sz)
+\item 
+\mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} char $\ast$() \mbox{\hyperlink{lauxlib_8h_ab8f18fe563cab9ea411ae84d2c1c2518}{lua\+L\+\_\+buffinitsize}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$B, size\+\_\+t sz)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{宏定义说明}
+\mbox{\Hypertarget{lauxlib_8h_ab8d4418d33cd59728435db95ac2caf5a}\label{lauxlib_8h_ab8d4418d33cd59728435db95ac2caf5a}} 
+\index{lauxlib.h@{lauxlib.h}!LUA\_ERRFILE@{LUA\_ERRFILE}}
+\index{LUA\_ERRFILE@{LUA\_ERRFILE}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{LUA\_ERRFILE}{LUA\_ERRFILE}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+E\+R\+R\+F\+I\+LE~(\mbox{\hyperlink{lua_8h_a295ea44b6036e266b06e5de0f8ff24e0}{L\+U\+A\+\_\+\+E\+R\+R\+E\+RR}}+1)}
+
+
+
+在文件 lauxlib.\+h 第 26 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a36f3babeb54bee1ebba63fe4fa94189a}\label{lauxlib_8h_a36f3babeb54bee1ebba63fe4fa94189a}} 
+\index{lauxlib.h@{lauxlib.h}!LUA\_FILEHANDLE@{LUA\_FILEHANDLE}}
+\index{LUA\_FILEHANDLE@{LUA\_FILEHANDLE}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{LUA\_FILEHANDLE}{LUA\_FILEHANDLE}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+F\+I\+L\+E\+H\+A\+N\+D\+LE~\char`\"{}F\+I\+LE$\ast$\char`\"{}}
+
+
+
+在文件 lauxlib.\+h 第 217 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a074d53b3afd2b899d4b986c9643fb41a}\label{lauxlib_8h_a074d53b3afd2b899d4b986c9643fb41a}} 
+\index{lauxlib.h@{lauxlib.h}!LUA\_GNAME@{LUA\_GNAME}}
+\index{LUA\_GNAME@{LUA\_GNAME}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{LUA\_GNAME}{LUA\_GNAME}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+G\+N\+A\+ME~\char`\"{}\+\_\+G\char`\"{}}
+
+
+
+在文件 lauxlib.\+h 第 19 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a0fbee1a8156dc622618c9f6048281a73}\label{lauxlib_8h_a0fbee1a8156dc622618c9f6048281a73}} 
+\index{lauxlib.h@{lauxlib.h}!LUA\_LOADED\_TABLE@{LUA\_LOADED\_TABLE}}
+\index{LUA\_LOADED\_TABLE@{LUA\_LOADED\_TABLE}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{LUA\_LOADED\_TABLE}{LUA\_LOADED\_TABLE}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+L\+O\+A\+D\+E\+D\+\_\+\+T\+A\+B\+LE~\char`\"{}\+\_\+\+L\+O\+A\+D\+ED\char`\"{}}
+
+
+
+在文件 lauxlib.\+h 第 30 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a3bfb758f2ac7c9ecb758e1aeaaa82d3d}\label{lauxlib_8h_a3bfb758f2ac7c9ecb758e1aeaaa82d3d}} 
+\index{lauxlib.h@{lauxlib.h}!LUA\_NOREF@{LUA\_NOREF}}
+\index{LUA\_NOREF@{LUA\_NOREF}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{LUA\_NOREF}{LUA\_NOREF}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+N\+O\+R\+EF~(-\/2)}
+
+
+
+在文件 lauxlib.\+h 第 85 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ab654a257ab8f9de4ba519a64a9a9ea91}\label{lauxlib_8h_ab654a257ab8f9de4ba519a64a9a9ea91}} 
+\index{lauxlib.h@{lauxlib.h}!LUA\_PRELOAD\_TABLE@{LUA\_PRELOAD\_TABLE}}
+\index{LUA\_PRELOAD\_TABLE@{LUA\_PRELOAD\_TABLE}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{LUA\_PRELOAD\_TABLE}{LUA\_PRELOAD\_TABLE}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+P\+R\+E\+L\+O\+A\+D\+\_\+\+T\+A\+B\+LE~\char`\"{}\+\_\+\+P\+R\+E\+L\+O\+AD\char`\"{}}
+
+
+
+在文件 lauxlib.\+h 第 34 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a004a6b76c047f3b94890a08dbdcbbee7}\label{lauxlib_8h_a004a6b76c047f3b94890a08dbdcbbee7}} 
+\index{lauxlib.h@{lauxlib.h}!LUA\_REFNIL@{LUA\_REFNIL}}
+\index{LUA\_REFNIL@{LUA\_REFNIL}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{LUA\_REFNIL}{LUA\_REFNIL}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+R\+E\+F\+N\+IL~(-\/1)}
+
+
+
+在文件 lauxlib.\+h 第 86 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_aa4791d9826315ea2d1c716f852026246}\label{lauxlib_8h_aa4791d9826315ea2d1c716f852026246}} 
+\index{lauxlib.h@{lauxlib.h}!lua\_writeline@{lua\_writeline}}
+\index{lua\_writeline@{lua\_writeline}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{lua\_writeline}{lua\_writeline}}
+{\footnotesize\ttfamily \#define lua\+\_\+writeline(\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})~(\mbox{\hyperlink{lauxlib_8h_a575f50815c13a7a99b8ed1ac03fe714a}{lua\+\_\+writestring}}(\char`\"{}\textbackslash{}n\char`\"{}, 1), fflush(stdout))}
+
+
+
+在文件 lauxlib.\+h 第 240 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a575f50815c13a7a99b8ed1ac03fe714a}\label{lauxlib_8h_a575f50815c13a7a99b8ed1ac03fe714a}} 
+\index{lauxlib.h@{lauxlib.h}!lua\_writestring@{lua\_writestring}}
+\index{lua\_writestring@{lua\_writestring}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{lua\_writestring}{lua\_writestring}}
+{\footnotesize\ttfamily \#define lua\+\_\+writestring(\begin{DoxyParamCaption}\item[{}]{s,  }\item[{}]{l }\end{DoxyParamCaption})~fwrite((s), sizeof(char), (l), stdout)}
+
+
+
+在文件 lauxlib.\+h 第 235 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a0706f68a79575584d365d033d613707b}\label{lauxlib_8h_a0706f68a79575584d365d033d613707b}} 
+\index{lauxlib.h@{lauxlib.h}!lua\_writestringerror@{lua\_writestringerror}}
+\index{lua\_writestringerror@{lua\_writestringerror}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{lua\_writestringerror}{lua\_writestringerror}}
+{\footnotesize\ttfamily \#define lua\+\_\+writestringerror(\begin{DoxyParamCaption}\item[{}]{s,  }\item[{}]{p }\end{DoxyParamCaption})~        (fprintf(stderr, (s), (p)), fflush(stderr))}
+
+
+
+在文件 lauxlib.\+h 第 245 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a63935c5b4cf5d45930c875f6cc5e1432}\label{lauxlib_8h_a63935c5b4cf5d45930c875f6cc5e1432}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_addchar@{luaL\_addchar}}
+\index{luaL\_addchar@{luaL\_addchar}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_addchar}{luaL\_addchar}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+addchar(\begin{DoxyParamCaption}\item[{}]{B,  }\item[{}]{c }\end{DoxyParamCaption})}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{  ((void)((B)-\/>n < (B)-\/>size || \mbox{\hyperlink{lauxlib_8h_a0fb6d10de24960ceed452061b47c2c06}{luaL\_prepbuffsize}}((B), 1)), \(\backslash\)}
+\DoxyCodeLine{   ((B)-\/>b[(B)-\/>n++] = (c)))}
+
+\end{DoxyCode}
+
+
+在文件 lauxlib.\+h 第 182 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a7c0adb7401e0be1a843946cee0556684}\label{lauxlib_8h_a7c0adb7401e0be1a843946cee0556684}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_addsize@{luaL\_addsize}}
+\index{luaL\_addsize@{luaL\_addsize}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_addsize}{luaL\_addsize}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+addsize(\begin{DoxyParamCaption}\item[{}]{B,  }\item[{}]{s }\end{DoxyParamCaption})~((B)-\/$>$n += (s))}
+
+
+
+在文件 lauxlib.\+h 第 186 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a48ce6cd86a7448e97f258097a7abc44d}\label{lauxlib_8h_a48ce6cd86a7448e97f258097a7abc44d}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_argcheck@{luaL\_argcheck}}
+\index{luaL\_argcheck@{luaL\_argcheck}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_argcheck}{luaL\_argcheck}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+argcheck(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{\mbox{\hyperlink{lparser_8c_a24002c50a108445d916457eb3c21d5e1}{cond}},  }\item[{}]{arg,  }\item[{}]{extramsg }\end{DoxyParamCaption})~		((void)((\mbox{\hyperlink{lparser_8c_a24002c50a108445d916457eb3c21d5e1}{cond}}) $\vert$$\vert$ \mbox{\hyperlink{lauxlib_8h_ad0599591343ae7836d46e685b16e69de}{lua\+L\+\_\+argerror}}(L, (arg), (extramsg))))}
+
+
+
+在文件 lauxlib.\+h 第 132 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ad13737dbd230fffc0b9925b1c728c58e}\label{lauxlib_8h_ad13737dbd230fffc0b9925b1c728c58e}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_argexpected@{luaL\_argexpected}}
+\index{luaL\_argexpected@{luaL\_argexpected}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_argexpected}{luaL\_argexpected}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+argexpected(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{\mbox{\hyperlink{lparser_8c_a24002c50a108445d916457eb3c21d5e1}{cond}},  }\item[{}]{arg,  }\item[{}]{tname }\end{DoxyParamCaption})~		((void)((\mbox{\hyperlink{lparser_8c_a24002c50a108445d916457eb3c21d5e1}{cond}}) $\vert$$\vert$ \mbox{\hyperlink{lauxlib_8h_a38cc1bb8d85efadc840f38b33e37326b}{lua\+L\+\_\+typeerror}}(L, (arg), (tname))))}
+
+
+
+在文件 lauxlib.\+h 第 135 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a3328ae8405aac1707d4b400d0d2c26dd}\label{lauxlib_8h_a3328ae8405aac1707d4b400d0d2c26dd}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_buffaddr@{luaL\_buffaddr}}
+\index{luaL\_buffaddr@{luaL\_buffaddr}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_buffaddr}{luaL\_buffaddr}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+buffaddr(\begin{DoxyParamCaption}\item[{}]{bf }\end{DoxyParamCaption})~((bf)-\/$>$b)}
+
+
+
+在文件 lauxlib.\+h 第 179 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ab43380e8ecfabde7c32aec748df1cf59}\label{lauxlib_8h_ab43380e8ecfabde7c32aec748df1cf59}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_bufflen@{luaL\_bufflen}}
+\index{luaL\_bufflen@{luaL\_bufflen}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_bufflen}{luaL\_bufflen}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+bufflen(\begin{DoxyParamCaption}\item[{}]{bf }\end{DoxyParamCaption})~((bf)-\/$>$n)}
+
+
+
+在文件 lauxlib.\+h 第 178 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a1f4e8f07742faa5e6c25a971a53f1e7b}\label{lauxlib_8h_a1f4e8f07742faa5e6c25a971a53f1e7b}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_buffsub@{luaL\_buffsub}}
+\index{luaL\_buffsub@{luaL\_buffsub}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_buffsub}{luaL\_buffsub}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+buffsub(\begin{DoxyParamCaption}\item[{}]{B,  }\item[{}]{s }\end{DoxyParamCaption})~((B)-\/$>$n -\/= (s))}
+
+
+
+在文件 lauxlib.\+h 第 188 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ad9917d22c79651fdd73d42c146b5056f}\label{lauxlib_8h_ad9917d22c79651fdd73d42c146b5056f}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_checkstring@{luaL\_checkstring}}
+\index{luaL\_checkstring@{luaL\_checkstring}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_checkstring}{luaL\_checkstring}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+checkstring(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{n }\end{DoxyParamCaption})~(\mbox{\hyperlink{lauxlib_8h_aba7169b56524dab1c9f67f71b0417d86}{lua\+L\+\_\+checklstring}}(L, (n), N\+U\+LL))}
+
+
+
+在文件 lauxlib.\+h 第 138 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_aa538485cd28f143fabea2325b9ecd477}\label{lauxlib_8h_aa538485cd28f143fabea2325b9ecd477}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_checkversion@{luaL\_checkversion}}
+\index{luaL\_checkversion@{luaL\_checkversion}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_checkversion}{luaL\_checkversion}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+checkversion(\begin{DoxyParamCaption}\item[{}]{L }\end{DoxyParamCaption})~	  \mbox{\hyperlink{lauxlib_8h_ab42194a5a9cd8a6f6ee9123ef1807e52}{lua\+L\+\_\+checkversion\+\_\+}}(L, \mbox{\hyperlink{lua_8h_a4c575ef5fb9bad1872613a9d832486a5}{L\+U\+A\+\_\+\+V\+E\+R\+S\+I\+O\+N\+\_\+\+N\+UM}}, \mbox{\hyperlink{lauxlib_8h_ae6c79b83e1d493d4ab680e74e5a85a6a}{L\+U\+A\+L\+\_\+\+N\+U\+M\+S\+I\+Z\+ES}})}
+
+
+
+在文件 lauxlib.\+h 第 46 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_aa49a7a47a683d6e7868ede50ceb826be}\label{lauxlib_8h_aa49a7a47a683d6e7868ede50ceb826be}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_dofile@{luaL\_dofile}}
+\index{luaL\_dofile@{luaL\_dofile}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_dofile}{luaL\_dofile}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+dofile(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{fn }\end{DoxyParamCaption})~	(\mbox{\hyperlink{lauxlib_8h_a023c745560d0ed613efb6eada57a3c13}{lua\+L\+\_\+loadfile}}(L, fn) $\vert$$\vert$ \mbox{\hyperlink{lua_8h_a589d7e3fd4c388d64056c88bf4672431}{lua\+\_\+pcall}}(L, 0, \mbox{\hyperlink{lua_8h_ace3545adc11664c2f2b152fbe8b6283c}{L\+U\+A\+\_\+\+M\+U\+L\+T\+R\+ET}}, 0))}
+
+
+
+在文件 lauxlib.\+h 第 143 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a1a0639bfde6b1e2f6181af45b0137cf5}\label{lauxlib_8h_a1a0639bfde6b1e2f6181af45b0137cf5}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_dostring@{luaL\_dostring}}
+\index{luaL\_dostring@{luaL\_dostring}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_dostring}{luaL\_dostring}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+dostring(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{s }\end{DoxyParamCaption})~	(\mbox{\hyperlink{lauxlib_8h_ac88130d6214ff6b3e2f1781f327807eb}{lua\+L\+\_\+loadstring}}(L, s) $\vert$$\vert$ \mbox{\hyperlink{lua_8h_a589d7e3fd4c388d64056c88bf4672431}{lua\+\_\+pcall}}(L, 0, \mbox{\hyperlink{lua_8h_ace3545adc11664c2f2b152fbe8b6283c}{L\+U\+A\+\_\+\+M\+U\+L\+T\+R\+ET}}, 0))}
+
+
+
+在文件 lauxlib.\+h 第 146 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a201407aa41ff74577c67308372a130d9}\label{lauxlib_8h_a201407aa41ff74577c67308372a130d9}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_getmetatable@{luaL\_getmetatable}}
+\index{luaL\_getmetatable@{luaL\_getmetatable}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_getmetatable}{luaL\_getmetatable}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+getmetatable(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{n }\end{DoxyParamCaption})~(\mbox{\hyperlink{lua_8h_aa97386935b690dd478abd7c6fb89bef8}{lua\+\_\+getfield}}(L, \mbox{\hyperlink{lua_8h_a3524c2bbc8fcf847dc083246b62945dd}{L\+U\+A\+\_\+\+R\+E\+G\+I\+S\+T\+R\+Y\+I\+N\+D\+EX}}, (n)))}
+
+
+
+在文件 lauxlib.\+h 第 149 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ae210c8b2a9a27ee62b2e846e93ae876f}\label{lauxlib_8h_ae210c8b2a9a27ee62b2e846e93ae876f}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_loadbuffer@{luaL\_loadbuffer}}
+\index{luaL\_loadbuffer@{luaL\_loadbuffer}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_loadbuffer}{luaL\_loadbuffer}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+loadbuffer(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{s,  }\item[{}]{sz,  }\item[{}]{n }\end{DoxyParamCaption})~\mbox{\hyperlink{lauxlib_8h_a3ab1955dd9322cf03e2d3626ebfae669}{lua\+L\+\_\+loadbufferx}}(L,s,sz,n,N\+U\+LL)}
+
+
+
+在文件 lauxlib.\+h 第 153 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a023c745560d0ed613efb6eada57a3c13}\label{lauxlib_8h_a023c745560d0ed613efb6eada57a3c13}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_loadfile@{luaL\_loadfile}}
+\index{luaL\_loadfile@{luaL\_loadfile}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_loadfile}{luaL\_loadfile}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+loadfile(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{f }\end{DoxyParamCaption})~\mbox{\hyperlink{lauxlib_8h_a8c38c6dcf9db7e110e525b46742bacf8}{lua\+L\+\_\+loadfilex}}(L,f,N\+U\+LL)}
+
+
+
+在文件 lauxlib.\+h 第 94 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a5088ff720ec66200d83eb78467b77239}\label{lauxlib_8h_a5088ff720ec66200d83eb78467b77239}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_newlib@{luaL\_newlib}}
+\index{luaL\_newlib@{luaL\_newlib}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_newlib}{luaL\_newlib}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+newlib(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{l }\end{DoxyParamCaption})~  (\mbox{\hyperlink{lauxlib_8h_aa538485cd28f143fabea2325b9ecd477}{lua\+L\+\_\+checkversion}}(L), \mbox{\hyperlink{lauxlib_8h_ad575a4fd1f53fa454b5d9745fedecdc4}{lua\+L\+\_\+newlibtable}}(L,l), \mbox{\hyperlink{lauxlib_8h_a8750009b9bbc508e4c3818ebd15b4e14}{lua\+L\+\_\+setfuncs}}(L,l,0))}
+
+
+
+在文件 lauxlib.\+h 第 129 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ad575a4fd1f53fa454b5d9745fedecdc4}\label{lauxlib_8h_ad575a4fd1f53fa454b5d9745fedecdc4}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_newlibtable@{luaL\_newlibtable}}
+\index{luaL\_newlibtable@{luaL\_newlibtable}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_newlibtable}{luaL\_newlibtable}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+newlibtable(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{l }\end{DoxyParamCaption})~  \mbox{\hyperlink{lua_8h_a022ddaeee46ccb89860c78480e54db05}{lua\+\_\+createtable}}(L, 0, sizeof(l)/sizeof((l)\mbox{[}0\mbox{]}) -\/ 1)}
+
+
+
+在文件 lauxlib.\+h 第 126 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ae6c79b83e1d493d4ab680e74e5a85a6a}\label{lauxlib_8h_ae6c79b83e1d493d4ab680e74e5a85a6a}} 
+\index{lauxlib.h@{lauxlib.h}!LUAL\_NUMSIZES@{LUAL\_NUMSIZES}}
+\index{LUAL\_NUMSIZES@{LUAL\_NUMSIZES}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{LUAL\_NUMSIZES}{LUAL\_NUMSIZES}}
+{\footnotesize\ttfamily \#define L\+U\+A\+L\+\_\+\+N\+U\+M\+S\+I\+Z\+ES~(sizeof(\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}})$\ast$16 + sizeof(\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}}))}
+
+
+
+在文件 lauxlib.\+h 第 43 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_aca033280b0176012ef290131876f706e}\label{lauxlib_8h_aca033280b0176012ef290131876f706e}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_opt@{luaL\_opt}}
+\index{luaL\_opt@{luaL\_opt}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_opt}{luaL\_opt}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+opt(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{f,  }\item[{}]{n,  }\item[{}]{d }\end{DoxyParamCaption})~(\mbox{\hyperlink{lua_8h_af51702bb75a31bb4a279953ee386d533}{lua\+\_\+isnoneornil}}(L,(n)) ? (d) \+: f(L,(n)))}
+
+
+
+在文件 lauxlib.\+h 第 151 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a732bc5882c4a5da46b236649ab6db47b}\label{lauxlib_8h_a732bc5882c4a5da46b236649ab6db47b}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_optstring@{luaL\_optstring}}
+\index{luaL\_optstring@{luaL\_optstring}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_optstring}{luaL\_optstring}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+optstring(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{n,  }\item[{}]{d }\end{DoxyParamCaption})~(\mbox{\hyperlink{lauxlib_8h_a3340783871347b1c95cf4ede72d5c67b}{lua\+L\+\_\+optlstring}}(L, (n), (d), N\+U\+LL))}
+
+
+
+在文件 lauxlib.\+h 第 139 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_acc49fd35fabb25016f7de3256eb9bc6c}\label{lauxlib_8h_acc49fd35fabb25016f7de3256eb9bc6c}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_prepbuffer@{luaL\_prepbuffer}}
+\index{luaL\_prepbuffer@{luaL\_prepbuffer}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_prepbuffer}{luaL\_prepbuffer}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+prepbuffer(\begin{DoxyParamCaption}\item[{}]{B }\end{DoxyParamCaption})~\mbox{\hyperlink{lauxlib_8h_a0fb6d10de24960ceed452061b47c2c06}{lua\+L\+\_\+prepbuffsize}}(B, \mbox{\hyperlink{luaconf_8h_af360ad37a770dfdc29291a99c398f42d}{L\+U\+A\+L\+\_\+\+B\+U\+F\+F\+E\+R\+S\+I\+ZE}})}
+
+
+
+在文件 lauxlib.\+h 第 199 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a8666135f7a1412f5eaa14857aec279f0}\label{lauxlib_8h_a8666135f7a1412f5eaa14857aec279f0}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_pushfail@{luaL\_pushfail}}
+\index{luaL\_pushfail@{luaL\_pushfail}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_pushfail}{luaL\_pushfail}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+pushfail(\begin{DoxyParamCaption}\item[{}]{L }\end{DoxyParamCaption})~\mbox{\hyperlink{lua_8h_a8bd9c4137a90833221f48dd16659c9e4}{lua\+\_\+pushnil}}(L)}
+
+
+
+在文件 lauxlib.\+h 第 157 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a2bee94954917c5bccb05d6578f3c675b}\label{lauxlib_8h_a2bee94954917c5bccb05d6578f3c675b}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_typename@{luaL\_typename}}
+\index{luaL\_typename@{luaL\_typename}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_typename}{luaL\_typename}}
+{\footnotesize\ttfamily \#define lua\+L\+\_\+typename(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{i }\end{DoxyParamCaption})~\mbox{\hyperlink{lua_8h_a963a421b920cd7ce229f82091eab18a9}{lua\+\_\+typename}}(L, \mbox{\hyperlink{lua_8h_aa988ba5b97ff838ccb92babd63063273}{lua\+\_\+type}}(L,(i)))}
+
+
+
+在文件 lauxlib.\+h 第 141 行定义.
+
+
+
+\doxysubsection{类型定义说明}
+\mbox{\Hypertarget{lauxlib_8h_aaed907641807460fcee0e1cb9a9e9ed6}\label{lauxlib_8h_aaed907641807460fcee0e1cb9a9e9ed6}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_Buffer@{luaL\_Buffer}}
+\index{luaL\_Buffer@{luaL\_Buffer}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_Buffer}{luaL\_Buffer}}
+{\footnotesize\ttfamily typedef struct \mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} \mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}}}
+
+
+
+在文件 lauxlib.\+h 第 1 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ab5ca0c51890e3970d0db1df2a1922b34}\label{lauxlib_8h_ab5ca0c51890e3970d0db1df2a1922b34}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_Reg@{luaL\_Reg}}
+\index{luaL\_Reg@{luaL\_Reg}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_Reg}{luaL\_Reg}}
+{\footnotesize\ttfamily typedef struct \mbox{\hyperlink{structlua_l___reg}{lua\+L\+\_\+\+Reg}} \mbox{\hyperlink{structlua_l___reg}{lua\+L\+\_\+\+Reg}}}
+
+\mbox{\Hypertarget{lauxlib_8h_a21bf593878812ad2cc1b962ae5efc064}\label{lauxlib_8h_a21bf593878812ad2cc1b962ae5efc064}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_Stream@{luaL\_Stream}}
+\index{luaL\_Stream@{luaL\_Stream}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_Stream}{luaL\_Stream}}
+{\footnotesize\ttfamily typedef struct \mbox{\hyperlink{structlua_l___stream}{lua\+L\+\_\+\+Stream}} \mbox{\hyperlink{structlua_l___stream}{lua\+L\+\_\+\+Stream}}}
+
+
+
+\doxysubsection{函数说明}
+\mbox{\Hypertarget{lauxlib_8h_a5dcf12b98ab3ef52b7885a27f48fadea}\label{lauxlib_8h_a5dcf12b98ab3ef52b7885a27f48fadea}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_addgsub@{luaL\_addgsub}}
+\index{luaL\_addgsub@{luaL\_addgsub}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_addgsub()}{luaL\_addgsub()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void lua\+L\+\_\+addgsub (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$}]{b,  }\item[{const char $\ast$}]{s,  }\item[{const char $\ast$}]{p,  }\item[{const char $\ast$}]{r }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 963 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a06fceedb3abb1272566ca22c96e34b95}\label{lauxlib_8h_a06fceedb3abb1272566ca22c96e34b95}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_addlstring@{luaL\_addlstring}}
+\index{luaL\_addlstring@{luaL\_addlstring}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_addlstring()}{luaL\_addlstring()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() lua\+L\+\_\+addlstring (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$}]{B,  }\item[{const char $\ast$}]{s,  }\item[{size\+\_\+t}]{l }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 568 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ad9c038f6e108e216011aca1801f84f44}\label{lauxlib_8h_ad9c038f6e108e216011aca1801f84f44}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_addstring@{luaL\_addstring}}
+\index{luaL\_addstring@{luaL\_addstring}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_addstring()}{luaL\_addstring()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() lua\+L\+\_\+addstring (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$}]{B,  }\item[{const char $\ast$}]{s }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 577 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_aeeb03d69681da0ec0e952b582ce3841c}\label{lauxlib_8h_aeeb03d69681da0ec0e952b582ce3841c}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_addvalue@{luaL\_addvalue}}
+\index{luaL\_addvalue@{luaL\_addvalue}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_addvalue()}{luaL\_addvalue()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() lua\+L\+\_\+addvalue (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$}]{B }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 607 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ad0599591343ae7836d46e685b16e69de}\label{lauxlib_8h_ad0599591343ae7836d46e685b16e69de}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_argerror@{luaL\_argerror}}
+\index{luaL\_argerror@{luaL\_argerror}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_argerror()}{luaL\_argerror()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() lua\+L\+\_\+argerror (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{arg,  }\item[{const char $\ast$}]{extramsg }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 175 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_aab6af54c782855fee2bef84eb41bdc00}\label{lauxlib_8h_aab6af54c782855fee2bef84eb41bdc00}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_buffinit@{luaL\_buffinit}}
+\index{luaL\_buffinit@{luaL\_buffinit}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_buffinit()}{luaL\_buffinit()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() lua\+L\+\_\+buffinit (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$}]{B }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 618 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ab8f18fe563cab9ea411ae84d2c1c2518}\label{lauxlib_8h_ab8f18fe563cab9ea411ae84d2c1c2518}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_buffinitsize@{luaL\_buffinitsize}}
+\index{luaL\_buffinitsize@{luaL\_buffinitsize}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_buffinitsize()}{luaL\_buffinitsize()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} char$\ast$() lua\+L\+\_\+buffinitsize (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$}]{B,  }\item[{size\+\_\+t}]{sz }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 626 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_af26aec8cce4a3f4448c60f402d78f17d}\label{lauxlib_8h_af26aec8cce4a3f4448c60f402d78f17d}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_callmeta@{luaL\_callmeta}}
+\index{luaL\_callmeta@{luaL\_callmeta}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_callmeta()}{luaL\_callmeta()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() lua\+L\+\_\+callmeta (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{obj,  }\item[{const char $\ast$}]{e }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 837 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a21ba19f50ce2a499224d2710f6fa7728}\label{lauxlib_8h_a21ba19f50ce2a499224d2710f6fa7728}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_checkany@{luaL\_checkany}}
+\index{luaL\_checkany@{luaL\_checkany}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_checkany()}{luaL\_checkany()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() lua\+L\+\_\+checkany (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{arg }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 396 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a4fab48acb62fbf5344ff26e482afaab2}\label{lauxlib_8h_a4fab48acb62fbf5344ff26e482afaab2}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_checkinteger@{luaL\_checkinteger}}
+\index{luaL\_checkinteger@{luaL\_checkinteger}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_checkinteger()}{luaL\_checkinteger()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}() lua\+L\+\_\+checkinteger (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{arg }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 442 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_aba7169b56524dab1c9f67f71b0417d86}\label{lauxlib_8h_aba7169b56524dab1c9f67f71b0417d86}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_checklstring@{luaL\_checklstring}}
+\index{luaL\_checklstring@{luaL\_checklstring}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_checklstring()}{luaL\_checklstring()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} const char$\ast$() lua\+L\+\_\+checklstring (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{arg,  }\item[{size\+\_\+t $\ast$}]{l }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 402 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ac0919af2e419b4b9e86d6ddb355cec65}\label{lauxlib_8h_ac0919af2e419b4b9e86d6ddb355cec65}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_checknumber@{luaL\_checknumber}}
+\index{luaL\_checknumber@{luaL\_checknumber}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_checknumber()}{luaL\_checknumber()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}}() lua\+L\+\_\+checknumber (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{arg }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 420 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ae4a7f494cc400b09f5cbccfc3f8187c5}\label{lauxlib_8h_ae4a7f494cc400b09f5cbccfc3f8187c5}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_checkoption@{luaL\_checkoption}}
+\index{luaL\_checkoption@{luaL\_checkoption}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_checkoption()}{luaL\_checkoption()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() lua\+L\+\_\+checkoption (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{arg,  }\item[{const char $\ast$}]{def,  }\item[{const char $\ast$const}]{lst\mbox{[}$\,$\mbox{]} }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 360 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a724f5a5aeee97c0b40948c8bca91341c}\label{lauxlib_8h_a724f5a5aeee97c0b40948c8bca91341c}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_checkstack@{luaL\_checkstack}}
+\index{luaL\_checkstack@{luaL\_checkstack}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_checkstack()}{luaL\_checkstack()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() lua\+L\+\_\+checkstack (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{sz,  }\item[{const char $\ast$}]{msg }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 380 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ae9c9f80f66ca2ff9567e4db4d1d704e3}\label{lauxlib_8h_ae9c9f80f66ca2ff9567e4db4d1d704e3}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_checktype@{luaL\_checktype}}
+\index{luaL\_checktype@{luaL\_checktype}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_checktype()}{luaL\_checktype()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() lua\+L\+\_\+checktype (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{arg,  }\item[{int}]{t }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 390 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_aed8d8e4f3b95c6bcac246ec9895027b1}\label{lauxlib_8h_aed8d8e4f3b95c6bcac246ec9895027b1}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_checkudata@{luaL\_checkudata}}
+\index{luaL\_checkudata@{luaL\_checkudata}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_checkudata()}{luaL\_checkudata()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void$\ast$() lua\+L\+\_\+checkudata (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{ud,  }\item[{const char $\ast$}]{tname }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 345 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ab42194a5a9cd8a6f6ee9123ef1807e52}\label{lauxlib_8h_ab42194a5a9cd8a6f6ee9123ef1807e52}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_checkversion\_@{luaL\_checkversion\_}}
+\index{luaL\_checkversion\_@{luaL\_checkversion\_}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_checkversion\_()}{luaL\_checkversion\_()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() lua\+L\+\_\+checkversion\+\_\+ (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}}}]{ver,  }\item[{size\+\_\+t}]{sz }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 1049 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a994f73d7985c30672469a260d9e86ae6}\label{lauxlib_8h_a994f73d7985c30672469a260d9e86ae6}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_error@{luaL\_error}}
+\index{luaL\_error@{luaL\_error}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_error()}{luaL\_error()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() lua\+L\+\_\+error (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{fmt,  }\item[{}]{... }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 234 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a2e009e523534f5ad087e7834e711b781}\label{lauxlib_8h_a2e009e523534f5ad087e7834e711b781}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_execresult@{luaL\_execresult}}
+\index{luaL\_execresult@{luaL\_execresult}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_execresult()}{luaL\_execresult()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() lua\+L\+\_\+execresult (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{stat }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 285 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ab94b3cb77f5a0ae622ae4ba5f99af4c7}\label{lauxlib_8h_ab94b3cb77f5a0ae622ae4ba5f99af4c7}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_fileresult@{luaL\_fileresult}}
+\index{luaL\_fileresult@{luaL\_fileresult}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_fileresult()}{luaL\_fileresult()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() lua\+L\+\_\+fileresult (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{stat,  }\item[{const char $\ast$}]{fname }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 245 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_aed3f129411ba1ec14f813d650f16384d}\label{lauxlib_8h_aed3f129411ba1ec14f813d650f16384d}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_getmetafield@{luaL\_getmetafield}}
+\index{luaL\_getmetafield@{luaL\_getmetafield}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_getmetafield()}{luaL\_getmetafield()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() lua\+L\+\_\+getmetafield (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{obj,  }\item[{const char $\ast$}]{e }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 821 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a2605da7ef3a12d7e9cfa85939245f941}\label{lauxlib_8h_a2605da7ef3a12d7e9cfa85939245f941}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_getsubtable@{luaL\_getsubtable}}
+\index{luaL\_getsubtable@{luaL\_getsubtable}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_getsubtable()}{luaL\_getsubtable()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() lua\+L\+\_\+getsubtable (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx,  }\item[{const char $\ast$}]{fname }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 923 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a46672be75da57e1a464c5c6d80f19064}\label{lauxlib_8h_a46672be75da57e1a464c5c6d80f19064}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_gsub@{luaL\_gsub}}
+\index{luaL\_gsub@{luaL\_gsub}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_gsub()}{luaL\_gsub()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} const char$\ast$() lua\+L\+\_\+gsub (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{s,  }\item[{const char $\ast$}]{p,  }\item[{const char $\ast$}]{r }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 976 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ac9d38b77e425247b630afdb212401a05}\label{lauxlib_8h_ac9d38b77e425247b630afdb212401a05}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_len@{luaL\_len}}
+\index{luaL\_len@{luaL\_len}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_len()}{luaL\_len()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}() lua\+L\+\_\+len (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 847 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a3ab1955dd9322cf03e2d3626ebfae669}\label{lauxlib_8h_a3ab1955dd9322cf03e2d3626ebfae669}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_loadbufferx@{luaL\_loadbufferx}}
+\index{luaL\_loadbufferx@{luaL\_loadbufferx}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_loadbufferx()}{luaL\_loadbufferx()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() lua\+L\+\_\+loadbufferx (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{buff,  }\item[{size\+\_\+t}]{sz,  }\item[{const char $\ast$}]{name,  }\item[{const char $\ast$}]{mode }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 804 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a8c38c6dcf9db7e110e525b46742bacf8}\label{lauxlib_8h_a8c38c6dcf9db7e110e525b46742bacf8}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_loadfilex@{luaL\_loadfilex}}
+\index{luaL\_loadfilex@{luaL\_loadfilex}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_loadfilex()}{luaL\_loadfilex()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() lua\+L\+\_\+loadfilex (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{filename,  }\item[{const char $\ast$}]{mode }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 752 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ac88130d6214ff6b3e2f1781f327807eb}\label{lauxlib_8h_ac88130d6214ff6b3e2f1781f327807eb}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_loadstring@{luaL\_loadstring}}
+\index{luaL\_loadstring@{luaL\_loadstring}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_loadstring()}{luaL\_loadstring()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() lua\+L\+\_\+loadstring (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{s }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 813 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a0e9e032108e7aedc05836b0c1d72a0fa}\label{lauxlib_8h_a0e9e032108e7aedc05836b0c1d72a0fa}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_newmetatable@{luaL\_newmetatable}}
+\index{luaL\_newmetatable@{luaL\_newmetatable}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_newmetatable()}{luaL\_newmetatable()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() lua\+L\+\_\+newmetatable (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{tname }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 311 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a7d8712fcede90ae93d5a9a7b409c586e}\label{lauxlib_8h_a7d8712fcede90ae93d5a9a7b409c586e}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_newstate@{luaL\_newstate}}
+\index{luaL\_newstate@{luaL\_newstate}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_newstate()}{luaL\_newstate()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} \mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}}$\ast$() lua\+L\+\_\+newstate (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 1035 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_aeb7f0d9ff0b8244215c2a5950a168bb8}\label{lauxlib_8h_aeb7f0d9ff0b8244215c2a5950a168bb8}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_optinteger@{luaL\_optinteger}}
+\index{luaL\_optinteger@{luaL\_optinteger}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_optinteger()}{luaL\_optinteger()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}() lua\+L\+\_\+optinteger (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{arg,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{def }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 452 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a3340783871347b1c95cf4ede72d5c67b}\label{lauxlib_8h_a3340783871347b1c95cf4ede72d5c67b}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_optlstring@{luaL\_optlstring}}
+\index{luaL\_optlstring@{luaL\_optlstring}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_optlstring()}{luaL\_optlstring()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} const char$\ast$() lua\+L\+\_\+optlstring (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{arg,  }\item[{const char $\ast$}]{def,  }\item[{size\+\_\+t $\ast$}]{l }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 409 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_aa26a2aaafd22fe5c02c84eb9a7098fd8}\label{lauxlib_8h_aa26a2aaafd22fe5c02c84eb9a7098fd8}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_optnumber@{luaL\_optnumber}}
+\index{luaL\_optnumber@{luaL\_optnumber}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_optnumber()}{luaL\_optnumber()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} \mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}}() lua\+L\+\_\+optnumber (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{arg,  }\item[{\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}}}]{def }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 429 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a0fb6d10de24960ceed452061b47c2c06}\label{lauxlib_8h_a0fb6d10de24960ceed452061b47c2c06}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_prepbuffsize@{luaL\_prepbuffsize}}
+\index{luaL\_prepbuffsize@{luaL\_prepbuffsize}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_prepbuffsize()}{luaL\_prepbuffsize()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} char$\ast$() lua\+L\+\_\+prepbuffsize (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$}]{B,  }\item[{size\+\_\+t}]{sz }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 563 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_aac5dfab9ba0ced4f5ae3b22aa35faffe}\label{lauxlib_8h_aac5dfab9ba0ced4f5ae3b22aa35faffe}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_pushresult@{luaL\_pushresult}}
+\index{luaL\_pushresult@{luaL\_pushresult}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_pushresult()}{luaL\_pushresult()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() lua\+L\+\_\+pushresult (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$}]{B }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 582 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ac12082513e8da6bfd5b834e840789682}\label{lauxlib_8h_ac12082513e8da6bfd5b834e840789682}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_pushresultsize@{luaL\_pushresultsize}}
+\index{luaL\_pushresultsize@{luaL\_pushresultsize}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_pushresultsize()}{luaL\_pushresultsize()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() lua\+L\+\_\+pushresultsize (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$}]{B,  }\item[{size\+\_\+t}]{sz }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 592 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a2b69e67252d95df410818251f4b2d8e5}\label{lauxlib_8h_a2b69e67252d95df410818251f4b2d8e5}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_ref@{luaL\_ref}}
+\index{luaL\_ref@{luaL\_ref}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_ref()}{luaL\_ref()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() lua\+L\+\_\+ref (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{t }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 644 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_af6e3e3ca0a445a50f34cfc26f89c7d61}\label{lauxlib_8h_af6e3e3ca0a445a50f34cfc26f89c7d61}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_requiref@{luaL\_requiref}}
+\index{luaL\_requiref@{luaL\_requiref}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_requiref()}{luaL\_requiref()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() lua\+L\+\_\+requiref (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{modname,  }\item[{\mbox{\hyperlink{lua_8h_a878b7e392e78661a374cf1c3073029b9}{lua\+\_\+\+C\+Function}}}]{openf,  }\item[{int}]{glb }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 943 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a8750009b9bbc508e4c3818ebd15b4e14}\label{lauxlib_8h_a8750009b9bbc508e4c3818ebd15b4e14}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_setfuncs@{luaL\_setfuncs}}
+\index{luaL\_setfuncs@{luaL\_setfuncs}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_setfuncs()}{luaL\_setfuncs()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() lua\+L\+\_\+setfuncs (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const \mbox{\hyperlink{structlua_l___reg}{lua\+L\+\_\+\+Reg}} $\ast$}]{l,  }\item[{int}]{nup }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 902 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a4ef6497609d8cb52f8f4dc0ec489bb7a}\label{lauxlib_8h_a4ef6497609d8cb52f8f4dc0ec489bb7a}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_setmetatable@{luaL\_setmetatable}}
+\index{luaL\_setmetatable@{luaL\_setmetatable}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_setmetatable()}{luaL\_setmetatable()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() lua\+L\+\_\+setmetatable (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{tname }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 324 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_ab40f618f7e65d9af23e01f3924c3d6c8}\label{lauxlib_8h_ab40f618f7e65d9af23e01f3924c3d6c8}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_testudata@{luaL\_testudata}}
+\index{luaL\_testudata@{luaL\_testudata}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_testudata()}{luaL\_testudata()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void$\ast$() lua\+L\+\_\+testudata (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{ud,  }\item[{const char $\ast$}]{tname }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 330 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_aef6da057d1e26ed6449b92177f1f2f5a}\label{lauxlib_8h_aef6da057d1e26ed6449b92177f1f2f5a}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_tolstring@{luaL\_tolstring}}
+\index{luaL\_tolstring@{luaL\_tolstring}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_tolstring()}{luaL\_tolstring()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} const char$\ast$() lua\+L\+\_\+tolstring (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{idx,  }\item[{size\+\_\+t $\ast$}]{len }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 859 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a664cc293d6c7a7dc67857fe95583a10e}\label{lauxlib_8h_a664cc293d6c7a7dc67857fe95583a10e}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_traceback@{luaL\_traceback}}
+\index{luaL\_traceback@{luaL\_traceback}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_traceback()}{luaL\_traceback()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() lua\+L\+\_\+traceback (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L1,  }\item[{const char $\ast$}]{msg,  }\item[{int}]{level }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 131 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a38cc1bb8d85efadc840f38b33e37326b}\label{lauxlib_8h_a38cc1bb8d85efadc840f38b33e37326b}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_typeerror@{luaL\_typeerror}}
+\index{luaL\_typeerror@{luaL\_typeerror}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_typeerror()}{luaL\_typeerror()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} int() lua\+L\+\_\+typeerror (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{arg,  }\item[{const char $\ast$}]{tname }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 193 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a6200030ecae784852045161274501e0e}\label{lauxlib_8h_a6200030ecae784852045161274501e0e}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_unref@{luaL\_unref}}
+\index{luaL\_unref@{luaL\_unref}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_unref()}{luaL\_unref()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() lua\+L\+\_\+unref (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{t,  }\item[{int}]{ref }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 665 行定义.
+
+\mbox{\Hypertarget{lauxlib_8h_a269122a77674ca63c9193c2a30b4729e}\label{lauxlib_8h_a269122a77674ca63c9193c2a30b4729e}} 
+\index{lauxlib.h@{lauxlib.h}!luaL\_where@{luaL\_where}}
+\index{luaL\_where@{luaL\_where}!lauxlib.h@{lauxlib.h}}
+\doxysubsubsection{\texorpdfstring{luaL\_where()}{luaL\_where()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a373d5a572c4c65a5f35a6e4ee9293c95}{L\+U\+A\+L\+I\+B\+\_\+\+A\+PI}} void() lua\+L\+\_\+where (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{lvl }\end{DoxyParamCaption})}
+
+
+
+在文件 lauxlib.\+c 第 216 行定义.
+

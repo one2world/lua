@@ -1,0 +1,205 @@
+.TH "D:/gitworkspace/lua/src/lutf8lib.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lutf8lib.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <assert\&.h>\fP
+.br
+\fC#include <limits\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lauxlib\&.h'\fP
+.br
+\fC#include 'lualib\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBlutf8lib_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_LIB\fP"
+.br
+.ti -1c
+.RI "#define \fBMAXUNICODE\fP   0x10FFFFu"
+.br
+.ti -1c
+.RI "#define \fBMAXUTF\fP   0x7FFFFFFFu"
+.br
+.ti -1c
+.RI "#define \fBiscont\fP(p)   ((*(p) & 0xC0) == 0x80)"
+.br
+.ti -1c
+.RI "#define \fBUTF8PATT\fP   '[\\0\-\\x7F\\xC2\-\\xFD][\\x80\-\\xBF]*'"
+.br
+.in -1c
+.SS "类型定义"
+
+.in +1c
+.ti -1c
+.RI "typedef unsigned long \fButfint\fP"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static \fBlua_Integer\fP \fBu_posrelat\fP (\fBlua_Integer\fP pos, size_t len)"
+.br
+.ti -1c
+.RI "static const char * \fButf8_decode\fP (const char *s, \fButfint\fP *val, int strict)"
+.br
+.ti -1c
+.RI "static int \fButflen\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBcodepoint\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBpushutfchar\fP (\fBlua_State\fP *L, int arg)"
+.br
+.ti -1c
+.RI "static int \fButfchar\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBbyteoffset\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBiter_aux\fP (\fBlua_State\fP *L, int strict)"
+.br
+.ti -1c
+.RI "static int \fBiter_auxstrict\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBiter_auxlax\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBiter_codes\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAMOD_API\fP int \fBluaopen_utf8\fP (\fBlua_State\fP *L)"
+.br
+.in -1c
+.SS "变量"
+
+.in +1c
+.ti -1c
+.RI "static const \fBluaL_Reg\fP \fBfuncs\fP []"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define iscont(p)   ((*(p) & 0xC0) == 0x80)"
+
+.PP
+在文件 lutf8lib\&.c 第 38 行定义\&.
+.SS "#define LUA_LIB"
+
+.PP
+在文件 lutf8lib\&.c 第 8 行定义\&.
+.SS "#define lutf8lib_c"
+
+.PP
+在文件 lutf8lib\&.c 第 7 行定义\&.
+.SS "#define MAXUNICODE   0x10FFFFu"
+
+.PP
+在文件 lutf8lib\&.c 第 24 行定义\&.
+.SS "#define MAXUTF   0x7FFFFFFFu"
+
+.PP
+在文件 lutf8lib\&.c 第 26 行定义\&.
+.SS "#define UTF8PATT   '[\\0\-\\x7F\\xC2\-\\xFD][\\x80\-\\xBF]*'"
+
+.PP
+在文件 lutf8lib\&.c 第 268 行定义\&.
+.SH "类型定义说明"
+.PP 
+.SS "typedef unsigned long \fButfint\fP"
+
+.PP
+在文件 lutf8lib\&.c 第 34 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static int byteoffset (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lutf8lib\&.c 第 183 行定义\&.
+.SS "static int codepoint (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lutf8lib\&.c 第 122 行定义\&.
+.SS "static int iter_aux (\fBlua_State\fP * L, int strict)\fC [static]\fP"
+
+.PP
+在文件 lutf8lib\&.c 第 224 行定义\&.
+.SS "static int iter_auxlax (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lutf8lib\&.c 第 252 行定义\&.
+.SS "static int iter_auxstrict (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lutf8lib\&.c 第 248 行定义\&.
+.SS "static int iter_codes (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lutf8lib\&.c 第 257 行定义\&.
+.SS "\fBLUAMOD_API\fP int luaopen_utf8 (\fBlua_State\fP * L)"
+
+.PP
+在文件 lutf8lib\&.c 第 283 行定义\&.
+.SS "static void pushutfchar (\fBlua_State\fP * L, int arg)\fC [static]\fP"
+
+.PP
+在文件 lutf8lib\&.c 第 151 行定义\&.
+.SS "static \fBlua_Integer\fP u_posrelat (\fBlua_Integer\fP pos, size_t len)\fC [static]\fP"
+
+.PP
+在文件 lutf8lib\&.c 第 43 行定义\&.
+.SS "static const char* utf8_decode (const char * s, \fButfint\fP * val, int strict)\fC [static]\fP"
+
+.PP
+在文件 lutf8lib\&.c 第 57 行定义\&.
+.SS "static int utfchar (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lutf8lib\&.c 第 161 行定义\&.
+.SS "static int utflen (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lutf8lib\&.c 第 92 行定义\&.
+.SH "变量说明"
+.PP 
+.SS "const \fBluaL_Reg\fP funcs[]\fC [static]\fP"
+\fB初始值:\fP
+.PP
+.nf
+= {
+  {"offset", byteoffset},
+  {"codepoint", codepoint},
+  {"char", utfchar},
+  {"len", utflen},
+  {"codes", iter_codes},
+  
+  {"charpattern", NULL},
+  {NULL, NULL}
+}
+.fi
+.PP
+在文件 lutf8lib\&.c 第 271 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

@@ -1,0 +1,1273 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_liolib_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/liolib.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/liolib.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;ctype.h&gt;
+#include &lt;errno.h&gt;
+#include &lt;locale.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;lauxlib.h&quot;
+#include &quot;lualib.h&quot;
+</programlisting>liolib.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>结构体    </title>
+        <itemizedlist>
+            <listitem><para>struct <link linkend="_struct_r_n">RN</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_liolib_8c_1a4fa96ecbbecfabf0003fa4163c5029e0">liolib_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_liolib_8c_1a884b19ad6094d6238c4072a8064aeb12">LUA_LIB</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_liolib_8c_1a56a6e062eb06243c32928d1cfefba4f5">L_MODEEXT</link>   &quot;b&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_liolib_8c_1aa3d5752e1676a0c9559b617972d90360">l_checkmodep</link>(m)   ((m[0] == &apos;r&apos; || m[0] == &apos;w&apos;) &amp;&amp; m[1] == &apos;\0&apos;)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_liolib_8c_1abb5b1c7bfa0e31613ed25ca2bb648381">l_popen</link>(L,  c,  m)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_liolib_8c_1a2ab03e50e416477fb612dc808c6e2951">l_pclose</link>(L,  file)   ((void)L, (void)file, -1)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_liolib_8c_1a039d3e5509ea3a88809269f400f58ba5">l_getc</link>(f)   getc(f)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_liolib_8c_1ac0ab419b6e0666a091b66d7948fd4e2d">l_lockfile</link>(f)   ((void)0)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_liolib_8c_1a4fb31ed5e0fc117ce51bc6e5391bb789">l_unlockfile</link>(f)   ((void)0)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_liolib_8c_1a62de3640998d6fbb4148ee251244bf85">l_fseek</link>(f,  o,  w)   fseek(f,o,w)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_liolib_8c_1afa9a1643bfb6b1928c256f818d8ee8d4">l_ftell</link>(f)   ftell(f)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_liolib_8c_1a0cbd6f87dda88adaa6e189c8490319a3">l_seeknum</link>   long</para>
+</listitem>
+            <listitem><para>#define <link linkend="_liolib_8c_1a181a699d5111b8d79a423a9bbcaf6830">IO_PREFIX</link>   &quot;_IO_&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_liolib_8c_1ac6ca58c960165047c3bf20e9546951b3">IOPREF_LEN</link>   (sizeof(<link linkend="_liolib_8c_1a181a699d5111b8d79a423a9bbcaf6830">IO_PREFIX</link>)/sizeof(char) - 1)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_liolib_8c_1a3c1a27aacf1dd33edffa2422da638d0f">IO_INPUT</link>   (<link linkend="_liolib_8c_1a181a699d5111b8d79a423a9bbcaf6830">IO_PREFIX</link> &quot;input&quot;)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_liolib_8c_1aae48313230e7f773bf495ada1171c506">IO_OUTPUT</link>   (<link linkend="_liolib_8c_1a181a699d5111b8d79a423a9bbcaf6830">IO_PREFIX</link> &quot;output&quot;)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_liolib_8c_1aa4a3ca333e58733b833a0395c5742fc2">tolstream</link>(L)   ((<link linkend="_liolib_8c_1afdee2306a2ebaf7fd48d13fa65714054">LStream</link> *)<link linkend="_lauxlib_8h_1aed8d8e4f3b95c6bcac246ec9895027b1">luaL_checkudata</link>(L, 1, <link linkend="_lauxlib_8h_1a36f3babeb54bee1ebba63fe4fa94189a">LUA_FILEHANDLE</link>))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_liolib_8c_1a933df16f547e59062271f306675f599c">isclosed</link>(p)   ((p)-&gt;closef == NULL)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_liolib_8c_1a71cbd8e6a0b23499a1aef7e03eedf400">MAXARGLINE</link>   250</para>
+</listitem>
+            <listitem><para>#define <link linkend="_liolib_8c_1a98d71ac135df4047b2f051fcc7a1f40f">L_MAXLENNUM</link>   200</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>类型定义    </title>
+        <itemizedlist>
+            <listitem><para>typedef <link linkend="_structlua_l___stream">luaL_Stream</link> <link linkend="_liolib_8c_1afdee2306a2ebaf7fd48d13fa65714054">LStream</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static int <link linkend="_liolib_8c_1ab187d8eb3cf2b49793e4020547525905">l_checkmode</link> (const char *mode)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1a2bd80ae170dce6c29d385b71398fd7c2">io_type</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1afaec8b8506a424b1b5f342037ae6350a">f_tostring</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static FILE * <link linkend="_liolib_8c_1a3a596f9304846a90435b75c75c55acda">tofile</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static <link linkend="_liolib_8c_1afdee2306a2ebaf7fd48d13fa65714054">LStream</link> * <link linkend="_liolib_8c_1ab456fc51383d039a5a24c702060aba8e">newprefile</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1a17cd174f91e6d1fdf0de674448dc84f2">aux_close</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1a2b331358ffb75b150c9490c2cc78aea2">f_close</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1a1c6f8e04184b0f7939e45e24d2d7ef8a">io_close</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1a54d23ecdc47341b1ab23dd572a011efb">f_gc</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1a693d26c59aa9f6a298ac288cb1a5c38d">io_fclose</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static <link linkend="_liolib_8c_1afdee2306a2ebaf7fd48d13fa65714054">LStream</link> * <link linkend="_liolib_8c_1a57c6c258a611b738f0ef34584ca6e7ab">newfile</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_liolib_8c_1a91ec9c6fa0ef33085f29a15532ac80a7">opencheck</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *fname, const char *mode)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1ab4a969d43dbe0f89e98307e5b421f8a7">io_open</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1ac885ae15fd14fc88058b0b8c1cf2b1d9">io_pclose</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1a8cc0b2b08409fb97e5cc80a0caf9b5fd">io_popen</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1a0347de9dda8be02044075c96482eddb3">io_tmpfile</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static FILE * <link linkend="_liolib_8c_1a3bccbdacdc9f21f22a603525be1f3699">getiofile</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *findex)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1aae942558ff528b4e1a483297c64e6886">g_iofile</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *f, const char *mode)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1a827044fde6f2c21ab965ba3d729f6a0f">io_input</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1a4464f89f0151ad432557b0a51258582c">io_output</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1ac37d80ee2cc364b4adafcb6f7c20f28b">io_readline</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_liolib_8c_1a66325940a0248cee288153edb061c0c4">aux_lines</link> (<link linkend="_structlua___state">lua_State</link> *L, int toclose)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1a6a36f72d8b3966c1ebafab8a4791cb6c">f_lines</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1ab08031b51605d4ef676ec33a3b96a286">io_lines</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1ab75f5f85c38ee22fc9884f0bd7ef836d">nextc</link> (<link linkend="_struct_r_n">RN</link> *rn)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1a5c7dc3feb7edf50432b742767d4748f4">test2</link> (<link linkend="_struct_r_n">RN</link> *rn, const char *set)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1a7ab70833e31129b3a9d2b49869c72978">readdigits</link> (<link linkend="_struct_r_n">RN</link> *rn, int hex)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1a5345908bf60e4bd37d768b052ac26ec7">read_number</link> (<link linkend="_structlua___state">lua_State</link> *L, FILE *f)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1ace61fce0bdea311d6d7c2206881165c7">test_eof</link> (<link linkend="_structlua___state">lua_State</link> *L, FILE *f)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1ae697e23c2b1ea23d8935f579aa21200c">read_line</link> (<link linkend="_structlua___state">lua_State</link> *L, FILE *f, int chop)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_liolib_8c_1a48a16089fed2e802a76635a3f8bfe8e3">read_all</link> (<link linkend="_structlua___state">lua_State</link> *L, FILE *f)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1a6735c0513432f83bfa1b88b056ab379b">read_chars</link> (<link linkend="_structlua___state">lua_State</link> *L, FILE *f, size_t n)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1addece2406777a40f0f591e3518293932">g_read</link> (<link linkend="_structlua___state">lua_State</link> *L, FILE *f, int first)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1a45307aa59a628966c6ea270e9b476d9a">io_read</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1add5250a74576076467531e4eb8f5f68e">f_read</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1a88c73a30c7d135dfb4958b7bfaa90cc7">g_write</link> (<link linkend="_structlua___state">lua_State</link> *L, FILE *f, int arg)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1ada35daf906cc262cc6944cad92b93ac3">io_write</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1adba67ef94aaa532d9224ca04f8126ac2">f_write</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1ace5e1a23cc9e2ffe7ae6cc523e54de73">f_seek</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1aa7d559e7d43a6133ec495d6b4e5d68f2">f_setvbuf</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1a2f93672e01db50e1e5361f5f01c71bd6">io_flush</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1ad45f522bd561c05889799a66d9ffdb33">f_flush</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_liolib_8c_1a2edb7e84ca2f51dafb5d77b9c81a804c">createmeta</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_liolib_8c_1a7b8451d8d8fcbbe8f259375da540d12f">io_noclose</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_liolib_8c_1a0a80ad2f9dbb3b7238efae7738bb7569">createstdfile</link> (<link linkend="_structlua___state">lua_State</link> *L, FILE *f, const char *k, const char *fname)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link> int <link linkend="_liolib_8c_1a2d3f245e532f3d582a4ff62bbd567149">luaopen_io</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>变量    </title>
+        <itemizedlist>
+            <listitem><para>static const <link linkend="_structlua_l___reg">luaL_Reg</link> <link linkend="_liolib_8c_1a8fe96dd62a007daad3a18e43dd136a29">iolib</link> []</para>
+</listitem>
+            <listitem><para>static const <link linkend="_structlua_l___reg">luaL_Reg</link> <link linkend="_liolib_8c_1a130a4b6b5500c2a2d53c8e4b82db6bac">meth</link> []</para>
+</listitem>
+            <listitem><para>static const <link linkend="_structlua_l___reg">luaL_Reg</link> <link linkend="_liolib_8c_1af35236400576d70739e09cc6a150b7c8">metameth</link> []</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_liolib_8c_1a3c1a27aacf1dd33edffa2422da638d0f"/>    <section>
+    <title>IO_INPUT</title>
+<indexterm><primary>IO_INPUT</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>IO_INPUT</secondary></indexterm>
+<para><computeroutput>#define IO_INPUT   (<link linkend="_liolib_8c_1a181a699d5111b8d79a423a9bbcaf6830">IO_PREFIX</link> &quot;input&quot;)</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00145">145</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1aae48313230e7f773bf495ada1171c506"/>    <section>
+    <title>IO_OUTPUT</title>
+<indexterm><primary>IO_OUTPUT</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>IO_OUTPUT</secondary></indexterm>
+<para><computeroutput>#define IO_OUTPUT   (<link linkend="_liolib_8c_1a181a699d5111b8d79a423a9bbcaf6830">IO_PREFIX</link> &quot;output&quot;)</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00146">146</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1a181a699d5111b8d79a423a9bbcaf6830"/>    <section>
+    <title>IO_PREFIX</title>
+<indexterm><primary>IO_PREFIX</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>IO_PREFIX</secondary></indexterm>
+<para><computeroutput>#define IO_PREFIX   &quot;_IO_&quot;</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00143">143</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1ac6ca58c960165047c3bf20e9546951b3"/>    <section>
+    <title>IOPREF_LEN</title>
+<indexterm><primary>IOPREF_LEN</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>IOPREF_LEN</secondary></indexterm>
+<para><computeroutput>#define IOPREF_LEN   (sizeof(<link linkend="_liolib_8c_1a181a699d5111b8d79a423a9bbcaf6830">IO_PREFIX</link>)/sizeof(char) - 1)</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00144">144</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1a933df16f547e59062271f306675f599c"/>    <section>
+    <title>isclosed</title>
+<indexterm><primary>isclosed</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>isclosed</secondary></indexterm>
+<para><computeroutput>#define isclosed( p)   ((p)-&gt;closef == NULL)</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00154">154</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1aa3d5752e1676a0c9559b617972d90360"/>    <section>
+    <title>l_checkmodep</title>
+<indexterm><primary>l_checkmodep</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>l_checkmodep</secondary></indexterm>
+<para><computeroutput>#define l_checkmodep( m)   ((m[0] == &apos;r&apos; || m[0] == &apos;w&apos;) &amp;&amp; m[1] == &apos;\0&apos;)</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00057">57</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1a62de3640998d6fbb4148ee251244bf85"/>    <section>
+    <title>l_fseek</title>
+<indexterm><primary>l_fseek</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>l_fseek</secondary></indexterm>
+<para><computeroutput>#define l_fseek( f,  o,  w)   fseek(f,o,w)</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00131">131</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1afa9a1643bfb6b1928c256f818d8ee8d4"/>    <section>
+    <title>l_ftell</title>
+<indexterm><primary>l_ftell</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>l_ftell</secondary></indexterm>
+<para><computeroutput>#define l_ftell( f)   ftell(f)</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00132">132</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1a039d3e5509ea3a88809269f400f58ba5"/>    <section>
+    <title>l_getc</title>
+<indexterm><primary>l_getc</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>l_getc</secondary></indexterm>
+<para><computeroutput>#define l_getc( f)   getc(f)</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00096">96</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1ac0ab419b6e0666a091b66d7948fd4e2d"/>    <section>
+    <title>l_lockfile</title>
+<indexterm><primary>l_lockfile</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>l_lockfile</secondary></indexterm>
+<para><computeroutput>#define l_lockfile( f)   ((void)0)</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00097">97</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1a98d71ac135df4047b2f051fcc7a1f40f"/>    <section>
+    <title>L_MAXLENNUM</title>
+<indexterm><primary>L_MAXLENNUM</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>L_MAXLENNUM</secondary></indexterm>
+<para><computeroutput>#define L_MAXLENNUM   200</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00416">416</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1a56a6e062eb06243c32928d1cfefba4f5"/>    <section>
+    <title>L_MODEEXT</title>
+<indexterm><primary>L_MODEEXT</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>L_MODEEXT</secondary></indexterm>
+<para><computeroutput>#define L_MODEEXT   &quot;b&quot;</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00036">36</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1a2ab03e50e416477fb612dc808c6e2951"/>    <section>
+    <title>l_pclose</title>
+<indexterm><primary>l_pclose</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>l_pclose</secondary></indexterm>
+<para><computeroutput>#define l_pclose( L,  file)   ((void)L, (void)file, -1)</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00080">80</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1abb5b1c7bfa0e31613ed25ca2bb648381"/>    <section>
+    <title>l_popen</title>
+<indexterm><primary>l_popen</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>l_popen</secondary></indexterm>
+<para><computeroutput>#define l_popen( L,  c,  m)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;&#32;&#32;((void)c,&#32;(<emphasis role="keywordtype">void</emphasis>)m,&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;luaL_error(L,&#32;<emphasis role="stringliteral">&quot;&apos;popen&apos;&#32;not&#32;supported&quot;</emphasis>),&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;(FILE*)0)
+</programlisting><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00076">76</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1a0cbd6f87dda88adaa6e189c8490319a3"/>    <section>
+    <title>l_seeknum</title>
+<indexterm><primary>l_seeknum</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>l_seeknum</secondary></indexterm>
+<para><computeroutput>#define l_seeknum   long</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00133">133</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1a4fb31ed5e0fc117ce51bc6e5391bb789"/>    <section>
+    <title>l_unlockfile</title>
+<indexterm><primary>l_unlockfile</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>l_unlockfile</secondary></indexterm>
+<para><computeroutput>#define l_unlockfile( f)   ((void)0)</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00098">98</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1a4fa96ecbbecfabf0003fa4163c5029e0"/>    <section>
+    <title>liolib_c</title>
+<indexterm><primary>liolib_c</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>liolib_c</secondary></indexterm>
+<para><computeroutput>#define liolib_c</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1a884b19ad6094d6238c4072a8064aeb12"/>    <section>
+    <title>LUA_LIB</title>
+<indexterm><primary>LUA_LIB</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>LUA_LIB</secondary></indexterm>
+<para><computeroutput>#define LUA_LIB</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00008">8</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1a71cbd8e6a0b23499a1aef7e03eedf400"/>    <section>
+    <title>MAXARGLINE</title>
+<indexterm><primary>MAXARGLINE</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>MAXARGLINE</secondary></indexterm>
+<para><computeroutput>#define MAXARGLINE   250</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00346">346</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1aa4a3ca333e58733b833a0395c5742fc2"/>    <section>
+    <title>tolstream</title>
+<indexterm><primary>tolstream</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>tolstream</secondary></indexterm>
+<para><computeroutput>#define tolstream( L)   ((<link linkend="_liolib_8c_1afdee2306a2ebaf7fd48d13fa65714054">LStream</link> *)<link linkend="_lauxlib_8h_1aed8d8e4f3b95c6bcac246ec9895027b1">luaL_checkudata</link>(L, 1, <link linkend="_lauxlib_8h_1a36f3babeb54bee1ebba63fe4fa94189a">LUA_FILEHANDLE</link>))</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00152">152</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>类型定义说明</title>
+<anchor xml:id="_liolib_8c_1afdee2306a2ebaf7fd48d13fa65714054"/>    <section>
+    <title>LStream</title>
+<indexterm><primary>LStream</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>LStream</secondary></indexterm>
+<para><computeroutput>typedef <link linkend="_structlua_l___stream">luaL_Stream</link> <link linkend="_liolib_8c_1afdee2306a2ebaf7fd48d13fa65714054">LStream</link></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00149">149</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_liolib_8c_1a17cd174f91e6d1fdf0de674448dc84f2"/>    <section>
+    <title>aux_close()</title>
+<indexterm><primary>aux_close</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>aux_close</secondary></indexterm>
+<para><computeroutput>static int aux_close (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00208">208</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a17cd174f91e6d1fdf0de674448dc84f2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a66325940a0248cee288153edb061c0c4"/>    <section>
+    <title>aux_lines()</title>
+<indexterm><primary>aux_lines</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>aux_lines</secondary></indexterm>
+<para><computeroutput>static void aux_lines (<link linkend="_structlua___state">lua_State</link> * L, int toclose)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00357">357</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a66325940a0248cee288153edb061c0c4_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a66325940a0248cee288153edb061c0c4_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a2edb7e84ca2f51dafb5d77b9c81a804c"/>    <section>
+    <title>createmeta()</title>
+<indexterm><primary>createmeta</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>createmeta</secondary></indexterm>
+<para><computeroutput>static void createmeta (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00777">777</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a2edb7e84ca2f51dafb5d77b9c81a804c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a2edb7e84ca2f51dafb5d77b9c81a804c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a0a80ad2f9dbb3b7238efae7738bb7569"/>    <section>
+    <title>createstdfile()</title>
+<indexterm><primary>createstdfile</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>createstdfile</secondary></indexterm>
+<para><computeroutput>static void createstdfile (<link linkend="_structlua___state">lua_State</link> * L, FILE * f, const char * k, const char * fname)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00799">799</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a0a80ad2f9dbb3b7238efae7738bb7569_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a0a80ad2f9dbb3b7238efae7738bb7569_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a2b331358ffb75b150c9490c2cc78aea2"/>    <section>
+    <title>f_close()</title>
+<indexterm><primary>f_close</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>f_close</secondary></indexterm>
+<para><computeroutput>static int f_close (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00216">216</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a2b331358ffb75b150c9490c2cc78aea2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a2b331358ffb75b150c9490c2cc78aea2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1ad45f522bd561c05889799a66d9ffdb33"/>    <section>
+    <title>f_flush()</title>
+<indexterm><primary>f_flush</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>f_flush</secondary></indexterm>
+<para><computeroutput>static int f_flush (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00726">726</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_ad45f522bd561c05889799a66d9ffdb33_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a54d23ecdc47341b1ab23dd572a011efb"/>    <section>
+    <title>f_gc()</title>
+<indexterm><primary>f_gc</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>f_gc</secondary></indexterm>
+<para><computeroutput>static int f_gc (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00229">229</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a54d23ecdc47341b1ab23dd572a011efb_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a6a36f72d8b3966c1ebafab8a4791cb6c"/>    <section>
+    <title>f_lines()</title>
+<indexterm><primary>f_lines</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>f_lines</secondary></indexterm>
+<para><computeroutput>static int f_lines (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00368">368</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a6a36f72d8b3966c1ebafab8a4791cb6c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1add5250a74576076467531e4eb8f5f68e"/>    <section>
+    <title>f_read()</title>
+<indexterm><primary>f_read</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>f_read</secondary></indexterm>
+<para><computeroutput>static int f_read (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00615">615</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_add5250a74576076467531e4eb8f5f68e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1ace5e1a23cc9e2ffe7ae6cc523e54de73"/>    <section>
+    <title>f_seek()</title>
+<indexterm><primary>f_seek</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>f_seek</secondary></indexterm>
+<para><computeroutput>static int f_seek (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00690">690</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_ace5e1a23cc9e2ffe7ae6cc523e54de73_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1aa7d559e7d43a6133ec495d6b4e5d68f2"/>    <section>
+    <title>f_setvbuf()</title>
+<indexterm><primary>f_setvbuf</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>f_setvbuf</secondary></indexterm>
+<para><computeroutput>static int f_setvbuf (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00709">709</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_aa7d559e7d43a6133ec495d6b4e5d68f2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1afaec8b8506a424b1b5f342037ae6350a"/>    <section>
+    <title>f_tostring()</title>
+<indexterm><primary>f_tostring</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>f_tostring</secondary></indexterm>
+<para><computeroutput>static int f_tostring (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00171">171</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_afaec8b8506a424b1b5f342037ae6350a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1adba67ef94aaa532d9224ca04f8126ac2"/>    <section>
+    <title>f_write()</title>
+<indexterm><primary>f_write</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>f_write</secondary></indexterm>
+<para><computeroutput>static int f_write (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00683">683</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_adba67ef94aaa532d9224ca04f8126ac2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1aae942558ff528b4e1a483297c64e6886"/>    <section>
+    <title>g_iofile()</title>
+<indexterm><primary>g_iofile</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>g_iofile</secondary></indexterm>
+<para><computeroutput>static int g_iofile (<link linkend="_structlua___state">lua_State</link> * L, const char * f, const char * mode)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00312">312</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_aae942558ff528b4e1a483297c64e6886_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_aae942558ff528b4e1a483297c64e6886_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1addece2406777a40f0f591e3518293932"/>    <section>
+    <title>g_read()</title>
+<indexterm><primary>g_read</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>g_read</secondary></indexterm>
+<para><computeroutput>static int g_read (<link linkend="_structlua___state">lua_State</link> * L, FILE * f, int first)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00560">560</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_addece2406777a40f0f591e3518293932_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_addece2406777a40f0f591e3518293932_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a88c73a30c7d135dfb4958b7bfaa90cc7"/>    <section>
+    <title>g_write()</title>
+<indexterm><primary>g_write</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>g_write</secondary></indexterm>
+<para><computeroutput>static int g_write (<link linkend="_structlua___state">lua_State</link> * L, FILE * f, int arg)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00654">654</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a88c73a30c7d135dfb4958b7bfaa90cc7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a88c73a30c7d135dfb4958b7bfaa90cc7_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a3bccbdacdc9f21f22a603525be1f3699"/>    <section>
+    <title>getiofile()</title>
+<indexterm><primary>getiofile</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>getiofile</secondary></indexterm>
+<para><computeroutput>static FILE* getiofile (<link linkend="_structlua___state">lua_State</link> * L, const char * findex)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00302">302</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a3bccbdacdc9f21f22a603525be1f3699_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a3bccbdacdc9f21f22a603525be1f3699_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a1c6f8e04184b0f7939e45e24d2d7ef8a"/>    <section>
+    <title>io_close()</title>
+<indexterm><primary>io_close</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>io_close</secondary></indexterm>
+<para><computeroutput>static int io_close (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00222">222</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a1c6f8e04184b0f7939e45e24d2d7ef8a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a693d26c59aa9f6a298ac288cb1a5c38d"/>    <section>
+    <title>io_fclose()</title>
+<indexterm><primary>io_fclose</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>io_fclose</secondary></indexterm>
+<para><computeroutput>static int io_fclose (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00240">240</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a693d26c59aa9f6a298ac288cb1a5c38d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a693d26c59aa9f6a298ac288cb1a5c38d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a2f93672e01db50e1e5361f5f01c71bd6"/>    <section>
+    <title>io_flush()</title>
+<indexterm><primary>io_flush</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>io_flush</secondary></indexterm>
+<para><computeroutput>static int io_flush (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00721">721</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a2f93672e01db50e1e5361f5f01c71bd6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a827044fde6f2c21ab965ba3d729f6a0f"/>    <section>
+    <title>io_input()</title>
+<indexterm><primary>io_input</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>io_input</secondary></indexterm>
+<para><computeroutput>static int io_input (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00329">329</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a827044fde6f2c21ab965ba3d729f6a0f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1ab08031b51605d4ef676ec33a3b96a286"/>    <section>
+    <title>io_lines()</title>
+<indexterm><primary>io_lines</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>io_lines</secondary></indexterm>
+<para><computeroutput>static int io_lines (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00380">380</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_ab08031b51605d4ef676ec33a3b96a286_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a7b8451d8d8fcbbe8f259375da540d12f"/>    <section>
+    <title>io_noclose()</title>
+<indexterm><primary>io_noclose</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>io_noclose</secondary></indexterm>
+<para><computeroutput>static int io_noclose (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00790">790</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a7b8451d8d8fcbbe8f259375da540d12f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1ab4a969d43dbe0f89e98307e5b421f8a7"/>    <section>
+    <title>io_open()</title>
+<indexterm><primary>io_open</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>io_open</secondary></indexterm>
+<para><computeroutput>static int io_open (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00263">263</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_ab4a969d43dbe0f89e98307e5b421f8a7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a4464f89f0151ad432557b0a51258582c"/>    <section>
+    <title>io_output()</title>
+<indexterm><primary>io_output</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>io_output</secondary></indexterm>
+<para><computeroutput>static int io_output (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00334">334</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a4464f89f0151ad432557b0a51258582c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1ac885ae15fd14fc88058b0b8c1cf2b1d9"/>    <section>
+    <title>io_pclose()</title>
+<indexterm><primary>io_pclose</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>io_pclose</secondary></indexterm>
+<para><computeroutput>static int io_pclose (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00277">277</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_ac885ae15fd14fc88058b0b8c1cf2b1d9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_ac885ae15fd14fc88058b0b8c1cf2b1d9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a8cc0b2b08409fb97e5cc80a0caf9b5fd"/>    <section>
+    <title>io_popen()</title>
+<indexterm><primary>io_popen</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>io_popen</secondary></indexterm>
+<para><computeroutput>static int io_popen (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00284">284</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a8cc0b2b08409fb97e5cc80a0caf9b5fd_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a45307aa59a628966c6ea270e9b476d9a"/>    <section>
+    <title>io_read()</title>
+<indexterm><primary>io_read</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>io_read</secondary></indexterm>
+<para><computeroutput>static int io_read (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00610">610</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a45307aa59a628966c6ea270e9b476d9a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1ac37d80ee2cc364b4adafcb6f7c20f28b"/>    <section>
+    <title>io_readline()</title>
+<indexterm><primary>io_readline</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>io_readline</secondary></indexterm>
+<para><computeroutput>static int io_readline (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00623">623</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_ac37d80ee2cc364b4adafcb6f7c20f28b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_ac37d80ee2cc364b4adafcb6f7c20f28b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a0347de9dda8be02044075c96482eddb3"/>    <section>
+    <title>io_tmpfile()</title>
+<indexterm><primary>io_tmpfile</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>io_tmpfile</secondary></indexterm>
+<para><computeroutput>static int io_tmpfile (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00295">295</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a0347de9dda8be02044075c96482eddb3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a2bd80ae170dce6c29d385b71398fd7c2"/>    <section>
+    <title>io_type()</title>
+<indexterm><primary>io_type</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>io_type</secondary></indexterm>
+<para><computeroutput>static int io_type (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00157">157</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a2bd80ae170dce6c29d385b71398fd7c2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1ada35daf906cc262cc6944cad92b93ac3"/>    <section>
+    <title>io_write()</title>
+<indexterm><primary>io_write</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>io_write</secondary></indexterm>
+<para><computeroutput>static int io_write (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00678">678</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_ada35daf906cc262cc6944cad92b93ac3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1ab187d8eb3cf2b49793e4020547525905"/>    <section>
+    <title>l_checkmode()</title>
+<indexterm><primary>l_checkmode</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>l_checkmode</secondary></indexterm>
+<para><computeroutput>static int l_checkmode (const char * mode)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00040">40</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_ab187d8eb3cf2b49793e4020547525905_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a2d3f245e532f3d582a4ff62bbd567149"/>    <section>
+    <title>luaopen_io()</title>
+<indexterm><primary>luaopen_io</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>luaopen_io</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link> int luaopen_io (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00812">812</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a2d3f245e532f3d582a4ff62bbd567149_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a57c6c258a611b738f0ef34584ca6e7ab"/>    <section>
+    <title>newfile()</title>
+<indexterm><primary>newfile</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>newfile</secondary></indexterm>
+<para><computeroutput>static <link linkend="_liolib_8c_1afdee2306a2ebaf7fd48d13fa65714054">LStream</link>* newfile (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00247">247</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a57c6c258a611b738f0ef34584ca6e7ab_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a57c6c258a611b738f0ef34584ca6e7ab_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1ab456fc51383d039a5a24c702060aba8e"/>    <section>
+    <title>newprefile()</title>
+<indexterm><primary>newprefile</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>newprefile</secondary></indexterm>
+<para><computeroutput>static <link linkend="_liolib_8c_1afdee2306a2ebaf7fd48d13fa65714054">LStream</link>* newprefile (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00195">195</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_ab456fc51383d039a5a24c702060aba8e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_ab456fc51383d039a5a24c702060aba8e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1ab75f5f85c38ee22fc9884f0bd7ef836d"/>    <section>
+    <title>nextc()</title>
+<indexterm><primary>nextc</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>nextc</secondary></indexterm>
+<para><computeroutput>static int nextc (<link linkend="_struct_r_n">RN</link> * rn)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00432">432</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_ab75f5f85c38ee22fc9884f0bd7ef836d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a91ec9c6fa0ef33085f29a15532ac80a7"/>    <section>
+    <title>opencheck()</title>
+<indexterm><primary>opencheck</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>opencheck</secondary></indexterm>
+<para><computeroutput>static void opencheck (<link linkend="_structlua___state">lua_State</link> * L, const char * fname, const char * mode)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00255">255</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a91ec9c6fa0ef33085f29a15532ac80a7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a91ec9c6fa0ef33085f29a15532ac80a7_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a48a16089fed2e802a76635a3f8bfe8e3"/>    <section>
+    <title>read_all()</title>
+<indexterm><primary>read_all</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>read_all</secondary></indexterm>
+<para><computeroutput>static void read_all (<link linkend="_structlua___state">lua_State</link> * L, FILE * f)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00534">534</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a48a16089fed2e802a76635a3f8bfe8e3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a48a16089fed2e802a76635a3f8bfe8e3_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a6735c0513432f83bfa1b88b056ab379b"/>    <section>
+    <title>read_chars()</title>
+<indexterm><primary>read_chars</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>read_chars</secondary></indexterm>
+<para><computeroutput>static int read_chars (<link linkend="_structlua___state">lua_State</link> * L, FILE * f, size_t n)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00547">547</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a6735c0513432f83bfa1b88b056ab379b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a6735c0513432f83bfa1b88b056ab379b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1ae697e23c2b1ea23d8935f579aa21200c"/>    <section>
+    <title>read_line()</title>
+<indexterm><primary>read_line</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>read_line</secondary></indexterm>
+<para><computeroutput>static int read_line (<link linkend="_structlua___state">lua_State</link> * L, FILE * f, int chop)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00513">513</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_ae697e23c2b1ea23d8935f579aa21200c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_ae697e23c2b1ea23d8935f579aa21200c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a5345908bf60e4bd37d768b052ac26ec7"/>    <section>
+    <title>read_number()</title>
+<indexterm><primary>read_number</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>read_number</secondary></indexterm>
+<para><computeroutput>static int read_number (<link linkend="_structlua___state">lua_State</link> * L, FILE * f)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00471">471</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a5345908bf60e4bd37d768b052ac26ec7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a5345908bf60e4bd37d768b052ac26ec7_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a7ab70833e31129b3a9d2b49869c72978"/>    <section>
+    <title>readdigits()</title>
+<indexterm><primary>readdigits</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>readdigits</secondary></indexterm>
+<para><computeroutput>static int readdigits (<link linkend="_struct_r_n">RN</link> * rn, int hex)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00458">458</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a7ab70833e31129b3a9d2b49869c72978_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a7ab70833e31129b3a9d2b49869c72978_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a5c7dc3feb7edf50432b742767d4748f4"/>    <section>
+    <title>test2()</title>
+<indexterm><primary>test2</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>test2</secondary></indexterm>
+<para><computeroutput>static int test2 (<link linkend="_struct_r_n">RN</link> * rn, const char * set)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00448">448</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a5c7dc3feb7edf50432b742767d4748f4_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a5c7dc3feb7edf50432b742767d4748f4_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1ace61fce0bdea311d6d7c2206881165c7"/>    <section>
+    <title>test_eof()</title>
+<indexterm><primary>test_eof</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>test_eof</secondary></indexterm>
+<para><computeroutput>static int test_eof (<link linkend="_structlua___state">lua_State</link> * L, FILE * f)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00505">505</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_ace61fce0bdea311d6d7c2206881165c7_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_liolib_8c_1a3a596f9304846a90435b75c75c55acda"/>    <section>
+    <title>tofile()</title>
+<indexterm><primary>tofile</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>tofile</secondary></indexterm>
+<para><computeroutput>static FILE* tofile (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00181">181</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a3a596f9304846a90435b75c75c55acda_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="liolib_8c_a3a596f9304846a90435b75c75c55acda_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+<section>
+<title>变量说明</title>
+<anchor xml:id="_liolib_8c_1a8fe96dd62a007daad3a18e43dd136a29"/>    <section>
+    <title>iolib</title>
+<indexterm><primary>iolib</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>iolib</secondary></indexterm>
+<para><computeroutput>const <link linkend="_structlua_l___reg">luaL_Reg</link> iolib[]<computeroutput>[static]</computeroutput></computeroutput></para><emphasis role="strong">初始值:</emphasis><programlisting>=&#32;{
+&#32;&#32;{<emphasis role="stringliteral">&quot;close&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a1c6f8e04184b0f7939e45e24d2d7ef8a">io_close</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;flush&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a2f93672e01db50e1e5361f5f01c71bd6">io_flush</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;input&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a827044fde6f2c21ab965ba3d729f6a0f">io_input</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;lines&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1ab08031b51605d4ef676ec33a3b96a286">io_lines</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;open&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1ab4a969d43dbe0f89e98307e5b421f8a7">io_open</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;output&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a4464f89f0151ad432557b0a51258582c">io_output</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;popen&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a8cc0b2b08409fb97e5cc80a0caf9b5fd">io_popen</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;read&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a45307aa59a628966c6ea270e9b476d9a">io_read</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;tmpfile&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a0347de9dda8be02044075c96482eddb3">io_tmpfile</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;type&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a2bd80ae170dce6c29d385b71398fd7c2">io_type</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;write&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1ada35daf906cc262cc6944cad92b93ac3">io_write</link>},
+&#32;&#32;{NULL,&#32;NULL}
+}
+</programlisting><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00734">734</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1af35236400576d70739e09cc6a150b7c8"/>    <section>
+    <title>metameth</title>
+<indexterm><primary>metameth</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>metameth</secondary></indexterm>
+<para><computeroutput>const <link linkend="_structlua_l___reg">luaL_Reg</link> metameth[]<computeroutput>[static]</computeroutput></computeroutput></para><emphasis role="strong">初始值:</emphasis><programlisting>=&#32;{
+&#32;&#32;{<emphasis role="stringliteral">&quot;__index&quot;</emphasis>,&#32;NULL},&#32;&#32;
+&#32;&#32;{<emphasis role="stringliteral">&quot;__gc&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a54d23ecdc47341b1ab23dd572a011efb">f_gc</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;__close&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a54d23ecdc47341b1ab23dd572a011efb">f_gc</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;__tostring&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1afaec8b8506a424b1b5f342037ae6350a">f_tostring</link>},
+&#32;&#32;{NULL,&#32;NULL}
+}
+</programlisting><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00768">768</link> 行定义.</para>
+    </section><anchor xml:id="_liolib_8c_1a130a4b6b5500c2a2d53c8e4b82db6bac"/>    <section>
+    <title>meth</title>
+<indexterm><primary>meth</primary><secondary>liolib.c</secondary></indexterm>
+<indexterm><primary>liolib.c</primary><secondary>meth</secondary></indexterm>
+<para><computeroutput>const <link linkend="_structlua_l___reg">luaL_Reg</link> meth[]<computeroutput>[static]</computeroutput></computeroutput></para><emphasis role="strong">初始值:</emphasis><programlisting>=&#32;{
+&#32;&#32;{<emphasis role="stringliteral">&quot;read&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1add5250a74576076467531e4eb8f5f68e">f_read</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;write&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1adba67ef94aaa532d9224ca04f8126ac2">f_write</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;lines&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a6a36f72d8b3966c1ebafab8a4791cb6c">f_lines</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;flush&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1ad45f522bd561c05889799a66d9ffdb33">f_flush</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;seek&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1ace5e1a23cc9e2ffe7ae6cc523e54de73">f_seek</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;close&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a2b331358ffb75b150c9490c2cc78aea2">f_close</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;setvbuf&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1aa7d559e7d43a6133ec495d6b4e5d68f2">f_setvbuf</link>},
+&#32;&#32;{NULL,&#32;NULL}
+}
+</programlisting><para>
+在文件 <link linkend="_liolib_8c_source">liolib.c</link> 第 <link linkend="_liolib_8c_source_1l00753">753</link> 行定义.</para>
+</section>
+</section>
+</section>

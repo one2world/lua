@@ -1,0 +1,387 @@
+.TH "D:/gitworkspace/lua/src/ldebug.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/ldebug.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <stdarg\&.h>\fP
+.br
+\fC#include <stddef\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lapi\&.h'\fP
+.br
+\fC#include 'lcode\&.h'\fP
+.br
+\fC#include 'ldebug\&.h'\fP
+.br
+\fC#include 'ldo\&.h'\fP
+.br
+\fC#include 'lfunc\&.h'\fP
+.br
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'lopcodes\&.h'\fP
+.br
+\fC#include 'lstate\&.h'\fP
+.br
+\fC#include 'lstring\&.h'\fP
+.br
+\fC#include 'ltable\&.h'\fP
+.br
+\fC#include 'ltm\&.h'\fP
+.br
+\fC#include 'lvm\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBldebug_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_CORE\fP"
+.br
+.ti -1c
+.RI "#define \fBnoLuaClosure\fP(f)   ((f) == NULL || (f)\->c\&.tt == \fBLUA_VCCL\fP)"
+.br
+.ti -1c
+.RI "#define \fBci_func\fP(ci)   (\fBclLvalue\fP(\fBs2v\fP((ci)\->func)))"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static const char * \fBfuncnamefromcode\fP (\fBlua_State\fP *L, \fBCallInfo\fP *ci, const char **name)"
+.br
+.ti -1c
+.RI "static int \fBcurrentpc\fP (\fBCallInfo\fP *ci)"
+.br
+.ti -1c
+.RI "static int \fBgetbaseline\fP (const \fBProto\fP *f, int pc, int *basepc)"
+.br
+.ti -1c
+.RI "int \fBluaG_getfuncline\fP (const \fBProto\fP *f, int pc)"
+.br
+.ti -1c
+.RI "static int \fBgetcurrentline\fP (\fBCallInfo\fP *ci)"
+.br
+.ti -1c
+.RI "static void \fBsettraps\fP (\fBCallInfo\fP *ci)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_sethook\fP (\fBlua_State\fP *L, \fBlua_Hook\fP func, int mask, int count)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP \fBlua_Hook\fP \fBlua_gethook\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_gethookmask\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_gethookcount\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_getstack\fP (\fBlua_State\fP *L, int level, \fBlua_Debug\fP *ar)"
+.br
+.ti -1c
+.RI "static const char * \fBupvalname\fP (const \fBProto\fP *p, int uv)"
+.br
+.ti -1c
+.RI "static const char * \fBfindvararg\fP (\fBCallInfo\fP *ci, int n, \fBStkId\fP *pos)"
+.br
+.ti -1c
+.RI "const char * \fBluaG_findlocal\fP (\fBlua_State\fP *L, \fBCallInfo\fP *ci, int n, \fBStkId\fP *pos)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP const char * \fBlua_getlocal\fP (\fBlua_State\fP *L, const \fBlua_Debug\fP *ar, int n)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP const char * \fBlua_setlocal\fP (\fBlua_State\fP *L, const \fBlua_Debug\fP *ar, int n)"
+.br
+.ti -1c
+.RI "static void \fBfuncinfo\fP (\fBlua_Debug\fP *ar, \fBClosure\fP *cl)"
+.br
+.ti -1c
+.RI "static int \fBnextline\fP (const \fBProto\fP *p, int currentline, int pc)"
+.br
+.ti -1c
+.RI "static void \fBcollectvalidlines\fP (\fBlua_State\fP *L, \fBClosure\fP *f)"
+.br
+.ti -1c
+.RI "static const char * \fBgetfuncname\fP (\fBlua_State\fP *L, \fBCallInfo\fP *ci, const char **name)"
+.br
+.ti -1c
+.RI "static int \fBauxgetinfo\fP (\fBlua_State\fP *L, const char *what, \fBlua_Debug\fP *ar, \fBClosure\fP *f, \fBCallInfo\fP *ci)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_getinfo\fP (\fBlua_State\fP *L, const char *what, \fBlua_Debug\fP *ar)"
+.br
+.ti -1c
+.RI "static const char * \fBgetobjname\fP (const \fBProto\fP *p, int lastpc, int reg, const char **name)"
+.br
+.ti -1c
+.RI "static void \fBkname\fP (const \fBProto\fP *p, int c, const char **name)"
+.br
+.ti -1c
+.RI "static void \fBrname\fP (const \fBProto\fP *p, int pc, int c, const char **name)"
+.br
+.ti -1c
+.RI "static void \fBrkname\fP (const \fBProto\fP *p, int pc, \fBInstruction\fP i, const char **name)"
+.br
+.ti -1c
+.RI "static int \fBfilterpc\fP (int pc, int jmptarget)"
+.br
+.ti -1c
+.RI "static int \fBfindsetreg\fP (const \fBProto\fP *p, int lastpc, int reg)"
+.br
+.ti -1c
+.RI "static const char * \fBgxf\fP (const \fBProto\fP *p, int pc, \fBInstruction\fP i, int isup)"
+.br
+.ti -1c
+.RI "static int \fBisinstack\fP (\fBCallInfo\fP *ci, const \fBTValue\fP *o)"
+.br
+.ti -1c
+.RI "static const char * \fBgetupvalname\fP (\fBCallInfo\fP *ci, const \fBTValue\fP *o, const char **name)"
+.br
+.ti -1c
+.RI "static const char * \fBvarinfo\fP (\fBlua_State\fP *L, const \fBTValue\fP *o)"
+.br
+.ti -1c
+.RI "\fBl_noret\fP \fBluaG_typeerror\fP (\fBlua_State\fP *L, const \fBTValue\fP *o, const char *op)"
+.br
+.ti -1c
+.RI "\fBl_noret\fP \fBluaG_forerror\fP (\fBlua_State\fP *L, const \fBTValue\fP *o, const char *what)"
+.br
+.ti -1c
+.RI "\fBl_noret\fP \fBluaG_concaterror\fP (\fBlua_State\fP *L, const \fBTValue\fP *p1, const \fBTValue\fP *p2)"
+.br
+.ti -1c
+.RI "\fBl_noret\fP \fBluaG_opinterror\fP (\fBlua_State\fP *L, const \fBTValue\fP *p1, const \fBTValue\fP *p2, const char *msg)"
+.br
+.ti -1c
+.RI "\fBl_noret\fP \fBluaG_tointerror\fP (\fBlua_State\fP *L, const \fBTValue\fP *p1, const \fBTValue\fP *p2)"
+.br
+.ti -1c
+.RI "\fBl_noret\fP \fBluaG_ordererror\fP (\fBlua_State\fP *L, const \fBTValue\fP *p1, const \fBTValue\fP *p2)"
+.br
+.ti -1c
+.RI "const char * \fBluaG_addinfo\fP (\fBlua_State\fP *L, const char *msg, \fBTString\fP *src, int line)"
+.br
+.ti -1c
+.RI "\fBl_noret\fP \fBluaG_errormsg\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBl_noret\fP \fBluaG_runerror\fP (\fBlua_State\fP *L, const char *fmt,\&.\&.\&.)"
+.br
+.ti -1c
+.RI "static int \fBchangedline\fP (const \fBProto\fP *p, int oldpc, int newpc)"
+.br
+.ti -1c
+.RI "int \fBluaG_traceexec\fP (\fBlua_State\fP *L, const \fBInstruction\fP *pc)"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define ci_func(ci)   (\fBclLvalue\fP(\fBs2v\fP((ci)\->func)))"
+
+.PP
+在文件 ldebug\&.c 第 38 行定义\&.
+.SS "#define ldebug_c"
+
+.PP
+在文件 ldebug\&.c 第 7 行定义\&.
+.SS "#define LUA_CORE"
+
+.PP
+在文件 ldebug\&.c 第 8 行定义\&.
+.SS "#define noLuaClosure(f)   ((f) == NULL || (f)\->c\&.tt == \fBLUA_VCCL\fP)"
+
+.PP
+在文件 ldebug\&.c 第 34 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static int auxgetinfo (\fBlua_State\fP * L, const char * what, \fBlua_Debug\fP * ar, \fBClosure\fP * f, \fBCallInfo\fP * ci)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 334 行定义\&.
+.SS "static int changedline (const \fBProto\fP * p, int oldpc, int newpc)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 789 行定义\&.
+.SS "static void collectvalidlines (\fBlua_State\fP * L, \fBClosure\fP * f)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 298 行定义\&.
+.SS "static int currentpc (\fBCallInfo\fP * ci)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 45 行定义\&.
+.SS "static int filterpc (int pc, int jmptarget)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 462 行定义\&.
+.SS "static int findsetreg (const \fBProto\fP * p, int lastpc, int reg)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 472 行定义\&.
+.SS "static const char* findvararg (\fBCallInfo\fP * ci, int n, \fBStkId\fP * pos)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 192 行定义\&.
+.SS "static void funcinfo (\fBlua_Debug\fP * ar, \fBClosure\fP * cl)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 264 行定义\&.
+.SS "static const char * funcnamefromcode (\fBlua_State\fP * L, \fBCallInfo\fP * ci, const char ** name)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 601 行定义\&.
+.SS "static int getbaseline (const \fBProto\fP * f, int pc, int * basepc)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 58 行定义\&.
+.SS "static int getcurrentline (\fBCallInfo\fP * ci)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 104 行定义\&.
+.SS "static const char* getfuncname (\fBlua_State\fP * L, \fBCallInfo\fP * ci, const char ** name)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 320 行定义\&.
+.SS "static const char * getobjname (const \fBProto\fP * p, int lastpc, int reg, const char ** name)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 533 行定义\&.
+.SS "static const char* getupvalname (\fBCallInfo\fP * ci, const \fBTValue\fP * o, const char ** name)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 670 行定义\&.
+.SS "static const char* gxf (const \fBProto\fP * p, int pc, \fBInstruction\fP i, int isup)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 522 行定义\&.
+.SS "static int isinstack (\fBCallInfo\fP * ci, const \fBTValue\fP * o)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 658 行定义\&.
+.SS "static void kname (const \fBProto\fP * p, int c, const char ** name)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 434 行定义\&.
+.SS "\fBLUA_API\fP \fBlua_Hook\fP lua_gethook (\fBlua_State\fP * L)"
+
+.PP
+在文件 ldebug\&.c 第 153 行定义\&.
+.SS "\fBLUA_API\fP int lua_gethookcount (\fBlua_State\fP * L)"
+
+.PP
+在文件 ldebug\&.c 第 163 行定义\&.
+.SS "\fBLUA_API\fP int lua_gethookmask (\fBlua_State\fP * L)"
+
+.PP
+在文件 ldebug\&.c 第 158 行定义\&.
+.SS "\fBLUA_API\fP int lua_getinfo (\fBlua_State\fP * L, const char * what, \fBlua_Debug\fP * ar)"
+
+.PP
+在文件 ldebug\&.c 第 390 行定义\&.
+.SS "\fBLUA_API\fP const char* lua_getlocal (\fBlua_State\fP * L, const \fBlua_Debug\fP * ar, int n)"
+
+.PP
+在文件 ldebug\&.c 第 228 行定义\&.
+.SS "\fBLUA_API\fP int lua_getstack (\fBlua_State\fP * L, int level, \fBlua_Debug\fP * ar)"
+
+.PP
+在文件 ldebug\&.c 第 168 行定义\&.
+.SS "\fBLUA_API\fP void lua_sethook (\fBlua_State\fP * L, \fBlua_Hook\fP func, int mask, int count)"
+
+.PP
+在文件 ldebug\&.c 第 137 行定义\&.
+.SS "\fBLUA_API\fP const char* lua_setlocal (\fBlua_State\fP * L, const \fBlua_Debug\fP * ar, int n)"
+
+.PP
+在文件 ldebug\&.c 第 250 行定义\&.
+.SS "const char* luaG_addinfo (\fBlua_State\fP * L, const char * msg, \fBTString\fP * src, int line)"
+
+.PP
+在文件 ldebug\&.c 第 746 行定义\&.
+.SS "\fBl_noret\fP luaG_concaterror (\fBlua_State\fP * L, const \fBTValue\fP * p1, const \fBTValue\fP * p2)"
+
+.PP
+在文件 ldebug\&.c 第 710 行定义\&.
+.SS "\fBl_noret\fP luaG_errormsg (\fBlua_State\fP * L)"
+
+.PP
+在文件 ldebug\&.c 第 758 行定义\&.
+.SS "const char* luaG_findlocal (\fBlua_State\fP * L, \fBCallInfo\fP * ci, int n, \fBStkId\fP * pos)"
+
+.PP
+在文件 ldebug\&.c 第 204 行定义\&.
+.SS "\fBl_noret\fP luaG_forerror (\fBlua_State\fP * L, const \fBTValue\fP * o, const char * what)"
+
+.PP
+在文件 ldebug\&.c 第 704 行定义\&.
+.SS "int luaG_getfuncline (const \fBProto\fP * f, int pc)"
+
+.PP
+在文件 ldebug\&.c 第 89 行定义\&.
+.SS "\fBl_noret\fP luaG_opinterror (\fBlua_State\fP * L, const \fBTValue\fP * p1, const \fBTValue\fP * p2, const char * msg)"
+
+.PP
+在文件 ldebug\&.c 第 716 行定义\&.
+.SS "\fBl_noret\fP luaG_ordererror (\fBlua_State\fP * L, const \fBTValue\fP * p1, const \fBTValue\fP * p2)"
+
+.PP
+在文件 ldebug\&.c 第 735 行定义\&.
+.SS "\fBl_noret\fP luaG_runerror (\fBlua_State\fP * L, const char * fmt,  \&.\&.\&.)"
+
+.PP
+在文件 ldebug\&.c 第 771 行定义\&.
+.SS "\fBl_noret\fP luaG_tointerror (\fBlua_State\fP * L, const \fBTValue\fP * p1, const \fBTValue\fP * p2)"
+
+.PP
+在文件 ldebug\&.c 第 727 行定义\&.
+.SS "int luaG_traceexec (\fBlua_State\fP * L, const \fBInstruction\fP * pc)"
+
+.PP
+在文件 ldebug\&.c 第 798 行定义\&.
+.SS "\fBl_noret\fP luaG_typeerror (\fBlua_State\fP * L, const \fBTValue\fP * o, const char * op)"
+
+.PP
+在文件 ldebug\&.c 第 698 行定义\&.
+.SS "static int nextline (const \fBProto\fP * p, int currentline, int pc)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 290 行定义\&.
+.SS "static void rkname (const \fBProto\fP * p, int pc, \fBInstruction\fP i, const char ** name)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 453 行定义\&.
+.SS "static void rname (const \fBProto\fP * p, int pc, int c, const char ** name)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 443 行定义\&.
+.SS "static void settraps (\fBCallInfo\fP * ci)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 120 行定义\&.
+.SS "static const char* upvalname (const \fBProto\fP * p, int uv)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 185 行定义\&.
+.SS "static const char* varinfo (\fBlua_State\fP * L, const \fBTValue\fP * o)\fC [static]\fP"
+
+.PP
+在文件 ldebug\&.c 第 684 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

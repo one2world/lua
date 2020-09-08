@@ -1,0 +1,381 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lutf8lib_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/lutf8lib.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lutf8lib.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;assert.h&gt;
+#include &lt;limits.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;lauxlib.h&quot;
+#include &quot;lualib.h&quot;
+</programlisting>lutf8lib.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lutf8lib_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lutf8lib_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lutf8lib_8c_1ae4e6cc627940ab6f545638bf5cfda8b0">lutf8lib_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lutf8lib_8c_1a884b19ad6094d6238c4072a8064aeb12">LUA_LIB</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lutf8lib_8c_1afd8cf5fccc99a6307fb78c36dc004ab4">MAXUNICODE</link>   0x10FFFFu</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lutf8lib_8c_1af5f63b8995a31fcdd3f6900d79261245">MAXUTF</link>   0x7FFFFFFFu</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lutf8lib_8c_1ab68264d527f44eebb02787d49a7e7168">iscont</link>(p)   ((*(p) &amp; 0xC0) == 0x80)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lutf8lib_8c_1a2cf7ee81d838fa055a20870d91f8ab81">UTF8PATT</link>   &quot;[\0-\x7F\xC2-\xFD][\x80-\xBF]*&quot;</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>类型定义    </title>
+        <itemizedlist>
+            <listitem><para>typedef unsigned long <link linkend="_lutf8lib_8c_1a886038d9846002cde09bbf00e3802074">utfint</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> <link linkend="_lutf8lib_8c_1ad40cd6dc984252dfbce8facac91b25ea">u_posrelat</link> (<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> pos, size_t len)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lutf8lib_8c_1a56dac1abc454dd8300df3ca9498303ae">utf8_decode</link> (const char *s, <link linkend="_lutf8lib_8c_1a886038d9846002cde09bbf00e3802074">utfint</link> *val, int strict)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lutf8lib_8c_1a840e09db1ade39da79b0b4dece0e46eb">utflen</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lutf8lib_8c_1af4280cee645f392590f2ed63a6301320">codepoint</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lutf8lib_8c_1a52e38c3852e8554391b6860bdc796024">pushutfchar</link> (<link linkend="_structlua___state">lua_State</link> *L, int arg)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lutf8lib_8c_1a7269a837d8746044cb3f33e6db94b00f">utfchar</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lutf8lib_8c_1a805a182cc5dde6d73e07922e8454eaf7">byteoffset</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lutf8lib_8c_1ad5fc4a8936de51af672e82150c82a49a">iter_aux</link> (<link linkend="_structlua___state">lua_State</link> *L, int strict)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lutf8lib_8c_1afe5c5d5c71be22b9feefda4fe9e48ac9">iter_auxstrict</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lutf8lib_8c_1a7e953afe12aba1463b511c39ce46586d">iter_auxlax</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lutf8lib_8c_1aaead346d7a9236dc0d97fe7914cae6e5">iter_codes</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link> int <link linkend="_lutf8lib_8c_1ae1247f71bc4b3f3be7da9c9d5c7668b1">luaopen_utf8</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>变量    </title>
+        <itemizedlist>
+            <listitem><para>static const <link linkend="_structlua_l___reg">luaL_Reg</link> <link linkend="_lutf8lib_8c_1aa4be121cd05b20a87bf4f1d5c1978a1b">funcs</link> []</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lutf8lib_8c_1ab68264d527f44eebb02787d49a7e7168"/>    <section>
+    <title>iscont</title>
+<indexterm><primary>iscont</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>iscont</secondary></indexterm>
+<para><computeroutput>#define iscont( p)   ((*(p) &amp; 0xC0) == 0x80)</computeroutput></para><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00038">38</link> 行定义.</para>
+    </section><anchor xml:id="_lutf8lib_8c_1a884b19ad6094d6238c4072a8064aeb12"/>    <section>
+    <title>LUA_LIB</title>
+<indexterm><primary>LUA_LIB</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>LUA_LIB</secondary></indexterm>
+<para><computeroutput>#define LUA_LIB</computeroutput></para><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00008">8</link> 行定义.</para>
+    </section><anchor xml:id="_lutf8lib_8c_1ae4e6cc627940ab6f545638bf5cfda8b0"/>    <section>
+    <title>lutf8lib_c</title>
+<indexterm><primary>lutf8lib_c</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>lutf8lib_c</secondary></indexterm>
+<para><computeroutput>#define lutf8lib_c</computeroutput></para><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_lutf8lib_8c_1afd8cf5fccc99a6307fb78c36dc004ab4"/>    <section>
+    <title>MAXUNICODE</title>
+<indexterm><primary>MAXUNICODE</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>MAXUNICODE</secondary></indexterm>
+<para><computeroutput>#define MAXUNICODE   0x10FFFFu</computeroutput></para><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00024">24</link> 行定义.</para>
+    </section><anchor xml:id="_lutf8lib_8c_1af5f63b8995a31fcdd3f6900d79261245"/>    <section>
+    <title>MAXUTF</title>
+<indexterm><primary>MAXUTF</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>MAXUTF</secondary></indexterm>
+<para><computeroutput>#define MAXUTF   0x7FFFFFFFu</computeroutput></para><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00026">26</link> 行定义.</para>
+    </section><anchor xml:id="_lutf8lib_8c_1a2cf7ee81d838fa055a20870d91f8ab81"/>    <section>
+    <title>UTF8PATT</title>
+<indexterm><primary>UTF8PATT</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>UTF8PATT</secondary></indexterm>
+<para><computeroutput>#define UTF8PATT   &quot;[\0-\x7F\xC2-\xFD][\x80-\xBF]*&quot;</computeroutput></para><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00268">268</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>类型定义说明</title>
+<anchor xml:id="_lutf8lib_8c_1a886038d9846002cde09bbf00e3802074"/>    <section>
+    <title>utfint</title>
+<indexterm><primary>utfint</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>utfint</secondary></indexterm>
+<para><computeroutput>typedef unsigned long <link linkend="_lutf8lib_8c_1a886038d9846002cde09bbf00e3802074">utfint</link></computeroutput></para><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00034">34</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lutf8lib_8c_1a805a182cc5dde6d73e07922e8454eaf7"/>    <section>
+    <title>byteoffset()</title>
+<indexterm><primary>byteoffset</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>byteoffset</secondary></indexterm>
+<para><computeroutput>static int byteoffset (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00183">183</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lutf8lib_8c_a805a182cc5dde6d73e07922e8454eaf7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lutf8lib_8c_1af4280cee645f392590f2ed63a6301320"/>    <section>
+    <title>codepoint()</title>
+<indexterm><primary>codepoint</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>codepoint</secondary></indexterm>
+<para><computeroutput>static int codepoint (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00122">122</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lutf8lib_8c_af4280cee645f392590f2ed63a6301320_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lutf8lib_8c_1ad5fc4a8936de51af672e82150c82a49a"/>    <section>
+    <title>iter_aux()</title>
+<indexterm><primary>iter_aux</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>iter_aux</secondary></indexterm>
+<para><computeroutput>static int iter_aux (<link linkend="_structlua___state">lua_State</link> * L, int strict)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00224">224</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lutf8lib_8c_ad5fc4a8936de51af672e82150c82a49a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lutf8lib_8c_ad5fc4a8936de51af672e82150c82a49a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lutf8lib_8c_1a7e953afe12aba1463b511c39ce46586d"/>    <section>
+    <title>iter_auxlax()</title>
+<indexterm><primary>iter_auxlax</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>iter_auxlax</secondary></indexterm>
+<para><computeroutput>static int iter_auxlax (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00252">252</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lutf8lib_8c_a7e953afe12aba1463b511c39ce46586d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lutf8lib_8c_a7e953afe12aba1463b511c39ce46586d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lutf8lib_8c_1afe5c5d5c71be22b9feefda4fe9e48ac9"/>    <section>
+    <title>iter_auxstrict()</title>
+<indexterm><primary>iter_auxstrict</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>iter_auxstrict</secondary></indexterm>
+<para><computeroutput>static int iter_auxstrict (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00248">248</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lutf8lib_8c_afe5c5d5c71be22b9feefda4fe9e48ac9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lutf8lib_8c_afe5c5d5c71be22b9feefda4fe9e48ac9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lutf8lib_8c_1aaead346d7a9236dc0d97fe7914cae6e5"/>    <section>
+    <title>iter_codes()</title>
+<indexterm><primary>iter_codes</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>iter_codes</secondary></indexterm>
+<para><computeroutput>static int iter_codes (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00257">257</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lutf8lib_8c_aaead346d7a9236dc0d97fe7914cae6e5_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lutf8lib_8c_1ae1247f71bc4b3f3be7da9c9d5c7668b1"/>    <section>
+    <title>luaopen_utf8()</title>
+<indexterm><primary>luaopen_utf8</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>luaopen_utf8</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link> int luaopen_utf8 (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00283">283</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lutf8lib_8c_ae1247f71bc4b3f3be7da9c9d5c7668b1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lutf8lib_8c_1a52e38c3852e8554391b6860bdc796024"/>    <section>
+    <title>pushutfchar()</title>
+<indexterm><primary>pushutfchar</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>pushutfchar</secondary></indexterm>
+<para><computeroutput>static void pushutfchar (<link linkend="_structlua___state">lua_State</link> * L, int arg)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00151">151</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lutf8lib_8c_a52e38c3852e8554391b6860bdc796024_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lutf8lib_8c_a52e38c3852e8554391b6860bdc796024_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lutf8lib_8c_1ad40cd6dc984252dfbce8facac91b25ea"/>    <section>
+    <title>u_posrelat()</title>
+<indexterm><primary>u_posrelat</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>u_posrelat</secondary></indexterm>
+<para><computeroutput>static <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> u_posrelat (<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> pos, size_t len)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00043">43</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lutf8lib_8c_ad40cd6dc984252dfbce8facac91b25ea_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lutf8lib_8c_1a56dac1abc454dd8300df3ca9498303ae"/>    <section>
+    <title>utf8_decode()</title>
+<indexterm><primary>utf8_decode</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>utf8_decode</secondary></indexterm>
+<para><computeroutput>static const char* utf8_decode (const char * s, <link linkend="_lutf8lib_8c_1a886038d9846002cde09bbf00e3802074">utfint</link> * val, int strict)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00057">57</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lutf8lib_8c_a56dac1abc454dd8300df3ca9498303ae_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lutf8lib_8c_1a7269a837d8746044cb3f33e6db94b00f"/>    <section>
+    <title>utfchar()</title>
+<indexterm><primary>utfchar</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>utfchar</secondary></indexterm>
+<para><computeroutput>static int utfchar (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00161">161</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lutf8lib_8c_a7269a837d8746044cb3f33e6db94b00f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lutf8lib_8c_1a840e09db1ade39da79b0b4dece0e46eb"/>    <section>
+    <title>utflen()</title>
+<indexterm><primary>utflen</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>utflen</secondary></indexterm>
+<para><computeroutput>static int utflen (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00092">92</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lutf8lib_8c_a840e09db1ade39da79b0b4dece0e46eb_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+<section>
+<title>变量说明</title>
+<anchor xml:id="_lutf8lib_8c_1aa4be121cd05b20a87bf4f1d5c1978a1b"/>    <section>
+    <title>funcs</title>
+<indexterm><primary>funcs</primary><secondary>lutf8lib.c</secondary></indexterm>
+<indexterm><primary>lutf8lib.c</primary><secondary>funcs</secondary></indexterm>
+<para><computeroutput>const <link linkend="_structlua_l___reg">luaL_Reg</link> funcs[]<computeroutput>[static]</computeroutput></computeroutput></para><emphasis role="strong">初始值:</emphasis><programlisting>=&#32;{
+&#32;&#32;{<emphasis role="stringliteral">&quot;offset&quot;</emphasis>,&#32;<link linkend="_lutf8lib_8c_1a805a182cc5dde6d73e07922e8454eaf7">byteoffset</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;codepoint&quot;</emphasis>,&#32;<link linkend="_lutf8lib_8c_1af4280cee645f392590f2ed63a6301320">codepoint</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;char&quot;</emphasis>,&#32;<link linkend="_lutf8lib_8c_1a7269a837d8746044cb3f33e6db94b00f">utfchar</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;len&quot;</emphasis>,&#32;<link linkend="_lutf8lib_8c_1a840e09db1ade39da79b0b4dece0e46eb">utflen</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;codes&quot;</emphasis>,&#32;<link linkend="_lutf8lib_8c_1aaead346d7a9236dc0d97fe7914cae6e5">iter_codes</link>},
+&#32;&#32;
+&#32;&#32;{<emphasis role="stringliteral">&quot;charpattern&quot;</emphasis>,&#32;NULL},
+&#32;&#32;{NULL,&#32;NULL}
+}
+</programlisting><para>
+在文件 <link linkend="_lutf8lib_8c_source">lutf8lib.c</link> 第 <link linkend="_lutf8lib_8c_source_1l00271">271</link> 行定义.</para>
+</section>
+</section>
+</section>

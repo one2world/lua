@@ -1,0 +1,384 @@
+\hypertarget{ltablib_8c}{}\doxysection{D\+:/gitworkspace/lua/src/ltablib.c 文件参考}
+\label{ltablib_8c}\index{D:/gitworkspace/lua/src/ltablib.c@{D:/gitworkspace/lua/src/ltablib.c}}
+{\ttfamily \#include \char`\"{}lprefix.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$limits.\+h$>$}\newline
+{\ttfamily \#include $<$stddef.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}lua.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lauxlib.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lualib.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$time.\+h$>$}\newline
+\doxysubsection*{宏定义}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{ltablib_8c_a140da27fde6d0c6ba8c94f2464c570cb}{ltablib\+\_\+c}}
+\item 
+\#define \mbox{\hyperlink{ltablib_8c_a884b19ad6094d6238c4072a8064aeb12}{L\+U\+A\+\_\+\+L\+IB}}
+\item 
+\#define \mbox{\hyperlink{ltablib_8c_a8fb9ba58986555b9e428a842d0786557}{T\+A\+B\+\_\+R}}~1			/$\ast$ read $\ast$/
+\item 
+\#define \mbox{\hyperlink{ltablib_8c_ab9cf0e51aee67f8818580144a1ba7593}{T\+A\+B\+\_\+W}}~2			/$\ast$ write $\ast$/
+\item 
+\#define \mbox{\hyperlink{ltablib_8c_a3f436d4e584aa1bb0bcee72e95cbdd50}{T\+A\+B\+\_\+L}}~4			/$\ast$ length $\ast$/
+\item 
+\#define \mbox{\hyperlink{ltablib_8c_a7c8b26f7b00c98971c1c7c2706798ac5}{T\+A\+B\+\_\+\+RW}}~(\mbox{\hyperlink{ltablib_8c_a8fb9ba58986555b9e428a842d0786557}{T\+A\+B\+\_\+R}} $\vert$ \mbox{\hyperlink{ltablib_8c_ab9cf0e51aee67f8818580144a1ba7593}{T\+A\+B\+\_\+W}})		/$\ast$ read/write $\ast$/
+\item 
+\#define \mbox{\hyperlink{ltablib_8c_a5666aa0172909d01d18bac7d35c7e5ee}{aux\+\_\+getn}}(L,  n,  w)~(\mbox{\hyperlink{ltablib_8c_abe77aa6d8b3f0a5102aba10fa05d31c2}{checktab}}(L, n, (w) $\vert$ \mbox{\hyperlink{ltablib_8c_a3f436d4e584aa1bb0bcee72e95cbdd50}{T\+A\+B\+\_\+L}}), \mbox{\hyperlink{lauxlib_8h_ac9d38b77e425247b630afdb212401a05}{lua\+L\+\_\+len}}(L, n))
+\item 
+\#define \mbox{\hyperlink{ltablib_8c_a8978688d79ae6bceddeb55c8ad3f1c8f}{sof}}(e)~(sizeof(e) / sizeof(unsigned int))
+\item 
+\#define \mbox{\hyperlink{ltablib_8c_aeb8c42b2dbafa2030e261ba804a7b530}{R\+A\+N\+L\+I\+M\+IT}}~100u
+\end{DoxyCompactItemize}
+\doxysubsection*{类型定义}
+\begin{DoxyCompactItemize}
+\item 
+typedef unsigned int \mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}}
+\end{DoxyCompactItemize}
+\doxysubsection*{函数}
+\begin{DoxyCompactItemize}
+\item 
+static int \mbox{\hyperlink{ltablib_8c_a641ec2ebb32db79b3eb9d972ad4997ea}{checkfield}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$key, int n)
+\item 
+static void \mbox{\hyperlink{ltablib_8c_abe77aa6d8b3f0a5102aba10fa05d31c2}{checktab}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int arg, int what)
+\item 
+static int \mbox{\hyperlink{ltablib_8c_a214ed6966e2b1b4c376ab0de0d09032e}{tinsert}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{ltablib_8c_ad8c41fe887a472709c6fdf075ba39d56}{tremove}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{ltablib_8c_a2206b11cc9a180fbc33aabb81308fd74}{tmove}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static void \mbox{\hyperlink{ltablib_8c_a598479e00f1b316a182b1582012df5d0}{addfield}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$b, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} i)
+\item 
+static int \mbox{\hyperlink{ltablib_8c_add6973c515a288f41265aca8e0ae6412}{tconcat}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{ltablib_8c_a33b59fd5ba7dbaddc6109c692a9d5dd0}{tpack}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{ltablib_8c_ae37fc20bd47c2a4385a87a12090f4e9b}{tunpack}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static unsigned int \mbox{\hyperlink{ltablib_8c_a7b43760283a5fa4a2d6104c5caf19902}{l\+\_\+randomize\+Pivot}} (void)
+\item 
+static void \mbox{\hyperlink{ltablib_8c_a66d39e7dbcc639daedcc8618fd2a18e1}{set2}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}} i, \mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}} j)
+\item 
+static int \mbox{\hyperlink{ltablib_8c_ae92f4625e74d1876b2ca2a4ced74c807}{sort\+\_\+comp}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int a, int b)
+\item 
+static \mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}} \mbox{\hyperlink{ltablib_8c_a1d53059f696e353656cd98be725ffbd2}{partition}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}} lo, \mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}} up)
+\item 
+static \mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}} \mbox{\hyperlink{ltablib_8c_ac4b80d03308e70f2f401c2153ebffa4e}{choose\+Pivot}} (\mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}} lo, \mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}} up, unsigned int rnd)
+\item 
+static void \mbox{\hyperlink{ltablib_8c_a151c51c8905acb3db7d6f1e58265b709}{auxsort}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}} lo, \mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}} up, unsigned int rnd)
+\item 
+static int \mbox{\hyperlink{ltablib_8c_ae7d3f892e2605bf102dce63de388e626}{sort}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+\mbox{\hyperlink{luaconf_8h_a8e877216dd2f0cf9a68255b494f82f50}{L\+U\+A\+M\+O\+D\+\_\+\+A\+PI}} int \mbox{\hyperlink{ltablib_8c_acfb66f04d8d0ea06cb1c4c059b9e142b}{luaopen\+\_\+table}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\end{DoxyCompactItemize}
+\doxysubsection*{变量}
+\begin{DoxyCompactItemize}
+\item 
+static const \mbox{\hyperlink{structlua_l___reg}{lua\+L\+\_\+\+Reg}} \mbox{\hyperlink{ltablib_8c_ae420818215325a443b1066512a76ef5d}{tab\+\_\+funcs}} \mbox{[}$\,$\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{宏定义说明}
+\mbox{\Hypertarget{ltablib_8c_a5666aa0172909d01d18bac7d35c7e5ee}\label{ltablib_8c_a5666aa0172909d01d18bac7d35c7e5ee}} 
+\index{ltablib.c@{ltablib.c}!aux\_getn@{aux\_getn}}
+\index{aux\_getn@{aux\_getn}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{aux\_getn}{aux\_getn}}
+{\footnotesize\ttfamily \#define aux\+\_\+getn(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{n,  }\item[{}]{w }\end{DoxyParamCaption})~(\mbox{\hyperlink{ltablib_8c_abe77aa6d8b3f0a5102aba10fa05d31c2}{checktab}}(L, n, (w) $\vert$ \mbox{\hyperlink{ltablib_8c_a3f436d4e584aa1bb0bcee72e95cbdd50}{T\+A\+B\+\_\+L}}), \mbox{\hyperlink{lauxlib_8h_ac9d38b77e425247b630afdb212401a05}{lua\+L\+\_\+len}}(L, n))}
+
+
+
+在文件 ltablib.\+c 第 33 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_a140da27fde6d0c6ba8c94f2464c570cb}\label{ltablib_8c_a140da27fde6d0c6ba8c94f2464c570cb}} 
+\index{ltablib.c@{ltablib.c}!ltablib\_c@{ltablib\_c}}
+\index{ltablib\_c@{ltablib\_c}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{ltablib\_c}{ltablib\_c}}
+{\footnotesize\ttfamily \#define ltablib\+\_\+c}
+
+
+
+在文件 ltablib.\+c 第 7 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_a884b19ad6094d6238c4072a8064aeb12}\label{ltablib_8c_a884b19ad6094d6238c4072a8064aeb12}} 
+\index{ltablib.c@{ltablib.c}!LUA\_LIB@{LUA\_LIB}}
+\index{LUA\_LIB@{LUA\_LIB}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{LUA\_LIB}{LUA\_LIB}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+L\+IB}
+
+
+
+在文件 ltablib.\+c 第 8 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_aeb8c42b2dbafa2030e261ba804a7b530}\label{ltablib_8c_aeb8c42b2dbafa2030e261ba804a7b530}} 
+\index{ltablib.c@{ltablib.c}!RANLIMIT@{RANLIMIT}}
+\index{RANLIMIT@{RANLIMIT}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{RANLIMIT}{RANLIMIT}}
+{\footnotesize\ttfamily \#define R\+A\+N\+L\+I\+M\+IT~100u}
+
+
+
+在文件 ltablib.\+c 第 260 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_a8978688d79ae6bceddeb55c8ad3f1c8f}\label{ltablib_8c_a8978688d79ae6bceddeb55c8ad3f1c8f}} 
+\index{ltablib.c@{ltablib.c}!sof@{sof}}
+\index{sof@{sof}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{sof}{sof}}
+{\footnotesize\ttfamily \#define sof(\begin{DoxyParamCaption}\item[{}]{e }\end{DoxyParamCaption})~(sizeof(e) / sizeof(unsigned int))}
+
+
+
+在文件 ltablib.\+c 第 236 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_a3f436d4e584aa1bb0bcee72e95cbdd50}\label{ltablib_8c_a3f436d4e584aa1bb0bcee72e95cbdd50}} 
+\index{ltablib.c@{ltablib.c}!TAB\_L@{TAB\_L}}
+\index{TAB\_L@{TAB\_L}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{TAB\_L}{TAB\_L}}
+{\footnotesize\ttfamily \#define T\+A\+B\+\_\+L~4			/$\ast$ length $\ast$/}
+
+
+
+在文件 ltablib.\+c 第 29 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_a8fb9ba58986555b9e428a842d0786557}\label{ltablib_8c_a8fb9ba58986555b9e428a842d0786557}} 
+\index{ltablib.c@{ltablib.c}!TAB\_R@{TAB\_R}}
+\index{TAB\_R@{TAB\_R}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{TAB\_R}{TAB\_R}}
+{\footnotesize\ttfamily \#define T\+A\+B\+\_\+R~1			/$\ast$ read $\ast$/}
+
+
+
+在文件 ltablib.\+c 第 27 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_a7c8b26f7b00c98971c1c7c2706798ac5}\label{ltablib_8c_a7c8b26f7b00c98971c1c7c2706798ac5}} 
+\index{ltablib.c@{ltablib.c}!TAB\_RW@{TAB\_RW}}
+\index{TAB\_RW@{TAB\_RW}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{TAB\_RW}{TAB\_RW}}
+{\footnotesize\ttfamily \#define T\+A\+B\+\_\+\+RW~(\mbox{\hyperlink{ltablib_8c_a8fb9ba58986555b9e428a842d0786557}{T\+A\+B\+\_\+R}} $\vert$ \mbox{\hyperlink{ltablib_8c_ab9cf0e51aee67f8818580144a1ba7593}{T\+A\+B\+\_\+W}})		/$\ast$ read/write $\ast$/}
+
+
+
+在文件 ltablib.\+c 第 30 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_ab9cf0e51aee67f8818580144a1ba7593}\label{ltablib_8c_ab9cf0e51aee67f8818580144a1ba7593}} 
+\index{ltablib.c@{ltablib.c}!TAB\_W@{TAB\_W}}
+\index{TAB\_W@{TAB\_W}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{TAB\_W}{TAB\_W}}
+{\footnotesize\ttfamily \#define T\+A\+B\+\_\+W~2			/$\ast$ write $\ast$/}
+
+
+
+在文件 ltablib.\+c 第 28 行定义.
+
+
+
+\doxysubsection{类型定义说明}
+\mbox{\Hypertarget{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}\label{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}} 
+\index{ltablib.c@{ltablib.c}!IdxT@{IdxT}}
+\index{IdxT@{IdxT}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{IdxT}{IdxT}}
+{\footnotesize\ttfamily typedef unsigned int \mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}}}
+
+
+
+在文件 ltablib.\+c 第 222 行定义.
+
+
+
+\doxysubsection{函数说明}
+\mbox{\Hypertarget{ltablib_8c_a598479e00f1b316a182b1582012df5d0}\label{ltablib_8c_a598479e00f1b316a182b1582012df5d0}} 
+\index{ltablib.c@{ltablib.c}!addfield@{addfield}}
+\index{addfield@{addfield}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{addfield()}{addfield()}}
+{\footnotesize\ttfamily static void addfield (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{structlua_l___buffer}{lua\+L\+\_\+\+Buffer}} $\ast$}]{b,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{i }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltablib.\+c 第 146 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_a151c51c8905acb3db7d6f1e58265b709}\label{ltablib_8c_a151c51c8905acb3db7d6f1e58265b709}} 
+\index{ltablib.c@{ltablib.c}!auxsort@{auxsort}}
+\index{auxsort@{auxsort}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{auxsort()}{auxsort()}}
+{\footnotesize\ttfamily static void auxsort (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}}}]{lo,  }\item[{\mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}}}]{up,  }\item[{unsigned int}]{rnd }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltablib.\+c 第 343 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_a641ec2ebb32db79b3eb9d972ad4997ea}\label{ltablib_8c_a641ec2ebb32db79b3eb9d972ad4997ea}} 
+\index{ltablib.c@{ltablib.c}!checkfield@{checkfield}}
+\index{checkfield@{checkfield}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{checkfield()}{checkfield()}}
+{\footnotesize\ttfamily static int checkfield (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{key,  }\item[{int}]{n }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltablib.\+c 第 36 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_abe77aa6d8b3f0a5102aba10fa05d31c2}\label{ltablib_8c_abe77aa6d8b3f0a5102aba10fa05d31c2}} 
+\index{ltablib.c@{ltablib.c}!checktab@{checktab}}
+\index{checktab@{checktab}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{checktab()}{checktab()}}
+{\footnotesize\ttfamily static void checktab (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{arg,  }\item[{int}]{what }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltablib.\+c 第 46 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_ac4b80d03308e70f2f401c2153ebffa4e}\label{ltablib_8c_ac4b80d03308e70f2f401c2153ebffa4e}} 
+\index{ltablib.c@{ltablib.c}!choosePivot@{choosePivot}}
+\index{choosePivot@{choosePivot}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{choosePivot()}{choosePivot()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}} choose\+Pivot (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}}}]{lo,  }\item[{\mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}}}]{up,  }\item[{unsigned int}]{rnd }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltablib.\+c 第 332 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_a7b43760283a5fa4a2d6104c5caf19902}\label{ltablib_8c_a7b43760283a5fa4a2d6104c5caf19902}} 
+\index{ltablib.c@{ltablib.c}!l\_randomizePivot@{l\_randomizePivot}}
+\index{l\_randomizePivot@{l\_randomizePivot}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{l\_randomizePivot()}{l\_randomizePivot()}}
+{\footnotesize\ttfamily static unsigned int l\+\_\+randomize\+Pivot (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltablib.\+c 第 244 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_acfb66f04d8d0ea06cb1c4c059b9e142b}\label{ltablib_8c_acfb66f04d8d0ea06cb1c4c059b9e142b}} 
+\index{ltablib.c@{ltablib.c}!luaopen\_table@{luaopen\_table}}
+\index{luaopen\_table@{luaopen\_table}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{luaopen\_table()}{luaopen\_table()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a8e877216dd2f0cf9a68255b494f82f50}{L\+U\+A\+M\+O\+D\+\_\+\+A\+PI}} int luaopen\+\_\+table (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})}
+
+
+
+在文件 ltablib.\+c 第 424 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_a1d53059f696e353656cd98be725ffbd2}\label{ltablib_8c_a1d53059f696e353656cd98be725ffbd2}} 
+\index{ltablib.c@{ltablib.c}!partition@{partition}}
+\index{partition@{partition}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{partition()}{partition()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}} partition (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}}}]{lo,  }\item[{\mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}}}]{up }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltablib.\+c 第 296 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_a66d39e7dbcc639daedcc8618fd2a18e1}\label{ltablib_8c_a66d39e7dbcc639daedcc8618fd2a18e1}} 
+\index{ltablib.c@{ltablib.c}!set2@{set2}}
+\index{set2@{set2}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{set2()}{set2()}}
+{\footnotesize\ttfamily static void set2 (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}}}]{i,  }\item[{\mbox{\hyperlink{ltablib_8c_a36b2de4b3d95fa6176bdba5be7c22a26}{IdxT}}}]{j }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltablib.\+c 第 263 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_ae7d3f892e2605bf102dce63de388e626}\label{ltablib_8c_ae7d3f892e2605bf102dce63de388e626}} 
+\index{ltablib.c@{ltablib.c}!sort@{sort}}
+\index{sort@{sort}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{sort()}{sort()}}
+{\footnotesize\ttfamily static int sort (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltablib.\+c 第 397 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_ae92f4625e74d1876b2ca2a4ced74c807}\label{ltablib_8c_ae92f4625e74d1876b2ca2a4ced74c807}} 
+\index{ltablib.c@{ltablib.c}!sort\_comp@{sort\_comp}}
+\index{sort\_comp@{sort\_comp}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{sort\_comp()}{sort\_comp()}}
+{\footnotesize\ttfamily static int sort\+\_\+comp (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{a,  }\item[{int}]{b }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltablib.\+c 第 273 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_add6973c515a288f41265aca8e0ae6412}\label{ltablib_8c_add6973c515a288f41265aca8e0ae6412}} 
+\index{ltablib.c@{ltablib.c}!tconcat@{tconcat}}
+\index{tconcat@{tconcat}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{tconcat()}{tconcat()}}
+{\footnotesize\ttfamily static int tconcat (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltablib.\+c 第 155 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_a214ed6966e2b1b4c376ab0de0d09032e}\label{ltablib_8c_a214ed6966e2b1b4c376ab0de0d09032e}} 
+\index{ltablib.c@{ltablib.c}!tinsert@{tinsert}}
+\index{tinsert@{tinsert}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{tinsert()}{tinsert()}}
+{\footnotesize\ttfamily static int tinsert (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltablib.\+c 第 61 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_a2206b11cc9a180fbc33aabb81308fd74}\label{ltablib_8c_a2206b11cc9a180fbc33aabb81308fd74}} 
+\index{ltablib.c@{ltablib.c}!tmove@{tmove}}
+\index{tmove@{tmove}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{tmove()}{tmove()}}
+{\footnotesize\ttfamily static int tmove (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltablib.\+c 第 114 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_a33b59fd5ba7dbaddc6109c692a9d5dd0}\label{ltablib_8c_a33b59fd5ba7dbaddc6109c692a9d5dd0}} 
+\index{ltablib.c@{ltablib.c}!tpack@{tpack}}
+\index{tpack@{tpack}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{tpack()}{tpack()}}
+{\footnotesize\ttfamily static int tpack (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltablib.\+c 第 180 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_ad8c41fe887a472709c6fdf075ba39d56}\label{ltablib_8c_ad8c41fe887a472709c6fdf075ba39d56}} 
+\index{ltablib.c@{ltablib.c}!tremove@{tremove}}
+\index{tremove@{tremove}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{tremove()}{tremove()}}
+{\footnotesize\ttfamily static int tremove (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltablib.\+c 第 90 行定义.
+
+\mbox{\Hypertarget{ltablib_8c_ae37fc20bd47c2a4385a87a12090f4e9b}\label{ltablib_8c_ae37fc20bd47c2a4385a87a12090f4e9b}} 
+\index{ltablib.c@{ltablib.c}!tunpack@{tunpack}}
+\index{tunpack@{tunpack}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{tunpack()}{tunpack()}}
+{\footnotesize\ttfamily static int tunpack (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltablib.\+c 第 193 行定义.
+
+
+
+\doxysubsection{变量说明}
+\mbox{\Hypertarget{ltablib_8c_ae420818215325a443b1066512a76ef5d}\label{ltablib_8c_ae420818215325a443b1066512a76ef5d}} 
+\index{ltablib.c@{ltablib.c}!tab\_funcs@{tab\_funcs}}
+\index{tab\_funcs@{tab\_funcs}!ltablib.c@{ltablib.c}}
+\doxysubsubsection{\texorpdfstring{tab\_funcs}{tab\_funcs}}
+{\footnotesize\ttfamily const \mbox{\hyperlink{structlua_l___reg}{lua\+L\+\_\+\+Reg}} tab\+\_\+funcs\mbox{[}$\,$\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries 初始值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{= \{}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}concat"{}}, \mbox{\hyperlink{ltablib_8c_add6973c515a288f41265aca8e0ae6412}{tconcat}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}insert"{}}, \mbox{\hyperlink{ltablib_8c_a214ed6966e2b1b4c376ab0de0d09032e}{tinsert}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}pack"{}}, \mbox{\hyperlink{ltablib_8c_a33b59fd5ba7dbaddc6109c692a9d5dd0}{tpack}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}unpack"{}}, \mbox{\hyperlink{ltablib_8c_ae37fc20bd47c2a4385a87a12090f4e9b}{tunpack}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}remove"{}}, \mbox{\hyperlink{ltablib_8c_ad8c41fe887a472709c6fdf075ba39d56}{tremove}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}move"{}}, \mbox{\hyperlink{ltablib_8c_a2206b11cc9a180fbc33aabb81308fd74}{tmove}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}sort"{}}, \mbox{\hyperlink{ltablib_8c_ae7d3f892e2605bf102dce63de388e626}{sort}}\},}
+\DoxyCodeLine{  \{NULL, NULL\}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+在文件 ltablib.\+c 第 412 行定义.
+

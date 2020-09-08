@@ -1,0 +1,919 @@
+\hypertarget{liolib_8c}{}\doxysection{D\+:/gitworkspace/lua/src/liolib.c 文件参考}
+\label{liolib_8c}\index{D:/gitworkspace/lua/src/liolib.c@{D:/gitworkspace/lua/src/liolib.c}}
+{\ttfamily \#include \char`\"{}lprefix.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$ctype.\+h$>$}\newline
+{\ttfamily \#include $<$errno.\+h$>$}\newline
+{\ttfamily \#include $<$locale.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}lua.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lauxlib.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lualib.\+h\char`\"{}}\newline
+\doxysubsection*{结构体}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{struct_r_n}{RN}}
+\end{DoxyCompactItemize}
+\doxysubsection*{宏定义}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{liolib_8c_a4fa96ecbbecfabf0003fa4163c5029e0}{liolib\+\_\+c}}
+\item 
+\#define \mbox{\hyperlink{liolib_8c_a884b19ad6094d6238c4072a8064aeb12}{L\+U\+A\+\_\+\+L\+IB}}
+\item 
+\#define \mbox{\hyperlink{liolib_8c_a56a6e062eb06243c32928d1cfefba4f5}{L\+\_\+\+M\+O\+D\+E\+E\+XT}}~\char`\"{}b\char`\"{}
+\item 
+\#define \mbox{\hyperlink{liolib_8c_abb5b1c7bfa0e31613ed25ca2bb648381}{l\+\_\+popen}}(L,  c,  m)
+\item 
+\#define \mbox{\hyperlink{liolib_8c_a2ab03e50e416477fb612dc808c6e2951}{l\+\_\+pclose}}(L,  file)~((void)L, (void)file, -\/1)
+\item 
+\#define \mbox{\hyperlink{liolib_8c_a039d3e5509ea3a88809269f400f58ba5}{l\+\_\+getc}}(f)~getc(f)
+\item 
+\#define \mbox{\hyperlink{liolib_8c_ac0ab419b6e0666a091b66d7948fd4e2d}{l\+\_\+lockfile}}(f)~((void)0)
+\item 
+\#define \mbox{\hyperlink{liolib_8c_a4fb31ed5e0fc117ce51bc6e5391bb789}{l\+\_\+unlockfile}}(f)~((void)0)
+\item 
+\#define \mbox{\hyperlink{liolib_8c_a62de3640998d6fbb4148ee251244bf85}{l\+\_\+fseek}}(f,  o,  w)~fseek(f,o,w)
+\item 
+\#define \mbox{\hyperlink{liolib_8c_afa9a1643bfb6b1928c256f818d8ee8d4}{l\+\_\+ftell}}(f)~ftell(f)
+\item 
+\#define \mbox{\hyperlink{liolib_8c_a0cbd6f87dda88adaa6e189c8490319a3}{l\+\_\+seeknum}}~long
+\item 
+\#define \mbox{\hyperlink{liolib_8c_a181a699d5111b8d79a423a9bbcaf6830}{I\+O\+\_\+\+P\+R\+E\+F\+IX}}~\char`\"{}\+\_\+\+I\+O\+\_\+\char`\"{}
+\item 
+\#define \mbox{\hyperlink{liolib_8c_ac6ca58c960165047c3bf20e9546951b3}{I\+O\+P\+R\+E\+F\+\_\+\+L\+EN}}~(sizeof(\mbox{\hyperlink{liolib_8c_a181a699d5111b8d79a423a9bbcaf6830}{I\+O\+\_\+\+P\+R\+E\+F\+IX}})/sizeof(char) -\/ 1)
+\item 
+\#define \mbox{\hyperlink{liolib_8c_a3c1a27aacf1dd33edffa2422da638d0f}{I\+O\+\_\+\+I\+N\+P\+UT}}~(\mbox{\hyperlink{liolib_8c_a181a699d5111b8d79a423a9bbcaf6830}{I\+O\+\_\+\+P\+R\+E\+F\+IX}} \char`\"{}input\char`\"{})
+\item 
+\#define \mbox{\hyperlink{liolib_8c_aae48313230e7f773bf495ada1171c506}{I\+O\+\_\+\+O\+U\+T\+P\+UT}}~(\mbox{\hyperlink{liolib_8c_a181a699d5111b8d79a423a9bbcaf6830}{I\+O\+\_\+\+P\+R\+E\+F\+IX}} \char`\"{}output\char`\"{})
+\item 
+\#define \mbox{\hyperlink{liolib_8c_aa4a3ca333e58733b833a0395c5742fc2}{tolstream}}(L)~((\mbox{\hyperlink{liolib_8c_afdee2306a2ebaf7fd48d13fa65714054}{L\+Stream}} $\ast$)\mbox{\hyperlink{lauxlib_8h_aed8d8e4f3b95c6bcac246ec9895027b1}{lua\+L\+\_\+checkudata}}(L, 1, \mbox{\hyperlink{lauxlib_8h_a36f3babeb54bee1ebba63fe4fa94189a}{L\+U\+A\+\_\+\+F\+I\+L\+E\+H\+A\+N\+D\+LE}}))
+\item 
+\#define \mbox{\hyperlink{liolib_8c_a933df16f547e59062271f306675f599c}{isclosed}}(p)~((p)-\/$>$closef == N\+U\+LL)
+\item 
+\#define \mbox{\hyperlink{liolib_8c_a71cbd8e6a0b23499a1aef7e03eedf400}{M\+A\+X\+A\+R\+G\+L\+I\+NE}}~250
+\item 
+\#define \mbox{\hyperlink{liolib_8c_a98d71ac135df4047b2f051fcc7a1f40f}{L\+\_\+\+M\+A\+X\+L\+E\+N\+N\+UM}}~200
+\end{DoxyCompactItemize}
+\doxysubsection*{类型定义}
+\begin{DoxyCompactItemize}
+\item 
+typedef \mbox{\hyperlink{structlua_l___stream}{lua\+L\+\_\+\+Stream}} \mbox{\hyperlink{liolib_8c_afdee2306a2ebaf7fd48d13fa65714054}{L\+Stream}}
+\end{DoxyCompactItemize}
+\doxysubsection*{函数}
+\begin{DoxyCompactItemize}
+\item 
+static int \mbox{\hyperlink{liolib_8c_ab187d8eb3cf2b49793e4020547525905}{l\+\_\+checkmode}} (const char $\ast$mode)
+\item 
+static int \mbox{\hyperlink{liolib_8c_a2bd80ae170dce6c29d385b71398fd7c2}{io\+\_\+type}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_afaec8b8506a424b1b5f342037ae6350a}{f\+\_\+tostring}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static F\+I\+LE $\ast$ \mbox{\hyperlink{liolib_8c_a3a596f9304846a90435b75c75c55acda}{tofile}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static \mbox{\hyperlink{liolib_8c_afdee2306a2ebaf7fd48d13fa65714054}{L\+Stream}} $\ast$ \mbox{\hyperlink{liolib_8c_ab456fc51383d039a5a24c702060aba8e}{newprefile}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_a17cd174f91e6d1fdf0de674448dc84f2}{aux\+\_\+close}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_a2b331358ffb75b150c9490c2cc78aea2}{f\+\_\+close}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_a1c6f8e04184b0f7939e45e24d2d7ef8a}{io\+\_\+close}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_a54d23ecdc47341b1ab23dd572a011efb}{f\+\_\+gc}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_a693d26c59aa9f6a298ac288cb1a5c38d}{io\+\_\+fclose}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static \mbox{\hyperlink{liolib_8c_afdee2306a2ebaf7fd48d13fa65714054}{L\+Stream}} $\ast$ \mbox{\hyperlink{liolib_8c_a57c6c258a611b738f0ef34584ca6e7ab}{newfile}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static void \mbox{\hyperlink{liolib_8c_a91ec9c6fa0ef33085f29a15532ac80a7}{opencheck}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$fname, const char $\ast$mode)
+\item 
+static int \mbox{\hyperlink{liolib_8c_ab4a969d43dbe0f89e98307e5b421f8a7}{io\+\_\+open}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_ac885ae15fd14fc88058b0b8c1cf2b1d9}{io\+\_\+pclose}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_a8cc0b2b08409fb97e5cc80a0caf9b5fd}{io\+\_\+popen}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_a0347de9dda8be02044075c96482eddb3}{io\+\_\+tmpfile}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static F\+I\+LE $\ast$ \mbox{\hyperlink{liolib_8c_a3bccbdacdc9f21f22a603525be1f3699}{getiofile}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$findex)
+\item 
+static int \mbox{\hyperlink{liolib_8c_aae942558ff528b4e1a483297c64e6886}{g\+\_\+iofile}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$f, const char $\ast$mode)
+\item 
+static int \mbox{\hyperlink{liolib_8c_a827044fde6f2c21ab965ba3d729f6a0f}{io\+\_\+input}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_a4464f89f0151ad432557b0a51258582c}{io\+\_\+output}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_ac37d80ee2cc364b4adafcb6f7c20f28b}{io\+\_\+readline}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static void \mbox{\hyperlink{liolib_8c_a66325940a0248cee288153edb061c0c4}{aux\+\_\+lines}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int toclose)
+\item 
+static int \mbox{\hyperlink{liolib_8c_a6a36f72d8b3966c1ebafab8a4791cb6c}{f\+\_\+lines}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_ab08031b51605d4ef676ec33a3b96a286}{io\+\_\+lines}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_ab75f5f85c38ee22fc9884f0bd7ef836d}{nextc}} (\mbox{\hyperlink{struct_r_n}{RN}} $\ast$rn)
+\item 
+static int \mbox{\hyperlink{liolib_8c_a5c7dc3feb7edf50432b742767d4748f4}{test2}} (\mbox{\hyperlink{struct_r_n}{RN}} $\ast$rn, const char $\ast$set)
+\item 
+static int \mbox{\hyperlink{liolib_8c_a7ab70833e31129b3a9d2b49869c72978}{readdigits}} (\mbox{\hyperlink{struct_r_n}{RN}} $\ast$rn, int hex)
+\item 
+static int \mbox{\hyperlink{liolib_8c_a5345908bf60e4bd37d768b052ac26ec7}{read\+\_\+number}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, F\+I\+LE $\ast$f)
+\item 
+static int \mbox{\hyperlink{liolib_8c_ace61fce0bdea311d6d7c2206881165c7}{test\+\_\+eof}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, F\+I\+LE $\ast$f)
+\item 
+static int \mbox{\hyperlink{liolib_8c_ae697e23c2b1ea23d8935f579aa21200c}{read\+\_\+line}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, F\+I\+LE $\ast$f, int chop)
+\item 
+static void \mbox{\hyperlink{liolib_8c_a48a16089fed2e802a76635a3f8bfe8e3}{read\+\_\+all}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, F\+I\+LE $\ast$f)
+\item 
+static int \mbox{\hyperlink{liolib_8c_a6735c0513432f83bfa1b88b056ab379b}{read\+\_\+chars}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, F\+I\+LE $\ast$f, size\+\_\+t n)
+\item 
+static int \mbox{\hyperlink{liolib_8c_addece2406777a40f0f591e3518293932}{g\+\_\+read}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, F\+I\+LE $\ast$f, int first)
+\item 
+static int \mbox{\hyperlink{liolib_8c_a45307aa59a628966c6ea270e9b476d9a}{io\+\_\+read}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_add5250a74576076467531e4eb8f5f68e}{f\+\_\+read}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_a88c73a30c7d135dfb4958b7bfaa90cc7}{g\+\_\+write}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, F\+I\+LE $\ast$f, int arg)
+\item 
+static int \mbox{\hyperlink{liolib_8c_ada35daf906cc262cc6944cad92b93ac3}{io\+\_\+write}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_adba67ef94aaa532d9224ca04f8126ac2}{f\+\_\+write}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_ace5e1a23cc9e2ffe7ae6cc523e54de73}{f\+\_\+seek}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_aa7d559e7d43a6133ec495d6b4e5d68f2}{f\+\_\+setvbuf}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_a2f93672e01db50e1e5361f5f01c71bd6}{io\+\_\+flush}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_ad45f522bd561c05889799a66d9ffdb33}{f\+\_\+flush}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static void \mbox{\hyperlink{liolib_8c_a2edb7e84ca2f51dafb5d77b9c81a804c}{createmeta}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{liolib_8c_a7b8451d8d8fcbbe8f259375da540d12f}{io\+\_\+noclose}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static void \mbox{\hyperlink{liolib_8c_a0a80ad2f9dbb3b7238efae7738bb7569}{createstdfile}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, F\+I\+LE $\ast$f, const char $\ast$k, const char $\ast$fname)
+\item 
+\mbox{\hyperlink{luaconf_8h_a8e877216dd2f0cf9a68255b494f82f50}{L\+U\+A\+M\+O\+D\+\_\+\+A\+PI}} int \mbox{\hyperlink{liolib_8c_a2d3f245e532f3d582a4ff62bbd567149}{luaopen\+\_\+io}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\end{DoxyCompactItemize}
+\doxysubsection*{变量}
+\begin{DoxyCompactItemize}
+\item 
+static const \mbox{\hyperlink{structlua_l___reg}{lua\+L\+\_\+\+Reg}} \mbox{\hyperlink{liolib_8c_a8fe96dd62a007daad3a18e43dd136a29}{iolib}} \mbox{[}$\,$\mbox{]}
+\item 
+static const \mbox{\hyperlink{structlua_l___reg}{lua\+L\+\_\+\+Reg}} \mbox{\hyperlink{liolib_8c_a130a4b6b5500c2a2d53c8e4b82db6bac}{meth}} \mbox{[}$\,$\mbox{]}
+\item 
+static const \mbox{\hyperlink{structlua_l___reg}{lua\+L\+\_\+\+Reg}} \mbox{\hyperlink{liolib_8c_af35236400576d70739e09cc6a150b7c8}{metameth}} \mbox{[}$\,$\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{宏定义说明}
+\mbox{\Hypertarget{liolib_8c_a3c1a27aacf1dd33edffa2422da638d0f}\label{liolib_8c_a3c1a27aacf1dd33edffa2422da638d0f}} 
+\index{liolib.c@{liolib.c}!IO\_INPUT@{IO\_INPUT}}
+\index{IO\_INPUT@{IO\_INPUT}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{IO\_INPUT}{IO\_INPUT}}
+{\footnotesize\ttfamily \#define I\+O\+\_\+\+I\+N\+P\+UT~(\mbox{\hyperlink{liolib_8c_a181a699d5111b8d79a423a9bbcaf6830}{I\+O\+\_\+\+P\+R\+E\+F\+IX}} \char`\"{}input\char`\"{})}
+
+
+
+在文件 liolib.\+c 第 139 行定义.
+
+\mbox{\Hypertarget{liolib_8c_aae48313230e7f773bf495ada1171c506}\label{liolib_8c_aae48313230e7f773bf495ada1171c506}} 
+\index{liolib.c@{liolib.c}!IO\_OUTPUT@{IO\_OUTPUT}}
+\index{IO\_OUTPUT@{IO\_OUTPUT}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{IO\_OUTPUT}{IO\_OUTPUT}}
+{\footnotesize\ttfamily \#define I\+O\+\_\+\+O\+U\+T\+P\+UT~(\mbox{\hyperlink{liolib_8c_a181a699d5111b8d79a423a9bbcaf6830}{I\+O\+\_\+\+P\+R\+E\+F\+IX}} \char`\"{}output\char`\"{})}
+
+
+
+在文件 liolib.\+c 第 140 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a181a699d5111b8d79a423a9bbcaf6830}\label{liolib_8c_a181a699d5111b8d79a423a9bbcaf6830}} 
+\index{liolib.c@{liolib.c}!IO\_PREFIX@{IO\_PREFIX}}
+\index{IO\_PREFIX@{IO\_PREFIX}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{IO\_PREFIX}{IO\_PREFIX}}
+{\footnotesize\ttfamily \#define I\+O\+\_\+\+P\+R\+E\+F\+IX~\char`\"{}\+\_\+\+I\+O\+\_\+\char`\"{}}
+
+
+
+在文件 liolib.\+c 第 137 行定义.
+
+\mbox{\Hypertarget{liolib_8c_ac6ca58c960165047c3bf20e9546951b3}\label{liolib_8c_ac6ca58c960165047c3bf20e9546951b3}} 
+\index{liolib.c@{liolib.c}!IOPREF\_LEN@{IOPREF\_LEN}}
+\index{IOPREF\_LEN@{IOPREF\_LEN}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{IOPREF\_LEN}{IOPREF\_LEN}}
+{\footnotesize\ttfamily \#define I\+O\+P\+R\+E\+F\+\_\+\+L\+EN~(sizeof(\mbox{\hyperlink{liolib_8c_a181a699d5111b8d79a423a9bbcaf6830}{I\+O\+\_\+\+P\+R\+E\+F\+IX}})/sizeof(char) -\/ 1)}
+
+
+
+在文件 liolib.\+c 第 138 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a933df16f547e59062271f306675f599c}\label{liolib_8c_a933df16f547e59062271f306675f599c}} 
+\index{liolib.c@{liolib.c}!isclosed@{isclosed}}
+\index{isclosed@{isclosed}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{isclosed}{isclosed}}
+{\footnotesize\ttfamily \#define isclosed(\begin{DoxyParamCaption}\item[{}]{p }\end{DoxyParamCaption})~((p)-\/$>$closef == N\+U\+LL)}
+
+
+
+在文件 liolib.\+c 第 148 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a62de3640998d6fbb4148ee251244bf85}\label{liolib_8c_a62de3640998d6fbb4148ee251244bf85}} 
+\index{liolib.c@{liolib.c}!l\_fseek@{l\_fseek}}
+\index{l\_fseek@{l\_fseek}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{l\_fseek}{l\_fseek}}
+{\footnotesize\ttfamily \#define l\+\_\+fseek(\begin{DoxyParamCaption}\item[{}]{f,  }\item[{}]{o,  }\item[{}]{w }\end{DoxyParamCaption})~fseek(f,o,w)}
+
+
+
+在文件 liolib.\+c 第 125 行定义.
+
+\mbox{\Hypertarget{liolib_8c_afa9a1643bfb6b1928c256f818d8ee8d4}\label{liolib_8c_afa9a1643bfb6b1928c256f818d8ee8d4}} 
+\index{liolib.c@{liolib.c}!l\_ftell@{l\_ftell}}
+\index{l\_ftell@{l\_ftell}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{l\_ftell}{l\_ftell}}
+{\footnotesize\ttfamily \#define l\+\_\+ftell(\begin{DoxyParamCaption}\item[{}]{f }\end{DoxyParamCaption})~ftell(f)}
+
+
+
+在文件 liolib.\+c 第 126 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a039d3e5509ea3a88809269f400f58ba5}\label{liolib_8c_a039d3e5509ea3a88809269f400f58ba5}} 
+\index{liolib.c@{liolib.c}!l\_getc@{l\_getc}}
+\index{l\_getc@{l\_getc}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{l\_getc}{l\_getc}}
+{\footnotesize\ttfamily \#define l\+\_\+getc(\begin{DoxyParamCaption}\item[{}]{f }\end{DoxyParamCaption})~getc(f)}
+
+
+
+在文件 liolib.\+c 第 90 行定义.
+
+\mbox{\Hypertarget{liolib_8c_ac0ab419b6e0666a091b66d7948fd4e2d}\label{liolib_8c_ac0ab419b6e0666a091b66d7948fd4e2d}} 
+\index{liolib.c@{liolib.c}!l\_lockfile@{l\_lockfile}}
+\index{l\_lockfile@{l\_lockfile}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{l\_lockfile}{l\_lockfile}}
+{\footnotesize\ttfamily \#define l\+\_\+lockfile(\begin{DoxyParamCaption}\item[{}]{f }\end{DoxyParamCaption})~((void)0)}
+
+
+
+在文件 liolib.\+c 第 91 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a98d71ac135df4047b2f051fcc7a1f40f}\label{liolib_8c_a98d71ac135df4047b2f051fcc7a1f40f}} 
+\index{liolib.c@{liolib.c}!L\_MAXLENNUM@{L\_MAXLENNUM}}
+\index{L\_MAXLENNUM@{L\_MAXLENNUM}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{L\_MAXLENNUM}{L\_MAXLENNUM}}
+{\footnotesize\ttfamily \#define L\+\_\+\+M\+A\+X\+L\+E\+N\+N\+UM~200}
+
+
+
+在文件 liolib.\+c 第 409 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a56a6e062eb06243c32928d1cfefba4f5}\label{liolib_8c_a56a6e062eb06243c32928d1cfefba4f5}} 
+\index{liolib.c@{liolib.c}!L\_MODEEXT@{L\_MODEEXT}}
+\index{L\_MODEEXT@{L\_MODEEXT}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{L\_MODEEXT}{L\_MODEEXT}}
+{\footnotesize\ttfamily \#define L\+\_\+\+M\+O\+D\+E\+E\+XT~\char`\"{}b\char`\"{}}
+
+
+
+在文件 liolib.\+c 第 36 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a2ab03e50e416477fb612dc808c6e2951}\label{liolib_8c_a2ab03e50e416477fb612dc808c6e2951}} 
+\index{liolib.c@{liolib.c}!l\_pclose@{l\_pclose}}
+\index{l\_pclose@{l\_pclose}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{l\_pclose}{l\_pclose}}
+{\footnotesize\ttfamily \#define l\+\_\+pclose(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{file }\end{DoxyParamCaption})~((void)L, (void)file, -\/1)}
+
+
+
+在文件 liolib.\+c 第 74 行定义.
+
+\mbox{\Hypertarget{liolib_8c_abb5b1c7bfa0e31613ed25ca2bb648381}\label{liolib_8c_abb5b1c7bfa0e31613ed25ca2bb648381}} 
+\index{liolib.c@{liolib.c}!l\_popen@{l\_popen}}
+\index{l\_popen@{l\_popen}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{l\_popen}{l\_popen}}
+{\footnotesize\ttfamily \#define l\+\_\+popen(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{c,  }\item[{}]{m }\end{DoxyParamCaption})}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{      ((void)c, (\textcolor{keywordtype}{void})m, \(\backslash\)}
+\DoxyCodeLine{      luaL\_error(L, \textcolor{stringliteral}{"{}'popen' not supported"{}}), \(\backslash\)}
+\DoxyCodeLine{      (FILE*)0)}
+
+\end{DoxyCode}
+
+
+在文件 liolib.\+c 第 70 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a0cbd6f87dda88adaa6e189c8490319a3}\label{liolib_8c_a0cbd6f87dda88adaa6e189c8490319a3}} 
+\index{liolib.c@{liolib.c}!l\_seeknum@{l\_seeknum}}
+\index{l\_seeknum@{l\_seeknum}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{l\_seeknum}{l\_seeknum}}
+{\footnotesize\ttfamily \#define l\+\_\+seeknum~long}
+
+
+
+在文件 liolib.\+c 第 127 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a4fb31ed5e0fc117ce51bc6e5391bb789}\label{liolib_8c_a4fb31ed5e0fc117ce51bc6e5391bb789}} 
+\index{liolib.c@{liolib.c}!l\_unlockfile@{l\_unlockfile}}
+\index{l\_unlockfile@{l\_unlockfile}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{l\_unlockfile}{l\_unlockfile}}
+{\footnotesize\ttfamily \#define l\+\_\+unlockfile(\begin{DoxyParamCaption}\item[{}]{f }\end{DoxyParamCaption})~((void)0)}
+
+
+
+在文件 liolib.\+c 第 92 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a4fa96ecbbecfabf0003fa4163c5029e0}\label{liolib_8c_a4fa96ecbbecfabf0003fa4163c5029e0}} 
+\index{liolib.c@{liolib.c}!liolib\_c@{liolib\_c}}
+\index{liolib\_c@{liolib\_c}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{liolib\_c}{liolib\_c}}
+{\footnotesize\ttfamily \#define liolib\+\_\+c}
+
+
+
+在文件 liolib.\+c 第 7 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a884b19ad6094d6238c4072a8064aeb12}\label{liolib_8c_a884b19ad6094d6238c4072a8064aeb12}} 
+\index{liolib.c@{liolib.c}!LUA\_LIB@{LUA\_LIB}}
+\index{LUA\_LIB@{LUA\_LIB}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{LUA\_LIB}{LUA\_LIB}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+L\+IB}
+
+
+
+在文件 liolib.\+c 第 8 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a71cbd8e6a0b23499a1aef7e03eedf400}\label{liolib_8c_a71cbd8e6a0b23499a1aef7e03eedf400}} 
+\index{liolib.c@{liolib.c}!MAXARGLINE@{MAXARGLINE}}
+\index{MAXARGLINE@{MAXARGLINE}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{MAXARGLINE}{MAXARGLINE}}
+{\footnotesize\ttfamily \#define M\+A\+X\+A\+R\+G\+L\+I\+NE~250}
+
+
+
+在文件 liolib.\+c 第 339 行定义.
+
+\mbox{\Hypertarget{liolib_8c_aa4a3ca333e58733b833a0395c5742fc2}\label{liolib_8c_aa4a3ca333e58733b833a0395c5742fc2}} 
+\index{liolib.c@{liolib.c}!tolstream@{tolstream}}
+\index{tolstream@{tolstream}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{tolstream}{tolstream}}
+{\footnotesize\ttfamily \#define tolstream(\begin{DoxyParamCaption}\item[{}]{L }\end{DoxyParamCaption})~((\mbox{\hyperlink{liolib_8c_afdee2306a2ebaf7fd48d13fa65714054}{L\+Stream}} $\ast$)\mbox{\hyperlink{lauxlib_8h_aed8d8e4f3b95c6bcac246ec9895027b1}{lua\+L\+\_\+checkudata}}(L, 1, \mbox{\hyperlink{lauxlib_8h_a36f3babeb54bee1ebba63fe4fa94189a}{L\+U\+A\+\_\+\+F\+I\+L\+E\+H\+A\+N\+D\+LE}}))}
+
+
+
+在文件 liolib.\+c 第 146 行定义.
+
+
+
+\doxysubsection{类型定义说明}
+\mbox{\Hypertarget{liolib_8c_afdee2306a2ebaf7fd48d13fa65714054}\label{liolib_8c_afdee2306a2ebaf7fd48d13fa65714054}} 
+\index{liolib.c@{liolib.c}!LStream@{LStream}}
+\index{LStream@{LStream}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{LStream}{LStream}}
+{\footnotesize\ttfamily typedef \mbox{\hyperlink{structlua_l___stream}{lua\+L\+\_\+\+Stream}} \mbox{\hyperlink{liolib_8c_afdee2306a2ebaf7fd48d13fa65714054}{L\+Stream}}}
+
+
+
+在文件 liolib.\+c 第 143 行定义.
+
+
+
+\doxysubsection{函数说明}
+\mbox{\Hypertarget{liolib_8c_a17cd174f91e6d1fdf0de674448dc84f2}\label{liolib_8c_a17cd174f91e6d1fdf0de674448dc84f2}} 
+\index{liolib.c@{liolib.c}!aux\_close@{aux\_close}}
+\index{aux\_close@{aux\_close}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{aux\_close()}{aux\_close()}}
+{\footnotesize\ttfamily static int aux\+\_\+close (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 202 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a66325940a0248cee288153edb061c0c4}\label{liolib_8c_a66325940a0248cee288153edb061c0c4}} 
+\index{liolib.c@{liolib.c}!aux\_lines@{aux\_lines}}
+\index{aux\_lines@{aux\_lines}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{aux\_lines()}{aux\_lines()}}
+{\footnotesize\ttfamily static void aux\+\_\+lines (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{toclose }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 350 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a2edb7e84ca2f51dafb5d77b9c81a804c}\label{liolib_8c_a2edb7e84ca2f51dafb5d77b9c81a804c}} 
+\index{liolib.c@{liolib.c}!createmeta@{createmeta}}
+\index{createmeta@{createmeta}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{createmeta()}{createmeta()}}
+{\footnotesize\ttfamily static void createmeta (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 770 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a0a80ad2f9dbb3b7238efae7738bb7569}\label{liolib_8c_a0a80ad2f9dbb3b7238efae7738bb7569}} 
+\index{liolib.c@{liolib.c}!createstdfile@{createstdfile}}
+\index{createstdfile@{createstdfile}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{createstdfile()}{createstdfile()}}
+{\footnotesize\ttfamily static void createstdfile (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{F\+I\+LE $\ast$}]{f,  }\item[{const char $\ast$}]{k,  }\item[{const char $\ast$}]{fname }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 792 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a2b331358ffb75b150c9490c2cc78aea2}\label{liolib_8c_a2b331358ffb75b150c9490c2cc78aea2}} 
+\index{liolib.c@{liolib.c}!f\_close@{f\_close}}
+\index{f\_close@{f\_close}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{f\_close()}{f\_close()}}
+{\footnotesize\ttfamily static int f\+\_\+close (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 210 行定义.
+
+\mbox{\Hypertarget{liolib_8c_ad45f522bd561c05889799a66d9ffdb33}\label{liolib_8c_ad45f522bd561c05889799a66d9ffdb33}} 
+\index{liolib.c@{liolib.c}!f\_flush@{f\_flush}}
+\index{f\_flush@{f\_flush}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{f\_flush()}{f\_flush()}}
+{\footnotesize\ttfamily static int f\+\_\+flush (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 719 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a54d23ecdc47341b1ab23dd572a011efb}\label{liolib_8c_a54d23ecdc47341b1ab23dd572a011efb}} 
+\index{liolib.c@{liolib.c}!f\_gc@{f\_gc}}
+\index{f\_gc@{f\_gc}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{f\_gc()}{f\_gc()}}
+{\footnotesize\ttfamily static int f\+\_\+gc (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 223 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a6a36f72d8b3966c1ebafab8a4791cb6c}\label{liolib_8c_a6a36f72d8b3966c1ebafab8a4791cb6c}} 
+\index{liolib.c@{liolib.c}!f\_lines@{f\_lines}}
+\index{f\_lines@{f\_lines}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{f\_lines()}{f\_lines()}}
+{\footnotesize\ttfamily static int f\+\_\+lines (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 361 行定义.
+
+\mbox{\Hypertarget{liolib_8c_add5250a74576076467531e4eb8f5f68e}\label{liolib_8c_add5250a74576076467531e4eb8f5f68e}} 
+\index{liolib.c@{liolib.c}!f\_read@{f\_read}}
+\index{f\_read@{f\_read}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{f\_read()}{f\_read()}}
+{\footnotesize\ttfamily static int f\+\_\+read (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 608 行定义.
+
+\mbox{\Hypertarget{liolib_8c_ace5e1a23cc9e2ffe7ae6cc523e54de73}\label{liolib_8c_ace5e1a23cc9e2ffe7ae6cc523e54de73}} 
+\index{liolib.c@{liolib.c}!f\_seek@{f\_seek}}
+\index{f\_seek@{f\_seek}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{f\_seek()}{f\_seek()}}
+{\footnotesize\ttfamily static int f\+\_\+seek (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 683 行定义.
+
+\mbox{\Hypertarget{liolib_8c_aa7d559e7d43a6133ec495d6b4e5d68f2}\label{liolib_8c_aa7d559e7d43a6133ec495d6b4e5d68f2}} 
+\index{liolib.c@{liolib.c}!f\_setvbuf@{f\_setvbuf}}
+\index{f\_setvbuf@{f\_setvbuf}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{f\_setvbuf()}{f\_setvbuf()}}
+{\footnotesize\ttfamily static int f\+\_\+setvbuf (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 702 行定义.
+
+\mbox{\Hypertarget{liolib_8c_afaec8b8506a424b1b5f342037ae6350a}\label{liolib_8c_afaec8b8506a424b1b5f342037ae6350a}} 
+\index{liolib.c@{liolib.c}!f\_tostring@{f\_tostring}}
+\index{f\_tostring@{f\_tostring}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{f\_tostring()}{f\_tostring()}}
+{\footnotesize\ttfamily static int f\+\_\+tostring (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 165 行定义.
+
+\mbox{\Hypertarget{liolib_8c_adba67ef94aaa532d9224ca04f8126ac2}\label{liolib_8c_adba67ef94aaa532d9224ca04f8126ac2}} 
+\index{liolib.c@{liolib.c}!f\_write@{f\_write}}
+\index{f\_write@{f\_write}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{f\_write()}{f\_write()}}
+{\footnotesize\ttfamily static int f\+\_\+write (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 676 行定义.
+
+\mbox{\Hypertarget{liolib_8c_aae942558ff528b4e1a483297c64e6886}\label{liolib_8c_aae942558ff528b4e1a483297c64e6886}} 
+\index{liolib.c@{liolib.c}!g\_iofile@{g\_iofile}}
+\index{g\_iofile@{g\_iofile}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{g\_iofile()}{g\_iofile()}}
+{\footnotesize\ttfamily static int g\+\_\+iofile (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{f,  }\item[{const char $\ast$}]{mode }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 305 行定义.
+
+\mbox{\Hypertarget{liolib_8c_addece2406777a40f0f591e3518293932}\label{liolib_8c_addece2406777a40f0f591e3518293932}} 
+\index{liolib.c@{liolib.c}!g\_read@{g\_read}}
+\index{g\_read@{g\_read}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{g\_read()}{g\_read()}}
+{\footnotesize\ttfamily static int g\+\_\+read (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{F\+I\+LE $\ast$}]{f,  }\item[{int}]{first }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 553 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a88c73a30c7d135dfb4958b7bfaa90cc7}\label{liolib_8c_a88c73a30c7d135dfb4958b7bfaa90cc7}} 
+\index{liolib.c@{liolib.c}!g\_write@{g\_write}}
+\index{g\_write@{g\_write}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{g\_write()}{g\_write()}}
+{\footnotesize\ttfamily static int g\+\_\+write (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{F\+I\+LE $\ast$}]{f,  }\item[{int}]{arg }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 647 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a3bccbdacdc9f21f22a603525be1f3699}\label{liolib_8c_a3bccbdacdc9f21f22a603525be1f3699}} 
+\index{liolib.c@{liolib.c}!getiofile@{getiofile}}
+\index{getiofile@{getiofile}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{getiofile()}{getiofile()}}
+{\footnotesize\ttfamily static F\+I\+LE$\ast$ getiofile (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{findex }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 295 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a1c6f8e04184b0f7939e45e24d2d7ef8a}\label{liolib_8c_a1c6f8e04184b0f7939e45e24d2d7ef8a}} 
+\index{liolib.c@{liolib.c}!io\_close@{io\_close}}
+\index{io\_close@{io\_close}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{io\_close()}{io\_close()}}
+{\footnotesize\ttfamily static int io\+\_\+close (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 216 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a693d26c59aa9f6a298ac288cb1a5c38d}\label{liolib_8c_a693d26c59aa9f6a298ac288cb1a5c38d}} 
+\index{liolib.c@{liolib.c}!io\_fclose@{io\_fclose}}
+\index{io\_fclose@{io\_fclose}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{io\_fclose()}{io\_fclose()}}
+{\footnotesize\ttfamily static int io\+\_\+fclose (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 234 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a2f93672e01db50e1e5361f5f01c71bd6}\label{liolib_8c_a2f93672e01db50e1e5361f5f01c71bd6}} 
+\index{liolib.c@{liolib.c}!io\_flush@{io\_flush}}
+\index{io\_flush@{io\_flush}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{io\_flush()}{io\_flush()}}
+{\footnotesize\ttfamily static int io\+\_\+flush (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 714 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a827044fde6f2c21ab965ba3d729f6a0f}\label{liolib_8c_a827044fde6f2c21ab965ba3d729f6a0f}} 
+\index{liolib.c@{liolib.c}!io\_input@{io\_input}}
+\index{io\_input@{io\_input}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{io\_input()}{io\_input()}}
+{\footnotesize\ttfamily static int io\+\_\+input (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 322 行定义.
+
+\mbox{\Hypertarget{liolib_8c_ab08031b51605d4ef676ec33a3b96a286}\label{liolib_8c_ab08031b51605d4ef676ec33a3b96a286}} 
+\index{liolib.c@{liolib.c}!io\_lines@{io\_lines}}
+\index{io\_lines@{io\_lines}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{io\_lines()}{io\_lines()}}
+{\footnotesize\ttfamily static int io\+\_\+lines (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 373 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a7b8451d8d8fcbbe8f259375da540d12f}\label{liolib_8c_a7b8451d8d8fcbbe8f259375da540d12f}} 
+\index{liolib.c@{liolib.c}!io\_noclose@{io\_noclose}}
+\index{io\_noclose@{io\_noclose}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{io\_noclose()}{io\_noclose()}}
+{\footnotesize\ttfamily static int io\+\_\+noclose (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 783 行定义.
+
+\mbox{\Hypertarget{liolib_8c_ab4a969d43dbe0f89e98307e5b421f8a7}\label{liolib_8c_ab4a969d43dbe0f89e98307e5b421f8a7}} 
+\index{liolib.c@{liolib.c}!io\_open@{io\_open}}
+\index{io\_open@{io\_open}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{io\_open()}{io\_open()}}
+{\footnotesize\ttfamily static int io\+\_\+open (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 257 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a4464f89f0151ad432557b0a51258582c}\label{liolib_8c_a4464f89f0151ad432557b0a51258582c}} 
+\index{liolib.c@{liolib.c}!io\_output@{io\_output}}
+\index{io\_output@{io\_output}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{io\_output()}{io\_output()}}
+{\footnotesize\ttfamily static int io\+\_\+output (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 327 行定义.
+
+\mbox{\Hypertarget{liolib_8c_ac885ae15fd14fc88058b0b8c1cf2b1d9}\label{liolib_8c_ac885ae15fd14fc88058b0b8c1cf2b1d9}} 
+\index{liolib.c@{liolib.c}!io\_pclose@{io\_pclose}}
+\index{io\_pclose@{io\_pclose}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{io\_pclose()}{io\_pclose()}}
+{\footnotesize\ttfamily static int io\+\_\+pclose (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 271 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a8cc0b2b08409fb97e5cc80a0caf9b5fd}\label{liolib_8c_a8cc0b2b08409fb97e5cc80a0caf9b5fd}} 
+\index{liolib.c@{liolib.c}!io\_popen@{io\_popen}}
+\index{io\_popen@{io\_popen}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{io\_popen()}{io\_popen()}}
+{\footnotesize\ttfamily static int io\+\_\+popen (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 278 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a45307aa59a628966c6ea270e9b476d9a}\label{liolib_8c_a45307aa59a628966c6ea270e9b476d9a}} 
+\index{liolib.c@{liolib.c}!io\_read@{io\_read}}
+\index{io\_read@{io\_read}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{io\_read()}{io\_read()}}
+{\footnotesize\ttfamily static int io\+\_\+read (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 603 行定义.
+
+\mbox{\Hypertarget{liolib_8c_ac37d80ee2cc364b4adafcb6f7c20f28b}\label{liolib_8c_ac37d80ee2cc364b4adafcb6f7c20f28b}} 
+\index{liolib.c@{liolib.c}!io\_readline@{io\_readline}}
+\index{io\_readline@{io\_readline}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{io\_readline()}{io\_readline()}}
+{\footnotesize\ttfamily static int io\+\_\+readline (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 616 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a0347de9dda8be02044075c96482eddb3}\label{liolib_8c_a0347de9dda8be02044075c96482eddb3}} 
+\index{liolib.c@{liolib.c}!io\_tmpfile@{io\_tmpfile}}
+\index{io\_tmpfile@{io\_tmpfile}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{io\_tmpfile()}{io\_tmpfile()}}
+{\footnotesize\ttfamily static int io\+\_\+tmpfile (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 288 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a2bd80ae170dce6c29d385b71398fd7c2}\label{liolib_8c_a2bd80ae170dce6c29d385b71398fd7c2}} 
+\index{liolib.c@{liolib.c}!io\_type@{io\_type}}
+\index{io\_type@{io\_type}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{io\_type()}{io\_type()}}
+{\footnotesize\ttfamily static int io\+\_\+type (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 151 行定义.
+
+\mbox{\Hypertarget{liolib_8c_ada35daf906cc262cc6944cad92b93ac3}\label{liolib_8c_ada35daf906cc262cc6944cad92b93ac3}} 
+\index{liolib.c@{liolib.c}!io\_write@{io\_write}}
+\index{io\_write@{io\_write}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{io\_write()}{io\_write()}}
+{\footnotesize\ttfamily static int io\+\_\+write (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 671 行定义.
+
+\mbox{\Hypertarget{liolib_8c_ab187d8eb3cf2b49793e4020547525905}\label{liolib_8c_ab187d8eb3cf2b49793e4020547525905}} 
+\index{liolib.c@{liolib.c}!l\_checkmode@{l\_checkmode}}
+\index{l\_checkmode@{l\_checkmode}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{l\_checkmode()}{l\_checkmode()}}
+{\footnotesize\ttfamily static int l\+\_\+checkmode (\begin{DoxyParamCaption}\item[{const char $\ast$}]{mode }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 40 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a2d3f245e532f3d582a4ff62bbd567149}\label{liolib_8c_a2d3f245e532f3d582a4ff62bbd567149}} 
+\index{liolib.c@{liolib.c}!luaopen\_io@{luaopen\_io}}
+\index{luaopen\_io@{luaopen\_io}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{luaopen\_io()}{luaopen\_io()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a8e877216dd2f0cf9a68255b494f82f50}{L\+U\+A\+M\+O\+D\+\_\+\+A\+PI}} int luaopen\+\_\+io (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})}
+
+
+
+在文件 liolib.\+c 第 805 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a57c6c258a611b738f0ef34584ca6e7ab}\label{liolib_8c_a57c6c258a611b738f0ef34584ca6e7ab}} 
+\index{liolib.c@{liolib.c}!newfile@{newfile}}
+\index{newfile@{newfile}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{newfile()}{newfile()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{liolib_8c_afdee2306a2ebaf7fd48d13fa65714054}{L\+Stream}}$\ast$ newfile (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 241 行定义.
+
+\mbox{\Hypertarget{liolib_8c_ab456fc51383d039a5a24c702060aba8e}\label{liolib_8c_ab456fc51383d039a5a24c702060aba8e}} 
+\index{liolib.c@{liolib.c}!newprefile@{newprefile}}
+\index{newprefile@{newprefile}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{newprefile()}{newprefile()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{liolib_8c_afdee2306a2ebaf7fd48d13fa65714054}{L\+Stream}}$\ast$ newprefile (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 189 行定义.
+
+\mbox{\Hypertarget{liolib_8c_ab75f5f85c38ee22fc9884f0bd7ef836d}\label{liolib_8c_ab75f5f85c38ee22fc9884f0bd7ef836d}} 
+\index{liolib.c@{liolib.c}!nextc@{nextc}}
+\index{nextc@{nextc}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{nextc()}{nextc()}}
+{\footnotesize\ttfamily static int nextc (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_r_n}{RN}} $\ast$}]{rn }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 425 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a91ec9c6fa0ef33085f29a15532ac80a7}\label{liolib_8c_a91ec9c6fa0ef33085f29a15532ac80a7}} 
+\index{liolib.c@{liolib.c}!opencheck@{opencheck}}
+\index{opencheck@{opencheck}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{opencheck()}{opencheck()}}
+{\footnotesize\ttfamily static void opencheck (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{fname,  }\item[{const char $\ast$}]{mode }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 249 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a48a16089fed2e802a76635a3f8bfe8e3}\label{liolib_8c_a48a16089fed2e802a76635a3f8bfe8e3}} 
+\index{liolib.c@{liolib.c}!read\_all@{read\_all}}
+\index{read\_all@{read\_all}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{read\_all()}{read\_all()}}
+{\footnotesize\ttfamily static void read\+\_\+all (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{F\+I\+LE $\ast$}]{f }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 527 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a6735c0513432f83bfa1b88b056ab379b}\label{liolib_8c_a6735c0513432f83bfa1b88b056ab379b}} 
+\index{liolib.c@{liolib.c}!read\_chars@{read\_chars}}
+\index{read\_chars@{read\_chars}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{read\_chars()}{read\_chars()}}
+{\footnotesize\ttfamily static int read\+\_\+chars (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{F\+I\+LE $\ast$}]{f,  }\item[{size\+\_\+t}]{n }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 540 行定义.
+
+\mbox{\Hypertarget{liolib_8c_ae697e23c2b1ea23d8935f579aa21200c}\label{liolib_8c_ae697e23c2b1ea23d8935f579aa21200c}} 
+\index{liolib.c@{liolib.c}!read\_line@{read\_line}}
+\index{read\_line@{read\_line}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{read\_line()}{read\_line()}}
+{\footnotesize\ttfamily static int read\+\_\+line (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{F\+I\+LE $\ast$}]{f,  }\item[{int}]{chop }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 506 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a5345908bf60e4bd37d768b052ac26ec7}\label{liolib_8c_a5345908bf60e4bd37d768b052ac26ec7}} 
+\index{liolib.c@{liolib.c}!read\_number@{read\_number}}
+\index{read\_number@{read\_number}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{read\_number()}{read\_number()}}
+{\footnotesize\ttfamily static int read\+\_\+number (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{F\+I\+LE $\ast$}]{f }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 464 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a7ab70833e31129b3a9d2b49869c72978}\label{liolib_8c_a7ab70833e31129b3a9d2b49869c72978}} 
+\index{liolib.c@{liolib.c}!readdigits@{readdigits}}
+\index{readdigits@{readdigits}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{readdigits()}{readdigits()}}
+{\footnotesize\ttfamily static int readdigits (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_r_n}{RN}} $\ast$}]{rn,  }\item[{int}]{hex }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 451 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a5c7dc3feb7edf50432b742767d4748f4}\label{liolib_8c_a5c7dc3feb7edf50432b742767d4748f4}} 
+\index{liolib.c@{liolib.c}!test2@{test2}}
+\index{test2@{test2}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{test2()}{test2()}}
+{\footnotesize\ttfamily static int test2 (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_r_n}{RN}} $\ast$}]{rn,  }\item[{const char $\ast$}]{set }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 441 行定义.
+
+\mbox{\Hypertarget{liolib_8c_ace61fce0bdea311d6d7c2206881165c7}\label{liolib_8c_ace61fce0bdea311d6d7c2206881165c7}} 
+\index{liolib.c@{liolib.c}!test\_eof@{test\_eof}}
+\index{test\_eof@{test\_eof}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{test\_eof()}{test\_eof()}}
+{\footnotesize\ttfamily static int test\+\_\+eof (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{F\+I\+LE $\ast$}]{f }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 498 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a3a596f9304846a90435b75c75c55acda}\label{liolib_8c_a3a596f9304846a90435b75c75c55acda}} 
+\index{liolib.c@{liolib.c}!tofile@{tofile}}
+\index{tofile@{tofile}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{tofile()}{tofile()}}
+{\footnotesize\ttfamily static F\+I\+LE$\ast$ tofile (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 liolib.\+c 第 175 行定义.
+
+
+
+\doxysubsection{变量说明}
+\mbox{\Hypertarget{liolib_8c_a8fe96dd62a007daad3a18e43dd136a29}\label{liolib_8c_a8fe96dd62a007daad3a18e43dd136a29}} 
+\index{liolib.c@{liolib.c}!iolib@{iolib}}
+\index{iolib@{iolib}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{iolib}{iolib}}
+{\footnotesize\ttfamily const \mbox{\hyperlink{structlua_l___reg}{lua\+L\+\_\+\+Reg}} iolib\mbox{[}$\,$\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries 初始值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{= \{}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}close"{}}, \mbox{\hyperlink{liolib_8c_a1c6f8e04184b0f7939e45e24d2d7ef8a}{io\_close}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}flush"{}}, \mbox{\hyperlink{liolib_8c_a2f93672e01db50e1e5361f5f01c71bd6}{io\_flush}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}input"{}}, \mbox{\hyperlink{liolib_8c_a827044fde6f2c21ab965ba3d729f6a0f}{io\_input}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}lines"{}}, \mbox{\hyperlink{liolib_8c_ab08031b51605d4ef676ec33a3b96a286}{io\_lines}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}open"{}}, \mbox{\hyperlink{liolib_8c_ab4a969d43dbe0f89e98307e5b421f8a7}{io\_open}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}output"{}}, \mbox{\hyperlink{liolib_8c_a4464f89f0151ad432557b0a51258582c}{io\_output}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}popen"{}}, \mbox{\hyperlink{liolib_8c_a8cc0b2b08409fb97e5cc80a0caf9b5fd}{io\_popen}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}read"{}}, \mbox{\hyperlink{liolib_8c_a45307aa59a628966c6ea270e9b476d9a}{io\_read}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}tmpfile"{}}, \mbox{\hyperlink{liolib_8c_a0347de9dda8be02044075c96482eddb3}{io\_tmpfile}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}type"{}}, \mbox{\hyperlink{liolib_8c_a2bd80ae170dce6c29d385b71398fd7c2}{io\_type}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}write"{}}, \mbox{\hyperlink{liolib_8c_ada35daf906cc262cc6944cad92b93ac3}{io\_write}}\},}
+\DoxyCodeLine{  \{NULL, NULL\}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+在文件 liolib.\+c 第 727 行定义.
+
+\mbox{\Hypertarget{liolib_8c_af35236400576d70739e09cc6a150b7c8}\label{liolib_8c_af35236400576d70739e09cc6a150b7c8}} 
+\index{liolib.c@{liolib.c}!metameth@{metameth}}
+\index{metameth@{metameth}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{metameth}{metameth}}
+{\footnotesize\ttfamily const \mbox{\hyperlink{structlua_l___reg}{lua\+L\+\_\+\+Reg}} metameth\mbox{[}$\,$\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries 初始值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{= \{}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}\_\_index"{}}, NULL\},  }
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}\_\_gc"{}}, \mbox{\hyperlink{liolib_8c_a54d23ecdc47341b1ab23dd572a011efb}{f\_gc}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}\_\_close"{}}, \mbox{\hyperlink{liolib_8c_a54d23ecdc47341b1ab23dd572a011efb}{f\_gc}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}\_\_tostring"{}}, \mbox{\hyperlink{liolib_8c_afaec8b8506a424b1b5f342037ae6350a}{f\_tostring}}\},}
+\DoxyCodeLine{  \{NULL, NULL\}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+在文件 liolib.\+c 第 761 行定义.
+
+\mbox{\Hypertarget{liolib_8c_a130a4b6b5500c2a2d53c8e4b82db6bac}\label{liolib_8c_a130a4b6b5500c2a2d53c8e4b82db6bac}} 
+\index{liolib.c@{liolib.c}!meth@{meth}}
+\index{meth@{meth}!liolib.c@{liolib.c}}
+\doxysubsubsection{\texorpdfstring{meth}{meth}}
+{\footnotesize\ttfamily const \mbox{\hyperlink{structlua_l___reg}{lua\+L\+\_\+\+Reg}} meth\mbox{[}$\,$\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries 初始值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{= \{}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}read"{}}, \mbox{\hyperlink{liolib_8c_add5250a74576076467531e4eb8f5f68e}{f\_read}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}write"{}}, \mbox{\hyperlink{liolib_8c_adba67ef94aaa532d9224ca04f8126ac2}{f\_write}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}lines"{}}, \mbox{\hyperlink{liolib_8c_a6a36f72d8b3966c1ebafab8a4791cb6c}{f\_lines}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}flush"{}}, \mbox{\hyperlink{liolib_8c_ad45f522bd561c05889799a66d9ffdb33}{f\_flush}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}seek"{}}, \mbox{\hyperlink{liolib_8c_ace5e1a23cc9e2ffe7ae6cc523e54de73}{f\_seek}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}close"{}}, \mbox{\hyperlink{liolib_8c_a2b331358ffb75b150c9490c2cc78aea2}{f\_close}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}setvbuf"{}}, \mbox{\hyperlink{liolib_8c_aa7d559e7d43a6133ec495d6b4e5d68f2}{f\_setvbuf}}\},}
+\DoxyCodeLine{  \{NULL, NULL\}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+在文件 liolib.\+c 第 746 行定义.
+

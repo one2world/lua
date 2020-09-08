@@ -1,0 +1,277 @@
+\hypertarget{ldump_8c}{}\doxysection{D\+:/gitworkspace/lua/src/ldump.c 文件参考}
+\label{ldump_8c}\index{D:/gitworkspace/lua/src/ldump.c@{D:/gitworkspace/lua/src/ldump.c}}
+{\ttfamily \#include \char`\"{}lprefix.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$stddef.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}lua.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lobject.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lstate.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lundump.\+h\char`\"{}}\newline
+\doxysubsection*{结构体}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{struct_dump_state}{Dump\+State}}
+\end{DoxyCompactItemize}
+\doxysubsection*{宏定义}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{ldump_8c_a305a0bdaea32b19e7f6d2cb6dce1cc81}{ldump\+\_\+c}}
+\item 
+\#define \mbox{\hyperlink{ldump_8c_abf0b3947b59218777a8e928a10be205b}{L\+U\+A\+\_\+\+C\+O\+RE}}
+\item 
+\#define \mbox{\hyperlink{ldump_8c_aa57836f656453350c7d2b6b89df1b003}{dump\+Vector}}(D,  v,  n)~\mbox{\hyperlink{ldump_8c_adeca46278a770e7418d0eff725770e04}{dump\+Block}}(D,v,(n)$\ast$sizeof((v)\mbox{[}0\mbox{]}))
+\item 
+\#define \mbox{\hyperlink{ldump_8c_a05e931c17f007b1c9d54080d6243af18}{dump\+Literal}}(D,  s)~\mbox{\hyperlink{ldump_8c_adeca46278a770e7418d0eff725770e04}{dump\+Block}}(D,s,sizeof(s) -\/ sizeof(char))
+\item 
+\#define \mbox{\hyperlink{ldump_8c_ad2bf75eb38f1f5a5a7f71818fbb04098}{dump\+Var}}(D,  x)~\mbox{\hyperlink{ldump_8c_aa57836f656453350c7d2b6b89df1b003}{dump\+Vector}}(D,\&x,1)
+\item 
+\#define \mbox{\hyperlink{ldump_8c_a2a1ad4360d7023093f769ebda9341597}{D\+I\+BS}}~((sizeof(size\+\_\+t) $\ast$ 8 / 7) + 1)
+\end{DoxyCompactItemize}
+\doxysubsection*{函数}
+\begin{DoxyCompactItemize}
+\item 
+static void \mbox{\hyperlink{ldump_8c_adeca46278a770e7418d0eff725770e04}{dump\+Block}} (\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$D, const void $\ast$b, size\+\_\+t size)
+\item 
+static void \mbox{\hyperlink{ldump_8c_a4838cac003905fc2e95b522a03d4adfc}{dump\+Byte}} (\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$D, int y)
+\item 
+static void \mbox{\hyperlink{ldump_8c_ad8b3745ee530db686c5503e69e93c0e6}{dump\+Size}} (\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$D, size\+\_\+t x)
+\item 
+static void \mbox{\hyperlink{ldump_8c_af18972a3be9ad820b0d677891405d15b}{dump\+Int}} (\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$D, int x)
+\item 
+static void \mbox{\hyperlink{ldump_8c_a671751477d7f491c5e9b2affbcd517a0}{dump\+Number}} (\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$D, \mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} x)
+\item 
+static void \mbox{\hyperlink{ldump_8c_a5bc42c8666f45652f5716243028c4b39}{dump\+Integer}} (\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$D, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} x)
+\item 
+static void \mbox{\hyperlink{ldump_8c_a62dae3e1e70f0ded796f53a1571a3352}{dump\+String}} (\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$D, const \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$s)
+\item 
+static void \mbox{\hyperlink{ldump_8c_af4e6b3cad1a6436e065a811a3e6d4573}{dump\+Code}} (\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$D, const \mbox{\hyperlink{struct_proto}{Proto}} $\ast$f)
+\item 
+static void \mbox{\hyperlink{ldump_8c_a2e1db7ac1fa976eb7e3b90ec15a576b2}{dump\+Function}} (\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$D, const \mbox{\hyperlink{struct_proto}{Proto}} $\ast$f, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$psource)
+\item 
+static void \mbox{\hyperlink{ldump_8c_a03c1c48bb784b200a4f8e982c9235456}{dump\+Constants}} (\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$D, const \mbox{\hyperlink{struct_proto}{Proto}} $\ast$f)
+\item 
+static void \mbox{\hyperlink{ldump_8c_a34567bcb1204f914b0316d5ac5532ae0}{dump\+Protos}} (\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$D, const \mbox{\hyperlink{struct_proto}{Proto}} $\ast$f)
+\item 
+static void \mbox{\hyperlink{ldump_8c_aa91ee935a3a398fdb0228107f579fb75}{dump\+Upvalues}} (\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$D, const \mbox{\hyperlink{struct_proto}{Proto}} $\ast$f)
+\item 
+static void \mbox{\hyperlink{ldump_8c_a57223a49768a740530eddd2f3ef19699}{dump\+Debug}} (\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$D, const \mbox{\hyperlink{struct_proto}{Proto}} $\ast$f)
+\item 
+static void \mbox{\hyperlink{ldump_8c_a7dff1d2107a66420c1476d4ecfa27b14}{dump\+Header}} (\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$D)
+\item 
+int \mbox{\hyperlink{ldump_8c_a808f6a29001ac6446f40c76014c6b6e9}{lua\+U\+\_\+dump}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const \mbox{\hyperlink{struct_proto}{Proto}} $\ast$f, \mbox{\hyperlink{lua_8h_a855729196d7066b2da21178284868a8d}{lua\+\_\+\+Writer}} w, void $\ast$data, int strip)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{宏定义说明}
+\mbox{\Hypertarget{ldump_8c_a2a1ad4360d7023093f769ebda9341597}\label{ldump_8c_a2a1ad4360d7023093f769ebda9341597}} 
+\index{ldump.c@{ldump.c}!DIBS@{DIBS}}
+\index{DIBS@{DIBS}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{DIBS}{DIBS}}
+{\footnotesize\ttfamily \#define D\+I\+BS~((sizeof(size\+\_\+t) $\ast$ 8 / 7) + 1)}
+
+
+
+在文件 ldump.\+c 第 59 行定义.
+
+\mbox{\Hypertarget{ldump_8c_a05e931c17f007b1c9d54080d6243af18}\label{ldump_8c_a05e931c17f007b1c9d54080d6243af18}} 
+\index{ldump.c@{ldump.c}!dumpLiteral@{dumpLiteral}}
+\index{dumpLiteral@{dumpLiteral}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{dumpLiteral}{dumpLiteral}}
+{\footnotesize\ttfamily \#define dump\+Literal(\begin{DoxyParamCaption}\item[{}]{D,  }\item[{}]{s }\end{DoxyParamCaption})~\mbox{\hyperlink{ldump_8c_adeca46278a770e7418d0eff725770e04}{dump\+Block}}(D,s,sizeof(s) -\/ sizeof(char))}
+
+
+
+在文件 ldump.\+c 第 37 行定义.
+
+\mbox{\Hypertarget{ldump_8c_ad2bf75eb38f1f5a5a7f71818fbb04098}\label{ldump_8c_ad2bf75eb38f1f5a5a7f71818fbb04098}} 
+\index{ldump.c@{ldump.c}!dumpVar@{dumpVar}}
+\index{dumpVar@{dumpVar}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{dumpVar}{dumpVar}}
+{\footnotesize\ttfamily \#define dump\+Var(\begin{DoxyParamCaption}\item[{}]{D,  }\item[{}]{x }\end{DoxyParamCaption})~\mbox{\hyperlink{ldump_8c_aa57836f656453350c7d2b6b89df1b003}{dump\+Vector}}(D,\&x,1)}
+
+
+
+在文件 ldump.\+c 第 49 行定义.
+
+\mbox{\Hypertarget{ldump_8c_aa57836f656453350c7d2b6b89df1b003}\label{ldump_8c_aa57836f656453350c7d2b6b89df1b003}} 
+\index{ldump.c@{ldump.c}!dumpVector@{dumpVector}}
+\index{dumpVector@{dumpVector}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{dumpVector}{dumpVector}}
+{\footnotesize\ttfamily \#define dump\+Vector(\begin{DoxyParamCaption}\item[{}]{D,  }\item[{}]{v,  }\item[{}]{n }\end{DoxyParamCaption})~\mbox{\hyperlink{ldump_8c_adeca46278a770e7418d0eff725770e04}{dump\+Block}}(D,v,(n)$\ast$sizeof((v)\mbox{[}0\mbox{]}))}
+
+
+
+在文件 ldump.\+c 第 35 行定义.
+
+\mbox{\Hypertarget{ldump_8c_a305a0bdaea32b19e7f6d2cb6dce1cc81}\label{ldump_8c_a305a0bdaea32b19e7f6d2cb6dce1cc81}} 
+\index{ldump.c@{ldump.c}!ldump\_c@{ldump\_c}}
+\index{ldump\_c@{ldump\_c}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{ldump\_c}{ldump\_c}}
+{\footnotesize\ttfamily \#define ldump\+\_\+c}
+
+
+
+在文件 ldump.\+c 第 7 行定义.
+
+\mbox{\Hypertarget{ldump_8c_abf0b3947b59218777a8e928a10be205b}\label{ldump_8c_abf0b3947b59218777a8e928a10be205b}} 
+\index{ldump.c@{ldump.c}!LUA\_CORE@{LUA\_CORE}}
+\index{LUA\_CORE@{LUA\_CORE}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{LUA\_CORE}{LUA\_CORE}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+C\+O\+RE}
+
+
+
+在文件 ldump.\+c 第 8 行定义.
+
+
+
+\doxysubsection{函数说明}
+\mbox{\Hypertarget{ldump_8c_adeca46278a770e7418d0eff725770e04}\label{ldump_8c_adeca46278a770e7418d0eff725770e04}} 
+\index{ldump.c@{ldump.c}!dumpBlock@{dumpBlock}}
+\index{dumpBlock@{dumpBlock}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{dumpBlock()}{dumpBlock()}}
+{\footnotesize\ttfamily static void dump\+Block (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$}]{D,  }\item[{const void $\ast$}]{b,  }\item[{size\+\_\+t}]{size }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ldump.\+c 第 40 行定义.
+
+\mbox{\Hypertarget{ldump_8c_a4838cac003905fc2e95b522a03d4adfc}\label{ldump_8c_a4838cac003905fc2e95b522a03d4adfc}} 
+\index{ldump.c@{ldump.c}!dumpByte@{dumpByte}}
+\index{dumpByte@{dumpByte}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{dumpByte()}{dumpByte()}}
+{\footnotesize\ttfamily static void dump\+Byte (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$}]{D,  }\item[{int}]{y }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ldump.\+c 第 52 行定义.
+
+\mbox{\Hypertarget{ldump_8c_af4e6b3cad1a6436e065a811a3e6d4573}\label{ldump_8c_af4e6b3cad1a6436e065a811a3e6d4573}} 
+\index{ldump.c@{ldump.c}!dumpCode@{dumpCode}}
+\index{dumpCode@{dumpCode}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{dumpCode()}{dumpCode()}}
+{\footnotesize\ttfamily static void dump\+Code (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$}]{D,  }\item[{const \mbox{\hyperlink{struct_proto}{Proto}} $\ast$}]{f }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ldump.\+c 第 100 行定义.
+
+\mbox{\Hypertarget{ldump_8c_a03c1c48bb784b200a4f8e982c9235456}\label{ldump_8c_a03c1c48bb784b200a4f8e982c9235456}} 
+\index{ldump.c@{ldump.c}!dumpConstants@{dumpConstants}}
+\index{dumpConstants@{dumpConstants}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{dumpConstants()}{dumpConstants()}}
+{\footnotesize\ttfamily static void dump\+Constants (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$}]{D,  }\item[{const \mbox{\hyperlink{struct_proto}{Proto}} $\ast$}]{f }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ldump.\+c 第 108 行定义.
+
+\mbox{\Hypertarget{ldump_8c_a57223a49768a740530eddd2f3ef19699}\label{ldump_8c_a57223a49768a740530eddd2f3ef19699}} 
+\index{ldump.c@{ldump.c}!dumpDebug@{dumpDebug}}
+\index{dumpDebug@{dumpDebug}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{dumpDebug()}{dumpDebug()}}
+{\footnotesize\ttfamily static void dump\+Debug (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$}]{D,  }\item[{const \mbox{\hyperlink{struct_proto}{Proto}} $\ast$}]{f }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ldump.\+c 第 154 行定义.
+
+\mbox{\Hypertarget{ldump_8c_a2e1db7ac1fa976eb7e3b90ec15a576b2}\label{ldump_8c_a2e1db7ac1fa976eb7e3b90ec15a576b2}} 
+\index{ldump.c@{ldump.c}!dumpFunction@{dumpFunction}}
+\index{dumpFunction@{dumpFunction}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{dumpFunction()}{dumpFunction()}}
+{\footnotesize\ttfamily static void dump\+Function (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$}]{D,  }\item[{const \mbox{\hyperlink{struct_proto}{Proto}} $\ast$}]{f,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{psource }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ldump.\+c 第 179 行定义.
+
+\mbox{\Hypertarget{ldump_8c_a7dff1d2107a66420c1476d4ecfa27b14}\label{ldump_8c_a7dff1d2107a66420c1476d4ecfa27b14}} 
+\index{ldump.c@{ldump.c}!dumpHeader@{dumpHeader}}
+\index{dumpHeader@{dumpHeader}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{dumpHeader()}{dumpHeader()}}
+{\footnotesize\ttfamily static void dump\+Header (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$}]{D }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ldump.\+c 第 197 行定义.
+
+\mbox{\Hypertarget{ldump_8c_af18972a3be9ad820b0d677891405d15b}\label{ldump_8c_af18972a3be9ad820b0d677891405d15b}} 
+\index{ldump.c@{ldump.c}!dumpInt@{dumpInt}}
+\index{dumpInt@{dumpInt}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{dumpInt()}{dumpInt()}}
+{\footnotesize\ttfamily static void dump\+Int (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$}]{D,  }\item[{int}]{x }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ldump.\+c 第 73 行定义.
+
+\mbox{\Hypertarget{ldump_8c_a5bc42c8666f45652f5716243028c4b39}\label{ldump_8c_a5bc42c8666f45652f5716243028c4b39}} 
+\index{ldump.c@{ldump.c}!dumpInteger@{dumpInteger}}
+\index{dumpInteger@{dumpInteger}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{dumpInteger()}{dumpInteger()}}
+{\footnotesize\ttfamily static void dump\+Integer (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$}]{D,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{x }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ldump.\+c 第 83 行定义.
+
+\mbox{\Hypertarget{ldump_8c_a671751477d7f491c5e9b2affbcd517a0}\label{ldump_8c_a671751477d7f491c5e9b2affbcd517a0}} 
+\index{ldump.c@{ldump.c}!dumpNumber@{dumpNumber}}
+\index{dumpNumber@{dumpNumber}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{dumpNumber()}{dumpNumber()}}
+{\footnotesize\ttfamily static void dump\+Number (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$}]{D,  }\item[{\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}}}]{x }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ldump.\+c 第 78 行定义.
+
+\mbox{\Hypertarget{ldump_8c_a34567bcb1204f914b0316d5ac5532ae0}\label{ldump_8c_a34567bcb1204f914b0316d5ac5532ae0}} 
+\index{ldump.c@{ldump.c}!dumpProtos@{dumpProtos}}
+\index{dumpProtos@{dumpProtos}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{dumpProtos()}{dumpProtos()}}
+{\footnotesize\ttfamily static void dump\+Protos (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$}]{D,  }\item[{const \mbox{\hyperlink{struct_proto}{Proto}} $\ast$}]{f }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ldump.\+c 第 134 行定义.
+
+\mbox{\Hypertarget{ldump_8c_ad8b3745ee530db686c5503e69e93c0e6}\label{ldump_8c_ad8b3745ee530db686c5503e69e93c0e6}} 
+\index{ldump.c@{ldump.c}!dumpSize@{dumpSize}}
+\index{dumpSize@{dumpSize}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{dumpSize()}{dumpSize()}}
+{\footnotesize\ttfamily static void dump\+Size (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$}]{D,  }\item[{size\+\_\+t}]{x }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ldump.\+c 第 61 行定义.
+
+\mbox{\Hypertarget{ldump_8c_a62dae3e1e70f0ded796f53a1571a3352}\label{ldump_8c_a62dae3e1e70f0ded796f53a1571a3352}} 
+\index{ldump.c@{ldump.c}!dumpString@{dumpString}}
+\index{dumpString@{dumpString}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{dumpString()}{dumpString()}}
+{\footnotesize\ttfamily static void dump\+String (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$}]{D,  }\item[{const \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{s }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ldump.\+c 第 88 行定义.
+
+\mbox{\Hypertarget{ldump_8c_aa91ee935a3a398fdb0228107f579fb75}\label{ldump_8c_aa91ee935a3a398fdb0228107f579fb75}} 
+\index{ldump.c@{ldump.c}!dumpUpvalues@{dumpUpvalues}}
+\index{dumpUpvalues@{dumpUpvalues}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{dumpUpvalues()}{dumpUpvalues()}}
+{\footnotesize\ttfamily static void dump\+Upvalues (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_dump_state}{Dump\+State}} $\ast$}]{D,  }\item[{const \mbox{\hyperlink{struct_proto}{Proto}} $\ast$}]{f }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ldump.\+c 第 143 行定义.
+
+\mbox{\Hypertarget{ldump_8c_a808f6a29001ac6446f40c76014c6b6e9}\label{ldump_8c_a808f6a29001ac6446f40c76014c6b6e9}} 
+\index{ldump.c@{ldump.c}!luaU\_dump@{luaU\_dump}}
+\index{luaU\_dump@{luaU\_dump}!ldump.c@{ldump.c}}
+\doxysubsubsection{\texorpdfstring{luaU\_dump()}{luaU\_dump()}}
+{\footnotesize\ttfamily int lua\+U\+\_\+dump (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const \mbox{\hyperlink{struct_proto}{Proto}} $\ast$}]{f,  }\item[{\mbox{\hyperlink{lua_8h_a855729196d7066b2da21178284868a8d}{lua\+\_\+\+Writer}}}]{w,  }\item[{void $\ast$}]{data,  }\item[{int}]{strip }\end{DoxyParamCaption})}
+
+
+
+在文件 ldump.\+c 第 213 行定义.
+

@@ -1,0 +1,336 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lstring_8h" xml:lang="zh">
+<title>D:/gitworkspace/lua/lstring.h 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lstring.h</primary></indexterm>
+<programlisting>#include &quot;lgc.h&quot;
+#include &quot;lobject.h&quot;
+#include &quot;lstate.h&quot;
+</programlisting>lstring.h 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lstring_8h_1a36d62c6c0c5a33c2f29cf26ff9137cbf">MEMERRMSG</link>   &quot;not enough memory&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstring_8h_1a160d701eba216310b09be7447f47794d">sizelstring</link>(l)   (offsetof(<link linkend="_struct_t_string">TString</link>, contents) + ((l) + 1) * sizeof(char))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstring_8h_1a1cd2754b136ed096325a76c6d16a82f5">luaS_newliteral</link>(L,  s)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstring_8h_1a7b490cd8212260e1cf975f59a16fb745">isreserved</link>(s)   ((s)-&gt;tt == <link linkend="_lobject_8h_1a794410ffd7267ef873eb05ac695b1ba6">LUA_VSHRSTR</link> &amp;&amp; (s)-&gt;extra &gt; 0)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lstring_8h_1add3806315bf73de7d3138c019ed7c0ce">eqshrstr</link>(a,  b)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((a)-&gt;tt == <link linkend="_lobject_8h_1a794410ffd7267ef873eb05ac695b1ba6">LUA_VSHRSTR</link>, (a) == (b))</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> unsigned int <link linkend="_lstring_8h_1a37602b681f80916f4740da5f1368e65f">luaS_hash</link> (const char *str, size_t l, unsigned int seed, size_t step)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> unsigned int <link linkend="_lstring_8h_1aaa383bdce27b05699fb1bc432220abbf">luaS_hashlongstr</link> (<link linkend="_struct_t_string">TString</link> *ts)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> int <link linkend="_lstring_8h_1a11b7f1ae66d3102d667159acefc3d643">luaS_eqlngstr</link> (<link linkend="_struct_t_string">TString</link> *a, <link linkend="_struct_t_string">TString</link> *b)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lstring_8h_1a44d549eb0ace165927a896f37330e2cd">luaS_resize</link> (<link linkend="_structlua___state">lua_State</link> *L, int newsize)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lstring_8h_1adf6ce45154f1aabbdec670cef4d9a955">luaS_clearcache</link> (<link linkend="_structglobal___state">global_State</link> *g)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lstring_8h_1a83805363ffda500e327df43007dc0208">luaS_init</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lstring_8h_1a187dea46b6f3964a1eb7446627ef3fdc">luaS_remove</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_t_string">TString</link> *ts)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> <link linkend="_struct_udata">Udata</link> * <link linkend="_lstring_8h_1ad3da18d682039022687b2e3a7f5225f5">luaS_newudata</link> (<link linkend="_structlua___state">lua_State</link> *L, size_t s, int nuvalue)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> <link linkend="_struct_t_string">TString</link> * <link linkend="_lstring_8h_1a248e72694b9116b07b2e7f4a9a3a5331">luaS_newlstr</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *str, size_t l)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> <link linkend="_struct_t_string">TString</link> * <link linkend="_lstring_8h_1a6929da8cfde3e74a0d51a6467909ef9d">luaS_new</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *str)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> <link linkend="_struct_t_string">TString</link> * <link linkend="_lstring_8h_1ab2f7b029336ac9813aa287a840e2453f">luaS_createlngstrobj</link> (<link linkend="_structlua___state">lua_State</link> *L, size_t l)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lstring_8h_1add3806315bf73de7d3138c019ed7c0ce"/>    <section>
+    <title>eqshrstr</title>
+<indexterm><primary>eqshrstr</primary><secondary>lstring.h</secondary></indexterm>
+<indexterm><primary>lstring.h</primary><secondary>eqshrstr</secondary></indexterm>
+<para><computeroutput>#define eqshrstr( a,  b)   <link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>((a)-&gt;tt == <link linkend="_lobject_8h_1a794410ffd7267ef873eb05ac695b1ba6">LUA_VSHRSTR</link>, (a) == (b))</computeroutput></para><para>
+在文件 <link linkend="_lstring_8h_source">lstring.h</link> 第 <link linkend="_lstring_8h_source_1l00041">41</link> 行定义.</para>
+    </section><anchor xml:id="_lstring_8h_1a7b490cd8212260e1cf975f59a16fb745"/>    <section>
+    <title>isreserved</title>
+<indexterm><primary>isreserved</primary><secondary>lstring.h</secondary></indexterm>
+<indexterm><primary>lstring.h</primary><secondary>isreserved</secondary></indexterm>
+<para><computeroutput>#define isreserved( s)   ((s)-&gt;tt == <link linkend="_lobject_8h_1a794410ffd7267ef873eb05ac695b1ba6">LUA_VSHRSTR</link> &amp;&amp; (s)-&gt;extra &gt; 0)</computeroutput></para><para>
+在文件 <link linkend="_lstring_8h_source">lstring.h</link> 第 <link linkend="_lstring_8h_source_1l00035">35</link> 行定义.</para>
+    </section><anchor xml:id="_lstring_8h_1a1cd2754b136ed096325a76c6d16a82f5"/>    <section>
+    <title>luaS_newliteral</title>
+<indexterm><primary>luaS_newliteral</primary><secondary>lstring.h</secondary></indexterm>
+<indexterm><primary>lstring.h</primary><secondary>luaS_newliteral</secondary></indexterm>
+<para><computeroutput>#define luaS_newliteral( L,  s)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(<link linkend="_lstring_8h_1a248e72694b9116b07b2e7f4a9a3a5331">luaS_newlstr</link>(L,&#32;<emphasis role="stringliteral">&quot;&quot;</emphasis>&#32;s,&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(<emphasis role="keyword">sizeof</emphasis>(s)/<emphasis role="keyword">sizeof</emphasis>(<emphasis role="keywordtype">char</emphasis>))-1))
+</programlisting><para>
+在文件 <link linkend="_lstring_8h_source">lstring.h</link> 第 <link linkend="_lstring_8h_source_1l00028">28</link> 行定义.</para>
+    </section><anchor xml:id="_lstring_8h_1a36d62c6c0c5a33c2f29cf26ff9137cbf"/>    <section>
+    <title>MEMERRMSG</title>
+<indexterm><primary>MEMERRMSG</primary><secondary>lstring.h</secondary></indexterm>
+<indexterm><primary>lstring.h</primary><secondary>MEMERRMSG</secondary></indexterm>
+<para><computeroutput>#define MEMERRMSG   &quot;not enough memory&quot;</computeroutput></para><para>
+在文件 <link linkend="_lstring_8h_source">lstring.h</link> 第 <link linkend="_lstring_8h_source_1l00019">19</link> 行定义.</para>
+    </section><anchor xml:id="_lstring_8h_1a160d701eba216310b09be7447f47794d"/>    <section>
+    <title>sizelstring</title>
+<indexterm><primary>sizelstring</primary><secondary>lstring.h</secondary></indexterm>
+<indexterm><primary>lstring.h</primary><secondary>sizelstring</secondary></indexterm>
+<para><computeroutput>#define sizelstring( l)   (offsetof(<link linkend="_struct_t_string">TString</link>, contents) + ((l) + 1) * sizeof(char))</computeroutput></para><para>
+在文件 <link linkend="_lstring_8h_source">lstring.h</link> 第 <link linkend="_lstring_8h_source_1l00026">26</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lstring_8h_1adf6ce45154f1aabbdec670cef4d9a955"/>    <section>
+    <title>luaS_clearcache()</title>
+<indexterm><primary>luaS_clearcache</primary><secondary>lstring.h</secondary></indexterm>
+<indexterm><primary>lstring.h</primary><secondary>luaS_clearcache</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaS_clearcache (<link linkend="_structglobal___state">global_State</link> * g)</computeroutput></para><para>
+在文件 <link linkend="_lstring_8c_source">lstring.c</link> 第 <link linkend="_lstring_8c_source_1l00122">122</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h_adf6ce45154f1aabbdec670cef4d9a955_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstring_8h_1ab2f7b029336ac9813aa287a840e2453f"/>    <section>
+    <title>luaS_createlngstrobj()</title>
+<indexterm><primary>luaS_createlngstrobj</primary><secondary>lstring.h</secondary></indexterm>
+<indexterm><primary>lstring.h</primary><secondary>luaS_createlngstrobj</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> <link linkend="_struct_t_string">TString</link>* luaS_createlngstrobj (<link linkend="_structlua___state">lua_State</link> * L, size_t l)</computeroutput></para><para>
+在文件 <link linkend="_lstring_8c_source">lstring.c</link> 第 <link linkend="_lstring_8c_source_1l00169">169</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h_ab2f7b029336ac9813aa287a840e2453f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h_ab2f7b029336ac9813aa287a840e2453f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstring_8h_1a11b7f1ae66d3102d667159acefc3d643"/>    <section>
+    <title>luaS_eqlngstr()</title>
+<indexterm><primary>luaS_eqlngstr</primary><secondary>lstring.h</secondary></indexterm>
+<indexterm><primary>lstring.h</primary><secondary>luaS_eqlngstr</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> int luaS_eqlngstr (<link linkend="_struct_t_string">TString</link> * a, <link linkend="_struct_t_string">TString</link> * b)</computeroutput></para><para>
+在文件 <link linkend="_lstring_8c_source">lstring.c</link> 第 <link linkend="_lstring_8c_source_1l00044">44</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h_a11b7f1ae66d3102d667159acefc3d643_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstring_8h_1a37602b681f80916f4740da5f1368e65f"/>    <section>
+    <title>luaS_hash()</title>
+<indexterm><primary>luaS_hash</primary><secondary>lstring.h</secondary></indexterm>
+<indexterm><primary>lstring.h</primary><secondary>luaS_hash</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> unsigned int luaS_hash (const char * str, size_t l, unsigned int seed, size_t step)</computeroutput></para><para>
+在文件 <link linkend="_lstring_8c_source">lstring.c</link> 第 <link linkend="_lstring_8c_source_1l00053">53</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h_a37602b681f80916f4740da5f1368e65f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstring_8h_1aaa383bdce27b05699fb1bc432220abbf"/>    <section>
+    <title>luaS_hashlongstr()</title>
+<indexterm><primary>luaS_hashlongstr</primary><secondary>lstring.h</secondary></indexterm>
+<indexterm><primary>lstring.h</primary><secondary>luaS_hashlongstr</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> unsigned int luaS_hashlongstr (<link linkend="_struct_t_string">TString</link> * ts)</computeroutput></para><para>
+在文件 <link linkend="_lstring_8c_source">lstring.c</link> 第 <link linkend="_lstring_8c_source_1l00062">62</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h_aaa383bdce27b05699fb1bc432220abbf_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h_aaa383bdce27b05699fb1bc432220abbf_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstring_8h_1a83805363ffda500e327df43007dc0208"/>    <section>
+    <title>luaS_init()</title>
+<indexterm><primary>luaS_init</primary><secondary>lstring.h</secondary></indexterm>
+<indexterm><primary>lstring.h</primary><secondary>luaS_init</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaS_init (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lstring_8c_source">lstring.c</link> 第 <link linkend="_lstring_8c_source_1l00135">135</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h_a83805363ffda500e327df43007dc0208_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h_a83805363ffda500e327df43007dc0208_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstring_8h_1a6929da8cfde3e74a0d51a6467909ef9d"/>    <section>
+    <title>luaS_new()</title>
+<indexterm><primary>luaS_new</primary><secondary>lstring.h</secondary></indexterm>
+<indexterm><primary>lstring.h</primary><secondary>luaS_new</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> <link linkend="_struct_t_string">TString</link>* luaS_new (<link linkend="_structlua___state">lua_State</link> * L, const char * str)</computeroutput></para><para>
+在文件 <link linkend="_lstring_8c_source">lstring.c</link> 第 <link linkend="_lstring_8c_source_1l00253">253</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h_a6929da8cfde3e74a0d51a6467909ef9d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h_a6929da8cfde3e74a0d51a6467909ef9d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstring_8h_1a248e72694b9116b07b2e7f4a9a3a5331"/>    <section>
+    <title>luaS_newlstr()</title>
+<indexterm><primary>luaS_newlstr</primary><secondary>lstring.h</secondary></indexterm>
+<indexterm><primary>lstring.h</primary><secondary>luaS_newlstr</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> <link linkend="_struct_t_string">TString</link>* luaS_newlstr (<link linkend="_structlua___state">lua_State</link> * L, const char * str, size_t l)</computeroutput></para><para>
+在文件 <link linkend="_lstring_8c_source">lstring.c</link> 第 <link linkend="_lstring_8c_source_1l00233">233</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h_a248e72694b9116b07b2e7f4a9a3a5331_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h_a248e72694b9116b07b2e7f4a9a3a5331_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstring_8h_1ad3da18d682039022687b2e3a7f5225f5"/>    <section>
+    <title>luaS_newudata()</title>
+<indexterm><primary>luaS_newudata</primary><secondary>lstring.h</secondary></indexterm>
+<indexterm><primary>lstring.h</primary><secondary>luaS_newudata</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> <link linkend="_struct_udata">Udata</link>* luaS_newudata (<link linkend="_structlua___state">lua_State</link> * L, size_t s, int nuvalue)</computeroutput></para><para>
+在文件 <link linkend="_lstring_8c_source">lstring.c</link> 第 <link linkend="_lstring_8c_source_1l00270">270</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h_ad3da18d682039022687b2e3a7f5225f5_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h_ad3da18d682039022687b2e3a7f5225f5_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstring_8h_1a187dea46b6f3964a1eb7446627ef3fdc"/>    <section>
+    <title>luaS_remove()</title>
+<indexterm><primary>luaS_remove</primary><secondary>lstring.h</secondary></indexterm>
+<indexterm><primary>lstring.h</primary><secondary>luaS_remove</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaS_remove (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_t_string">TString</link> * ts)</computeroutput></para><para>
+在文件 <link linkend="_lstring_8c_source">lstring.c</link> 第 <link linkend="_lstring_8c_source_1l00176">176</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h_a187dea46b6f3964a1eb7446627ef3fdc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lstring_8h_1a44d549eb0ace165927a896f37330e2cd"/>    <section>
+    <title>luaS_resize()</title>
+<indexterm><primary>luaS_resize</primary><secondary>lstring.h</secondary></indexterm>
+<indexterm><primary>lstring.h</primary><secondary>luaS_resize</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaS_resize (<link linkend="_structlua___state">lua_State</link> * L, int newsize)</computeroutput></para><para>
+在文件 <link linkend="_lstring_8c_source">lstring.c</link> 第 <link linkend="_lstring_8c_source_1l00097">97</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h_a44d549eb0ace165927a896f37330e2cd_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lstring_8h_a44d549eb0ace165927a896f37330e2cd_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+</section>

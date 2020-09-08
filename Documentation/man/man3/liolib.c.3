@@ -1,0 +1,592 @@
+.TH "D:/gitworkspace/lua/src/liolib.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/liolib.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <ctype\&.h>\fP
+.br
+\fC#include <errno\&.h>\fP
+.br
+\fC#include <locale\&.h>\fP
+.br
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lauxlib\&.h'\fP
+.br
+\fC#include 'lualib\&.h'\fP
+.br
+
+.SS "结构体"
+
+.in +1c
+.ti -1c
+.RI "struct \fBRN\fP"
+.br
+.in -1c
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBliolib_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_LIB\fP"
+.br
+.ti -1c
+.RI "#define \fBL_MODEEXT\fP   'b'"
+.br
+.ti -1c
+.RI "#define \fBl_popen\fP(L,  c,  m)"
+.br
+.ti -1c
+.RI "#define \fBl_pclose\fP(L,  file)   ((void)L, (void)file, \-1)"
+.br
+.ti -1c
+.RI "#define \fBl_getc\fP(f)   getc(f)"
+.br
+.ti -1c
+.RI "#define \fBl_lockfile\fP(f)   ((void)0)"
+.br
+.ti -1c
+.RI "#define \fBl_unlockfile\fP(f)   ((void)0)"
+.br
+.ti -1c
+.RI "#define \fBl_fseek\fP(f,  o,  w)   fseek(f,o,w)"
+.br
+.ti -1c
+.RI "#define \fBl_ftell\fP(f)   ftell(f)"
+.br
+.ti -1c
+.RI "#define \fBl_seeknum\fP   long"
+.br
+.ti -1c
+.RI "#define \fBIO_PREFIX\fP   '_IO_'"
+.br
+.ti -1c
+.RI "#define \fBIOPREF_LEN\fP   (sizeof(\fBIO_PREFIX\fP)/sizeof(char) \- 1)"
+.br
+.ti -1c
+.RI "#define \fBIO_INPUT\fP   (\fBIO_PREFIX\fP 'input')"
+.br
+.ti -1c
+.RI "#define \fBIO_OUTPUT\fP   (\fBIO_PREFIX\fP 'output')"
+.br
+.ti -1c
+.RI "#define \fBtolstream\fP(L)   ((\fBLStream\fP *)\fBluaL_checkudata\fP(L, 1, \fBLUA_FILEHANDLE\fP))"
+.br
+.ti -1c
+.RI "#define \fBisclosed\fP(p)   ((p)\->closef == NULL)"
+.br
+.ti -1c
+.RI "#define \fBMAXARGLINE\fP   250"
+.br
+.ti -1c
+.RI "#define \fBL_MAXLENNUM\fP   200"
+.br
+.in -1c
+.SS "类型定义"
+
+.in +1c
+.ti -1c
+.RI "typedef \fBluaL_Stream\fP \fBLStream\fP"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static int \fBl_checkmode\fP (const char *mode)"
+.br
+.ti -1c
+.RI "static int \fBio_type\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBf_tostring\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static FILE * \fBtofile\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static \fBLStream\fP * \fBnewprefile\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBaux_close\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBf_close\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBio_close\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBf_gc\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBio_fclose\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static \fBLStream\fP * \fBnewfile\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBopencheck\fP (\fBlua_State\fP *L, const char *fname, const char *mode)"
+.br
+.ti -1c
+.RI "static int \fBio_open\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBio_pclose\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBio_popen\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBio_tmpfile\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static FILE * \fBgetiofile\fP (\fBlua_State\fP *L, const char *findex)"
+.br
+.ti -1c
+.RI "static int \fBg_iofile\fP (\fBlua_State\fP *L, const char *f, const char *mode)"
+.br
+.ti -1c
+.RI "static int \fBio_input\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBio_output\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBio_readline\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBaux_lines\fP (\fBlua_State\fP *L, int toclose)"
+.br
+.ti -1c
+.RI "static int \fBf_lines\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBio_lines\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBnextc\fP (\fBRN\fP *rn)"
+.br
+.ti -1c
+.RI "static int \fBtest2\fP (\fBRN\fP *rn, const char *set)"
+.br
+.ti -1c
+.RI "static int \fBreaddigits\fP (\fBRN\fP *rn, int hex)"
+.br
+.ti -1c
+.RI "static int \fBread_number\fP (\fBlua_State\fP *L, FILE *f)"
+.br
+.ti -1c
+.RI "static int \fBtest_eof\fP (\fBlua_State\fP *L, FILE *f)"
+.br
+.ti -1c
+.RI "static int \fBread_line\fP (\fBlua_State\fP *L, FILE *f, int chop)"
+.br
+.ti -1c
+.RI "static void \fBread_all\fP (\fBlua_State\fP *L, FILE *f)"
+.br
+.ti -1c
+.RI "static int \fBread_chars\fP (\fBlua_State\fP *L, FILE *f, size_t n)"
+.br
+.ti -1c
+.RI "static int \fBg_read\fP (\fBlua_State\fP *L, FILE *f, int first)"
+.br
+.ti -1c
+.RI "static int \fBio_read\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBf_read\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBg_write\fP (\fBlua_State\fP *L, FILE *f, int arg)"
+.br
+.ti -1c
+.RI "static int \fBio_write\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBf_write\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBf_seek\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBf_setvbuf\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBio_flush\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBf_flush\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBcreatemeta\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBio_noclose\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBcreatestdfile\fP (\fBlua_State\fP *L, FILE *f, const char *k, const char *fname)"
+.br
+.ti -1c
+.RI "\fBLUAMOD_API\fP int \fBluaopen_io\fP (\fBlua_State\fP *L)"
+.br
+.in -1c
+.SS "变量"
+
+.in +1c
+.ti -1c
+.RI "static const \fBluaL_Reg\fP \fBiolib\fP []"
+.br
+.ti -1c
+.RI "static const \fBluaL_Reg\fP \fBmeth\fP []"
+.br
+.ti -1c
+.RI "static const \fBluaL_Reg\fP \fBmetameth\fP []"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define IO_INPUT   (\fBIO_PREFIX\fP 'input')"
+
+.PP
+在文件 liolib\&.c 第 139 行定义\&.
+.SS "#define IO_OUTPUT   (\fBIO_PREFIX\fP 'output')"
+
+.PP
+在文件 liolib\&.c 第 140 行定义\&.
+.SS "#define IO_PREFIX   '_IO_'"
+
+.PP
+在文件 liolib\&.c 第 137 行定义\&.
+.SS "#define IOPREF_LEN   (sizeof(\fBIO_PREFIX\fP)/sizeof(char) \- 1)"
+
+.PP
+在文件 liolib\&.c 第 138 行定义\&.
+.SS "#define isclosed(p)   ((p)\->closef == NULL)"
+
+.PP
+在文件 liolib\&.c 第 148 行定义\&.
+.SS "#define l_fseek(f, o, w)   fseek(f,o,w)"
+
+.PP
+在文件 liolib\&.c 第 125 行定义\&.
+.SS "#define l_ftell(f)   ftell(f)"
+
+.PP
+在文件 liolib\&.c 第 126 行定义\&.
+.SS "#define l_getc(f)   getc(f)"
+
+.PP
+在文件 liolib\&.c 第 90 行定义\&.
+.SS "#define l_lockfile(f)   ((void)0)"
+
+.PP
+在文件 liolib\&.c 第 91 行定义\&.
+.SS "#define L_MAXLENNUM   200"
+
+.PP
+在文件 liolib\&.c 第 409 行定义\&.
+.SS "#define L_MODEEXT   'b'"
+
+.PP
+在文件 liolib\&.c 第 36 行定义\&.
+.SS "#define l_pclose(L, file)   ((void)L, (void)file, \-1)"
+
+.PP
+在文件 liolib\&.c 第 74 行定义\&.
+.SS "#define l_popen(L, c, m)"
+\fB值:\fP
+.PP
+.nf
+      ((void)c, (void)m, \
+      luaL_error(L, "'popen' not supported"), \
+      (FILE*)0)
+.fi
+.PP
+在文件 liolib\&.c 第 70 行定义\&.
+.SS "#define l_seeknum   long"
+
+.PP
+在文件 liolib\&.c 第 127 行定义\&.
+.SS "#define l_unlockfile(f)   ((void)0)"
+
+.PP
+在文件 liolib\&.c 第 92 行定义\&.
+.SS "#define liolib_c"
+
+.PP
+在文件 liolib\&.c 第 7 行定义\&.
+.SS "#define LUA_LIB"
+
+.PP
+在文件 liolib\&.c 第 8 行定义\&.
+.SS "#define MAXARGLINE   250"
+
+.PP
+在文件 liolib\&.c 第 339 行定义\&.
+.SS "#define tolstream(L)   ((\fBLStream\fP *)\fBluaL_checkudata\fP(L, 1, \fBLUA_FILEHANDLE\fP))"
+
+.PP
+在文件 liolib\&.c 第 146 行定义\&.
+.SH "类型定义说明"
+.PP 
+.SS "typedef \fBluaL_Stream\fP \fBLStream\fP"
+
+.PP
+在文件 liolib\&.c 第 143 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static int aux_close (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 202 行定义\&.
+.SS "static void aux_lines (\fBlua_State\fP * L, int toclose)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 350 行定义\&.
+.SS "static void createmeta (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 770 行定义\&.
+.SS "static void createstdfile (\fBlua_State\fP * L, FILE * f, const char * k, const char * fname)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 792 行定义\&.
+.SS "static int f_close (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 210 行定义\&.
+.SS "static int f_flush (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 719 行定义\&.
+.SS "static int f_gc (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 223 行定义\&.
+.SS "static int f_lines (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 361 行定义\&.
+.SS "static int f_read (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 608 行定义\&.
+.SS "static int f_seek (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 683 行定义\&.
+.SS "static int f_setvbuf (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 702 行定义\&.
+.SS "static int f_tostring (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 165 行定义\&.
+.SS "static int f_write (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 676 行定义\&.
+.SS "static int g_iofile (\fBlua_State\fP * L, const char * f, const char * mode)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 305 行定义\&.
+.SS "static int g_read (\fBlua_State\fP * L, FILE * f, int first)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 553 行定义\&.
+.SS "static int g_write (\fBlua_State\fP * L, FILE * f, int arg)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 647 行定义\&.
+.SS "static FILE* getiofile (\fBlua_State\fP * L, const char * findex)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 295 行定义\&.
+.SS "static int io_close (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 216 行定义\&.
+.SS "static int io_fclose (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 234 行定义\&.
+.SS "static int io_flush (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 714 行定义\&.
+.SS "static int io_input (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 322 行定义\&.
+.SS "static int io_lines (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 373 行定义\&.
+.SS "static int io_noclose (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 783 行定义\&.
+.SS "static int io_open (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 257 行定义\&.
+.SS "static int io_output (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 327 行定义\&.
+.SS "static int io_pclose (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 271 行定义\&.
+.SS "static int io_popen (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 278 行定义\&.
+.SS "static int io_read (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 603 行定义\&.
+.SS "static int io_readline (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 616 行定义\&.
+.SS "static int io_tmpfile (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 288 行定义\&.
+.SS "static int io_type (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 151 行定义\&.
+.SS "static int io_write (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 671 行定义\&.
+.SS "static int l_checkmode (const char * mode)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 40 行定义\&.
+.SS "\fBLUAMOD_API\fP int luaopen_io (\fBlua_State\fP * L)"
+
+.PP
+在文件 liolib\&.c 第 805 行定义\&.
+.SS "static \fBLStream\fP* newfile (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 241 行定义\&.
+.SS "static \fBLStream\fP* newprefile (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 189 行定义\&.
+.SS "static int nextc (\fBRN\fP * rn)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 425 行定义\&.
+.SS "static void opencheck (\fBlua_State\fP * L, const char * fname, const char * mode)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 249 行定义\&.
+.SS "static void read_all (\fBlua_State\fP * L, FILE * f)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 527 行定义\&.
+.SS "static int read_chars (\fBlua_State\fP * L, FILE * f, size_t n)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 540 行定义\&.
+.SS "static int read_line (\fBlua_State\fP * L, FILE * f, int chop)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 506 行定义\&.
+.SS "static int read_number (\fBlua_State\fP * L, FILE * f)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 464 行定义\&.
+.SS "static int readdigits (\fBRN\fP * rn, int hex)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 451 行定义\&.
+.SS "static int test2 (\fBRN\fP * rn, const char * set)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 441 行定义\&.
+.SS "static int test_eof (\fBlua_State\fP * L, FILE * f)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 498 行定义\&.
+.SS "static FILE* tofile (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 liolib\&.c 第 175 行定义\&.
+.SH "变量说明"
+.PP 
+.SS "const \fBluaL_Reg\fP iolib[]\fC [static]\fP"
+\fB初始值:\fP
+.PP
+.nf
+= {
+  {"close", io_close},
+  {"flush", io_flush},
+  {"input", io_input},
+  {"lines", io_lines},
+  {"open", io_open},
+  {"output", io_output},
+  {"popen", io_popen},
+  {"read", io_read},
+  {"tmpfile", io_tmpfile},
+  {"type", io_type},
+  {"write", io_write},
+  {NULL, NULL}
+}
+.fi
+.PP
+在文件 liolib\&.c 第 727 行定义\&.
+.SS "const \fBluaL_Reg\fP metameth[]\fC [static]\fP"
+\fB初始值:\fP
+.PP
+.nf
+= {
+  {"__index", NULL},  
+  {"__gc", f_gc},
+  {"__close", f_gc},
+  {"__tostring", f_tostring},
+  {NULL, NULL}
+}
+.fi
+.PP
+在文件 liolib\&.c 第 761 行定义\&.
+.SS "const \fBluaL_Reg\fP meth[]\fC [static]\fP"
+\fB初始值:\fP
+.PP
+.nf
+= {
+  {"read", f_read},
+  {"write", f_write},
+  {"lines", f_lines},
+  {"flush", f_flush},
+  {"seek", f_seek},
+  {"close", f_close},
+  {"setvbuf", f_setvbuf},
+  {NULL, NULL}
+}
+.fi
+.PP
+在文件 liolib\&.c 第 746 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

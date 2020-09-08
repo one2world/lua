@@ -1,0 +1,1091 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_ldebug_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/ldebug.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/ldebug.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;stdarg.h&gt;
+#include &lt;stddef.h&gt;
+#include &lt;string.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;lapi.h&quot;
+#include &quot;lcode.h&quot;
+#include &quot;ldebug.h&quot;
+#include &quot;ldo.h&quot;
+#include &quot;lfunc.h&quot;
+#include &quot;lobject.h&quot;
+#include &quot;lopcodes.h&quot;
+#include &quot;lstate.h&quot;
+#include &quot;lstring.h&quot;
+#include &quot;ltable.h&quot;
+#include &quot;ltm.h&quot;
+#include &quot;lvm.h&quot;
+</programlisting>ldebug.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_ldebug_8c_1a2b6bdddfcfeef5c88fe82ef48697a640">ldebug_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_ldebug_8c_1abf0b3947b59218777a8e928a10be205b">LUA_CORE</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_ldebug_8c_1a6fc57844a33412d711bca098b2135f41">noLuaClosure</link>(f)   ((f) == NULL || (f)-&gt;c.tt == <link linkend="_lobject_8h_1a2361d923ddb7fc1468b978fe043e35c2">LUA_VCCL</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_ldebug_8c_1a82b7da36a8466fd9e16477d35f13f75a">invpcRel</link>(pc,  p)   ((p)-&gt;code + (pc) + 1)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static const char * <link linkend="_ldebug_8c_1aa4c19bd41574279b6de1a01e01186f14">funcnamefromcode</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_call_info">CallInfo</link> *ci, const char **name)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ldebug_8c_1a7db2a3f5cbcf0ac3ef6d4cfa15ab4dbc">currentpc</link> (<link linkend="_struct_call_info">CallInfo</link> *ci)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ldebug_8c_1a355ee1f29ee39ff665aa01ef4493f453">getbaseline</link> (const <link linkend="_struct_proto">Proto</link> *f, int pc, int *basepc)</para>
+</listitem>
+            <listitem><para>int <link linkend="_ldebug_8c_1ae7a6d2f88b11cc05758e44acd433ee2f">luaG_getfuncline</link> (const <link linkend="_struct_proto">Proto</link> *f, int pc)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ldebug_8c_1ad6bc24d619df8e849e2ae8b00455d86f">getcurrentline</link> (<link linkend="_struct_call_info">CallInfo</link> *ci)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldebug_8c_1ac6e4d5f88c90151adb37f89be98c0309">settraps</link> (<link linkend="_struct_call_info">CallInfo</link> *ci)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void <link linkend="_ldebug_8c_1ac9d3d168561f5c1a747a3ab198f0f092">lua_sethook</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lua_8h_1aa00de66eff087aef1fdd44f5b3bb9a0b">lua_Hook</link> func, int mask, int count)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_lua_8h_1aa00de66eff087aef1fdd44f5b3bb9a0b">lua_Hook</link> <link linkend="_ldebug_8c_1a44b9923035977dcfa57279761f7379b4">lua_gethook</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_ldebug_8c_1a0b41dd9ab46652c8433b861f679fadb8">lua_gethookmask</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_ldebug_8c_1a18f065f752cfa08eefd338b4cbd7254b">lua_gethookcount</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_ldebug_8c_1ac1fc03c27ee46caa4037df2d70f22110">lua_getstack</link> (<link linkend="_structlua___state">lua_State</link> *L, int level, <link linkend="_structlua___debug">lua_Debug</link> *ar)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_ldebug_8c_1ac1d00bafd9dbc2ea15b7b374a760a8fc">upvalname</link> (const <link linkend="_struct_proto">Proto</link> *p, int uv)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_ldebug_8c_1adde29da645f7256cd7b78dafeec64cc1">findvararg</link> (<link linkend="_struct_call_info">CallInfo</link> *ci, int n, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> *pos)</para>
+</listitem>
+            <listitem><para>const char * <link linkend="_ldebug_8c_1acf87581237e7d0072502ffc5092e8329">luaG_findlocal</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_call_info">CallInfo</link> *ci, int n, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> *pos)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char * <link linkend="_ldebug_8c_1aaaf420ee0b0e79a45b823d9da4905667">lua_getlocal</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_structlua___debug">lua_Debug</link> *ar, int n)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char * <link linkend="_ldebug_8c_1a425c37b17caf76545f1541a5bb81dfc6">lua_setlocal</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_structlua___debug">lua_Debug</link> *ar, int n)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldebug_8c_1a84af60873d130ffee87eb1721f3231e4">funcinfo</link> (<link linkend="_structlua___debug">lua_Debug</link> *ar, <link linkend="_union_closure">Closure</link> *cl)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ldebug_8c_1a34dcc3fce752d518b34773a35b3763ad">nextline</link> (const <link linkend="_struct_proto">Proto</link> *p, int currentline, int pc)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldebug_8c_1a6e3195fc94af1f75142c2801ca8cf058">collectvalidlines</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_union_closure">Closure</link> *f)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_ldebug_8c_1a118ab79b6b538a857353e4b9259667e1">getfuncname</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_call_info">CallInfo</link> *ci, const char **name)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ldebug_8c_1ad72fa774194e83872bac4e5bf6ec1160">auxgetinfo</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *what, <link linkend="_structlua___debug">lua_Debug</link> *ar, <link linkend="_union_closure">Closure</link> *f, <link linkend="_struct_call_info">CallInfo</link> *ci)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int <link linkend="_ldebug_8c_1acaafc35d8e385c4d167229486165df6d">lua_getinfo</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *what, <link linkend="_structlua___debug">lua_Debug</link> *ar)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_ldebug_8c_1a5ccea5c2124ac2e629562b0ff7f440a6">getobjname</link> (const <link linkend="_struct_proto">Proto</link> *p, int lastpc, int reg, const char **name)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldebug_8c_1aa605689053c7501d28fbd308b73f84ae">kname</link> (const <link linkend="_struct_proto">Proto</link> *p, int c, const char **name)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldebug_8c_1a3b1ec666c4618a5100fc5a6ef21ca3f6">rname</link> (const <link linkend="_struct_proto">Proto</link> *p, int pc, int c, const char **name)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_ldebug_8c_1a2513b0afdf7a69ca65cb59eea7551131">rkname</link> (const <link linkend="_struct_proto">Proto</link> *p, int pc, <link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link> i, const char **name)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ldebug_8c_1a03af36ffe32a5653a0deeddc412d88f0">filterpc</link> (int pc, int jmptarget)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ldebug_8c_1a64baa2f66e5be0dad465b05a73ed7a9a">findsetreg</link> (const <link linkend="_struct_proto">Proto</link> *p, int lastpc, int reg)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_ldebug_8c_1ab68def10378c61ee5258c00d4f779283">gxf</link> (const <link linkend="_struct_proto">Proto</link> *p, int pc, <link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link> i, int isup)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ldebug_8c_1a9f58a8099ec72d2ec0e0937b868fccdb">isinstack</link> (<link linkend="_struct_call_info">CallInfo</link> *ci, const <link linkend="_struct_t_value">TValue</link> *o)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_ldebug_8c_1aa34de8e3a8dd64cda6ce15e2296dff9b">getupvalname</link> (<link linkend="_struct_call_info">CallInfo</link> *ci, const <link linkend="_struct_t_value">TValue</link> *o, const char **name)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_ldebug_8c_1a86692faa1669d631d38c24993d511dd5">varinfo</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_struct_t_value">TValue</link> *o)</para>
+</listitem>
+            <listitem><para><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> <link linkend="_ldebug_8c_1a60bf9ce85441bd5065f2b73640163711">luaG_typeerror</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_struct_t_value">TValue</link> *o, const char *op)</para>
+</listitem>
+            <listitem><para><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> <link linkend="_ldebug_8c_1a2d4bfa8b9ba02f149e1d2819b8e98c53">luaG_forerror</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_struct_t_value">TValue</link> *o, const char *what)</para>
+</listitem>
+            <listitem><para><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> <link linkend="_ldebug_8c_1a04641ef359f3943a2ca88f52c3fe283c">luaG_concaterror</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_struct_t_value">TValue</link> *p1, const <link linkend="_struct_t_value">TValue</link> *p2)</para>
+</listitem>
+            <listitem><para><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> <link linkend="_ldebug_8c_1a5a3d4fd14bbb9329188c53a9548b7402">luaG_opinterror</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_struct_t_value">TValue</link> *p1, const <link linkend="_struct_t_value">TValue</link> *p2, const char *msg)</para>
+</listitem>
+            <listitem><para><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> <link linkend="_ldebug_8c_1ada97dce3c670f83e257a5b27299bf09b">luaG_tointerror</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_struct_t_value">TValue</link> *p1, const <link linkend="_struct_t_value">TValue</link> *p2)</para>
+</listitem>
+            <listitem><para><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> <link linkend="_ldebug_8c_1ad0c51ce500c5a0a448f62bc680d80926">luaG_ordererror</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_struct_t_value">TValue</link> *p1, const <link linkend="_struct_t_value">TValue</link> *p2)</para>
+</listitem>
+            <listitem><para>const char * <link linkend="_ldebug_8c_1a7e1dc7518150bf19bd9aa5dda166a2eb">luaG_addinfo</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *msg, <link linkend="_struct_t_string">TString</link> *src, int line)</para>
+</listitem>
+            <listitem><para><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> <link linkend="_ldebug_8c_1af7366920f8408bb33ed01b1d6c0e1238">luaG_errormsg</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> <link linkend="_ldebug_8c_1a88d38ca5da2e7a1492fc9d5ad70c32c5">luaG_runerror</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *fmt,...)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_ldebug_8c_1addb19a674a7acc4b075f36e9c91457ce">changedline</link> (const <link linkend="_struct_proto">Proto</link> *p, int oldpc, int newpc)</para>
+</listitem>
+            <listitem><para>int <link linkend="_ldebug_8c_1aa85fcb28f50397f11ac54ed47be24f8b">luaG_traceexec</link> (<link linkend="_structlua___state">lua_State</link> *L, const <link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link> *pc)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_ldebug_8c_1a82b7da36a8466fd9e16477d35f13f75a"/>    <section>
+    <title>invpcRel</title>
+<indexterm><primary>invpcRel</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>invpcRel</secondary></indexterm>
+<para><computeroutput>#define invpcRel( pc,  p)   ((p)-&gt;code + (pc) + 1)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00037">37</link> 行定义.</para>
+    </section><anchor xml:id="_ldebug_8c_1a2b6bdddfcfeef5c88fe82ef48697a640"/>    <section>
+    <title>ldebug_c</title>
+<indexterm><primary>ldebug_c</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>ldebug_c</secondary></indexterm>
+<para><computeroutput>#define ldebug_c</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_ldebug_8c_1abf0b3947b59218777a8e928a10be205b"/>    <section>
+    <title>LUA_CORE</title>
+<indexterm><primary>LUA_CORE</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>LUA_CORE</secondary></indexterm>
+<para><computeroutput>#define LUA_CORE</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00008">8</link> 行定义.</para>
+    </section><anchor xml:id="_ldebug_8c_1a6fc57844a33412d711bca098b2135f41"/>    <section>
+    <title>noLuaClosure</title>
+<indexterm><primary>noLuaClosure</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>noLuaClosure</secondary></indexterm>
+<para><computeroutput>#define noLuaClosure( f)   ((f) == NULL || (f)-&gt;c.tt == <link linkend="_lobject_8h_1a2361d923ddb7fc1468b978fe043e35c2">LUA_VCCL</link>)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00034">34</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_ldebug_8c_1ad72fa774194e83872bac4e5bf6ec1160"/>    <section>
+    <title>auxgetinfo()</title>
+<indexterm><primary>auxgetinfo</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>auxgetinfo</secondary></indexterm>
+<para><computeroutput>static int auxgetinfo (<link linkend="_structlua___state">lua_State</link> * L, const char * what, <link linkend="_structlua___debug">lua_Debug</link> * ar, <link linkend="_union_closure">Closure</link> * f, <link linkend="_struct_call_info">CallInfo</link> * ci)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00330">330</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_ad72fa774194e83872bac4e5bf6ec1160_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_ad72fa774194e83872bac4e5bf6ec1160_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1addb19a674a7acc4b075f36e9c91457ce"/>    <section>
+    <title>changedline()</title>
+<indexterm><primary>changedline</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>changedline</secondary></indexterm>
+<para><computeroutput>static int changedline (const <link linkend="_struct_proto">Proto</link> * p, int oldpc, int newpc)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00785">785</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_addb19a674a7acc4b075f36e9c91457ce_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_addb19a674a7acc4b075f36e9c91457ce_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a6e3195fc94af1f75142c2801ca8cf058"/>    <section>
+    <title>collectvalidlines()</title>
+<indexterm><primary>collectvalidlines</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>collectvalidlines</secondary></indexterm>
+<para><computeroutput>static void collectvalidlines (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_union_closure">Closure</link> * f)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00294">294</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a6e3195fc94af1f75142c2801ca8cf058_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a6e3195fc94af1f75142c2801ca8cf058_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a7db2a3f5cbcf0ac3ef6d4cfa15ab4dbc"/>    <section>
+    <title>currentpc()</title>
+<indexterm><primary>currentpc</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>currentpc</secondary></indexterm>
+<para><computeroutput>static int currentpc (<link linkend="_struct_call_info">CallInfo</link> * ci)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00043">43</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a7db2a3f5cbcf0ac3ef6d4cfa15ab4dbc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a03af36ffe32a5653a0deeddc412d88f0"/>    <section>
+    <title>filterpc()</title>
+<indexterm><primary>filterpc</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>filterpc</secondary></indexterm>
+<para><computeroutput>static int filterpc (int pc, int jmptarget)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00458">458</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a03af36ffe32a5653a0deeddc412d88f0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a64baa2f66e5be0dad465b05a73ed7a9a"/>    <section>
+    <title>findsetreg()</title>
+<indexterm><primary>findsetreg</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>findsetreg</secondary></indexterm>
+<para><computeroutput>static int findsetreg (const <link linkend="_struct_proto">Proto</link> * p, int lastpc, int reg)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00468">468</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a64baa2f66e5be0dad465b05a73ed7a9a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a64baa2f66e5be0dad465b05a73ed7a9a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1adde29da645f7256cd7b78dafeec64cc1"/>    <section>
+    <title>findvararg()</title>
+<indexterm><primary>findvararg</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>findvararg</secondary></indexterm>
+<para><computeroutput>static const char* findvararg (<link linkend="_struct_call_info">CallInfo</link> * ci, int n, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> * pos)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00188">188</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_adde29da645f7256cd7b78dafeec64cc1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a84af60873d130ffee87eb1721f3231e4"/>    <section>
+    <title>funcinfo()</title>
+<indexterm><primary>funcinfo</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>funcinfo</secondary></indexterm>
+<para><computeroutput>static void funcinfo (<link linkend="_structlua___debug">lua_Debug</link> * ar, <link linkend="_union_closure">Closure</link> * cl)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00260">260</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a84af60873d130ffee87eb1721f3231e4_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a84af60873d130ffee87eb1721f3231e4_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1aa4c19bd41574279b6de1a01e01186f14"/>    <section>
+    <title>funcnamefromcode()</title>
+<indexterm><primary>funcnamefromcode</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>funcnamefromcode</secondary></indexterm>
+<para><computeroutput>static const char * funcnamefromcode (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_call_info">CallInfo</link> * ci, const char ** name)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00597">597</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_aa4c19bd41574279b6de1a01e01186f14_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_aa4c19bd41574279b6de1a01e01186f14_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a355ee1f29ee39ff665aa01ef4493f453"/>    <section>
+    <title>getbaseline()</title>
+<indexterm><primary>getbaseline</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>getbaseline</secondary></indexterm>
+<para><computeroutput>static int getbaseline (const <link linkend="_struct_proto">Proto</link> * f, int pc, int * basepc)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00056">56</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a355ee1f29ee39ff665aa01ef4493f453_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1ad6bc24d619df8e849e2ae8b00455d86f"/>    <section>
+    <title>getcurrentline()</title>
+<indexterm><primary>getcurrentline</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>getcurrentline</secondary></indexterm>
+<para><computeroutput>static int getcurrentline (<link linkend="_struct_call_info">CallInfo</link> * ci)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00102">102</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_ad6bc24d619df8e849e2ae8b00455d86f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_ad6bc24d619df8e849e2ae8b00455d86f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a118ab79b6b538a857353e4b9259667e1"/>    <section>
+    <title>getfuncname()</title>
+<indexterm><primary>getfuncname</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>getfuncname</secondary></indexterm>
+<para><computeroutput>static const char* getfuncname (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_call_info">CallInfo</link> * ci, const char ** name)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00316">316</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a118ab79b6b538a857353e4b9259667e1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a118ab79b6b538a857353e4b9259667e1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a5ccea5c2124ac2e629562b0ff7f440a6"/>    <section>
+    <title>getobjname()</title>
+<indexterm><primary>getobjname</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>getobjname</secondary></indexterm>
+<para><computeroutput>static const char * getobjname (const <link linkend="_struct_proto">Proto</link> * p, int lastpc, int reg, const char ** name)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00529">529</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a5ccea5c2124ac2e629562b0ff7f440a6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a5ccea5c2124ac2e629562b0ff7f440a6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1aa34de8e3a8dd64cda6ce15e2296dff9b"/>    <section>
+    <title>getupvalname()</title>
+<indexterm><primary>getupvalname</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>getupvalname</secondary></indexterm>
+<para><computeroutput>static const char* getupvalname (<link linkend="_struct_call_info">CallInfo</link> * ci, const <link linkend="_struct_t_value">TValue</link> * o, const char ** name)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00666">666</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_aa34de8e3a8dd64cda6ce15e2296dff9b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_aa34de8e3a8dd64cda6ce15e2296dff9b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1ab68def10378c61ee5258c00d4f779283"/>    <section>
+    <title>gxf()</title>
+<indexterm><primary>gxf</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>gxf</secondary></indexterm>
+<para><computeroutput>static const char* gxf (const <link linkend="_struct_proto">Proto</link> * p, int pc, <link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link> i, int isup)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00518">518</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_ab68def10378c61ee5258c00d4f779283_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_ab68def10378c61ee5258c00d4f779283_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a9f58a8099ec72d2ec0e0937b868fccdb"/>    <section>
+    <title>isinstack()</title>
+<indexterm><primary>isinstack</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>isinstack</secondary></indexterm>
+<para><computeroutput>static int isinstack (<link linkend="_struct_call_info">CallInfo</link> * ci, const <link linkend="_struct_t_value">TValue</link> * o)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00654">654</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a9f58a8099ec72d2ec0e0937b868fccdb_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1aa605689053c7501d28fbd308b73f84ae"/>    <section>
+    <title>kname()</title>
+<indexterm><primary>kname</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>kname</secondary></indexterm>
+<para><computeroutput>static void kname (const <link linkend="_struct_proto">Proto</link> * p, int c, const char ** name)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00430">430</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_aa605689053c7501d28fbd308b73f84ae_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a44b9923035977dcfa57279761f7379b4"/>    <section>
+    <title>lua_gethook()</title>
+<indexterm><primary>lua_gethook</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>lua_gethook</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> <link linkend="_lua_8h_1aa00de66eff087aef1fdd44f5b3bb9a0b">lua_Hook</link> lua_gethook (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00149">149</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a44b9923035977dcfa57279761f7379b4_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a18f065f752cfa08eefd338b4cbd7254b"/>    <section>
+    <title>lua_gethookcount()</title>
+<indexterm><primary>lua_gethookcount</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>lua_gethookcount</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_gethookcount (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00159">159</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a18f065f752cfa08eefd338b4cbd7254b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a0b41dd9ab46652c8433b861f679fadb8"/>    <section>
+    <title>lua_gethookmask()</title>
+<indexterm><primary>lua_gethookmask</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>lua_gethookmask</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_gethookmask (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00154">154</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a0b41dd9ab46652c8433b861f679fadb8_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1acaafc35d8e385c4d167229486165df6d"/>    <section>
+    <title>lua_getinfo()</title>
+<indexterm><primary>lua_getinfo</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>lua_getinfo</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_getinfo (<link linkend="_structlua___state">lua_State</link> * L, const char * what, <link linkend="_structlua___debug">lua_Debug</link> * ar)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00386">386</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_acaafc35d8e385c4d167229486165df6d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_acaafc35d8e385c4d167229486165df6d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1aaaf420ee0b0e79a45b823d9da4905667"/>    <section>
+    <title>lua_getlocal()</title>
+<indexterm><primary>lua_getlocal</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>lua_getlocal</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char* lua_getlocal (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_structlua___debug">lua_Debug</link> * ar, int n)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00224">224</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_aaaf420ee0b0e79a45b823d9da4905667_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_aaaf420ee0b0e79a45b823d9da4905667_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1ac1fc03c27ee46caa4037df2d70f22110"/>    <section>
+    <title>lua_getstack()</title>
+<indexterm><primary>lua_getstack</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>lua_getstack</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> int lua_getstack (<link linkend="_structlua___state">lua_State</link> * L, int level, <link linkend="_structlua___debug">lua_Debug</link> * ar)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00164">164</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_ac1fc03c27ee46caa4037df2d70f22110_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1ac9d3d168561f5c1a747a3ab198f0f092"/>    <section>
+    <title>lua_sethook()</title>
+<indexterm><primary>lua_sethook</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>lua_sethook</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> void lua_sethook (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lua_8h_1aa00de66eff087aef1fdd44f5b3bb9a0b">lua_Hook</link> func, int mask, int count)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00135">135</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_ac9d3d168561f5c1a747a3ab198f0f092_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_ac9d3d168561f5c1a747a3ab198f0f092_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a425c37b17caf76545f1541a5bb81dfc6"/>    <section>
+    <title>lua_setlocal()</title>
+<indexterm><primary>lua_setlocal</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>lua_setlocal</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link> const char* lua_setlocal (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_structlua___debug">lua_Debug</link> * ar, int n)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00246">246</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a425c37b17caf76545f1541a5bb81dfc6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a425c37b17caf76545f1541a5bb81dfc6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a7e1dc7518150bf19bd9aa5dda166a2eb"/>    <section>
+    <title>luaG_addinfo()</title>
+<indexterm><primary>luaG_addinfo</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>luaG_addinfo</secondary></indexterm>
+<para><computeroutput>const char* luaG_addinfo (<link linkend="_structlua___state">lua_State</link> * L, const char * msg, <link linkend="_struct_t_string">TString</link> * src, int line)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00742">742</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a7e1dc7518150bf19bd9aa5dda166a2eb_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a7e1dc7518150bf19bd9aa5dda166a2eb_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a04641ef359f3943a2ca88f52c3fe283c"/>    <section>
+    <title>luaG_concaterror()</title>
+<indexterm><primary>luaG_concaterror</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>luaG_concaterror</secondary></indexterm>
+<para><computeroutput><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> luaG_concaterror (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_struct_t_value">TValue</link> * p1, const <link linkend="_struct_t_value">TValue</link> * p2)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00706">706</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a04641ef359f3943a2ca88f52c3fe283c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a04641ef359f3943a2ca88f52c3fe283c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1af7366920f8408bb33ed01b1d6c0e1238"/>    <section>
+    <title>luaG_errormsg()</title>
+<indexterm><primary>luaG_errormsg</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>luaG_errormsg</secondary></indexterm>
+<para><computeroutput><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> luaG_errormsg (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00754">754</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_af7366920f8408bb33ed01b1d6c0e1238_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_af7366920f8408bb33ed01b1d6c0e1238_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1acf87581237e7d0072502ffc5092e8329"/>    <section>
+    <title>luaG_findlocal()</title>
+<indexterm><primary>luaG_findlocal</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>luaG_findlocal</secondary></indexterm>
+<para><computeroutput>const char* luaG_findlocal (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_call_info">CallInfo</link> * ci, int n, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> * pos)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00200">200</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_acf87581237e7d0072502ffc5092e8329_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_acf87581237e7d0072502ffc5092e8329_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a2d4bfa8b9ba02f149e1d2819b8e98c53"/>    <section>
+    <title>luaG_forerror()</title>
+<indexterm><primary>luaG_forerror</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>luaG_forerror</secondary></indexterm>
+<para><computeroutput><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> luaG_forerror (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_struct_t_value">TValue</link> * o, const char * what)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00700">700</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a2d4bfa8b9ba02f149e1d2819b8e98c53_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a2d4bfa8b9ba02f149e1d2819b8e98c53_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1ae7a6d2f88b11cc05758e44acd433ee2f"/>    <section>
+    <title>luaG_getfuncline()</title>
+<indexterm><primary>luaG_getfuncline</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>luaG_getfuncline</secondary></indexterm>
+<para><computeroutput>int luaG_getfuncline (const <link linkend="_struct_proto">Proto</link> * f, int pc)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00087">87</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_ae7a6d2f88b11cc05758e44acd433ee2f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_ae7a6d2f88b11cc05758e44acd433ee2f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a5a3d4fd14bbb9329188c53a9548b7402"/>    <section>
+    <title>luaG_opinterror()</title>
+<indexterm><primary>luaG_opinterror</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>luaG_opinterror</secondary></indexterm>
+<para><computeroutput><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> luaG_opinterror (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_struct_t_value">TValue</link> * p1, const <link linkend="_struct_t_value">TValue</link> * p2, const char * msg)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00712">712</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a5a3d4fd14bbb9329188c53a9548b7402_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a5a3d4fd14bbb9329188c53a9548b7402_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1ad0c51ce500c5a0a448f62bc680d80926"/>    <section>
+    <title>luaG_ordererror()</title>
+<indexterm><primary>luaG_ordererror</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>luaG_ordererror</secondary></indexterm>
+<para><computeroutput><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> luaG_ordererror (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_struct_t_value">TValue</link> * p1, const <link linkend="_struct_t_value">TValue</link> * p2)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00731">731</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_ad0c51ce500c5a0a448f62bc680d80926_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_ad0c51ce500c5a0a448f62bc680d80926_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a88d38ca5da2e7a1492fc9d5ad70c32c5"/>    <section>
+    <title>luaG_runerror()</title>
+<indexterm><primary>luaG_runerror</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>luaG_runerror</secondary></indexterm>
+<para><computeroutput><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> luaG_runerror (<link linkend="_structlua___state">lua_State</link> * L, const char * fmt,  ...)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00767">767</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a88d38ca5da2e7a1492fc9d5ad70c32c5_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a88d38ca5da2e7a1492fc9d5ad70c32c5_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1ada97dce3c670f83e257a5b27299bf09b"/>    <section>
+    <title>luaG_tointerror()</title>
+<indexterm><primary>luaG_tointerror</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>luaG_tointerror</secondary></indexterm>
+<para><computeroutput><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> luaG_tointerror (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_struct_t_value">TValue</link> * p1, const <link linkend="_struct_t_value">TValue</link> * p2)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00723">723</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_ada97dce3c670f83e257a5b27299bf09b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_ada97dce3c670f83e257a5b27299bf09b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1aa85fcb28f50397f11ac54ed47be24f8b"/>    <section>
+    <title>luaG_traceexec()</title>
+<indexterm><primary>luaG_traceexec</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>luaG_traceexec</secondary></indexterm>
+<para><computeroutput>int luaG_traceexec (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link> * pc)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00807">807</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_aa85fcb28f50397f11ac54ed47be24f8b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a60bf9ce85441bd5065f2b73640163711"/>    <section>
+    <title>luaG_typeerror()</title>
+<indexterm><primary>luaG_typeerror</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>luaG_typeerror</secondary></indexterm>
+<para><computeroutput><link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> luaG_typeerror (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_struct_t_value">TValue</link> * o, const char * op)</computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00694">694</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a60bf9ce85441bd5065f2b73640163711_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a60bf9ce85441bd5065f2b73640163711_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a34dcc3fce752d518b34773a35b3763ad"/>    <section>
+    <title>nextline()</title>
+<indexterm><primary>nextline</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>nextline</secondary></indexterm>
+<para><computeroutput>static int nextline (const <link linkend="_struct_proto">Proto</link> * p, int currentline, int pc)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00286">286</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a34dcc3fce752d518b34773a35b3763ad_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a34dcc3fce752d518b34773a35b3763ad_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a2513b0afdf7a69ca65cb59eea7551131"/>    <section>
+    <title>rkname()</title>
+<indexterm><primary>rkname</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>rkname</secondary></indexterm>
+<para><computeroutput>static void rkname (const <link linkend="_struct_proto">Proto</link> * p, int pc, <link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link> i, const char ** name)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00449">449</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a2513b0afdf7a69ca65cb59eea7551131_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a2513b0afdf7a69ca65cb59eea7551131_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a3b1ec666c4618a5100fc5a6ef21ca3f6"/>    <section>
+    <title>rname()</title>
+<indexterm><primary>rname</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>rname</secondary></indexterm>
+<para><computeroutput>static void rname (const <link linkend="_struct_proto">Proto</link> * p, int pc, int c, const char ** name)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00439">439</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a3b1ec666c4618a5100fc5a6ef21ca3f6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a3b1ec666c4618a5100fc5a6ef21ca3f6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1ac6e4d5f88c90151adb37f89be98c0309"/>    <section>
+    <title>settraps()</title>
+<indexterm><primary>settraps</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>settraps</secondary></indexterm>
+<para><computeroutput>static void settraps (<link linkend="_struct_call_info">CallInfo</link> * ci)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00118">118</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_ac6e4d5f88c90151adb37f89be98c0309_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1ac1d00bafd9dbc2ea15b7b374a760a8fc"/>    <section>
+    <title>upvalname()</title>
+<indexterm><primary>upvalname</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>upvalname</secondary></indexterm>
+<para><computeroutput>static const char* upvalname (const <link linkend="_struct_proto">Proto</link> * p, int uv)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00181">181</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_ac1d00bafd9dbc2ea15b7b374a760a8fc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_ldebug_8c_1a86692faa1669d631d38c24993d511dd5"/>    <section>
+    <title>varinfo()</title>
+<indexterm><primary>varinfo</primary><secondary>ldebug.c</secondary></indexterm>
+<indexterm><primary>ldebug.c</primary><secondary>varinfo</secondary></indexterm>
+<para><computeroutput>static const char* varinfo (<link linkend="_structlua___state">lua_State</link> * L, const <link linkend="_struct_t_value">TValue</link> * o)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_ldebug_8c_source">ldebug.c</link> 第 <link linkend="_ldebug_8c_source_1l00680">680</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a86692faa1669d631d38c24993d511dd5_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="ldebug_8c_a86692faa1669d631d38c24993d511dd5_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+</section>

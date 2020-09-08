@@ -1,0 +1,792 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lobject_8h_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/lobject.h</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;lobject.h&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Type&#32;definitions&#32;for&#32;Lua&#32;objects</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+00007 
+00008 <emphasis role="preprocessor">#ifndef&#32;lobject_h</emphasis>
+00009 <emphasis role="preprocessor">#define&#32;lobject_h</emphasis>
+00010 
+00011 
+00012 <emphasis role="preprocessor">#include&#32;&lt;stdarg.h&gt;</emphasis>
+00013 
+00014 
+00015 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_llimits_8h">llimits.h</link>&quot;</emphasis>
+00016 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lua_8h">lua.h</link>&quot;</emphasis>
+00017 
+00018 
+00019 <emphasis role="comment">/*</emphasis>
+00020 <emphasis role="comment">**&#32;Extra&#32;types&#32;for&#32;collectable&#32;non-values</emphasis>
+00021 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00022"/><link linkend="_lobject_8h_1a3175b6b959953f781a14a9291d9e22b6">00022</link> <emphasis role="preprocessor">#define&#32;LUA_TUPVAL&#32;&#32;LUA_NUMTYPES&#32;&#32;</emphasis><emphasis role="comment">/*&#32;upvalues&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lobject_8h_source_1l00023"/><link linkend="_lobject_8h_1aa2a683d9e42dac5846eefa108297cbf0">00023</link> <emphasis role="preprocessor">#define&#32;LUA_TPROTO&#32;&#32;(LUA_NUMTYPES+1)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;function&#32;prototypes&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00024 
+00025 
+00026 <emphasis role="comment">/*</emphasis>
+00027 <emphasis role="comment">**&#32;number&#32;of&#32;all&#32;possible&#32;types&#32;(including&#32;LUA_TNONE)</emphasis>
+00028 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00029"/><link linkend="_lobject_8h_1a19bae920c9c442143f021d1c4301b8cb">00029</link> <emphasis role="preprocessor">#define&#32;LUA_TOTALTYPES&#32;&#32;&#32;&#32;&#32;&#32;(LUA_TPROTO&#32;+&#32;2)</emphasis>
+00030 
+00031 
+00032 <emphasis role="comment">/*</emphasis>
+00033 <emphasis role="comment">**&#32;tags&#32;for&#32;Tagged&#32;Values&#32;have&#32;the&#32;following&#32;use&#32;of&#32;bits:</emphasis>
+00034 <emphasis role="comment">**&#32;bits&#32;0-3:&#32;actual&#32;tag&#32;(a&#32;LUA_T*&#32;constant)</emphasis>
+00035 <emphasis role="comment">**&#32;bits&#32;4-5:&#32;variant&#32;bits</emphasis>
+00036 <emphasis role="comment">**&#32;bit&#32;6:&#32;whether&#32;value&#32;is&#32;collectable</emphasis>
+00037 <emphasis role="comment">*/</emphasis>
+00038 
+00039 <emphasis role="comment">/*&#32;add&#32;variant&#32;bits&#32;to&#32;a&#32;type&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00040"/><link linkend="_lobject_8h_1a6f70bdfe97f0e09461cfd2aadd6c0602">00040</link> <emphasis role="preprocessor">#define&#32;makevariant(t,v)&#32;&#32;&#32;&#32;((t)&#32;|&#32;((v)&#32;&lt;&lt;&#32;4))</emphasis>
+00041 
+00042 
+00043 
+00044 <emphasis role="comment">/*</emphasis>
+00045 <emphasis role="comment">**&#32;Union&#32;of&#32;all&#32;Lua&#32;values</emphasis>
+00046 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00047"/><link linkend="_union_value">00047</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">union&#32;</emphasis><link linkend="_union_value">Value</link>&#32;{
+<anchor xml:id="_lobject_8h_source_1l00048"/><link linkend="_union_value_1a5b04ba62f6ed32ca290d545fe2927c23">00048</link> &#32;&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_g_c_object">GCObject</link>&#32;*<link linkend="_union_value_1a5b04ba62f6ed32ca290d545fe2927c23">gc</link>;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;collectable&#32;objects&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00049"/><link linkend="_union_value_1a117104b82864d3b23ec174af6d392709">00049</link> &#32;&#32;<emphasis role="keywordtype">void</emphasis>&#32;*<link linkend="_union_value_1a117104b82864d3b23ec174af6d392709">p</link>;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;light&#32;userdata&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00050"/><link linkend="_union_value_1abaf5a162dadd891d6bbdf89025862c98">00050</link> &#32;&#32;<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>&#32;<link linkend="_union_value_1abaf5a162dadd891d6bbdf89025862c98">f</link>;&#32;<emphasis role="comment">/*&#32;light&#32;C&#32;functions&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00051"/><link linkend="_union_value_1a5bfb8f000fff9f547fdcebfb5ce512d6">00051</link> &#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;<link linkend="_union_value_1a5bfb8f000fff9f547fdcebfb5ce512d6">i</link>;&#32;&#32;&#32;<emphasis role="comment">/*&#32;integer&#32;numbers&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00052"/><link linkend="_union_value_1a645eebf23efeaafc3b9ac3671073031d">00052</link> &#32;&#32;<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link>&#32;<link linkend="_union_value_1a645eebf23efeaafc3b9ac3671073031d">n</link>;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;float&#32;numbers&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00053"/><link linkend="_lobject_8h_1a33d0ee7f37b6b7cf753e159ea8ae8a52">00053</link> }&#32;<link linkend="_lobject_8h_1a33d0ee7f37b6b7cf753e159ea8ae8a52">Value</link>;
+00054 
+00055 
+00056 <emphasis role="comment">/*</emphasis>
+00057 <emphasis role="comment">**&#32;Tagged&#32;Values.&#32;This&#32;is&#32;the&#32;basic&#32;representation&#32;of&#32;values&#32;in&#32;Lua:</emphasis>
+00058 <emphasis role="comment">**&#32;an&#32;actual&#32;value&#32;plus&#32;a&#32;tag&#32;with&#32;its&#32;type.</emphasis>
+00059 <emphasis role="comment">*/</emphasis>
+00060 
+<anchor xml:id="_lobject_8h_source_1l00061"/><link linkend="_lobject_8h_1a33c298ced3df4f041dd86a19a6c0dae2">00061</link> <emphasis role="preprocessor">#define&#32;TValuefields&#32;&#32;&#32;&#32;Value&#32;value_;&#32;lu_byte&#32;tt_</emphasis>
+00062 
+<anchor xml:id="_lobject_8h_source_1l00063"/><link linkend="_struct_t_value">00063</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_t_value">TValue</link>&#32;{
+<anchor xml:id="_lobject_8h_source_1l00064"/><link linkend="_struct_t_value_1ac2691e13bad97eff50d29e138b4bd724">00064</link> &#32;&#32;<link linkend="_struct_t_value_1ac2691e13bad97eff50d29e138b4bd724">TValuefields</link>;
+<anchor xml:id="_lobject_8h_source_1l00065"/><link linkend="_lobject_8h_1a1f32c523a9a46759690a7acc24eedc19">00065</link> }&#32;<link linkend="_lobject_8h_1a1f32c523a9a46759690a7acc24eedc19">TValue</link>;
+00066 
+00067 
+<anchor xml:id="_lobject_8h_source_1l00068"/><link linkend="_lobject_8h_1aa57d3f96227213dee2530ccf9c0bd055">00068</link> <emphasis role="preprocessor">#define&#32;val_(o)&#32;&#32;&#32;&#32;&#32;((o)-&gt;value_)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00069"/><link linkend="_lobject_8h_1a8a47bf030949aef5df2fd844415e2501">00069</link> <emphasis role="preprocessor">#define&#32;valraw(o)&#32;&#32;&#32;(&amp;val_(o))</emphasis>
+00070 
+00071 
+00072 <emphasis role="comment">/*&#32;raw&#32;type&#32;tag&#32;of&#32;a&#32;TValue&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00073"/><link linkend="_lobject_8h_1a4e4078cdfa594d60186ec4369b582acf">00073</link> <emphasis role="preprocessor">#define&#32;rawtt(o)&#32;&#32;&#32;&#32;((o)-&gt;tt_)</emphasis>
+00074 
+00075 <emphasis role="comment">/*&#32;tag&#32;with&#32;no&#32;variants&#32;(bits&#32;0-3)&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00076"/><link linkend="_lobject_8h_1a40d12e88a0d8249d226109e0d6d70dd6">00076</link> <emphasis role="preprocessor">#define&#32;novariant(t)&#32;&#32;&#32;&#32;((t)&#32;&amp;&#32;0x0F)</emphasis>
+00077 
+00078 <emphasis role="comment">/*&#32;type&#32;tag&#32;of&#32;a&#32;TValue&#32;(bits&#32;0-3&#32;for&#32;tags&#32;+&#32;variant&#32;bits&#32;4-5)&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00079"/><link linkend="_lobject_8h_1a97f74541c5efde62e7dc88e8cebd75d9">00079</link> <emphasis role="preprocessor">#define&#32;withvariant(t)&#32;&#32;((t)&#32;&amp;&#32;0x3F)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00080"/><link linkend="_lobject_8h_1a01db083f8bc8b2eb51a45c0ba9967043">00080</link> <emphasis role="preprocessor">#define&#32;ttypetag(o)&#32;withvariant(rawtt(o))</emphasis>
+00081 
+00082 <emphasis role="comment">/*&#32;type&#32;of&#32;a&#32;TValue&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00083"/><link linkend="_lobject_8h_1acd205ab396b96fba48e1f758c17a2cf3">00083</link> <emphasis role="preprocessor">#define&#32;ttype(o)&#32;&#32;&#32;&#32;(novariant(rawtt(o)))</emphasis>
+00084 
+00085 
+00086 <emphasis role="comment">/*&#32;Macros&#32;to&#32;test&#32;type&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00087"/><link linkend="_lobject_8h_1af8389211babbb622ff1ac83021f2fd76">00087</link> <emphasis role="preprocessor">#define&#32;checktag(o,t)&#32;&#32;&#32;&#32;&#32;&#32;&#32;(rawtt(o)&#32;==&#32;(t))</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00088"/><link linkend="_lobject_8h_1a591e9cc1db9d9f210702bdbf2ba10d02">00088</link> <emphasis role="preprocessor">#define&#32;checktype(o,t)&#32;&#32;&#32;&#32;&#32;&#32;(ttype(o)&#32;==&#32;(t))</emphasis>
+00089 
+00090 
+00091 <emphasis role="comment">/*&#32;Macros&#32;for&#32;internal&#32;tests&#32;*/</emphasis>
+00092 
+00093 <emphasis role="comment">/*&#32;collectable&#32;object&#32;has&#32;the&#32;same&#32;tag&#32;as&#32;the&#32;original&#32;value&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00094"/><link linkend="_lobject_8h_1a08f554017b8314e2dfc0dfd05b1d8167">00094</link> <emphasis role="preprocessor">#define&#32;righttt(obj)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(ttypetag(obj)&#32;==&#32;gcvalue(obj)-&gt;tt)</emphasis>
+00095 
+00096 <emphasis role="comment">/*</emphasis>
+00097 <emphasis role="comment">**&#32;Any&#32;value&#32;being&#32;manipulated&#32;by&#32;the&#32;program&#32;either&#32;is&#32;non</emphasis>
+00098 <emphasis role="comment">**&#32;collectable,&#32;or&#32;the&#32;collectable&#32;object&#32;has&#32;the&#32;right&#32;tag</emphasis>
+00099 <emphasis role="comment">**&#32;and&#32;it&#32;is&#32;not&#32;dead.&#32;The&#32;option&#32;&apos;L&#32;==&#32;NULL&apos;&#32;allows&#32;other</emphasis>
+00100 <emphasis role="comment">**&#32;macros&#32;using&#32;this&#32;one&#32;to&#32;be&#32;used&#32;where&#32;L&#32;is&#32;not&#32;available.</emphasis>
+00101 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00102"/><link linkend="_lobject_8h_1aeec8842aa72396b2719685ad7e131f37">00102</link> <emphasis role="preprocessor">#define&#32;checkliveness(L,obj)&#32;\</emphasis>
+00103 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;((void)L,&#32;lua_longassert(!iscollectable(obj)&#32;||&#32;\</emphasis>
+00104 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(righttt(obj)&#32;&amp;&amp;&#32;(L&#32;==&#32;NULL&#32;||&#32;!isdead(G(L),gcvalue(obj))))))</emphasis>
+00105 
+00106 
+00107 <emphasis role="comment">/*&#32;Macros&#32;to&#32;set&#32;values&#32;*/</emphasis>
+00108 
+00109 <emphasis role="comment">/*&#32;set&#32;a&#32;value&apos;s&#32;tag&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00110"/><link linkend="_lobject_8h_1a60983604f73f556a06f84026b29ed840">00110</link> <emphasis role="preprocessor">#define&#32;settt_(o,t)&#32;((o)-&gt;tt_=(t))</emphasis>
+00111 
+00112 
+00113 <emphasis role="comment">/*&#32;main&#32;macro&#32;to&#32;copy&#32;values&#32;(from&#32;&apos;obj1&apos;&#32;to&#32;&apos;obj2&apos;)&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00114"/><link linkend="_lobject_8h_1acf2af15f3d5cceca8e8870f96634bc2d">00114</link> <emphasis role="preprocessor">#define&#32;setobj(L,obj1,obj2)&#32;\</emphasis>
+00115 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;{&#32;TValue&#32;*io1=(obj1);&#32;const&#32;TValue&#32;*io2=(obj2);&#32;\</emphasis>
+00116 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;io1-&gt;value_&#32;=&#32;io2-&gt;value_;&#32;settt_(io1,&#32;io2-&gt;tt_);&#32;\</emphasis>
+00117 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;checkliveness(L,io1);&#32;lua_assert(!isnonstrictnil(io1));&#32;}</emphasis>
+00118 
+00119 <emphasis role="comment">/*</emphasis>
+00120 <emphasis role="comment">**&#32;Different&#32;types&#32;of&#32;assignments,&#32;according&#32;to&#32;source&#32;and&#32;destination.</emphasis>
+00121 <emphasis role="comment">**&#32;(They&#32;are&#32;mostly&#32;equal&#32;now,&#32;but&#32;may&#32;be&#32;different&#32;in&#32;the&#32;future.)</emphasis>
+00122 <emphasis role="comment">*/</emphasis>
+00123 
+00124 <emphasis role="comment">/*&#32;from&#32;stack&#32;to&#32;stack&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00125"/><link linkend="_lobject_8h_1af9258d87e8f082be8a2adb731d90f1a5">00125</link> <emphasis role="preprocessor">#define&#32;setobjs2s(L,o1,o2)&#32;&#32;setobj(L,s2v(o1),s2v(o2))</emphasis>
+00126 <emphasis role="comment">/*&#32;to&#32;stack&#32;(not&#32;from&#32;same&#32;stack)&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00127"/><link linkend="_lobject_8h_1add70d29b431f66a1dee29a0cb286de6e">00127</link> <emphasis role="preprocessor">#define&#32;setobj2s(L,o1,o2)&#32;&#32;&#32;setobj(L,s2v(o1),o2)</emphasis>
+00128 <emphasis role="comment">/*&#32;from&#32;table&#32;to&#32;same&#32;table&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00129"/><link linkend="_lobject_8h_1a0b6916971c4766bf58d942bf7a426c80">00129</link> <emphasis role="preprocessor">#define&#32;setobjt2t&#32;&#32;&#32;setobj</emphasis>
+00130 <emphasis role="comment">/*&#32;to&#32;new&#32;object&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00131"/><link linkend="_lobject_8h_1ad6d8d3d900cff1b02c3b269eabccccf9">00131</link> <emphasis role="preprocessor">#define&#32;setobj2n&#32;&#32;&#32;&#32;setobj</emphasis>
+00132 <emphasis role="comment">/*&#32;to&#32;table&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00133"/><link linkend="_lobject_8h_1adefdd17d98f1f5734ee296395e1805d4">00133</link> <emphasis role="preprocessor">#define&#32;setobj2t&#32;&#32;&#32;&#32;setobj</emphasis>
+00134 
+00135 
+00136 <emphasis role="comment">/*</emphasis>
+00137 <emphasis role="comment">**&#32;Entries&#32;in&#32;the&#32;Lua&#32;stack</emphasis>
+00138 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00139"/><link linkend="_union_stack_value">00139</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">union&#32;</emphasis><link linkend="_union_stack_value">StackValue</link>&#32;{
+<anchor xml:id="_lobject_8h_source_1l00140"/><link linkend="_union_stack_value_1a2b35a4edf47e5c75500c8e918b6bcfc4">00140</link> &#32;&#32;<link linkend="_struct_t_value">TValue</link>&#32;<link linkend="_union_stack_value_1a2b35a4edf47e5c75500c8e918b6bcfc4">val</link>;
+<anchor xml:id="_lobject_8h_source_1l00141"/><link linkend="_lobject_8h_1a7e5934136714a2f3d01cf4515d5258a0">00141</link> }&#32;<link linkend="_lobject_8h_1a7e5934136714a2f3d01cf4515d5258a0">StackValue</link>;
+00142 
+00143 
+00144 <emphasis role="comment">/*&#32;index&#32;to&#32;stack&#32;elements&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00145"/><link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">00145</link> <emphasis role="keyword">typedef</emphasis>&#32;<link linkend="_union_stack_value">StackValue</link>&#32;*<link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link>;
+00146 
+00147 <emphasis role="comment">/*&#32;convert&#32;a&#32;&apos;StackValue&apos;&#32;to&#32;a&#32;&apos;TValue&apos;&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00148"/><link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">00148</link> <emphasis role="preprocessor">#define&#32;s2v(o)&#32;&#32;(&amp;(o)-&gt;val)</emphasis>
+00149 
+00150 
+00151 
+00152 <emphasis role="comment">/*</emphasis>
+00153 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00154 <emphasis role="comment">**&#32;Nil</emphasis>
+00155 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00156 <emphasis role="comment">*/</emphasis>
+00157 
+00158 <emphasis role="comment">/*&#32;Standard&#32;nil&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00159"/><link linkend="_lobject_8h_1aac7a0aeb62c96ba16c7638e707bfaac0">00159</link> <emphasis role="preprocessor">#define&#32;LUA_VNIL&#32;&#32;&#32;&#32;makevariant(LUA_TNIL,&#32;0)</emphasis>
+00160 
+00161 <emphasis role="comment">/*&#32;Empty&#32;slot&#32;(which&#32;might&#32;be&#32;different&#32;from&#32;a&#32;slot&#32;containing&#32;nil)&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00162"/><link linkend="_lobject_8h_1abc8b34ab48ffd99b6d7a48e8e4f269e2">00162</link> <emphasis role="preprocessor">#define&#32;LUA_VEMPTY&#32;&#32;makevariant(LUA_TNIL,&#32;1)</emphasis>
+00163 
+00164 <emphasis role="comment">/*&#32;Value&#32;returned&#32;for&#32;a&#32;key&#32;not&#32;found&#32;in&#32;a&#32;table&#32;(absent&#32;key)&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00165"/><link linkend="_lobject_8h_1acbec62756a4a34ca07969e71ac30f7f1">00165</link> <emphasis role="preprocessor">#define&#32;LUA_VABSTKEY&#32;&#32;&#32;&#32;makevariant(LUA_TNIL,&#32;2)</emphasis>
+00166 
+00167 
+00168 <emphasis role="comment">/*&#32;macro&#32;to&#32;test&#32;for&#32;(any&#32;kind&#32;of)&#32;nil&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00169"/><link linkend="_lobject_8h_1a39af019fafa202841da3bf7c427bf090">00169</link> <emphasis role="preprocessor">#define&#32;ttisnil(v)&#32;&#32;&#32;&#32;&#32;&#32;checktype((v),&#32;LUA_TNIL)</emphasis>
+00170 
+00171 
+00172 <emphasis role="comment">/*&#32;macro&#32;to&#32;test&#32;for&#32;a&#32;standard&#32;nil&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00173"/><link linkend="_lobject_8h_1afae62ae42d03ff2600208b109bad8070">00173</link> <emphasis role="preprocessor">#define&#32;ttisstrictnil(o)&#32;&#32;&#32;&#32;checktag((o),&#32;LUA_VNIL)</emphasis>
+00174 
+00175 
+<anchor xml:id="_lobject_8h_source_1l00176"/><link linkend="_lobject_8h_1ad9034def7bbc1965ec3d714d84620b07">00176</link> <emphasis role="preprocessor">#define&#32;setnilvalue(obj)&#32;settt_(obj,&#32;LUA_VNIL)</emphasis>
+00177 
+00178 
+<anchor xml:id="_lobject_8h_source_1l00179"/><link linkend="_lobject_8h_1abb0534795c360c0ac007d3729758f908">00179</link> <emphasis role="preprocessor">#define&#32;isabstkey(v)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;checktag((v),&#32;LUA_VABSTKEY)</emphasis>
+00180 
+00181 
+00182 <emphasis role="comment">/*</emphasis>
+00183 <emphasis role="comment">**&#32;macro&#32;to&#32;detect&#32;non-standard&#32;nils&#32;(used&#32;only&#32;in&#32;assertions)</emphasis>
+00184 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00185"/><link linkend="_lobject_8h_1a792b40c39dcc3d6b158e202919a61197">00185</link> <emphasis role="preprocessor">#define&#32;isnonstrictnil(v)&#32;&#32;&#32;(ttisnil(v)&#32;&amp;&amp;&#32;!ttisstrictnil(v))</emphasis>
+00186 
+00187 
+00188 <emphasis role="comment">/*</emphasis>
+00189 <emphasis role="comment">**&#32;By&#32;default,&#32;entries&#32;with&#32;any&#32;kind&#32;of&#32;nil&#32;are&#32;considered&#32;empty.</emphasis>
+00190 <emphasis role="comment">**&#32;(In&#32;any&#32;definition,&#32;values&#32;associated&#32;with&#32;absent&#32;keys&#32;must&#32;also</emphasis>
+00191 <emphasis role="comment">**&#32;be&#32;accepted&#32;as&#32;empty.)</emphasis>
+00192 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00193"/><link linkend="_lobject_8h_1a5345ae49ed16dfecdfef95ec5399b000">00193</link> <emphasis role="preprocessor">#define&#32;isempty(v)&#32;&#32;&#32;&#32;&#32;&#32;ttisnil(v)</emphasis>
+00194 
+00195 
+00196 <emphasis role="comment">/*&#32;macro&#32;defining&#32;a&#32;value&#32;corresponding&#32;to&#32;an&#32;absent&#32;key&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00197"/><link linkend="_lobject_8h_1a003630137c8fd4d1378bee8017c4fb92">00197</link> <emphasis role="preprocessor">#define&#32;ABSTKEYCONSTANT&#32;&#32;&#32;&#32;&#32;{NULL},&#32;LUA_VABSTKEY</emphasis>
+00198 
+00199 
+00200 <emphasis role="comment">/*&#32;mark&#32;an&#32;entry&#32;as&#32;empty&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00201"/><link linkend="_lobject_8h_1a1504584244b6d1260c52a41cab9306d0">00201</link> <emphasis role="preprocessor">#define&#32;setempty(v)&#32;&#32;&#32;&#32;&#32;settt_(v,&#32;LUA_VEMPTY)</emphasis>
+00202 
+00203 
+00204 
+00205 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00206 
+00207 
+00208 <emphasis role="comment">/*</emphasis>
+00209 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00210 <emphasis role="comment">**&#32;Booleans</emphasis>
+00211 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00212 <emphasis role="comment">*/</emphasis>
+00213 
+00214 
+<anchor xml:id="_lobject_8h_source_1l00215"/><link linkend="_lobject_8h_1a95236d400066ed64a37c72d3dada7e9d">00215</link> <emphasis role="preprocessor">#define&#32;LUA_VFALSE&#32;&#32;makevariant(LUA_TBOOLEAN,&#32;0)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00216"/><link linkend="_lobject_8h_1aed66cd95aa3f518c947b5bd9e17bab47">00216</link> <emphasis role="preprocessor">#define&#32;LUA_VTRUE&#32;&#32;&#32;makevariant(LUA_TBOOLEAN,&#32;1)</emphasis>
+00217 
+<anchor xml:id="_lobject_8h_source_1l00218"/><link linkend="_lobject_8h_1a44a87a5873bd05973d6e3a4747175c06">00218</link> <emphasis role="preprocessor">#define&#32;ttisboolean(o)&#32;&#32;&#32;&#32;&#32;&#32;checktype((o),&#32;LUA_TBOOLEAN)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00219"/><link linkend="_lobject_8h_1aebb0fc4ab25fdfc7d01e834cc24b6048">00219</link> <emphasis role="preprocessor">#define&#32;ttisfalse(o)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;checktag((o),&#32;LUA_VFALSE)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00220"/><link linkend="_lobject_8h_1a31a5a1c03da9886f462929d023ec00f8">00220</link> <emphasis role="preprocessor">#define&#32;ttistrue(o)&#32;&#32;&#32;&#32;&#32;checktag((o),&#32;LUA_VTRUE)</emphasis>
+00221 
+00222 
+<anchor xml:id="_lobject_8h_source_1l00223"/><link linkend="_lobject_8h_1a188e1a95c8c6d547a13431a6e1edd5b3">00223</link> <emphasis role="preprocessor">#define&#32;l_isfalse(o)&#32;&#32;&#32;&#32;(ttisfalse(o)&#32;||&#32;ttisnil(o))</emphasis>
+00224 
+00225 
+<anchor xml:id="_lobject_8h_source_1l00226"/><link linkend="_lobject_8h_1ad0259526a10884432dd2e7ea10b90e0f">00226</link> <emphasis role="preprocessor">#define&#32;setbfvalue(obj)&#32;&#32;&#32;&#32;&#32;settt_(obj,&#32;LUA_VFALSE)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00227"/><link linkend="_lobject_8h_1a1b86e0dccf6b92c4c89d47af26e3a8e3">00227</link> <emphasis role="preprocessor">#define&#32;setbtvalue(obj)&#32;&#32;&#32;&#32;&#32;settt_(obj,&#32;LUA_VTRUE)</emphasis>
+00228 
+00229 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00230 
+00231 
+00232 <emphasis role="comment">/*</emphasis>
+00233 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00234 <emphasis role="comment">**&#32;Threads</emphasis>
+00235 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00236 <emphasis role="comment">*/</emphasis>
+00237 
+<anchor xml:id="_lobject_8h_source_1l00238"/><link linkend="_lobject_8h_1ad224258ccc4e8f79f148d54d32ddbd00">00238</link> <emphasis role="preprocessor">#define&#32;LUA_VTHREAD&#32;&#32;&#32;&#32;&#32;makevariant(LUA_TTHREAD,&#32;0)</emphasis>
+00239 
+<anchor xml:id="_lobject_8h_source_1l00240"/><link linkend="_lobject_8h_1a5ae8a42aa33c44ef3c98fcda8b7ab4c5">00240</link> <emphasis role="preprocessor">#define&#32;ttisthread(o)&#32;&#32;&#32;&#32;&#32;&#32;&#32;checktag((o),&#32;ctb(LUA_VTHREAD))</emphasis>
+00241 
+<anchor xml:id="_lobject_8h_source_1l00242"/><link linkend="_lobject_8h_1a516f32427f1c43ee187ce4c0db042959">00242</link> <emphasis role="preprocessor">#define&#32;thvalue(o)&#32;&#32;check_exp(ttisthread(o),&#32;gco2th(val_(o).gc))</emphasis>
+00243 
+<anchor xml:id="_lobject_8h_source_1l00244"/><link linkend="_lobject_8h_1a9c2bad449e8e998bb9d937642923a225">00244</link> <emphasis role="preprocessor">#define&#32;setthvalue(L,obj,x)&#32;\</emphasis>
+00245 <emphasis role="preprocessor">&#32;&#32;{&#32;TValue&#32;*io&#32;=&#32;(obj);&#32;lua_State&#32;*x_&#32;=&#32;(x);&#32;\</emphasis>
+00246 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;val_(io).gc&#32;=&#32;obj2gco(x_);&#32;settt_(io,&#32;ctb(LUA_VTHREAD));&#32;\</emphasis>
+00247 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;checkliveness(L,io);&#32;}</emphasis>
+00248 
+<anchor xml:id="_lobject_8h_source_1l00249"/><link linkend="_lobject_8h_1a538e049061af97a32cc2e59ff979c409">00249</link> <emphasis role="preprocessor">#define&#32;setthvalue2s(L,o,t)&#32;setthvalue(L,s2v(o),t)</emphasis>
+00250 
+00251 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00252 
+00253 
+00254 <emphasis role="comment">/*</emphasis>
+00255 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00256 <emphasis role="comment">**&#32;Collectable&#32;Objects</emphasis>
+00257 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00258 <emphasis role="comment">*/</emphasis>
+00259 
+00260 <emphasis role="comment">/*</emphasis>
+00261 <emphasis role="comment">**&#32;Common&#32;Header&#32;for&#32;all&#32;collectable&#32;objects&#32;(in&#32;macro&#32;form,&#32;to&#32;be</emphasis>
+00262 <emphasis role="comment">**&#32;included&#32;in&#32;other&#32;objects)</emphasis>
+00263 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00264"/><link linkend="_lobject_8h_1a5ee24faa024428a3c176895fe9925031">00264</link> <emphasis role="preprocessor">#define&#32;CommonHeader&#32;&#32;&#32;&#32;struct&#32;GCObject&#32;*next;&#32;lu_byte&#32;tt;&#32;lu_byte&#32;marked</emphasis>
+00265 
+00266 
+00267 <emphasis role="comment">/*&#32;Common&#32;type&#32;for&#32;all&#32;collectable&#32;objects&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00268"/><link linkend="_struct_g_c_object">00268</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_g_c_object">GCObject</link>&#32;{
+<anchor xml:id="_lobject_8h_source_1l00269"/><link linkend="_struct_g_c_object_1a3a6acff95c929eae043282cbb48cc7e4">00269</link> &#32;&#32;<link linkend="_struct_g_c_object_1a3a6acff95c929eae043282cbb48cc7e4">CommonHeader</link>;
+<anchor xml:id="_lobject_8h_source_1l00270"/><link linkend="_lobject_8h_1a695cc6eaef4f2d539a5fe6e3582a2847">00270</link> }&#32;<link linkend="_lobject_8h_1a695cc6eaef4f2d539a5fe6e3582a2847">GCObject</link>;
+00271 
+00272 
+00273 <emphasis role="comment">/*&#32;Bit&#32;mark&#32;for&#32;collectable&#32;types&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00274"/><link linkend="_lobject_8h_1a6301e5933254618c0434a55a500b2282">00274</link> <emphasis role="preprocessor">#define&#32;BIT_ISCOLLECTABLE&#32;&#32;&#32;(1&#32;&lt;&lt;&#32;6)</emphasis>
+00275 
+<anchor xml:id="_lobject_8h_source_1l00276"/><link linkend="_lobject_8h_1aaabdb414706e6a904461e39967557185">00276</link> <emphasis role="preprocessor">#define&#32;iscollectable(o)&#32;&#32;&#32;&#32;(rawtt(o)&#32;&amp;&#32;BIT_ISCOLLECTABLE)</emphasis>
+00277 
+00278 <emphasis role="comment">/*&#32;mark&#32;a&#32;tag&#32;as&#32;collectable&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00279"/><link linkend="_lobject_8h_1a4a1902cdda7b02eb01135585230c38f0">00279</link> <emphasis role="preprocessor">#define&#32;ctb(t)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;((t)&#32;|&#32;BIT_ISCOLLECTABLE)</emphasis>
+00280 
+<anchor xml:id="_lobject_8h_source_1l00281"/><link linkend="_lobject_8h_1a05cdf6070135f10ad37e1048a730b634">00281</link> <emphasis role="preprocessor">#define&#32;gcvalue(o)&#32;&#32;check_exp(iscollectable(o),&#32;val_(o).gc)</emphasis>
+00282 
+<anchor xml:id="_lobject_8h_source_1l00283"/><link linkend="_lobject_8h_1a719248356281fe83215c94961ad9226f">00283</link> <emphasis role="preprocessor">#define&#32;gcvalueraw(v)&#32;&#32;&#32;((v).gc)</emphasis>
+00284 
+<anchor xml:id="_lobject_8h_source_1l00285"/><link linkend="_lobject_8h_1a977fe2a01691b55cdd5eabefb4114434">00285</link> <emphasis role="preprocessor">#define&#32;setgcovalue(L,obj,x)&#32;\</emphasis>
+00286 <emphasis role="preprocessor">&#32;&#32;{&#32;TValue&#32;*io&#32;=&#32;(obj);&#32;GCObject&#32;*i_g=(x);&#32;\</emphasis>
+00287 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;val_(io).gc&#32;=&#32;i_g;&#32;settt_(io,&#32;ctb(i_g-&gt;tt));&#32;}</emphasis>
+00288 
+00289 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00290 
+00291 
+00292 <emphasis role="comment">/*</emphasis>
+00293 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00294 <emphasis role="comment">**&#32;Numbers</emphasis>
+00295 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00296 <emphasis role="comment">*/</emphasis>
+00297 
+00298 <emphasis role="comment">/*&#32;Variant&#32;tags&#32;for&#32;numbers&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00299"/><link linkend="_lobject_8h_1a69aa5cae89d634d458e0da4957257745">00299</link> <emphasis role="preprocessor">#define&#32;LUA_VNUMINT&#32;makevariant(LUA_TNUMBER,&#32;0)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;integer&#32;numbers&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lobject_8h_source_1l00300"/><link linkend="_lobject_8h_1a19aaaf978586be9032b63b7a8807631a">00300</link> <emphasis role="preprocessor">#define&#32;LUA_VNUMFLT&#32;makevariant(LUA_TNUMBER,&#32;1)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;float&#32;numbers&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00301 
+<anchor xml:id="_lobject_8h_source_1l00302"/><link linkend="_lobject_8h_1a7a1392f89b1f29ed3b1afa37a22d0be2">00302</link> <emphasis role="preprocessor">#define&#32;ttisnumber(o)&#32;&#32;&#32;&#32;&#32;&#32;&#32;checktype((o),&#32;LUA_TNUMBER)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00303"/><link linkend="_lobject_8h_1ac1338b5ac67cadf27489f5ae7e939c29">00303</link> <emphasis role="preprocessor">#define&#32;ttisfloat(o)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;checktag((o),&#32;LUA_VNUMFLT)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00304"/><link linkend="_lobject_8h_1abade243295a9140f7b86838fbb049054">00304</link> <emphasis role="preprocessor">#define&#32;ttisinteger(o)&#32;&#32;&#32;&#32;&#32;&#32;checktag((o),&#32;LUA_VNUMINT)</emphasis>
+00305 
+<anchor xml:id="_lobject_8h_source_1l00306"/><link linkend="_lobject_8h_1a690ab618235691bb5a82610f07dd8684">00306</link> <emphasis role="preprocessor">#define&#32;nvalue(o)&#32;&#32;&#32;check_exp(ttisnumber(o),&#32;\</emphasis>
+00307 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;(ttisinteger(o)&#32;?&#32;cast_num(ivalue(o))&#32;:&#32;fltvalue(o)))</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00308"/><link linkend="_lobject_8h_1a7d7d6b08f40350c9e7364e9cb984d744">00308</link> <emphasis role="preprocessor">#define&#32;fltvalue(o)&#32;check_exp(ttisfloat(o),&#32;val_(o).n)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00309"/><link linkend="_lobject_8h_1af1a59636db050b842a791cd19086d925">00309</link> <emphasis role="preprocessor">#define&#32;ivalue(o)&#32;&#32;&#32;check_exp(ttisinteger(o),&#32;val_(o).i)</emphasis>
+00310 
+<anchor xml:id="_lobject_8h_source_1l00311"/><link linkend="_lobject_8h_1a7410757b6ced9fdf3cba7cc7e18cc8e6">00311</link> <emphasis role="preprocessor">#define&#32;fltvalueraw(v)&#32;&#32;((v).n)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00312"/><link linkend="_lobject_8h_1a570028d77ace5fea06c305e11921dccc">00312</link> <emphasis role="preprocessor">#define&#32;ivalueraw(v)&#32;&#32;&#32;&#32;((v).i)</emphasis>
+00313 
+<anchor xml:id="_lobject_8h_source_1l00314"/><link linkend="_lobject_8h_1ae357382324a8220a3cf77607752de887">00314</link> <emphasis role="preprocessor">#define&#32;setfltvalue(obj,x)&#32;\</emphasis>
+00315 <emphasis role="preprocessor">&#32;&#32;{&#32;TValue&#32;*io=(obj);&#32;val_(io).n=(x);&#32;settt_(io,&#32;LUA_VNUMFLT);&#32;}</emphasis>
+00316 
+<anchor xml:id="_lobject_8h_source_1l00317"/><link linkend="_lobject_8h_1afb905ab8008c82b24755df25012408f2">00317</link> <emphasis role="preprocessor">#define&#32;chgfltvalue(obj,x)&#32;\</emphasis>
+00318 <emphasis role="preprocessor">&#32;&#32;{&#32;TValue&#32;*io=(obj);&#32;lua_assert(ttisfloat(io));&#32;val_(io).n=(x);&#32;}</emphasis>
+00319 
+<anchor xml:id="_lobject_8h_source_1l00320"/><link linkend="_lobject_8h_1af9dd109ba186841ab26efb2d62baf4f6">00320</link> <emphasis role="preprocessor">#define&#32;setivalue(obj,x)&#32;\</emphasis>
+00321 <emphasis role="preprocessor">&#32;&#32;{&#32;TValue&#32;*io=(obj);&#32;val_(io).i=(x);&#32;settt_(io,&#32;LUA_VNUMINT);&#32;}</emphasis>
+00322 
+<anchor xml:id="_lobject_8h_source_1l00323"/><link linkend="_lobject_8h_1ad7adb5b383285a385eb64b01de30966e">00323</link> <emphasis role="preprocessor">#define&#32;chgivalue(obj,x)&#32;\</emphasis>
+00324 <emphasis role="preprocessor">&#32;&#32;{&#32;TValue&#32;*io=(obj);&#32;lua_assert(ttisinteger(io));&#32;val_(io).i=(x);&#32;}</emphasis>
+00325 
+00326 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00327 
+00328 
+00329 <emphasis role="comment">/*</emphasis>
+00330 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00331 <emphasis role="comment">**&#32;Strings</emphasis>
+00332 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00333 <emphasis role="comment">*/</emphasis>
+00334 
+00335 <emphasis role="comment">/*&#32;Variant&#32;tags&#32;for&#32;strings&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00336"/><link linkend="_lobject_8h_1a794410ffd7267ef873eb05ac695b1ba6">00336</link> <emphasis role="preprocessor">#define&#32;LUA_VSHRSTR&#32;makevariant(LUA_TSTRING,&#32;0)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;short&#32;strings&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lobject_8h_source_1l00337"/><link linkend="_lobject_8h_1a6869fcb0a0178b6d70d431eae1683199">00337</link> <emphasis role="preprocessor">#define&#32;LUA_VLNGSTR&#32;makevariant(LUA_TSTRING,&#32;1)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;long&#32;strings&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00338 
+<anchor xml:id="_lobject_8h_source_1l00339"/><link linkend="_lobject_8h_1a9bdf057a0de8da2ffae3ac35662dd255">00339</link> <emphasis role="preprocessor">#define&#32;ttisstring(o)&#32;&#32;&#32;&#32;&#32;&#32;&#32;checktype((o),&#32;LUA_TSTRING)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00340"/><link linkend="_lobject_8h_1a6513e161c7e8cc7276a9677d50a99b76">00340</link> <emphasis role="preprocessor">#define&#32;ttisshrstring(o)&#32;&#32;&#32;&#32;checktag((o),&#32;ctb(LUA_VSHRSTR))</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00341"/><link linkend="_lobject_8h_1a70613f10396708b6099f5e96fd9f668f">00341</link> <emphasis role="preprocessor">#define&#32;ttislngstring(o)&#32;&#32;&#32;&#32;checktag((o),&#32;ctb(LUA_VLNGSTR))</emphasis>
+00342 
+<anchor xml:id="_lobject_8h_source_1l00343"/><link linkend="_lobject_8h_1a04fc217567b22a15b06483a8977c7914">00343</link> <emphasis role="preprocessor">#define&#32;tsvalueraw(v)&#32;&#32;&#32;(gco2ts((v).gc))</emphasis>
+00344 
+<anchor xml:id="_lobject_8h_source_1l00345"/><link linkend="_lobject_8h_1a8661397faed512ccc9c70a4661f1a83d">00345</link> <emphasis role="preprocessor">#define&#32;tsvalue(o)&#32;&#32;check_exp(ttisstring(o),&#32;gco2ts(val_(o).gc))</emphasis>
+00346 
+<anchor xml:id="_lobject_8h_source_1l00347"/><link linkend="_lobject_8h_1a251a2d3bada66aaed6249a89a0afe5f0">00347</link> <emphasis role="preprocessor">#define&#32;setsvalue(L,obj,x)&#32;\</emphasis>
+00348 <emphasis role="preprocessor">&#32;&#32;{&#32;TValue&#32;*io&#32;=&#32;(obj);&#32;TString&#32;*x_&#32;=&#32;(x);&#32;\</emphasis>
+00349 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;val_(io).gc&#32;=&#32;obj2gco(x_);&#32;settt_(io,&#32;ctb(x_-&gt;tt));&#32;\</emphasis>
+00350 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;checkliveness(L,io);&#32;}</emphasis>
+00351 
+00352 <emphasis role="comment">/*&#32;set&#32;a&#32;string&#32;to&#32;the&#32;stack&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00353"/><link linkend="_lobject_8h_1aa60b4c3bb90063dcaa2f90e77d4a61f6">00353</link> <emphasis role="preprocessor">#define&#32;setsvalue2s(L,o,s)&#32;&#32;setsvalue(L,s2v(o),s)</emphasis>
+00354 
+00355 <emphasis role="comment">/*&#32;set&#32;a&#32;string&#32;to&#32;a&#32;new&#32;object&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00356"/><link linkend="_lobject_8h_1aa7a9ab918b0322fa100f3f7af16d2375">00356</link> <emphasis role="preprocessor">#define&#32;setsvalue2n&#32;setsvalue</emphasis>
+00357 
+00358 
+00359 <emphasis role="comment">/*</emphasis>
+00360 <emphasis role="comment">**&#32;Header&#32;for&#32;a&#32;string&#32;value.</emphasis>
+00361 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00362"/><link linkend="_struct_t_string">00362</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_t_string">TString</link>&#32;{
+<anchor xml:id="_lobject_8h_source_1l00363"/><link linkend="_struct_t_string_1a3a6acff95c929eae043282cbb48cc7e4">00363</link> &#32;&#32;<link linkend="_struct_t_string_1a3a6acff95c929eae043282cbb48cc7e4">CommonHeader</link>;
+<anchor xml:id="_lobject_8h_source_1l00364"/><link linkend="_struct_t_string_1af8a633c0d3c4543d3731e518dd658347">00364</link> &#32;&#32;<link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link>&#32;<link linkend="_struct_t_string_1af8a633c0d3c4543d3731e518dd658347">extra</link>;&#32;&#32;<emphasis role="comment">/*&#32;reserved&#32;words&#32;for&#32;short&#32;strings;&#32;&quot;has&#32;hash&quot;&#32;for&#32;longs&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00365"/><link linkend="_struct_t_string_1affd886aed87c9931c49728d4a51bb5ff">00365</link> &#32;&#32;<link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link>&#32;<link linkend="_struct_t_string_1affd886aed87c9931c49728d4a51bb5ff">shrlen</link>;&#32;&#32;<emphasis role="comment">/*&#32;length&#32;for&#32;short&#32;strings&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00366"/><link linkend="_struct_t_string_1a09f9a9ce240560b1d191b42ed56af642">00366</link> &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_t_string_1a09f9a9ce240560b1d191b42ed56af642">hash</link>;
+00367 &#32;&#32;<emphasis role="keyword">union&#32;</emphasis>{
+<anchor xml:id="_lobject_8h_source_1l00368"/><link linkend="_struct_t_string_1a29dec58d03c18f3c9daa73678cc0d655">00368</link> &#32;&#32;&#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;<link linkend="_struct_t_string_1a29dec58d03c18f3c9daa73678cc0d655">lnglen</link>;&#32;&#32;<emphasis role="comment">/*&#32;length&#32;for&#32;long&#32;strings&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00369"/><link linkend="_struct_t_string_1a2b0bb3e32a92d173a152e096434d3768">00369</link> &#32;&#32;&#32;&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_t_string">TString</link>&#32;*<link linkend="_struct_t_string_1a2b0bb3e32a92d173a152e096434d3768">hnext</link>;&#32;&#32;<emphasis role="comment">/*&#32;linked&#32;list&#32;for&#32;hash&#32;table&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00370"/><link linkend="_struct_t_string_1ad158031cadb43a2c445df5d30265b6be">00370</link> &#32;&#32;}&#32;<link linkend="_struct_t_string_1ad158031cadb43a2c445df5d30265b6be">u</link>;
+<anchor xml:id="_lobject_8h_source_1l00371"/><link linkend="_struct_t_string_1a2704cbb0e8f3eb08ca94a3d1703770e6">00371</link> &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;<link linkend="_struct_t_string_1a2704cbb0e8f3eb08ca94a3d1703770e6">contents</link>[1];
+<anchor xml:id="_lobject_8h_source_1l00372"/><link linkend="_lobject_8h_1ad2189b9dc6af3f33b8aa3090dcde1535">00372</link> }&#32;<link linkend="_lobject_8h_1ad2189b9dc6af3f33b8aa3090dcde1535">TString</link>;
+00373 
+00374 
+00375 
+00376 <emphasis role="comment">/*</emphasis>
+00377 <emphasis role="comment">**&#32;Get&#32;the&#32;actual&#32;string&#32;(array&#32;of&#32;bytes)&#32;from&#32;a&#32;&apos;TString&apos;.</emphasis>
+00378 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00379"/><link linkend="_lobject_8h_1acb05d3ab238923581a9c629b8e11a6ac">00379</link> <emphasis role="preprocessor">#define&#32;getstr(ts)&#32;&#32;((ts)-&gt;contents)</emphasis>
+00380 
+00381 
+00382 <emphasis role="comment">/*&#32;get&#32;the&#32;actual&#32;string&#32;(array&#32;of&#32;bytes)&#32;from&#32;a&#32;Lua&#32;value&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00383"/><link linkend="_lobject_8h_1ac2c9eedf3ff2c3042445b3b534f161e1">00383</link> <emphasis role="preprocessor">#define&#32;svalue(o)&#32;&#32;&#32;&#32;&#32;&#32;&#32;getstr(tsvalue(o))</emphasis>
+00384 
+00385 <emphasis role="comment">/*&#32;get&#32;string&#32;length&#32;from&#32;&apos;TString&#32;*s&apos;&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00386"/><link linkend="_lobject_8h_1a3a62185cfa9345aedfc3a581dfdbb4f3">00386</link> <emphasis role="preprocessor">#define&#32;tsslen(s)&#32;&#32;&#32;((s)-&gt;tt&#32;==&#32;LUA_VSHRSTR&#32;?&#32;(s)-&gt;shrlen&#32;:&#32;(s)-&gt;u.lnglen)</emphasis>
+00387 
+00388 <emphasis role="comment">/*&#32;get&#32;string&#32;length&#32;from&#32;&apos;TValue&#32;*o&apos;&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00389"/><link linkend="_lobject_8h_1a9753d5f343806e0cb16293f53143098c">00389</link> <emphasis role="preprocessor">#define&#32;vslen(o)&#32;&#32;&#32;&#32;tsslen(tsvalue(o))</emphasis>
+00390 
+00391 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00392 
+00393 
+00394 <emphasis role="comment">/*</emphasis>
+00395 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00396 <emphasis role="comment">**&#32;Userdata</emphasis>
+00397 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00398 <emphasis role="comment">*/</emphasis>
+00399 
+00400 
+00401 <emphasis role="comment">/*</emphasis>
+00402 <emphasis role="comment">**&#32;Light&#32;userdata&#32;should&#32;be&#32;a&#32;variant&#32;of&#32;userdata,&#32;but&#32;for&#32;compatibility</emphasis>
+00403 <emphasis role="comment">**&#32;reasons&#32;they&#32;are&#32;also&#32;different&#32;types.</emphasis>
+00404 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00405"/><link linkend="_lobject_8h_1a0fe81163ea67e644d5a85078c4a6d25c">00405</link> <emphasis role="preprocessor">#define&#32;LUA_VLIGHTUSERDATA&#32;&#32;makevariant(LUA_TLIGHTUSERDATA,&#32;0)</emphasis>
+00406 
+<anchor xml:id="_lobject_8h_source_1l00407"/><link linkend="_lobject_8h_1af45b44d4031e7e869195dd97759d2ca3">00407</link> <emphasis role="preprocessor">#define&#32;LUA_VUSERDATA&#32;&#32;&#32;&#32;&#32;&#32;&#32;makevariant(LUA_TUSERDATA,&#32;0)</emphasis>
+00408 
+<anchor xml:id="_lobject_8h_source_1l00409"/><link linkend="_lobject_8h_1a6440445277dce2e73af1e043f9884d7a">00409</link> <emphasis role="preprocessor">#define&#32;ttislightuserdata(o)&#32;&#32;&#32;&#32;checktag((o),&#32;LUA_VLIGHTUSERDATA)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00410"/><link linkend="_lobject_8h_1a2b0d95af67f53d9fe2bdde605f9cd957">00410</link> <emphasis role="preprocessor">#define&#32;ttisfulluserdata(o)&#32;checktag((o),&#32;ctb(LUA_VUSERDATA))</emphasis>
+00411 
+<anchor xml:id="_lobject_8h_source_1l00412"/><link linkend="_lobject_8h_1a16c0267c035b3e4edda082e25069e8cf">00412</link> <emphasis role="preprocessor">#define&#32;pvalue(o)&#32;&#32;&#32;check_exp(ttislightuserdata(o),&#32;val_(o).p)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00413"/><link linkend="_lobject_8h_1a1c49f55d93297e833141fb62903af3ad">00413</link> <emphasis role="preprocessor">#define&#32;uvalue(o)&#32;&#32;&#32;check_exp(ttisfulluserdata(o),&#32;gco2u(val_(o).gc))</emphasis>
+00414 
+<anchor xml:id="_lobject_8h_source_1l00415"/><link linkend="_lobject_8h_1ac63f7b6c7f725eaece22d3e7ea198001">00415</link> <emphasis role="preprocessor">#define&#32;pvalueraw(v)&#32;&#32;&#32;&#32;((v).p)</emphasis>
+00416 
+<anchor xml:id="_lobject_8h_source_1l00417"/><link linkend="_lobject_8h_1a0784c90d154ccf7c643b56a00c62412a">00417</link> <emphasis role="preprocessor">#define&#32;setpvalue(obj,x)&#32;\</emphasis>
+00418 <emphasis role="preprocessor">&#32;&#32;{&#32;TValue&#32;*io=(obj);&#32;val_(io).p=(x);&#32;settt_(io,&#32;LUA_VLIGHTUSERDATA);&#32;}</emphasis>
+00419 
+<anchor xml:id="_lobject_8h_source_1l00420"/><link linkend="_lobject_8h_1ab358ecf44046d8def185fed182944fc1">00420</link> <emphasis role="preprocessor">#define&#32;setuvalue(L,obj,x)&#32;\</emphasis>
+00421 <emphasis role="preprocessor">&#32;&#32;{&#32;TValue&#32;*io&#32;=&#32;(obj);&#32;Udata&#32;*x_&#32;=&#32;(x);&#32;\</emphasis>
+00422 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;val_(io).gc&#32;=&#32;obj2gco(x_);&#32;settt_(io,&#32;ctb(LUA_VUSERDATA));&#32;\</emphasis>
+00423 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;checkliveness(L,io);&#32;}</emphasis>
+00424 
+00425 
+00426 <emphasis role="comment">/*&#32;Ensures&#32;that&#32;addresses&#32;after&#32;this&#32;type&#32;are&#32;always&#32;fully&#32;aligned.&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00427"/><link linkend="_union_u_value">00427</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">union&#32;</emphasis><link linkend="_union_u_value">UValue</link>&#32;{
+<anchor xml:id="_lobject_8h_source_1l00428"/><link linkend="_union_u_value_1aef7fd1c15e5ef9ae255e21967603fd34">00428</link> &#32;&#32;<link linkend="_struct_t_value">TValue</link>&#32;<link linkend="_union_u_value_1aef7fd1c15e5ef9ae255e21967603fd34">uv</link>;
+<anchor xml:id="_lobject_8h_source_1l00429"/><link linkend="_union_u_value_1ab6831aedf257af2792e40e0666ac6530">00429</link> &#32;&#32;<link linkend="_union_u_value_1ab6831aedf257af2792e40e0666ac6530">LUAI_MAXALIGN</link>;&#32;&#32;<emphasis role="comment">/*&#32;ensures&#32;maximum&#32;alignment&#32;for&#32;udata&#32;bytes&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00430"/><link linkend="_lobject_8h_1a4a9abc9c2064ec3a4620a1f1c30f18af">00430</link> }&#32;<link linkend="_lobject_8h_1a4a9abc9c2064ec3a4620a1f1c30f18af">UValue</link>;
+00431 
+00432 
+00433 <emphasis role="comment">/*</emphasis>
+00434 <emphasis role="comment">**&#32;Header&#32;for&#32;userdata&#32;with&#32;user&#32;values;</emphasis>
+00435 <emphasis role="comment">**&#32;memory&#32;area&#32;follows&#32;the&#32;end&#32;of&#32;this&#32;structure.</emphasis>
+00436 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00437"/><link linkend="_struct_udata">00437</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_udata">Udata</link>&#32;{
+<anchor xml:id="_lobject_8h_source_1l00438"/><link linkend="_struct_udata_1a3a6acff95c929eae043282cbb48cc7e4">00438</link> &#32;&#32;<link linkend="_struct_udata_1a3a6acff95c929eae043282cbb48cc7e4">CommonHeader</link>;
+<anchor xml:id="_lobject_8h_source_1l00439"/><link linkend="_struct_udata_1a73b0125a5ce1394f28d43c93751a9db5">00439</link> &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">short</emphasis>&#32;<link linkend="_struct_udata_1a73b0125a5ce1394f28d43c93751a9db5">nuvalue</link>;&#32;&#32;<emphasis role="comment">/*&#32;number&#32;of&#32;user&#32;values&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00440"/><link linkend="_struct_udata_1a7360b55975153b822efc5217b7734e6a">00440</link> &#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;<link linkend="_struct_udata_1a7360b55975153b822efc5217b7734e6a">len</link>;&#32;&#32;<emphasis role="comment">/*&#32;number&#32;of&#32;bytes&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00441"/><link linkend="_struct_udata_1a7051e0d573f6be65b230b27565a1a901">00441</link> &#32;&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_table">Table</link>&#32;*<link linkend="_struct_udata_1a7051e0d573f6be65b230b27565a1a901">metatable</link>;
+<anchor xml:id="_lobject_8h_source_1l00442"/><link linkend="_struct_udata_1a9e83d376257d9d775ce3e9c6f40ef0f1">00442</link> &#32;&#32;<link linkend="_struct_g_c_object">GCObject</link>&#32;*<link linkend="_struct_udata_1a9e83d376257d9d775ce3e9c6f40ef0f1">gclist</link>;
+<anchor xml:id="_lobject_8h_source_1l00443"/><link linkend="_struct_udata_1a751e2c4ac119ed2ef754f3d01ecae2b9">00443</link> &#32;&#32;<link linkend="_union_u_value">UValue</link>&#32;<link linkend="_struct_udata_1a751e2c4ac119ed2ef754f3d01ecae2b9">uv</link>[1];&#32;&#32;<emphasis role="comment">/*&#32;user&#32;values&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00444"/><link linkend="_lobject_8h_1a5bc1974b5ddc941b400e1b1b058f95f1">00444</link> }&#32;<link linkend="_lobject_8h_1a5bc1974b5ddc941b400e1b1b058f95f1">Udata</link>;
+00445 
+00446 
+00447 <emphasis role="comment">/*</emphasis>
+00448 <emphasis role="comment">**&#32;Header&#32;for&#32;userdata&#32;with&#32;no&#32;user&#32;values.&#32;These&#32;userdata&#32;do&#32;not&#32;need</emphasis>
+00449 <emphasis role="comment">**&#32;to&#32;be&#32;gray&#32;during&#32;GC,&#32;and&#32;therefore&#32;do&#32;not&#32;need&#32;a&#32;&apos;gclist&apos;&#32;field.</emphasis>
+00450 <emphasis role="comment">**&#32;To&#32;simplify,&#32;the&#32;code&#32;always&#32;use&#32;&apos;Udata&apos;&#32;for&#32;both&#32;kinds&#32;of&#32;userdata,</emphasis>
+00451 <emphasis role="comment">**&#32;making&#32;sure&#32;it&#32;never&#32;accesses&#32;&apos;gclist&apos;&#32;on&#32;userdata&#32;with&#32;no&#32;user&#32;values.</emphasis>
+00452 <emphasis role="comment">**&#32;This&#32;structure&#32;here&#32;is&#32;used&#32;only&#32;to&#32;compute&#32;the&#32;correct&#32;size&#32;for</emphasis>
+00453 <emphasis role="comment">**&#32;this&#32;representation.&#32;(The&#32;&apos;bindata&apos;&#32;field&#32;in&#32;its&#32;end&#32;ensures&#32;correct</emphasis>
+00454 <emphasis role="comment">**&#32;alignment&#32;for&#32;binary&#32;data&#32;following&#32;this&#32;header.)</emphasis>
+00455 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00456"/><link linkend="_struct_udata0">00456</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_udata0">Udata0</link>&#32;{
+<anchor xml:id="_lobject_8h_source_1l00457"/><link linkend="_struct_udata0_1a3a6acff95c929eae043282cbb48cc7e4">00457</link> &#32;&#32;<link linkend="_struct_udata0_1a3a6acff95c929eae043282cbb48cc7e4">CommonHeader</link>;
+<anchor xml:id="_lobject_8h_source_1l00458"/><link linkend="_struct_udata0_1a73b0125a5ce1394f28d43c93751a9db5">00458</link> &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">short</emphasis>&#32;<link linkend="_struct_udata0_1a73b0125a5ce1394f28d43c93751a9db5">nuvalue</link>;&#32;&#32;<emphasis role="comment">/*&#32;number&#32;of&#32;user&#32;values&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00459"/><link linkend="_struct_udata0_1a7360b55975153b822efc5217b7734e6a">00459</link> &#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;<link linkend="_struct_udata0_1a7360b55975153b822efc5217b7734e6a">len</link>;&#32;&#32;<emphasis role="comment">/*&#32;number&#32;of&#32;bytes&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00460"/><link linkend="_struct_udata0_1a7051e0d573f6be65b230b27565a1a901">00460</link> &#32;&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_table">Table</link>&#32;*<link linkend="_struct_udata0_1a7051e0d573f6be65b230b27565a1a901">metatable</link>;
+<anchor xml:id="_lobject_8h_source_1l00461"/><link linkend="_struct_udata0_1ab6831aedf257af2792e40e0666ac6530">00461</link> &#32;&#32;<emphasis role="keyword">union&#32;</emphasis>{<link linkend="_struct_udata0_1ab6831aedf257af2792e40e0666ac6530">LUAI_MAXALIGN</link>;}&#32;<link linkend="_struct_udata0_1a80f6690364459108e50f2c47254d078e">bindata</link>;
+<anchor xml:id="_lobject_8h_source_1l00462"/><link linkend="_lobject_8h_1a33aa9feb0273304758472bccb2a6a4a6">00462</link> }&#32;<link linkend="_lobject_8h_1a33aa9feb0273304758472bccb2a6a4a6">Udata0</link>;
+00463 
+00464 
+00465 <emphasis role="comment">/*&#32;compute&#32;the&#32;offset&#32;of&#32;the&#32;memory&#32;area&#32;of&#32;a&#32;userdata&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00466"/><link linkend="_lobject_8h_1aef06056b207ac5efd6fb0b0a2b3165d5">00466</link> <emphasis role="preprocessor">#define&#32;udatamemoffset(nuv)&#32;\</emphasis>
+00467 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;((nuv)&#32;==&#32;0&#32;?&#32;offsetof(Udata0,&#32;bindata)&#32;&#32;\</emphasis>
+00468 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;:&#32;offsetof(Udata,&#32;uv)&#32;+&#32;(sizeof(UValue)&#32;*&#32;(nuv)))</emphasis>
+00469 
+00470 <emphasis role="comment">/*&#32;get&#32;the&#32;address&#32;of&#32;the&#32;memory&#32;block&#32;inside&#32;&apos;Udata&apos;&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00471"/><link linkend="_lobject_8h_1a2caa96489ffdf9759e50fda47d69f605">00471</link> <emphasis role="preprocessor">#define&#32;getudatamem(u)&#32;&#32;(cast_charp(u)&#32;+&#32;udatamemoffset((u)-&gt;nuvalue))</emphasis>
+00472 
+00473 <emphasis role="comment">/*&#32;compute&#32;the&#32;size&#32;of&#32;a&#32;userdata&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00474"/><link linkend="_lobject_8h_1a762595cf399516b83e0f5580a9a3a7b9">00474</link> <emphasis role="preprocessor">#define&#32;sizeudata(nuv,nb)&#32;&#32;&#32;(udatamemoffset(nuv)&#32;+&#32;(nb))</emphasis>
+00475 
+00476 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00477 
+00478 
+00479 <emphasis role="comment">/*</emphasis>
+00480 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00481 <emphasis role="comment">**&#32;Prototypes</emphasis>
+00482 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00483 <emphasis role="comment">*/</emphasis>
+00484 
+<anchor xml:id="_lobject_8h_source_1l00485"/><link linkend="_lobject_8h_1a1c6c32cba3e6d0c897f68ceb273dd757">00485</link> <emphasis role="preprocessor">#define&#32;LUA_VPROTO&#32;&#32;makevariant(LUA_TPROTO,&#32;0)</emphasis>
+00486 
+00487 
+00488 <emphasis role="comment">/*</emphasis>
+00489 <emphasis role="comment">**&#32;Description&#32;of&#32;an&#32;upvalue&#32;for&#32;function&#32;prototypes</emphasis>
+00490 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00491"/><link linkend="_struct_upvaldesc">00491</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_upvaldesc">Upvaldesc</link>&#32;{
+<anchor xml:id="_lobject_8h_source_1l00492"/><link linkend="_struct_upvaldesc_1aa249fce0e5297641aa43f45e48bb1548">00492</link> &#32;&#32;<link linkend="_struct_t_string">TString</link>&#32;*<link linkend="_struct_upvaldesc_1aa249fce0e5297641aa43f45e48bb1548">name</link>;&#32;&#32;<emphasis role="comment">/*&#32;upvalue&#32;name&#32;(for&#32;debug&#32;information)&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00493"/><link linkend="_struct_upvaldesc_1acfbdd39f714ffdb714bddda46b7ae744">00493</link> &#32;&#32;<link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link>&#32;<link linkend="_struct_upvaldesc_1acfbdd39f714ffdb714bddda46b7ae744">instack</link>;&#32;&#32;<emphasis role="comment">/*&#32;whether&#32;it&#32;is&#32;in&#32;stack&#32;(register)&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00494"/><link linkend="_struct_upvaldesc_1a6234b462bcd2f6c2e6f5e537b2793b84">00494</link> &#32;&#32;<link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link>&#32;<link linkend="_struct_upvaldesc_1a6234b462bcd2f6c2e6f5e537b2793b84">idx</link>;&#32;&#32;<emphasis role="comment">/*&#32;index&#32;of&#32;upvalue&#32;(in&#32;stack&#32;or&#32;in&#32;outer&#32;function&apos;s&#32;list)&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00495"/><link linkend="_struct_upvaldesc_1a85f4000f0b6d1a7e3ff5f1612472db29">00495</link> &#32;&#32;<link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link>&#32;<link linkend="_struct_upvaldesc_1a85f4000f0b6d1a7e3ff5f1612472db29">kind</link>;&#32;&#32;<emphasis role="comment">/*&#32;kind&#32;of&#32;corresponding&#32;variable&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00496"/><link linkend="_lobject_8h_1a8e51aa6ac9ae7599a39adc3bb297bd86">00496</link> }&#32;<link linkend="_lobject_8h_1a8e51aa6ac9ae7599a39adc3bb297bd86">Upvaldesc</link>;
+00497 
+00498 
+00499 <emphasis role="comment">/*</emphasis>
+00500 <emphasis role="comment">**&#32;Description&#32;of&#32;a&#32;local&#32;variable&#32;for&#32;function&#32;prototypes</emphasis>
+00501 <emphasis role="comment">**&#32;(used&#32;for&#32;debug&#32;information)</emphasis>
+00502 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00503"/><link linkend="_struct_loc_var">00503</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_loc_var">LocVar</link>&#32;{
+<anchor xml:id="_lobject_8h_source_1l00504"/><link linkend="_struct_loc_var_1ac2450e0899ac889b040f20956221cd83">00504</link> &#32;&#32;<link linkend="_struct_t_string">TString</link>&#32;*<link linkend="_struct_loc_var_1ac2450e0899ac889b040f20956221cd83">varname</link>;
+<anchor xml:id="_lobject_8h_source_1l00505"/><link linkend="_struct_loc_var_1aede5156df384666bb10ffffe4e8c2d8f">00505</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_loc_var_1aede5156df384666bb10ffffe4e8c2d8f">startpc</link>;&#32;&#32;<emphasis role="comment">/*&#32;first&#32;point&#32;where&#32;variable&#32;is&#32;active&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00506"/><link linkend="_struct_loc_var_1a4531ef6d4151bc1400f288a004323700">00506</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_loc_var_1a4531ef6d4151bc1400f288a004323700">endpc</link>;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;first&#32;point&#32;where&#32;variable&#32;is&#32;dead&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00507"/><link linkend="_lobject_8h_1abfe5d6df698ce5c78a1e911fe5860466">00507</link> }&#32;<link linkend="_lobject_8h_1abfe5d6df698ce5c78a1e911fe5860466">LocVar</link>;
+00508 
+00509 
+00510 <emphasis role="comment">/*</emphasis>
+00511 <emphasis role="comment">**&#32;Associates&#32;the&#32;absolute&#32;line&#32;source&#32;for&#32;a&#32;given&#32;instruction&#32;(&apos;pc&apos;).</emphasis>
+00512 <emphasis role="comment">**&#32;The&#32;array&#32;&apos;lineinfo&apos;&#32;gives,&#32;for&#32;each&#32;instruction,&#32;the&#32;difference&#32;in</emphasis>
+00513 <emphasis role="comment">**&#32;lines&#32;from&#32;the&#32;previous&#32;instruction.&#32;When&#32;that&#32;difference&#32;does&#32;not</emphasis>
+00514 <emphasis role="comment">**&#32;fit&#32;into&#32;a&#32;byte,&#32;Lua&#32;saves&#32;the&#32;absolute&#32;line&#32;for&#32;that&#32;instruction.</emphasis>
+00515 <emphasis role="comment">**&#32;(Lua&#32;also&#32;saves&#32;the&#32;absolute&#32;line&#32;periodically,&#32;to&#32;speed&#32;up&#32;the</emphasis>
+00516 <emphasis role="comment">**&#32;computation&#32;of&#32;a&#32;line&#32;number:&#32;we&#32;can&#32;use&#32;binary&#32;search&#32;in&#32;the</emphasis>
+00517 <emphasis role="comment">**&#32;absolute-line&#32;array,&#32;but&#32;we&#32;must&#32;traverse&#32;the&#32;&apos;lineinfo&apos;&#32;array</emphasis>
+00518 <emphasis role="comment">**&#32;linearly&#32;to&#32;compute&#32;a&#32;line.)</emphasis>
+00519 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00520"/><link linkend="_struct_abs_line_info">00520</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_abs_line_info">AbsLineInfo</link>&#32;{
+<anchor xml:id="_lobject_8h_source_1l00521"/><link linkend="_struct_abs_line_info_1ac8c81e61335635fa4709d82412b31f06">00521</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_abs_line_info_1ac8c81e61335635fa4709d82412b31f06">pc</link>;
+<anchor xml:id="_lobject_8h_source_1l00522"/><link linkend="_struct_abs_line_info_1a41ebd28ef1d7c6ade45642cb6acc1039">00522</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_abs_line_info_1a41ebd28ef1d7c6ade45642cb6acc1039">line</link>;
+<anchor xml:id="_lobject_8h_source_1l00523"/><link linkend="_lobject_8h_1a5c84f9e449c687325b7ad4359474aa22">00523</link> }&#32;<link linkend="_lobject_8h_1a5c84f9e449c687325b7ad4359474aa22">AbsLineInfo</link>;
+00524 
+00525 <emphasis role="comment">/*</emphasis>
+00526 <emphasis role="comment">**&#32;Function&#32;Prototypes</emphasis>
+00527 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00528"/><link linkend="_struct_proto">00528</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_proto">Proto</link>&#32;{
+<anchor xml:id="_lobject_8h_source_1l00529"/><link linkend="_struct_proto_1a3a6acff95c929eae043282cbb48cc7e4">00529</link> &#32;&#32;<link linkend="_struct_proto_1a3a6acff95c929eae043282cbb48cc7e4">CommonHeader</link>;
+<anchor xml:id="_lobject_8h_source_1l00530"/><link linkend="_struct_proto_1a2c5c3bfc47c6c4b7b9f4eef47d7167e9">00530</link> &#32;&#32;<link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link>&#32;<link linkend="_struct_proto_1a2c5c3bfc47c6c4b7b9f4eef47d7167e9">numparams</link>;&#32;&#32;<emphasis role="comment">/*&#32;number&#32;of&#32;fixed&#32;(named)&#32;parameters&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00531"/><link linkend="_struct_proto_1a75232df840e02cfa8134903745579657">00531</link> &#32;&#32;<link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link>&#32;<link linkend="_struct_proto_1a75232df840e02cfa8134903745579657">is_vararg</link>;
+<anchor xml:id="_lobject_8h_source_1l00532"/><link linkend="_struct_proto_1ad11e004e7f14af7e281b6da69d08ad7a">00532</link> &#32;&#32;<link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link>&#32;<link linkend="_struct_proto_1ad11e004e7f14af7e281b6da69d08ad7a">maxstacksize</link>;&#32;&#32;<emphasis role="comment">/*&#32;number&#32;of&#32;registers&#32;needed&#32;by&#32;this&#32;function&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00533"/><link linkend="_struct_proto_1a2e13a98343ef0d1233bb3e62ae519c5f">00533</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_proto_1a2e13a98343ef0d1233bb3e62ae519c5f">sizeupvalues</link>;&#32;&#32;<emphasis role="comment">/*&#32;size&#32;of&#32;&apos;upvalues&apos;&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00534"/><link linkend="_struct_proto_1a207b8b69ed4d393dd3c20925febd29e4">00534</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_proto_1a207b8b69ed4d393dd3c20925febd29e4">sizek</link>;&#32;&#32;<emphasis role="comment">/*&#32;size&#32;of&#32;&apos;k&apos;&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00535"/><link linkend="_struct_proto_1aa3cefdf204c272e3a1a3aa8bc12f4e3e">00535</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_proto_1aa3cefdf204c272e3a1a3aa8bc12f4e3e">sizecode</link>;
+<anchor xml:id="_lobject_8h_source_1l00536"/><link linkend="_struct_proto_1a53f346647cd2060380dad39c9d5caebe">00536</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_proto_1a53f346647cd2060380dad39c9d5caebe">sizelineinfo</link>;
+<anchor xml:id="_lobject_8h_source_1l00537"/><link linkend="_struct_proto_1aea0f5dcb02517aa08aa2ffa58c396260">00537</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_proto_1aea0f5dcb02517aa08aa2ffa58c396260">sizep</link>;&#32;&#32;<emphasis role="comment">/*&#32;size&#32;of&#32;&apos;p&apos;&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00538"/><link linkend="_struct_proto_1af9147ae18b522811714aeb19036f639d">00538</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_proto_1af9147ae18b522811714aeb19036f639d">sizelocvars</link>;
+<anchor xml:id="_lobject_8h_source_1l00539"/><link linkend="_struct_proto_1ab443243fa7dd09b9c08117626c3f8a61">00539</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_proto_1ab443243fa7dd09b9c08117626c3f8a61">sizeabslineinfo</link>;&#32;&#32;<emphasis role="comment">/*&#32;size&#32;of&#32;&apos;abslineinfo&apos;&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00540"/><link linkend="_struct_proto_1a4dfda1a3839aa77fb8fc7626075151dd">00540</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_proto_1a4dfda1a3839aa77fb8fc7626075151dd">linedefined</link>;&#32;&#32;<emphasis role="comment">/*&#32;debug&#32;information&#32;&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00541"/><link linkend="_struct_proto_1a0129a289db231fbe2c6c3b3d6062979e">00541</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_proto_1a0129a289db231fbe2c6c3b3d6062979e">lastlinedefined</link>;&#32;&#32;<emphasis role="comment">/*&#32;debug&#32;information&#32;&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00542"/><link linkend="_struct_proto_1a5287370e219b50fe677549b4aafdc81d">00542</link> &#32;&#32;<link linkend="_struct_t_value">TValue</link>&#32;*<link linkend="_struct_proto_1a5287370e219b50fe677549b4aafdc81d">k</link>;&#32;&#32;<emphasis role="comment">/*&#32;constants&#32;used&#32;by&#32;the&#32;function&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00543"/><link linkend="_struct_proto_1a744e03861a6c76b7eeef213b73419ec7">00543</link> &#32;&#32;<link linkend="_llimits_8h_1aa81d2e7f7263ef29946852d4966a192e">Instruction</link>&#32;*<link linkend="_struct_proto_1a744e03861a6c76b7eeef213b73419ec7">code</link>;&#32;&#32;<emphasis role="comment">/*&#32;opcodes&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00544"/><link linkend="_struct_proto_1ab7af98f98f5cf674f6be5e3fc855af43">00544</link> &#32;&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_proto">Proto</link>&#32;**<link linkend="_struct_proto_1ab7af98f98f5cf674f6be5e3fc855af43">p</link>;&#32;&#32;<emphasis role="comment">/*&#32;functions&#32;defined&#32;inside&#32;the&#32;function&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00545"/><link linkend="_struct_proto_1ac3b891662880254a7e0a3dc0afa86254">00545</link> &#32;&#32;<link linkend="_struct_upvaldesc">Upvaldesc</link>&#32;*<link linkend="_struct_proto_1ac3b891662880254a7e0a3dc0afa86254">upvalues</link>;&#32;&#32;<emphasis role="comment">/*&#32;upvalue&#32;information&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00546"/><link linkend="_struct_proto_1a0d5af822069e8cdb2bd7f17f3cdcf575">00546</link> &#32;&#32;<link linkend="_llimits_8h_1aab58a246c9e0a85c4c2ed0fd8d6724bb">ls_byte</link>&#32;*<link linkend="_struct_proto_1a0d5af822069e8cdb2bd7f17f3cdcf575">lineinfo</link>;&#32;&#32;<emphasis role="comment">/*&#32;information&#32;about&#32;source&#32;lines&#32;(debug&#32;information)&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00547"/><link linkend="_struct_proto_1a731ed18a38cc12a903582b927104c883">00547</link> &#32;&#32;<link linkend="_struct_abs_line_info">AbsLineInfo</link>&#32;*<link linkend="_struct_proto_1a731ed18a38cc12a903582b927104c883">abslineinfo</link>;&#32;&#32;<emphasis role="comment">/*&#32;idem&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00548"/><link linkend="_struct_proto_1a7a727780b57a02cd42e7ef902f6e7f90">00548</link> &#32;&#32;<link linkend="_struct_loc_var">LocVar</link>&#32;*<link linkend="_struct_proto_1a7a727780b57a02cd42e7ef902f6e7f90">locvars</link>;&#32;&#32;<emphasis role="comment">/*&#32;information&#32;about&#32;local&#32;variables&#32;(debug&#32;information)&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00549"/><link linkend="_struct_proto_1a47b5f25d6c53f3892e43702659c6de69">00549</link> &#32;&#32;<link linkend="_struct_t_string">TString</link>&#32;&#32;*<link linkend="_struct_proto_1a47b5f25d6c53f3892e43702659c6de69">source</link>;&#32;&#32;<emphasis role="comment">/*&#32;used&#32;for&#32;debug&#32;information&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00550"/><link linkend="_struct_proto_1a9e83d376257d9d775ce3e9c6f40ef0f1">00550</link> &#32;&#32;<link linkend="_struct_g_c_object">GCObject</link>&#32;*<link linkend="_struct_proto_1a9e83d376257d9d775ce3e9c6f40ef0f1">gclist</link>;
+<anchor xml:id="_lobject_8h_source_1l00551"/><link linkend="_lobject_8h_1aecc6ed5be1952ae8617cbcbebe2a530c">00551</link> }&#32;<link linkend="_lobject_8h_1aecc6ed5be1952ae8617cbcbebe2a530c">Proto</link>;
+00552 
+00553 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00554 
+00555 
+00556 <emphasis role="comment">/*</emphasis>
+00557 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00558 <emphasis role="comment">**&#32;Closures</emphasis>
+00559 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00560 <emphasis role="comment">*/</emphasis>
+00561 
+<anchor xml:id="_lobject_8h_source_1l00562"/><link linkend="_lobject_8h_1ae982db94518ed52587579ed70d822ad5">00562</link> <emphasis role="preprocessor">#define&#32;LUA_VUPVAL&#32;&#32;makevariant(LUA_TUPVAL,&#32;0)</emphasis>
+00563 
+00564 
+00565 <emphasis role="comment">/*&#32;Variant&#32;tags&#32;for&#32;functions&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00566"/><link linkend="_lobject_8h_1a5d0e6e41ea93960667095501aa5745c1">00566</link> <emphasis role="preprocessor">#define&#32;LUA_VLCL&#32;&#32;&#32;&#32;makevariant(LUA_TFUNCTION,&#32;0)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;Lua&#32;closure&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lobject_8h_source_1l00567"/><link linkend="_lobject_8h_1a9b9abbdd10fec20fc7a746efd903872d">00567</link> <emphasis role="preprocessor">#define&#32;LUA_VLCF&#32;&#32;&#32;&#32;makevariant(LUA_TFUNCTION,&#32;1)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;light&#32;C&#32;function&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lobject_8h_source_1l00568"/><link linkend="_lobject_8h_1a2361d923ddb7fc1468b978fe043e35c2">00568</link> <emphasis role="preprocessor">#define&#32;LUA_VCCL&#32;&#32;&#32;&#32;makevariant(LUA_TFUNCTION,&#32;2)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;C&#32;closure&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00569 
+<anchor xml:id="_lobject_8h_source_1l00570"/><link linkend="_lobject_8h_1a48587dcb78721d149d3184d0768f4950">00570</link> <emphasis role="preprocessor">#define&#32;ttisfunction(o)&#32;&#32;&#32;&#32;&#32;checktype(o,&#32;LUA_TFUNCTION)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00571"/><link linkend="_lobject_8h_1a3254d5797537bb83d10a5b48dc6b4377">00571</link> <emphasis role="preprocessor">#define&#32;ttisclosure(o)&#32;&#32;&#32;&#32;&#32;&#32;((rawtt(o)&#32;&amp;&#32;0x1F)&#32;==&#32;LUA_VLCL)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00572"/><link linkend="_lobject_8h_1a6f8bada57bc9f224609af800d399693f">00572</link> <emphasis role="preprocessor">#define&#32;ttisLclosure(o)&#32;&#32;&#32;&#32;&#32;checktag((o),&#32;ctb(LUA_VLCL))</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00573"/><link linkend="_lobject_8h_1a8d43f35dfc5fcd0ee49a6206d63bec18">00573</link> <emphasis role="preprocessor">#define&#32;ttislcf(o)&#32;&#32;&#32;&#32;&#32;&#32;checktag((o),&#32;LUA_VLCF)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00574"/><link linkend="_lobject_8h_1a9510da9838a8f17b4eef364549a4c7a8">00574</link> <emphasis role="preprocessor">#define&#32;ttisCclosure(o)&#32;&#32;&#32;&#32;&#32;checktag((o),&#32;ctb(LUA_VCCL))</emphasis>
+00575 
+<anchor xml:id="_lobject_8h_source_1l00576"/><link linkend="_lobject_8h_1a6e8ea4626fad5e23912d4e26d0b09200">00576</link> <emphasis role="preprocessor">#define&#32;isLfunction(o)&#32;&#32;ttisLclosure(o)</emphasis>
+00577 
+<anchor xml:id="_lobject_8h_source_1l00578"/><link linkend="_lobject_8h_1a4b49383d348897fe282c0d51354d8bc9">00578</link> <emphasis role="preprocessor">#define&#32;clvalue(o)&#32;&#32;check_exp(ttisclosure(o),&#32;gco2cl(val_(o).gc))</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00579"/><link linkend="_lobject_8h_1afb9e65b01574a1135c582cf28883062e">00579</link> <emphasis role="preprocessor">#define&#32;clLvalue(o)&#32;check_exp(ttisLclosure(o),&#32;gco2lcl(val_(o).gc))</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00580"/><link linkend="_lobject_8h_1a27d0b4b700445d8c82ddc634c0252d10">00580</link> <emphasis role="preprocessor">#define&#32;fvalue(o)&#32;&#32;&#32;check_exp(ttislcf(o),&#32;val_(o).f)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00581"/><link linkend="_lobject_8h_1a2c2d10bdd241446b4c9e1b68268159bc">00581</link> <emphasis role="preprocessor">#define&#32;clCvalue(o)&#32;check_exp(ttisCclosure(o),&#32;gco2ccl(val_(o).gc))</emphasis>
+00582 
+<anchor xml:id="_lobject_8h_source_1l00583"/><link linkend="_lobject_8h_1a5bfafd2ed3da7d3e31562ffb9d73fc7c">00583</link> <emphasis role="preprocessor">#define&#32;fvalueraw(v)&#32;&#32;&#32;&#32;((v).f)</emphasis>
+00584 
+<anchor xml:id="_lobject_8h_source_1l00585"/><link linkend="_lobject_8h_1ac1765c700e6c8eaa1e36b397cc5439f7">00585</link> <emphasis role="preprocessor">#define&#32;setclLvalue(L,obj,x)&#32;\</emphasis>
+00586 <emphasis role="preprocessor">&#32;&#32;{&#32;TValue&#32;*io&#32;=&#32;(obj);&#32;LClosure&#32;*x_&#32;=&#32;(x);&#32;\</emphasis>
+00587 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;val_(io).gc&#32;=&#32;obj2gco(x_);&#32;settt_(io,&#32;ctb(LUA_VLCL));&#32;\</emphasis>
+00588 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;checkliveness(L,io);&#32;}</emphasis>
+00589 
+<anchor xml:id="_lobject_8h_source_1l00590"/><link linkend="_lobject_8h_1a3e4e5270b0c50551ed8c3a0367f56d14">00590</link> <emphasis role="preprocessor">#define&#32;setclLvalue2s(L,o,cl)&#32;&#32;&#32;setclLvalue(L,s2v(o),cl)</emphasis>
+00591 
+<anchor xml:id="_lobject_8h_source_1l00592"/><link linkend="_lobject_8h_1a449f6c91562897c555ff32b360a6042f">00592</link> <emphasis role="preprocessor">#define&#32;setfvalue(obj,x)&#32;\</emphasis>
+00593 <emphasis role="preprocessor">&#32;&#32;{&#32;TValue&#32;*io=(obj);&#32;val_(io).f=(x);&#32;settt_(io,&#32;LUA_VLCF);&#32;}</emphasis>
+00594 
+<anchor xml:id="_lobject_8h_source_1l00595"/><link linkend="_lobject_8h_1a57d9fee6a3a8d1eb4b36c95cf76ab09d">00595</link> <emphasis role="preprocessor">#define&#32;setclCvalue(L,obj,x)&#32;\</emphasis>
+00596 <emphasis role="preprocessor">&#32;&#32;{&#32;TValue&#32;*io&#32;=&#32;(obj);&#32;CClosure&#32;*x_&#32;=&#32;(x);&#32;\</emphasis>
+00597 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;val_(io).gc&#32;=&#32;obj2gco(x_);&#32;settt_(io,&#32;ctb(LUA_VCCL));&#32;\</emphasis>
+00598 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;checkliveness(L,io);&#32;}</emphasis>
+00599 
+00600 
+00601 <emphasis role="comment">/*</emphasis>
+00602 <emphasis role="comment">**&#32;Upvalues&#32;for&#32;Lua&#32;closures</emphasis>
+00603 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00604"/><link linkend="_struct_up_val">00604</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_up_val">UpVal</link>&#32;{
+<anchor xml:id="_lobject_8h_source_1l00605"/><link linkend="_struct_up_val_1a3a6acff95c929eae043282cbb48cc7e4">00605</link> &#32;&#32;<link linkend="_struct_up_val_1a3a6acff95c929eae043282cbb48cc7e4">CommonHeader</link>;
+<anchor xml:id="_lobject_8h_source_1l00606"/><link linkend="_struct_up_val_1a51fb44f615a78d6dd56024623a392ad6">00606</link> &#32;&#32;<link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link>&#32;<link linkend="_struct_up_val_1a51fb44f615a78d6dd56024623a392ad6">tbc</link>;&#32;&#32;<emphasis role="comment">/*&#32;true&#32;if&#32;it&#32;represents&#32;a&#32;to-be-closed&#32;variable&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00607"/><link linkend="_struct_up_val_1a507ba5be7778a879769a2718d6e4afa3">00607</link> &#32;&#32;<link linkend="_struct_t_value">TValue</link>&#32;*<link linkend="_struct_up_val_1a507ba5be7778a879769a2718d6e4afa3">v</link>;&#32;&#32;<emphasis role="comment">/*&#32;points&#32;to&#32;stack&#32;or&#32;to&#32;its&#32;own&#32;value&#32;*/</emphasis>
+00608 &#32;&#32;<emphasis role="keyword">union&#32;</emphasis>{
+00609 &#32;&#32;&#32;&#32;<emphasis role="keyword">struct&#32;</emphasis>{&#32;&#32;<emphasis role="comment">/*&#32;(when&#32;open)&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00610"/><link linkend="_struct_up_val_1adaea08f044643c855aaa78cb93b6a4d7">00610</link> &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_up_val">UpVal</link>&#32;*<link linkend="_struct_up_val_1adaea08f044643c855aaa78cb93b6a4d7">next</link>;&#32;&#32;<emphasis role="comment">/*&#32;linked&#32;list&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00611"/><link linkend="_struct_up_val_1a98d8cf50ae8aa47fadf57fff3f03cc13">00611</link> &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_up_val">UpVal</link>&#32;**<link linkend="_struct_up_val_1a98d8cf50ae8aa47fadf57fff3f03cc13">previous</link>;
+<anchor xml:id="_lobject_8h_source_1l00612"/><link linkend="_struct_up_val_1a70efd6629df78085a967d85ee0a8e673">00612</link> &#32;&#32;&#32;&#32;}&#32;<link linkend="_struct_up_val_1a70efd6629df78085a967d85ee0a8e673">open</link>;
+<anchor xml:id="_lobject_8h_source_1l00613"/><link linkend="_struct_up_val_1a6de2e81caeee4d42bad2e5f30b0a73f2">00613</link> &#32;&#32;&#32;&#32;<link linkend="_struct_t_value">TValue</link>&#32;<link linkend="_struct_up_val_1a6de2e81caeee4d42bad2e5f30b0a73f2">value</link>;&#32;&#32;<emphasis role="comment">/*&#32;the&#32;value&#32;(when&#32;closed)&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00614"/><link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">00614</link> &#32;&#32;}&#32;<link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">u</link>;
+<anchor xml:id="_lobject_8h_source_1l00615"/><link linkend="_lobject_8h_1a420f4f4eeb467ce750d00e5d3a21c109">00615</link> }&#32;<link linkend="_lobject_8h_1a420f4f4eeb467ce750d00e5d3a21c109">UpVal</link>;
+00616 
+00617 
+00618 
+<anchor xml:id="_lobject_8h_source_1l00619"/><link linkend="_lobject_8h_1aa6994808abcc30f100e21e34b84d3ae0">00619</link> <emphasis role="preprocessor">#define&#32;ClosureHeader&#32;\</emphasis>
+00620 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;CommonHeader;&#32;lu_byte&#32;nupvalues;&#32;GCObject&#32;*gclist</emphasis>
+00621 
+<anchor xml:id="_lobject_8h_source_1l00622"/><link linkend="_struct_c_closure">00622</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_c_closure">CClosure</link>&#32;{
+<anchor xml:id="_lobject_8h_source_1l00623"/><link linkend="_struct_c_closure_1a7ab493f6136a36575bb9ba02a5c41a97">00623</link> &#32;&#32;<link linkend="_struct_c_closure_1a7ab493f6136a36575bb9ba02a5c41a97">ClosureHeader</link>;
+<anchor xml:id="_lobject_8h_source_1l00624"/><link linkend="_struct_c_closure_1abaf5a162dadd891d6bbdf89025862c98">00624</link> &#32;&#32;<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>&#32;<link linkend="_struct_c_closure_1abaf5a162dadd891d6bbdf89025862c98">f</link>;
+<anchor xml:id="_lobject_8h_source_1l00625"/><link linkend="_struct_c_closure_1a5d6ca5386d338c19af338be60a375dd4">00625</link> &#32;&#32;<link linkend="_struct_t_value">TValue</link>&#32;<link linkend="_struct_c_closure_1a5d6ca5386d338c19af338be60a375dd4">upvalue</link>[1];&#32;&#32;<emphasis role="comment">/*&#32;list&#32;of&#32;upvalues&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00626"/><link linkend="_lobject_8h_1af6216773b23b5805654970e1271e1c7b">00626</link> }&#32;<link linkend="_lobject_8h_1af6216773b23b5805654970e1271e1c7b">CClosure</link>;
+00627 
+00628 
+<anchor xml:id="_lobject_8h_source_1l00629"/><link linkend="_struct_l_closure">00629</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_l_closure">LClosure</link>&#32;{
+<anchor xml:id="_lobject_8h_source_1l00630"/><link linkend="_struct_l_closure_1a7ab493f6136a36575bb9ba02a5c41a97">00630</link> &#32;&#32;<link linkend="_struct_l_closure_1a7ab493f6136a36575bb9ba02a5c41a97">ClosureHeader</link>;
+<anchor xml:id="_lobject_8h_source_1l00631"/><link linkend="_struct_l_closure_1aed1f50b9bdc5ce4c7cfa49529472b42c">00631</link> &#32;&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_proto">Proto</link>&#32;*<link linkend="_struct_l_closure_1aed1f50b9bdc5ce4c7cfa49529472b42c">p</link>;
+<anchor xml:id="_lobject_8h_source_1l00632"/><link linkend="_struct_l_closure_1aa4734795813776a46167fe712dfd9506">00632</link> &#32;&#32;<link linkend="_struct_up_val">UpVal</link>&#32;*<link linkend="_struct_l_closure_1aa4734795813776a46167fe712dfd9506">upvals</link>[1];&#32;&#32;<emphasis role="comment">/*&#32;list&#32;of&#32;upvalues&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00633"/><link linkend="_lobject_8h_1a17bc5d9d02f31c043f5d144531c58531">00633</link> }&#32;<link linkend="_lobject_8h_1a17bc5d9d02f31c043f5d144531c58531">LClosure</link>;
+00634 
+00635 
+<anchor xml:id="_lobject_8h_source_1l00636"/><link linkend="_union_closure">00636</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">union&#32;</emphasis><link linkend="_union_closure">Closure</link>&#32;{
+<anchor xml:id="_lobject_8h_source_1l00637"/><link linkend="_union_closure_1a4e830499e83f3966125d06d75a66a684">00637</link> &#32;&#32;<link linkend="_struct_c_closure">CClosure</link>&#32;<link linkend="_union_closure_1a4e830499e83f3966125d06d75a66a684">c</link>;
+<anchor xml:id="_lobject_8h_source_1l00638"/><link linkend="_union_closure_1a66c5272074637c1b1e85d1c4c1a77d8c">00638</link> &#32;&#32;<link linkend="_struct_l_closure">LClosure</link>&#32;<link linkend="_union_closure_1a66c5272074637c1b1e85d1c4c1a77d8c">l</link>;
+<anchor xml:id="_lobject_8h_source_1l00639"/><link linkend="_lobject_8h_1a7010360932a52c6bb0f85eac9da1d775">00639</link> }&#32;<link linkend="_lobject_8h_1a7010360932a52c6bb0f85eac9da1d775">Closure</link>;
+00640 
+00641 
+<anchor xml:id="_lobject_8h_source_1l00642"/><link linkend="_lobject_8h_1a36095400a8ca3ad1e6120f507b421331">00642</link> <emphasis role="preprocessor">#define&#32;getproto(o)&#32;(clLvalue(o)-&gt;p)</emphasis>
+00643 
+00644 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00645 
+00646 
+00647 <emphasis role="comment">/*</emphasis>
+00648 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00649 <emphasis role="comment">**&#32;Tables</emphasis>
+00650 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00651 <emphasis role="comment">*/</emphasis>
+00652 
+<anchor xml:id="_lobject_8h_source_1l00653"/><link linkend="_lobject_8h_1afaf24d5b79b9027ad768d023778669df">00653</link> <emphasis role="preprocessor">#define&#32;LUA_VTABLE&#32;&#32;makevariant(LUA_TTABLE,&#32;0)</emphasis>
+00654 
+<anchor xml:id="_lobject_8h_source_1l00655"/><link linkend="_lobject_8h_1ac5338f5fe3885d1ee65412e00a44384e">00655</link> <emphasis role="preprocessor">#define&#32;ttistable(o)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;checktag((o),&#32;ctb(LUA_VTABLE))</emphasis>
+00656 
+<anchor xml:id="_lobject_8h_source_1l00657"/><link linkend="_lobject_8h_1a336a6ce5e8340e6de133ec249cf47ebf">00657</link> <emphasis role="preprocessor">#define&#32;hvalue(o)&#32;&#32;&#32;check_exp(ttistable(o),&#32;gco2t(val_(o).gc))</emphasis>
+00658 
+<anchor xml:id="_lobject_8h_source_1l00659"/><link linkend="_lobject_8h_1ab9379699ac579d54410e3542f061bbad">00659</link> <emphasis role="preprocessor">#define&#32;sethvalue(L,obj,x)&#32;\</emphasis>
+00660 <emphasis role="preprocessor">&#32;&#32;{&#32;TValue&#32;*io&#32;=&#32;(obj);&#32;Table&#32;*x_&#32;=&#32;(x);&#32;\</emphasis>
+00661 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;val_(io).gc&#32;=&#32;obj2gco(x_);&#32;settt_(io,&#32;ctb(LUA_VTABLE));&#32;\</emphasis>
+00662 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;checkliveness(L,io);&#32;}</emphasis>
+00663 
+<anchor xml:id="_lobject_8h_source_1l00664"/><link linkend="_lobject_8h_1aea789832f6c549f64cb3903216a7aeac">00664</link> <emphasis role="preprocessor">#define&#32;sethvalue2s(L,o,h)&#32;&#32;sethvalue(L,s2v(o),h)</emphasis>
+00665 
+00666 
+00667 <emphasis role="comment">/*</emphasis>
+00668 <emphasis role="comment">**&#32;Nodes&#32;for&#32;Hash&#32;tables:&#32;A&#32;pack&#32;of&#32;two&#32;TValue&apos;s&#32;(key-value&#32;pairs)</emphasis>
+00669 <emphasis role="comment">**&#32;plus&#32;a&#32;&apos;next&apos;&#32;field&#32;to&#32;link&#32;colliding&#32;entries.&#32;The&#32;distribution</emphasis>
+00670 <emphasis role="comment">**&#32;of&#32;the&#32;key&apos;s&#32;fields&#32;(&apos;key_tt&apos;&#32;and&#32;&apos;key_val&apos;)&#32;not&#32;forming&#32;a&#32;proper</emphasis>
+00671 <emphasis role="comment">**&#32;&apos;TValue&apos;&#32;allows&#32;for&#32;a&#32;smaller&#32;size&#32;for&#32;&apos;Node&apos;&#32;both&#32;in&#32;4-byte</emphasis>
+00672 <emphasis role="comment">**&#32;and&#32;8-byte&#32;alignments.</emphasis>
+00673 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00674"/><link linkend="_union_node">00674</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">union&#32;</emphasis><link linkend="_union_node">Node</link>&#32;{
+<anchor xml:id="_lobject_8h_source_1l00675"/><link linkend="_struct_node_1_1_node_key">00675</link> &#32;&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_node_1_1_node_key">NodeKey</link>&#32;{
+<anchor xml:id="_lobject_8h_source_1l00676"/><link linkend="_struct_node_1_1_node_key_1ac2691e13bad97eff50d29e138b4bd724">00676</link> &#32;&#32;&#32;&#32;<link linkend="_struct_node_1_1_node_key_1ac2691e13bad97eff50d29e138b4bd724">TValuefields</link>;&#32;&#32;<emphasis role="comment">/*&#32;fields&#32;for&#32;value&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00677"/><link linkend="_struct_node_1_1_node_key_1ad5260609e5f3d33ccb88eb746284b7f0">00677</link> &#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link>&#32;<link linkend="_struct_node_1_1_node_key_1ad5260609e5f3d33ccb88eb746284b7f0">key_tt</link>;&#32;&#32;<emphasis role="comment">/*&#32;key&#32;type&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00678"/><link linkend="_struct_node_1_1_node_key_1a142a1b51e133e50c0a72b175958ac412">00678</link> &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_node_1_1_node_key_1a142a1b51e133e50c0a72b175958ac412">next</link>;&#32;&#32;<emphasis role="comment">/*&#32;for&#32;chaining&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00679"/><link linkend="_struct_node_1_1_node_key_1a4d18e73c431d39a7e6a5d24a406d1bc8">00679</link> &#32;&#32;&#32;&#32;<link linkend="_union_value">Value</link>&#32;<link linkend="_struct_node_1_1_node_key_1a4d18e73c431d39a7e6a5d24a406d1bc8">key_val</link>;&#32;&#32;<emphasis role="comment">/*&#32;key&#32;value&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00680"/><link linkend="_union_node_1a15f19ec95b2d497b3b0caf1627f2b63b">00680</link> &#32;&#32;}&#32;<link linkend="_union_node_1a15f19ec95b2d497b3b0caf1627f2b63b">u</link>;
+<anchor xml:id="_lobject_8h_source_1l00681"/><link linkend="_union_node_1ad8e94943a6c684132293f51e940b7cee">00681</link> &#32;&#32;<link linkend="_struct_t_value">TValue</link>&#32;<link linkend="_union_node_1ad8e94943a6c684132293f51e940b7cee">i_val</link>;&#32;&#32;<emphasis role="comment">/*&#32;direct&#32;access&#32;to&#32;node&apos;s&#32;value&#32;as&#32;a&#32;proper&#32;&apos;TValue&apos;&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00682"/><link linkend="_lobject_8h_1a945b262d2678b7e3ca2f38381fdaad4d">00682</link> }&#32;<link linkend="_lobject_8h_1a945b262d2678b7e3ca2f38381fdaad4d">Node</link>;
+00683 
+00684 
+00685 <emphasis role="comment">/*&#32;copy&#32;a&#32;value&#32;into&#32;a&#32;key&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00686"/><link linkend="_lobject_8h_1aa7874cc7dfe741ad55075fd32ee1ff10">00686</link> <emphasis role="preprocessor">#define&#32;setnodekey(L,node,obj)&#32;\</emphasis>
+00687 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;{&#32;Node&#32;*n_=(node);&#32;const&#32;TValue&#32;*io_=(obj);&#32;\</emphasis>
+00688 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;n_-&gt;u.key_val&#32;=&#32;io_-&gt;value_;&#32;n_-&gt;u.key_tt&#32;=&#32;io_-&gt;tt_;&#32;\</emphasis>
+00689 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;checkliveness(L,io_);&#32;}</emphasis>
+00690 
+00691 
+00692 <emphasis role="comment">/*&#32;copy&#32;a&#32;value&#32;from&#32;a&#32;key&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00693"/><link linkend="_lobject_8h_1aa7b8fdb54ee8ce0235270f7d0b41e430">00693</link> <emphasis role="preprocessor">#define&#32;getnodekey(L,obj,node)&#32;\</emphasis>
+00694 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;{&#32;TValue&#32;*io_=(obj);&#32;const&#32;Node&#32;*n_=(node);&#32;\</emphasis>
+00695 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;io_-&gt;value_&#32;=&#32;n_-&gt;u.key_val;&#32;io_-&gt;tt_&#32;=&#32;n_-&gt;u.key_tt;&#32;\</emphasis>
+00696 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;checkliveness(L,io_);&#32;}</emphasis>
+00697 
+00698 
+00699 <emphasis role="comment">/*</emphasis>
+00700 <emphasis role="comment">**&#32;About&#32;&apos;alimit&apos;:&#32;if&#32;&apos;isrealasize(t)&apos;&#32;is&#32;true,&#32;then&#32;&apos;alimit&apos;&#32;is&#32;the</emphasis>
+00701 <emphasis role="comment">**&#32;real&#32;size&#32;of&#32;&apos;array&apos;.&#32;Otherwise,&#32;the&#32;real&#32;size&#32;of&#32;&apos;array&apos;&#32;is&#32;the</emphasis>
+00702 <emphasis role="comment">**&#32;smallest&#32;power&#32;of&#32;two&#32;not&#32;smaller&#32;than&#32;&apos;alimit&apos;&#32;(or&#32;zero&#32;iff&#32;&apos;alimit&apos;</emphasis>
+00703 <emphasis role="comment">**&#32;is&#32;zero);&#32;&apos;alimit&apos;&#32;is&#32;then&#32;used&#32;as&#32;a&#32;hint&#32;for&#32;#t.</emphasis>
+00704 <emphasis role="comment">*/</emphasis>
+00705 
+<anchor xml:id="_lobject_8h_source_1l00706"/><link linkend="_lobject_8h_1a4e9e4a26da0e928c0896fb8c1e0bc9de">00706</link> <emphasis role="preprocessor">#define&#32;BITRAS&#32;&#32;&#32;&#32;&#32;&#32;(1&#32;&lt;&lt;&#32;7)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00707"/><link linkend="_lobject_8h_1ab8a9474c584f41823442bb17f1f06970">00707</link> <emphasis role="preprocessor">#define&#32;isrealasize(t)&#32;&#32;&#32;&#32;&#32;&#32;(!((t)-&gt;flags&#32;&amp;&#32;BITRAS))</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00708"/><link linkend="_lobject_8h_1aa88e534c311fb58886306dbcba0aacd2">00708</link> <emphasis role="preprocessor">#define&#32;setrealasize(t)&#32;&#32;&#32;&#32;&#32;((t)-&gt;flags&#32;&amp;=&#32;cast_byte(~BITRAS))</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00709"/><link linkend="_lobject_8h_1a2b2746c3988215fc84fcde1bf7548f6f">00709</link> <emphasis role="preprocessor">#define&#32;setnorealasize(t)&#32;&#32;&#32;((t)-&gt;flags&#32;|=&#32;BITRAS)</emphasis>
+00710 
+00711 
+<anchor xml:id="_lobject_8h_source_1l00712"/><link linkend="_struct_table">00712</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_table">Table</link>&#32;{
+<anchor xml:id="_lobject_8h_source_1l00713"/><link linkend="_struct_table_1a3a6acff95c929eae043282cbb48cc7e4">00713</link> &#32;&#32;<link linkend="_struct_table_1a3a6acff95c929eae043282cbb48cc7e4">CommonHeader</link>;
+<anchor xml:id="_lobject_8h_source_1l00714"/><link linkend="_struct_table_1a7c409930c5f202e9b7832b10a2a07109">00714</link> &#32;&#32;<link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link>&#32;<link linkend="_struct_table_1a7c409930c5f202e9b7832b10a2a07109">flags</link>;&#32;&#32;<emphasis role="comment">/*&#32;1&lt;&lt;p&#32;means&#32;tagmethod(p)&#32;is&#32;not&#32;present&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00715"/><link linkend="_struct_table_1a4d810aabab6f7fa09057252cc8fdae91">00715</link> &#32;&#32;<link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link>&#32;<link linkend="_struct_table_1a4d810aabab6f7fa09057252cc8fdae91">lsizenode</link>;&#32;&#32;<emphasis role="comment">/*&#32;log2&#32;of&#32;size&#32;of&#32;&apos;node&apos;&#32;array&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00716"/><link linkend="_struct_table_1aeb72dd9354afd8407f0325f034747110">00716</link> &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_table_1aeb72dd9354afd8407f0325f034747110">alimit</link>;&#32;&#32;<emphasis role="comment">/*&#32;&quot;limit&quot;&#32;of&#32;&apos;array&apos;&#32;array&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00717"/><link linkend="_struct_table_1a6ce25078468c6681674e2f56432a27b9">00717</link> &#32;&#32;<link linkend="_struct_t_value">TValue</link>&#32;*<link linkend="_struct_table_1a6ce25078468c6681674e2f56432a27b9">array</link>;&#32;&#32;<emphasis role="comment">/*&#32;array&#32;part&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00718"/><link linkend="_struct_table_1ab88cd70dad2e152cea983610f2a16e68">00718</link> &#32;&#32;<link linkend="_union_node">Node</link>&#32;*<link linkend="_struct_table_1ab88cd70dad2e152cea983610f2a16e68">node</link>;
+<anchor xml:id="_lobject_8h_source_1l00719"/><link linkend="_struct_table_1a6d65e3191d67788694f5152aed14f7fb">00719</link> &#32;&#32;<link linkend="_union_node">Node</link>&#32;*<link linkend="_struct_table_1a6d65e3191d67788694f5152aed14f7fb">lastfree</link>;&#32;&#32;<emphasis role="comment">/*&#32;any&#32;free&#32;position&#32;is&#32;before&#32;this&#32;position&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00720"/><link linkend="_struct_table_1a7051e0d573f6be65b230b27565a1a901">00720</link> &#32;&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_table">Table</link>&#32;*<link linkend="_struct_table_1a7051e0d573f6be65b230b27565a1a901">metatable</link>;
+<anchor xml:id="_lobject_8h_source_1l00721"/><link linkend="_struct_table_1a9e83d376257d9d775ce3e9c6f40ef0f1">00721</link> &#32;&#32;<link linkend="_struct_g_c_object">GCObject</link>&#32;*<link linkend="_struct_table_1a9e83d376257d9d775ce3e9c6f40ef0f1">gclist</link>;
+<anchor xml:id="_lobject_8h_source_1l00722"/><link linkend="_lobject_8h_1aaa5713bb2ecdf81c430009179b806232">00722</link> }&#32;<link linkend="_lobject_8h_1aaa5713bb2ecdf81c430009179b806232">Table</link>;
+00723 
+00724 
+00725 <emphasis role="comment">/*</emphasis>
+00726 <emphasis role="comment">**&#32;Macros&#32;to&#32;manipulate&#32;keys&#32;inserted&#32;in&#32;nodes</emphasis>
+00727 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00728"/><link linkend="_lobject_8h_1af89f4367b6adf6c6708feae2667736cb">00728</link> <emphasis role="preprocessor">#define&#32;keytt(node)&#32;&#32;&#32;&#32;&#32;((node)-&gt;u.key_tt)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00729"/><link linkend="_lobject_8h_1ac2aa0ae587e918878c9c310734d81d56">00729</link> <emphasis role="preprocessor">#define&#32;keyval(node)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;((node)-&gt;u.key_val)</emphasis>
+00730 
+<anchor xml:id="_lobject_8h_source_1l00731"/><link linkend="_lobject_8h_1a64e2e5b8ce53a1dc7a528b13947d7ff3">00731</link> <emphasis role="preprocessor">#define&#32;keyisnil(node)&#32;&#32;&#32;&#32;&#32;&#32;(keytt(node)&#32;==&#32;LUA_TNIL)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00732"/><link linkend="_lobject_8h_1affab919da1b667cc1a98f2bd040aa94e">00732</link> <emphasis role="preprocessor">#define&#32;keyisinteger(node)&#32;&#32;(keytt(node)&#32;==&#32;LUA_VNUMINT)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00733"/><link linkend="_lobject_8h_1a03d51823d7893e729288cff396e16120">00733</link> <emphasis role="preprocessor">#define&#32;keyival(node)&#32;&#32;&#32;&#32;&#32;&#32;&#32;(keyval(node).i)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00734"/><link linkend="_lobject_8h_1a06a6d0eeb65723526d00bdf71402d518">00734</link> <emphasis role="preprocessor">#define&#32;keyisshrstr(node)&#32;&#32;&#32;(keytt(node)&#32;==&#32;ctb(LUA_VSHRSTR))</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00735"/><link linkend="_lobject_8h_1af0d29f0c2bdfa023abc9e7a0d34e8e24">00735</link> <emphasis role="preprocessor">#define&#32;keystrval(node)&#32;&#32;&#32;&#32;&#32;(gco2ts(keyval(node).gc))</emphasis>
+00736 
+<anchor xml:id="_lobject_8h_source_1l00737"/><link linkend="_lobject_8h_1abc95de76b69ef4abed8c40959657208a">00737</link> <emphasis role="preprocessor">#define&#32;setnilkey(node)&#32;&#32;&#32;&#32;&#32;(keytt(node)&#32;=&#32;LUA_TNIL)</emphasis>
+00738 
+<anchor xml:id="_lobject_8h_source_1l00739"/><link linkend="_lobject_8h_1ad5d0afe3e47112e0136e0d6afb6c4536">00739</link> <emphasis role="preprocessor">#define&#32;keyiscollectable(n)&#32;(keytt(n)&#32;&amp;&#32;BIT_ISCOLLECTABLE)</emphasis>
+00740 
+<anchor xml:id="_lobject_8h_source_1l00741"/><link linkend="_lobject_8h_1ac3dbc3b85a58d872c002e6cbea675bac">00741</link> <emphasis role="preprocessor">#define&#32;gckey(n)&#32;&#32;&#32;&#32;(keyval(n).gc)</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00742"/><link linkend="_lobject_8h_1a228a192019c3bf44b6027d8f4a38c904">00742</link> <emphasis role="preprocessor">#define&#32;gckeyN(n)&#32;&#32;&#32;(keyiscollectable(n)&#32;?&#32;gckey(n)&#32;:&#32;NULL)</emphasis>
+00743 
+00744 
+00745 <emphasis role="comment">/*</emphasis>
+00746 <emphasis role="comment">**&#32;Use&#32;a&#32;&quot;nil&#32;table&quot;&#32;to&#32;mark&#32;dead&#32;keys&#32;in&#32;a&#32;table.&#32;Those&#32;keys&#32;serve</emphasis>
+00747 <emphasis role="comment">**&#32;to&#32;keep&#32;space&#32;for&#32;removed&#32;entries,&#32;which&#32;may&#32;still&#32;be&#32;part&#32;of</emphasis>
+00748 <emphasis role="comment">**&#32;chains.&#32;Note&#32;that&#32;the&#32;&apos;keytt&apos;&#32;does&#32;not&#32;have&#32;the&#32;BIT_ISCOLLECTABLE</emphasis>
+00749 <emphasis role="comment">**&#32;set,&#32;so&#32;these&#32;values&#32;are&#32;considered&#32;not&#32;collectable&#32;and&#32;are&#32;different</emphasis>
+00750 <emphasis role="comment">**&#32;from&#32;any&#32;valid&#32;value.</emphasis>
+00751 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00752"/><link linkend="_lobject_8h_1af8e25f008b9446cacc6cd5e2e5508f5d">00752</link> <emphasis role="preprocessor">#define&#32;setdeadkey(n)&#32;&#32;&#32;(keytt(n)&#32;=&#32;LUA_TTABLE,&#32;gckey(n)&#32;=&#32;NULL)</emphasis>
+00753 
+00754 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00755 
+00756 
+00757 
+00758 <emphasis role="comment">/*</emphasis>
+00759 <emphasis role="comment">**&#32;&apos;module&apos;&#32;operation&#32;for&#32;hashing&#32;(size&#32;is&#32;always&#32;a&#32;power&#32;of&#32;2)</emphasis>
+00760 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00761"/><link linkend="_lobject_8h_1a528d710ddad324002e3cb47992740b6a">00761</link> <emphasis role="preprocessor">#define&#32;lmod(s,size)&#32;\</emphasis>
+00762 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;(check_exp((size&amp;(size-1))==0,&#32;(cast_int((s)&#32;&amp;&#32;((size)-1)))))</emphasis>
+00763 
+00764 
+<anchor xml:id="_lobject_8h_source_1l00765"/><link linkend="_lobject_8h_1aa341ef742b199e1c29a19d2c490ad74e">00765</link> <emphasis role="preprocessor">#define&#32;twoto(x)&#32;&#32;&#32;&#32;(1&lt;&lt;(x))</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00766"/><link linkend="_lobject_8h_1a2fbf715e78eaa889ed0fb9d4514e736a">00766</link> <emphasis role="preprocessor">#define&#32;sizenode(t)&#32;(twoto((t)-&gt;lsizenode))</emphasis>
+00767 
+00768 
+00769 <emphasis role="comment">/*&#32;size&#32;of&#32;buffer&#32;for&#32;&apos;luaO_utf8esc&apos;&#32;function&#32;*/</emphasis>
+<anchor xml:id="_lobject_8h_source_1l00770"/><link linkend="_lobject_8h_1ae0741e99030a23e3c24b0eb828fbbe4b">00770</link> <emphasis role="preprocessor">#define&#32;UTF8BUFFSZ&#32;&#32;8</emphasis>
+00771 
+00772 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lobject_8h_1a6376bff8a65affbbeb7dba84a34d3a87">luaO_utf8esc</link>&#32;(<emphasis role="keywordtype">char</emphasis>&#32;*buff,&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">long</emphasis>&#32;x);
+00773 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lobject_8h_1ae17e893f7b1221fd82d37a51bcc5ad3c">luaO_ceillog2</link>&#32;(<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;x);
+00774 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lobject_8h_1a5ea49a125e2848e4303dc10929302865">luaO_rawarith</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;op,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p1,
+00775 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p2,&#32;<link linkend="_struct_t_value">TValue</link>&#32;*res);
+00776 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lobject_8h_1afb09097c7bc4723a274863f6a811edf5">luaO_arith</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;op,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p1,
+00777 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_struct_t_value">TValue</link>&#32;*p2,&#32;<link linkend="_union_stack_value">StkId</link>&#32;res);
+00778 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;<link linkend="_lobject_8h_1ab56d8211e48dc3c70c3fa21d92d009af">luaO_str2num</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*s,&#32;<link linkend="_struct_t_value">TValue</link>&#32;*o);
+00779 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lobject_8h_1a621e15ee90edbdb71f1161b92617fcb9">luaO_hexavalue</link>&#32;(<emphasis role="keywordtype">int</emphasis>&#32;c);
+00780 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lobject_8h_1a007d2c6293fee953f3af21f60f8133ba">luaO_tostring</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_t_value">TValue</link>&#32;*obj);
+00781 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_lobject_8h_1a0d323372aa00f179e1c070d305f879f3">luaO_pushvfstring</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*fmt,
+00782 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;va_list&#32;argp);
+00783 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_lobject_8h_1a8622279ff260ff226d9663c85ca467dd">luaO_pushfstring</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*fmt,&#32;...);
+00784 <link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lobject_8h_1aa83e4edb8b62b06537c43c2ec8b97221">luaO_chunkid</link>&#32;(<emphasis role="keywordtype">char</emphasis>&#32;*out,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*source,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;srclen);
+00785 
+00786 
+00787 <emphasis role="preprocessor">#endif</emphasis>
+00788 
+</programlisting></section>

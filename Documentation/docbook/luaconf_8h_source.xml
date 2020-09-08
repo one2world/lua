@@ -1,0 +1,780 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_luaconf_8h_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/luaconf.h</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;luaconf.h&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Configuration&#32;file&#32;for&#32;Lua</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+00007 
+00008 <emphasis role="preprocessor">#ifndef&#32;luaconf_h</emphasis>
+00009 <emphasis role="preprocessor">#define&#32;luaconf_h</emphasis>
+00010 
+00011 <emphasis role="preprocessor">#include&#32;&lt;limits.h&gt;</emphasis>
+00012 <emphasis role="preprocessor">#include&#32;&lt;stddef.h&gt;</emphasis>
+00013 
+00014 
+00015 <emphasis role="comment">/*</emphasis>
+00016 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00017 <emphasis role="comment">**&#32;General&#32;Configuration&#32;File&#32;for&#32;Lua</emphasis>
+00018 <emphasis role="comment">**</emphasis>
+00019 <emphasis role="comment">**&#32;Some&#32;definitions&#32;here&#32;can&#32;be&#32;changed&#32;externally,&#32;through&#32;the</emphasis>
+00020 <emphasis role="comment">**&#32;compiler&#32;(e.g.,&#32;with&#32;&apos;-D&apos;&#32;options).&#32;Those&#32;are&#32;protected&#32;by</emphasis>
+00021 <emphasis role="comment">**&#32;&apos;#if&#32;!defined&apos;&#32;guards.&#32;However,&#32;several&#32;other&#32;definitions&#32;should</emphasis>
+00022 <emphasis role="comment">**&#32;be&#32;changed&#32;directly&#32;here,&#32;either&#32;because&#32;they&#32;affect&#32;the&#32;Lua</emphasis>
+00023 <emphasis role="comment">**&#32;ABI&#32;(by&#32;making&#32;the&#32;changes&#32;here,&#32;you&#32;ensure&#32;that&#32;all&#32;software</emphasis>
+00024 <emphasis role="comment">**&#32;connected&#32;to&#32;Lua,&#32;such&#32;as&#32;C&#32;libraries,&#32;will&#32;be&#32;compiled&#32;with&#32;the</emphasis>
+00025 <emphasis role="comment">**&#32;same&#32;configuration);&#32;or&#32;because&#32;they&#32;are&#32;seldom&#32;changed.</emphasis>
+00026 <emphasis role="comment">**</emphasis>
+00027 <emphasis role="comment">**&#32;Search&#32;for&#32;&quot;@@&quot;&#32;to&#32;find&#32;all&#32;configurable&#32;definitions.</emphasis>
+00028 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00029 <emphasis role="comment">*/</emphasis>
+00030 
+00031 
+00032 <emphasis role="comment">/*</emphasis>
+00033 <emphasis role="comment">**&#32;{====================================================================</emphasis>
+00034 <emphasis role="comment">**&#32;System&#32;Configuration:&#32;macros&#32;to&#32;adapt&#32;(if&#32;needed)&#32;Lua&#32;to&#32;some</emphasis>
+00035 <emphasis role="comment">**&#32;particular&#32;platform,&#32;for&#32;instance&#32;restricting&#32;it&#32;to&#32;C89.</emphasis>
+00036 <emphasis role="comment">**&#32;=====================================================================</emphasis>
+00037 <emphasis role="comment">*/</emphasis>
+00038 
+00039 <emphasis role="comment">/*</emphasis>
+00040 <emphasis role="comment">@@&#32;LUAI_MAXCSTACK&#32;defines&#32;the&#32;maximum&#32;depth&#32;for&#32;nested&#32;calls&#32;and</emphasis>
+00041 <emphasis role="comment">**&#32;also&#32;limits&#32;the&#32;maximum&#32;depth&#32;of&#32;other&#32;recursive&#32;algorithms&#32;in</emphasis>
+00042 <emphasis role="comment">**&#32;the&#32;implementation,&#32;such&#32;as&#32;syntactic&#32;analysis.&#32;A&#32;value&#32;too</emphasis>
+00043 <emphasis role="comment">**&#32;large&#32;may&#32;allow&#32;the&#32;interpreter&#32;to&#32;crash&#32;(C-stack&#32;overflow).</emphasis>
+00044 <emphasis role="comment">**&#32;The&#32;default&#32;value&#32;seems&#32;ok&#32;for&#32;regular&#32;machines,&#32;but&#32;may&#32;be</emphasis>
+00045 <emphasis role="comment">**&#32;too&#32;high&#32;for&#32;restricted&#32;hardware.</emphasis>
+00046 <emphasis role="comment">**&#32;The&#32;test&#32;file&#32;&apos;cstack.lua&apos;&#32;may&#32;help&#32;finding&#32;a&#32;good&#32;limit.</emphasis>
+00047 <emphasis role="comment">**&#32;(It&#32;will&#32;crash&#32;with&#32;a&#32;limit&#32;too&#32;high.)</emphasis>
+00048 <emphasis role="comment">*/</emphasis>
+00049 <emphasis role="preprocessor">#if&#32;!defined(LUAI_MAXCSTACK)</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00050"/><link linkend="_luaconf_8h_1aad7d9b351cde290eb12c180d03ec71e4">00050</link> <emphasis role="preprocessor">#define&#32;LUAI_MAXCSTACK&#32;&#32;&#32;&#32;&#32;&#32;2000</emphasis>
+00051 <emphasis role="preprocessor">#endif</emphasis>
+00052 
+00053 
+00054 <emphasis role="comment">/*</emphasis>
+00055 <emphasis role="comment">@@&#32;LUA_USE_C89&#32;controls&#32;the&#32;use&#32;of&#32;non-ISO-C89&#32;features.</emphasis>
+00056 <emphasis role="comment">**&#32;Define&#32;it&#32;if&#32;you&#32;want&#32;Lua&#32;to&#32;avoid&#32;the&#32;use&#32;of&#32;a&#32;few&#32;C99&#32;features</emphasis>
+00057 <emphasis role="comment">**&#32;or&#32;Windows-specific&#32;features&#32;on&#32;Windows.</emphasis>
+00058 <emphasis role="comment">*/</emphasis>
+00059 <emphasis role="comment">/*&#32;#define&#32;LUA_USE_C89&#32;*/</emphasis>
+00060 
+00061 
+00062 <emphasis role="comment">/*</emphasis>
+00063 <emphasis role="comment">**&#32;By&#32;default,&#32;Lua&#32;on&#32;Windows&#32;use&#32;(some)&#32;specific&#32;Windows&#32;features</emphasis>
+00064 <emphasis role="comment">*/</emphasis>
+00065 <emphasis role="preprocessor">#if&#32;!defined(LUA_USE_C89)&#32;&amp;&amp;&#32;defined(_WIN32)&#32;&amp;&amp;&#32;!defined(_WIN32_WCE)</emphasis>
+00066 <emphasis role="preprocessor">#define&#32;LUA_USE_WINDOWS&#32;&#32;</emphasis><emphasis role="comment">/*&#32;enable&#32;goodies&#32;for&#32;regular&#32;Windows&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00067 <emphasis role="preprocessor">#endif</emphasis>
+00068 
+00069 
+00070 <emphasis role="preprocessor">#if&#32;defined(LUA_USE_WINDOWS)</emphasis>
+00071 <emphasis role="preprocessor">#define&#32;LUA_DL_DLL&#32;&#32;</emphasis><emphasis role="comment">/*&#32;enable&#32;support&#32;for&#32;DLL&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00072 <emphasis role="preprocessor">#define&#32;LUA_USE_C89&#32;</emphasis><emphasis role="comment">/*&#32;broadly,&#32;Windows&#32;is&#32;C89&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00073 <emphasis role="preprocessor">#endif</emphasis>
+00074 
+00075 
+00076 <emphasis role="preprocessor">#if&#32;defined(LUA_USE_LINUX)</emphasis>
+00077 <emphasis role="preprocessor">#define&#32;LUA_USE_POSIX</emphasis>
+00078 <emphasis role="preprocessor">#define&#32;LUA_USE_DLOPEN&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;needs&#32;an&#32;extra&#32;library:&#32;-ldl&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00079 <emphasis role="preprocessor">#endif</emphasis>
+00080 
+00081 
+00082 <emphasis role="preprocessor">#if&#32;defined(LUA_USE_MACOSX)</emphasis>
+00083 <emphasis role="preprocessor">#define&#32;LUA_USE_POSIX</emphasis>
+00084 <emphasis role="preprocessor">#define&#32;LUA_USE_DLOPEN&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;MacOS&#32;does&#32;not&#32;need&#32;-ldl&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00085 <emphasis role="preprocessor">#endif</emphasis>
+00086 
+00087 
+00088 <emphasis role="comment">/*</emphasis>
+00089 <emphasis role="comment">@@&#32;LUAI_IS32INT&#32;is&#32;true&#32;iff&#32;&apos;int&apos;&#32;has&#32;(at&#32;least)&#32;32&#32;bits.</emphasis>
+00090 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00091"/><link linkend="_luaconf_8h_1afd80ecd3fd68a9deaa257dc69ef513a4">00091</link> <emphasis role="preprocessor">#define&#32;LUAI_IS32INT&#32;&#32;&#32;&#32;((UINT_MAX&#32;&gt;&gt;&#32;30)&#32;&gt;=&#32;3)</emphasis>
+00092 
+00093 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00094 
+00095 
+00096 
+00097 <emphasis role="comment">/*</emphasis>
+00098 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00099 <emphasis role="comment">**&#32;Configuration&#32;for&#32;Number&#32;types.</emphasis>
+00100 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00101 <emphasis role="comment">*/</emphasis>
+00102 
+00103 <emphasis role="comment">/*</emphasis>
+00104 <emphasis role="comment">@@&#32;LUA_32BITS&#32;enables&#32;Lua&#32;with&#32;32-bit&#32;integers&#32;and&#32;32-bit&#32;floats.</emphasis>
+00105 <emphasis role="comment">*/</emphasis>
+00106 <emphasis role="comment">/*&#32;#define&#32;LUA_32BITS&#32;*/</emphasis>
+00107 
+00108 
+00109 <emphasis role="comment">/*</emphasis>
+00110 <emphasis role="comment">@@&#32;LUA_C89_NUMBERS&#32;ensures&#32;that&#32;Lua&#32;uses&#32;the&#32;largest&#32;types&#32;available&#32;for</emphasis>
+00111 <emphasis role="comment">**&#32;C89&#32;(&apos;long&apos;&#32;and&#32;&apos;double&apos;);&#32;Windows&#32;always&#32;has&#32;&apos;__int64&apos;,&#32;so&#32;it&#32;does</emphasis>
+00112 <emphasis role="comment">**&#32;not&#32;need&#32;to&#32;use&#32;this&#32;case.</emphasis>
+00113 <emphasis role="comment">*/</emphasis>
+00114 <emphasis role="preprocessor">#if&#32;defined(LUA_USE_C89)&#32;&amp;&amp;&#32;!defined(LUA_USE_WINDOWS)</emphasis>
+00115 <emphasis role="preprocessor">#define&#32;LUA_C89_NUMBERS</emphasis>
+00116 <emphasis role="preprocessor">#endif</emphasis>
+00117 
+00118 
+00119 <emphasis role="comment">/*</emphasis>
+00120 <emphasis role="comment">@@&#32;LUA_INT_TYPE&#32;defines&#32;the&#32;type&#32;for&#32;Lua&#32;integers.</emphasis>
+00121 <emphasis role="comment">@@&#32;LUA_FLOAT_TYPE&#32;defines&#32;the&#32;type&#32;for&#32;Lua&#32;floats.</emphasis>
+00122 <emphasis role="comment">**&#32;Lua&#32;should&#32;work&#32;fine&#32;with&#32;any&#32;mix&#32;of&#32;these&#32;options&#32;supported</emphasis>
+00123 <emphasis role="comment">**&#32;by&#32;your&#32;C&#32;compiler.&#32;The&#32;usual&#32;configurations&#32;are&#32;64-bit&#32;integers</emphasis>
+00124 <emphasis role="comment">**&#32;and&#32;&apos;double&apos;&#32;(the&#32;default),&#32;32-bit&#32;integers&#32;and&#32;&apos;float&apos;&#32;(for</emphasis>
+00125 <emphasis role="comment">**&#32;restricted&#32;platforms),&#32;and&#32;&apos;long&apos;/&apos;double&apos;&#32;(for&#32;C&#32;compilers&#32;not</emphasis>
+00126 <emphasis role="comment">**&#32;compliant&#32;with&#32;C99,&#32;which&#32;may&#32;not&#32;have&#32;support&#32;for&#32;&apos;long&#32;long&apos;).</emphasis>
+00127 <emphasis role="comment">*/</emphasis>
+00128 
+00129 <emphasis role="comment">/*&#32;predefined&#32;options&#32;for&#32;LUA_INT_TYPE&#32;*/</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00130"/><link linkend="_luaconf_8h_1a5461d3c4dc325bf5fcf098a3f03863c8">00130</link> <emphasis role="preprocessor">#define&#32;LUA_INT_INT&#32;&#32;&#32;&#32;&#32;1</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00131"/><link linkend="_luaconf_8h_1ab1f6c4b114cfd661371c87276e44da78">00131</link> <emphasis role="preprocessor">#define&#32;LUA_INT_LONG&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;2</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00132"/><link linkend="_luaconf_8h_1a2f18aa3c06d6b4b001c02347e68014c2">00132</link> <emphasis role="preprocessor">#define&#32;LUA_INT_LONGLONG&#32;&#32;&#32;&#32;3</emphasis>
+00133 
+00134 <emphasis role="comment">/*&#32;predefined&#32;options&#32;for&#32;LUA_FLOAT_TYPE&#32;*/</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00135"/><link linkend="_luaconf_8h_1a12fe69eaae577fc72deec2a0ecd00e1c">00135</link> <emphasis role="preprocessor">#define&#32;LUA_FLOAT_FLOAT&#32;&#32;&#32;&#32;&#32;1</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00136"/><link linkend="_luaconf_8h_1a5231cde35be0cc5880683225b8b82d4b">00136</link> <emphasis role="preprocessor">#define&#32;LUA_FLOAT_DOUBLE&#32;&#32;&#32;&#32;2</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00137"/><link linkend="_luaconf_8h_1aba2804d23f0e9cc5ff8bd1052b764114">00137</link> <emphasis role="preprocessor">#define&#32;LUA_FLOAT_LONGDOUBLE&#32;&#32;&#32;&#32;3</emphasis>
+00138 
+00139 <emphasis role="preprocessor">#if&#32;defined(LUA_32BITS)&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00140 <emphasis role="comment">/*</emphasis>
+00141 <emphasis role="comment">**&#32;32-bit&#32;integers&#32;and&#32;&apos;float&apos;</emphasis>
+00142 <emphasis role="comment">*/</emphasis>
+00143 <emphasis role="preprocessor">#if&#32;LUAI_IS32INT&#32;&#32;</emphasis><emphasis role="comment">/*&#32;use&#32;&apos;int&apos;&#32;if&#32;big&#32;enough&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00144 <emphasis role="preprocessor">#define&#32;LUA_INT_TYPE&#32;&#32;&#32;&#32;LUA_INT_INT</emphasis>
+00145 <emphasis role="preprocessor">#else&#32;&#32;</emphasis><emphasis role="comment">/*&#32;otherwise&#32;use&#32;&apos;long&apos;&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00146 <emphasis role="preprocessor">#define&#32;LUA_INT_TYPE&#32;&#32;&#32;&#32;LUA_INT_LONG</emphasis>
+00147 <emphasis role="preprocessor">#endif</emphasis>
+00148 <emphasis role="preprocessor">#define&#32;LUA_FLOAT_TYPE&#32;&#32;LUA_FLOAT_FLOAT</emphasis>
+00149 
+00150 <emphasis role="preprocessor">#elif&#32;defined(LUA_C89_NUMBERS)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00151 <emphasis role="comment">/*</emphasis>
+00152 <emphasis role="comment">**&#32;largest&#32;types&#32;available&#32;for&#32;C89&#32;(&apos;long&apos;&#32;and&#32;&apos;double&apos;)</emphasis>
+00153 <emphasis role="comment">*/</emphasis>
+00154 <emphasis role="preprocessor">#define&#32;LUA_INT_TYPE&#32;&#32;&#32;&#32;LUA_INT_LONG</emphasis>
+00155 <emphasis role="preprocessor">#define&#32;LUA_FLOAT_TYPE&#32;&#32;LUA_FLOAT_DOUBLE</emphasis>
+00156 
+00157 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00158 
+00159 
+00160 <emphasis role="comment">/*</emphasis>
+00161 <emphasis role="comment">**&#32;default&#32;configuration&#32;for&#32;64-bit&#32;Lua&#32;(&apos;long&#32;long&apos;&#32;and&#32;&apos;double&apos;)</emphasis>
+00162 <emphasis role="comment">*/</emphasis>
+00163 <emphasis role="preprocessor">#if&#32;!defined(LUA_INT_TYPE)</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00164"/><link linkend="_luaconf_8h_1a824d3b6b74c7366b0938085f22dd7e6e">00164</link> <emphasis role="preprocessor">#define&#32;LUA_INT_TYPE&#32;&#32;&#32;&#32;LUA_INT_LONGLONG</emphasis>
+00165 <emphasis role="preprocessor">#endif</emphasis>
+00166 
+00167 <emphasis role="preprocessor">#if&#32;!defined(LUA_FLOAT_TYPE)</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00168"/><link linkend="_luaconf_8h_1af2869411745f915b895705306bee32b4">00168</link> <emphasis role="preprocessor">#define&#32;LUA_FLOAT_TYPE&#32;&#32;LUA_FLOAT_DOUBLE</emphasis>
+00169 <emphasis role="preprocessor">#endif</emphasis>
+00170 
+00171 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00172 
+00173 
+00174 
+00175 <emphasis role="comment">/*</emphasis>
+00176 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00177 <emphasis role="comment">**&#32;Configuration&#32;for&#32;Paths.</emphasis>
+00178 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00179 <emphasis role="comment">*/</emphasis>
+00180 
+00181 <emphasis role="comment">/*</emphasis>
+00182 <emphasis role="comment">**&#32;LUA_PATH_SEP&#32;is&#32;the&#32;character&#32;that&#32;separates&#32;templates&#32;in&#32;a&#32;path.</emphasis>
+00183 <emphasis role="comment">**&#32;LUA_PATH_MARK&#32;is&#32;the&#32;string&#32;that&#32;marks&#32;the&#32;substitution&#32;points&#32;in&#32;a</emphasis>
+00184 <emphasis role="comment">**&#32;template.</emphasis>
+00185 <emphasis role="comment">**&#32;LUA_EXEC_DIR&#32;in&#32;a&#32;Windows&#32;path&#32;is&#32;replaced&#32;by&#32;the&#32;executable&apos;s</emphasis>
+00186 <emphasis role="comment">**&#32;directory.</emphasis>
+00187 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00188"/><link linkend="_luaconf_8h_1ae9873b615af1ca0225fb3bc8d880a25e">00188</link> <emphasis role="preprocessor">#define&#32;LUA_PATH_SEP&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&quot;;&quot;</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00189"/><link linkend="_luaconf_8h_1a6d221295f625b3cb9cac477c0c475bb4">00189</link> <emphasis role="preprocessor">#define&#32;LUA_PATH_MARK&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&quot;?&quot;</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00190"/><link linkend="_luaconf_8h_1a172ab2e6c826acf300219b4bce1ad7c6">00190</link> <emphasis role="preprocessor">#define&#32;LUA_EXEC_DIR&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&quot;!&quot;</emphasis>
+00191 
+00192 
+00193 <emphasis role="comment">/*</emphasis>
+00194 <emphasis role="comment">@@&#32;LUA_PATH_DEFAULT&#32;is&#32;the&#32;default&#32;path&#32;that&#32;Lua&#32;uses&#32;to&#32;look&#32;for</emphasis>
+00195 <emphasis role="comment">**&#32;Lua&#32;libraries.</emphasis>
+00196 <emphasis role="comment">@@&#32;LUA_CPATH_DEFAULT&#32;is&#32;the&#32;default&#32;path&#32;that&#32;Lua&#32;uses&#32;to&#32;look&#32;for</emphasis>
+00197 <emphasis role="comment">**&#32;C&#32;libraries.</emphasis>
+00198 <emphasis role="comment">**&#32;CHANGE&#32;them&#32;if&#32;your&#32;machine&#32;has&#32;a&#32;non-conventional&#32;directory</emphasis>
+00199 <emphasis role="comment">**&#32;hierarchy&#32;or&#32;if&#32;you&#32;want&#32;to&#32;install&#32;your&#32;libraries&#32;in</emphasis>
+00200 <emphasis role="comment">**&#32;non-conventional&#32;directories.</emphasis>
+00201 <emphasis role="comment">*/</emphasis>
+00202 
+<anchor xml:id="_luaconf_8h_source_1l00203"/><link linkend="_luaconf_8h_1a5b5da3c6dbd6545245caa7e23243340d">00203</link> <emphasis role="preprocessor">#define&#32;LUA_VDIR&#32;&#32;&#32;&#32;LUA_VERSION_MAJOR&#32;&quot;.&quot;&#32;LUA_VERSION_MINOR</emphasis>
+00204 <emphasis role="preprocessor">#if&#32;defined(_WIN32)&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00205 <emphasis role="comment">/*</emphasis>
+00206 <emphasis role="comment">**&#32;In&#32;Windows,&#32;any&#32;exclamation&#32;mark&#32;(&apos;!&apos;)&#32;in&#32;the&#32;path&#32;is&#32;replaced&#32;by&#32;the</emphasis>
+00207 <emphasis role="comment">**&#32;path&#32;of&#32;the&#32;directory&#32;of&#32;the&#32;executable&#32;file&#32;of&#32;the&#32;current&#32;process.</emphasis>
+00208 <emphasis role="comment">*/</emphasis>
+00209 <emphasis role="preprocessor">#define&#32;LUA_LDIR&#32;&#32;&#32;&#32;&quot;!\\lua\\&quot;</emphasis>
+00210 <emphasis role="preprocessor">#define&#32;LUA_CDIR&#32;&#32;&#32;&#32;&quot;!\\&quot;</emphasis>
+00211 <emphasis role="preprocessor">#define&#32;LUA_SHRDIR&#32;&#32;&quot;!\\..\\share\\lua\\&quot;&#32;LUA_VDIR&#32;&quot;\\&quot;</emphasis>
+00212 
+00213 <emphasis role="preprocessor">#if&#32;!defined(LUA_PATH_DEFAULT)</emphasis>
+00214 <emphasis role="preprocessor">#define&#32;LUA_PATH_DEFAULT&#32;&#32;\</emphasis>
+00215 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;LUA_LDIR&quot;?.lua;&quot;&#32;&#32;LUA_LDIR&quot;?\\init.lua;&quot;&#32;\</emphasis>
+00216 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;LUA_CDIR&quot;?.lua;&quot;&#32;&#32;LUA_CDIR&quot;?\\init.lua;&quot;&#32;\</emphasis>
+00217 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;LUA_SHRDIR&quot;?.lua;&quot;&#32;LUA_SHRDIR&quot;?\\init.lua;&quot;&#32;\</emphasis>
+00218 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&quot;.\\?.lua;&quot;&#32;&quot;.\\?\\init.lua&quot;</emphasis>
+00219 <emphasis role="preprocessor">#endif</emphasis>
+00220 
+00221 <emphasis role="preprocessor">#if&#32;!defined(LUA_CPATH_DEFAULT)</emphasis>
+00222 <emphasis role="preprocessor">#define&#32;LUA_CPATH_DEFAULT&#32;\</emphasis>
+00223 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;LUA_CDIR&quot;?.dll;&quot;&#32;\</emphasis>
+00224 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;LUA_CDIR&quot;..\\lib\\lua\\&quot;&#32;LUA_VDIR&#32;&quot;\\?.dll;&quot;&#32;\</emphasis>
+00225 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;LUA_CDIR&quot;loadall.dll;&quot;&#32;&quot;.\\?.dll&quot;</emphasis>
+00226 <emphasis role="preprocessor">#endif</emphasis>
+00227 
+00228 <emphasis role="preprocessor">#else&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00229 
+<anchor xml:id="_luaconf_8h_source_1l00230"/><link linkend="_luaconf_8h_1a910ba17d2686e3a014e5f8464334fa24">00230</link> <emphasis role="preprocessor">#define&#32;LUA_ROOT&#32;&#32;&#32;&#32;&quot;/usr/local/&quot;</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00231"/><link linkend="_luaconf_8h_1a3c00e6041f7f276f3c8e8125c7d28cb3">00231</link> <emphasis role="preprocessor">#define&#32;LUA_LDIR&#32;&#32;&#32;&#32;LUA_ROOT&#32;&quot;share/lua/&quot;&#32;LUA_VDIR&#32;&quot;/&quot;</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00232"/><link linkend="_luaconf_8h_1a6cb5bc40fe287c1223c0b461372ac080">00232</link> <emphasis role="preprocessor">#define&#32;LUA_CDIR&#32;&#32;&#32;&#32;LUA_ROOT&#32;&quot;lib/lua/&quot;&#32;LUA_VDIR&#32;&quot;/&quot;</emphasis>
+00233 
+00234 <emphasis role="preprocessor">#if&#32;!defined(LUA_PATH_DEFAULT)</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00235"/><link linkend="_luaconf_8h_1ade5464817bc6ac4c929ac914191c6a60">00235</link> <emphasis role="preprocessor">#define&#32;LUA_PATH_DEFAULT&#32;&#32;\</emphasis>
+00236 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;LUA_LDIR&quot;?.lua;&quot;&#32;&#32;LUA_LDIR&quot;?/init.lua;&quot;&#32;\</emphasis>
+00237 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;LUA_CDIR&quot;?.lua;&quot;&#32;&#32;LUA_CDIR&quot;?/init.lua;&quot;&#32;\</emphasis>
+00238 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&quot;./?.lua;&quot;&#32;&quot;./?/init.lua&quot;</emphasis>
+00239 <emphasis role="preprocessor">#endif</emphasis>
+00240 
+00241 <emphasis role="preprocessor">#if&#32;!defined(LUA_CPATH_DEFAULT)</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00242"/><link linkend="_luaconf_8h_1a45f20f03a0802b0d90d75639a339b406">00242</link> <emphasis role="preprocessor">#define&#32;LUA_CPATH_DEFAULT&#32;\</emphasis>
+00243 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;LUA_CDIR&quot;?.so;&quot;&#32;LUA_CDIR&quot;loadall.so;&quot;&#32;&quot;./?.so&quot;</emphasis>
+00244 <emphasis role="preprocessor">#endif</emphasis>
+00245 
+00246 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00247 
+00248 
+00249 <emphasis role="comment">/*</emphasis>
+00250 <emphasis role="comment">@@&#32;LUA_DIRSEP&#32;is&#32;the&#32;directory&#32;separator&#32;(for&#32;submodules).</emphasis>
+00251 <emphasis role="comment">**&#32;CHANGE&#32;it&#32;if&#32;your&#32;machine&#32;does&#32;not&#32;use&#32;&quot;/&quot;&#32;as&#32;the&#32;directory&#32;separator</emphasis>
+00252 <emphasis role="comment">**&#32;and&#32;is&#32;not&#32;Windows.&#32;(On&#32;Windows&#32;Lua&#32;automatically&#32;uses&#32;&quot;\&quot;.)</emphasis>
+00253 <emphasis role="comment">*/</emphasis>
+00254 <emphasis role="preprocessor">#if&#32;!defined(LUA_DIRSEP)</emphasis>
+00255 
+00256 <emphasis role="preprocessor">#if&#32;defined(_WIN32)</emphasis>
+00257 <emphasis role="preprocessor">#define&#32;LUA_DIRSEP&#32;&#32;&quot;\\&quot;</emphasis>
+00258 <emphasis role="preprocessor">#else</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00259"/><link linkend="_luaconf_8h_1a2e611ade620cc30a6f0c306ae39d27d8">00259</link> <emphasis role="preprocessor">#define&#32;LUA_DIRSEP&#32;&#32;&quot;/&quot;</emphasis>
+00260 <emphasis role="preprocessor">#endif</emphasis>
+00261 
+00262 <emphasis role="preprocessor">#endif</emphasis>
+00263 
+00264 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00265 
+00266 
+00267 <emphasis role="comment">/*</emphasis>
+00268 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00269 <emphasis role="comment">**&#32;Marks&#32;for&#32;exported&#32;symbols&#32;in&#32;the&#32;C&#32;code</emphasis>
+00270 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00271 <emphasis role="comment">*/</emphasis>
+00272 
+00273 <emphasis role="comment">/*</emphasis>
+00274 <emphasis role="comment">@@&#32;LUA_API&#32;is&#32;a&#32;mark&#32;for&#32;all&#32;core&#32;API&#32;functions.</emphasis>
+00275 <emphasis role="comment">@@&#32;LUALIB_API&#32;is&#32;a&#32;mark&#32;for&#32;all&#32;auxiliary&#32;library&#32;functions.</emphasis>
+00276 <emphasis role="comment">@@&#32;LUAMOD_API&#32;is&#32;a&#32;mark&#32;for&#32;all&#32;standard&#32;library&#32;opening&#32;functions.</emphasis>
+00277 <emphasis role="comment">**&#32;CHANGE&#32;them&#32;if&#32;you&#32;need&#32;to&#32;define&#32;those&#32;functions&#32;in&#32;some&#32;special&#32;way.</emphasis>
+00278 <emphasis role="comment">**&#32;For&#32;instance,&#32;if&#32;you&#32;want&#32;to&#32;create&#32;one&#32;Windows&#32;DLL&#32;with&#32;the&#32;core&#32;and</emphasis>
+00279 <emphasis role="comment">**&#32;the&#32;libraries,&#32;you&#32;may&#32;want&#32;to&#32;use&#32;the&#32;following&#32;definition&#32;(define</emphasis>
+00280 <emphasis role="comment">**&#32;LUA_BUILD_AS_DLL&#32;to&#32;get&#32;it).</emphasis>
+00281 <emphasis role="comment">*/</emphasis>
+00282 <emphasis role="preprocessor">#if&#32;defined(LUA_BUILD_AS_DLL)&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00283 
+00284 <emphasis role="preprocessor">#if&#32;defined(LUA_CORE)&#32;||&#32;defined(LUA_LIB)&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00285 <emphasis role="preprocessor">#define&#32;LUA_API&#32;__declspec(dllexport)</emphasis>
+00286 <emphasis role="preprocessor">#else&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00287 <emphasis role="preprocessor">#define&#32;LUA_API&#32;__declspec(dllimport)</emphasis>
+00288 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00289 
+00290 <emphasis role="preprocessor">#else&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00291 
+<anchor xml:id="_luaconf_8h_source_1l00292"/><link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">00292</link> <emphasis role="preprocessor">#define&#32;LUA_API&#32;&#32;&#32;&#32;&#32;extern</emphasis>
+00293 
+00294 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00295 
+00296 
+00297 <emphasis role="comment">/*</emphasis>
+00298 <emphasis role="comment">**&#32;More&#32;often&#32;than&#32;not&#32;the&#32;libs&#32;go&#32;together&#32;with&#32;the&#32;core.</emphasis>
+00299 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00300"/><link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">00300</link> <emphasis role="preprocessor">#define&#32;LUALIB_API&#32;&#32;LUA_API</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00301"/><link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">00301</link> <emphasis role="preprocessor">#define&#32;LUAMOD_API&#32;&#32;LUA_API</emphasis>
+00302 
+00303 
+00304 <emphasis role="comment">/*</emphasis>
+00305 <emphasis role="comment">@@&#32;LUAI_FUNC&#32;is&#32;a&#32;mark&#32;for&#32;all&#32;extern&#32;functions&#32;that&#32;are&#32;not&#32;to&#32;be</emphasis>
+00306 <emphasis role="comment">**&#32;exported&#32;to&#32;outside&#32;modules.</emphasis>
+00307 <emphasis role="comment">@@&#32;LUAI_DDEF&#32;and&#32;LUAI_DDEC&#32;are&#32;marks&#32;for&#32;all&#32;extern&#32;(const)&#32;variables,</emphasis>
+00308 <emphasis role="comment">**&#32;none&#32;of&#32;which&#32;to&#32;be&#32;exported&#32;to&#32;outside&#32;modules&#32;(LUAI_DDEF&#32;for</emphasis>
+00309 <emphasis role="comment">**&#32;definitions&#32;and&#32;LUAI_DDEC&#32;for&#32;declarations).</emphasis>
+00310 <emphasis role="comment">**&#32;CHANGE&#32;them&#32;if&#32;you&#32;need&#32;to&#32;mark&#32;them&#32;in&#32;some&#32;special&#32;way.&#32;Elf/gcc</emphasis>
+00311 <emphasis role="comment">**&#32;(versions&#32;3.2&#32;and&#32;later)&#32;mark&#32;them&#32;as&#32;&quot;hidden&quot;&#32;to&#32;optimize&#32;access</emphasis>
+00312 <emphasis role="comment">**&#32;when&#32;Lua&#32;is&#32;compiled&#32;as&#32;a&#32;shared&#32;library.&#32;Not&#32;all&#32;elf&#32;targets&#32;support</emphasis>
+00313 <emphasis role="comment">**&#32;this&#32;attribute.&#32;Unfortunately,&#32;gcc&#32;does&#32;not&#32;offer&#32;a&#32;way&#32;to&#32;check</emphasis>
+00314 <emphasis role="comment">**&#32;whether&#32;the&#32;target&#32;offers&#32;that&#32;support,&#32;and&#32;those&#32;without&#32;support</emphasis>
+00315 <emphasis role="comment">**&#32;give&#32;a&#32;warning&#32;about&#32;it.&#32;To&#32;avoid&#32;these&#32;warnings,&#32;change&#32;to&#32;the</emphasis>
+00316 <emphasis role="comment">**&#32;default&#32;definition.</emphasis>
+00317 <emphasis role="comment">*/</emphasis>
+00318 <emphasis role="preprocessor">#if&#32;defined(__GNUC__)&#32;&amp;&amp;&#32;((__GNUC__*100&#32;+&#32;__GNUC_MINOR__)&#32;&gt;=&#32;302)&#32;&amp;&amp;&#32;\</emphasis>
+00319 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;defined(__ELF__)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00320 <emphasis role="preprocessor">#define&#32;LUAI_FUNC&#32;&#32;&#32;__attribute__((visibility(&quot;internal&quot;)))&#32;extern</emphasis>
+00321 <emphasis role="preprocessor">#else&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00322"/><link linkend="_luaconf_8h_1a3f43b35a70c93f2cfde1db42a5a24f1e">00322</link> <emphasis role="preprocessor">#define&#32;LUAI_FUNC&#32;&#32;&#32;extern</emphasis>
+00323 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00324 
+<anchor xml:id="_luaconf_8h_source_1l00325"/><link linkend="_luaconf_8h_1a3f2cdf96bb04b9d2a9a318a126f99182">00325</link> <emphasis role="preprocessor">#define&#32;LUAI_DDEC(dec)&#32;&#32;LUAI_FUNC&#32;dec</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00326"/><link linkend="_luaconf_8h_1affa3a74c87c69373c262fdbdc7f97837">00326</link> <emphasis role="preprocessor">#define&#32;LUAI_DDEF&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;empty&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00327 
+00328 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00329 
+00330 
+00331 <emphasis role="comment">/*</emphasis>
+00332 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00333 <emphasis role="comment">**&#32;Compatibility&#32;with&#32;previous&#32;versions</emphasis>
+00334 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00335 <emphasis role="comment">*/</emphasis>
+00336 
+00337 <emphasis role="comment">/*</emphasis>
+00338 <emphasis role="comment">@@&#32;LUA_COMPAT_5_3&#32;controls&#32;other&#32;macros&#32;for&#32;compatibility&#32;with&#32;Lua&#32;5.3.</emphasis>
+00339 <emphasis role="comment">**&#32;You&#32;can&#32;define&#32;it&#32;to&#32;get&#32;all&#32;options,&#32;or&#32;change&#32;specific&#32;options</emphasis>
+00340 <emphasis role="comment">**&#32;to&#32;fit&#32;your&#32;specific&#32;needs.</emphasis>
+00341 <emphasis role="comment">*/</emphasis>
+00342 <emphasis role="preprocessor">#if&#32;defined(LUA_COMPAT_5_3)&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00343 
+00344 <emphasis role="comment">/*</emphasis>
+00345 <emphasis role="comment">@@&#32;LUA_COMPAT_MATHLIB&#32;controls&#32;the&#32;presence&#32;of&#32;several&#32;deprecated</emphasis>
+00346 <emphasis role="comment">**&#32;functions&#32;in&#32;the&#32;mathematical&#32;library.</emphasis>
+00347 <emphasis role="comment">**&#32;(These&#32;functions&#32;were&#32;already&#32;officially&#32;removed&#32;in&#32;5.3;</emphasis>
+00348 <emphasis role="comment">**&#32;nevertheless&#32;they&#32;are&#32;still&#32;available&#32;here.)</emphasis>
+00349 <emphasis role="comment">*/</emphasis>
+00350 <emphasis role="preprocessor">#define&#32;LUA_COMPAT_MATHLIB</emphasis>
+00351 
+00352 <emphasis role="comment">/*</emphasis>
+00353 <emphasis role="comment">@@&#32;LUA_COMPAT_APIINTCASTS&#32;controls&#32;the&#32;presence&#32;of&#32;macros&#32;for</emphasis>
+00354 <emphasis role="comment">**&#32;manipulating&#32;other&#32;integer&#32;types&#32;(lua_pushunsigned,&#32;lua_tounsigned,</emphasis>
+00355 <emphasis role="comment">**&#32;luaL_checkint,&#32;luaL_checklong,&#32;etc.)</emphasis>
+00356 <emphasis role="comment">**&#32;(These&#32;macros&#32;were&#32;also&#32;officially&#32;removed&#32;in&#32;5.3,&#32;but&#32;they&#32;are&#32;still</emphasis>
+00357 <emphasis role="comment">**&#32;available&#32;here.)</emphasis>
+00358 <emphasis role="comment">*/</emphasis>
+00359 <emphasis role="preprocessor">#define&#32;LUA_COMPAT_APIINTCASTS</emphasis>
+00360 
+00361 
+00362 <emphasis role="comment">/*</emphasis>
+00363 <emphasis role="comment">@@&#32;LUA_COMPAT_LT_LE&#32;controls&#32;the&#32;emulation&#32;of&#32;the&#32;&apos;__le&apos;&#32;metamethod</emphasis>
+00364 <emphasis role="comment">**&#32;using&#32;&apos;__lt&apos;.</emphasis>
+00365 <emphasis role="comment">*/</emphasis>
+00366 <emphasis role="preprocessor">#define&#32;LUA_COMPAT_LT_LE</emphasis>
+00367 
+00368 
+00369 <emphasis role="comment">/*</emphasis>
+00370 <emphasis role="comment">@@&#32;The&#32;following&#32;macros&#32;supply&#32;trivial&#32;compatibility&#32;for&#32;some</emphasis>
+00371 <emphasis role="comment">**&#32;changes&#32;in&#32;the&#32;API.&#32;The&#32;macros&#32;themselves&#32;document&#32;how&#32;to</emphasis>
+00372 <emphasis role="comment">**&#32;change&#32;your&#32;code&#32;to&#32;avoid&#32;using&#32;them.</emphasis>
+00373 <emphasis role="comment">**&#32;(Once&#32;more,&#32;these&#32;macros&#32;were&#32;officially&#32;removed&#32;in&#32;5.3,&#32;but&#32;they&#32;are</emphasis>
+00374 <emphasis role="comment">**&#32;still&#32;available&#32;here.)</emphasis>
+00375 <emphasis role="comment">*/</emphasis>
+00376 <emphasis role="preprocessor">#define&#32;lua_strlen(L,i)&#32;&#32;&#32;&#32;&#32;lua_rawlen(L,&#32;(i))</emphasis>
+00377 
+00378 <emphasis role="preprocessor">#define&#32;lua_objlen(L,i)&#32;&#32;&#32;&#32;&#32;lua_rawlen(L,&#32;(i))</emphasis>
+00379 
+00380 <emphasis role="preprocessor">#define&#32;lua_equal(L,idx1,idx2)&#32;&#32;&#32;&#32;&#32;&#32;lua_compare(L,(idx1),(idx2),LUA_OPEQ)</emphasis>
+00381 <emphasis role="preprocessor">#define&#32;lua_lessthan(L,idx1,idx2)&#32;&#32;&#32;lua_compare(L,(idx1),(idx2),LUA_OPLT)</emphasis>
+00382 
+00383 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00384 
+00385 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00386 
+00387 
+00388 
+00389 <emphasis role="comment">/*</emphasis>
+00390 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00391 <emphasis role="comment">**&#32;Configuration&#32;for&#32;Numbers.</emphasis>
+00392 <emphasis role="comment">**&#32;Change&#32;these&#32;definitions&#32;if&#32;no&#32;predefined&#32;LUA_FLOAT_*&#32;/&#32;LUA_INT_*</emphasis>
+00393 <emphasis role="comment">**&#32;satisfy&#32;your&#32;needs.</emphasis>
+00394 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00395 <emphasis role="comment">*/</emphasis>
+00396 
+00397 <emphasis role="comment">/*</emphasis>
+00398 <emphasis role="comment">@@&#32;LUA_NUMBER&#32;is&#32;the&#32;floating-point&#32;type&#32;used&#32;by&#32;Lua.</emphasis>
+00399 <emphasis role="comment">@@&#32;LUAI_UACNUMBER&#32;is&#32;the&#32;result&#32;of&#32;a&#32;&apos;default&#32;argument&#32;promotion&apos;</emphasis>
+00400 <emphasis role="comment">@@&#32;over&#32;a&#32;floating&#32;number.</emphasis>
+00401 <emphasis role="comment">@@&#32;l_floatatt(x)&#32;corrects&#32;float&#32;attribute&#32;&apos;x&apos;&#32;to&#32;the&#32;proper&#32;float&#32;type</emphasis>
+00402 <emphasis role="comment">**&#32;by&#32;prefixing&#32;it&#32;with&#32;one&#32;of&#32;FLT/DBL/LDBL.</emphasis>
+00403 <emphasis role="comment">@@&#32;LUA_NUMBER_FRMLEN&#32;is&#32;the&#32;length&#32;modifier&#32;for&#32;writing&#32;floats.</emphasis>
+00404 <emphasis role="comment">@@&#32;LUA_NUMBER_FMT&#32;is&#32;the&#32;format&#32;for&#32;writing&#32;floats.</emphasis>
+00405 <emphasis role="comment">@@&#32;lua_number2str&#32;converts&#32;a&#32;float&#32;to&#32;a&#32;string.</emphasis>
+00406 <emphasis role="comment">@@&#32;l_mathop&#32;allows&#32;the&#32;addition&#32;of&#32;an&#32;&apos;l&apos;&#32;or&#32;&apos;f&apos;&#32;to&#32;all&#32;math&#32;operations.</emphasis>
+00407 <emphasis role="comment">@@&#32;l_floor&#32;takes&#32;the&#32;floor&#32;of&#32;a&#32;float.</emphasis>
+00408 <emphasis role="comment">@@&#32;lua_str2number&#32;converts&#32;a&#32;decimal&#32;numeral&#32;to&#32;a&#32;number.</emphasis>
+00409 <emphasis role="comment">*/</emphasis>
+00410 
+00411 
+00412 <emphasis role="comment">/*&#32;The&#32;following&#32;definitions&#32;are&#32;good&#32;for&#32;most&#32;cases&#32;here&#32;*/</emphasis>
+00413 
+<anchor xml:id="_luaconf_8h_source_1l00414"/><link linkend="_luaconf_8h_1a89e74d547b8879cf8d10c3e956c283b9">00414</link> <emphasis role="preprocessor">#define&#32;l_floor(x)&#32;&#32;&#32;&#32;&#32;&#32;(l_mathop(floor)(x))</emphasis>
+00415 
+<anchor xml:id="_luaconf_8h_source_1l00416"/><link linkend="_luaconf_8h_1a2981eb06b0460773fb1c1a21c93c8d8d">00416</link> <emphasis role="preprocessor">#define&#32;lua_number2str(s,sz,n)&#32;&#32;\</emphasis>
+00417 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;l_sprintf((s),&#32;sz,&#32;LUA_NUMBER_FMT,&#32;(LUAI_UACNUMBER)(n))</emphasis>
+00418 
+00419 <emphasis role="comment">/*</emphasis>
+00420 <emphasis role="comment">@@&#32;lua_numbertointeger&#32;converts&#32;a&#32;float&#32;number&#32;with&#32;an&#32;integral&#32;value</emphasis>
+00421 <emphasis role="comment">**&#32;to&#32;an&#32;integer,&#32;or&#32;returns&#32;0&#32;if&#32;float&#32;is&#32;not&#32;within&#32;the&#32;range&#32;of</emphasis>
+00422 <emphasis role="comment">**&#32;a&#32;lua_Integer.&#32;&#32;(The&#32;range&#32;comparisons&#32;are&#32;tricky&#32;because&#32;of</emphasis>
+00423 <emphasis role="comment">**&#32;rounding.&#32;The&#32;tests&#32;here&#32;assume&#32;a&#32;two-complement&#32;representation,</emphasis>
+00424 <emphasis role="comment">**&#32;where&#32;MININTEGER&#32;always&#32;has&#32;an&#32;exact&#32;representation&#32;as&#32;a&#32;float;</emphasis>
+00425 <emphasis role="comment">**&#32;MAXINTEGER&#32;may&#32;not&#32;have&#32;one,&#32;and&#32;therefore&#32;its&#32;conversion&#32;to&#32;float</emphasis>
+00426 <emphasis role="comment">**&#32;may&#32;have&#32;an&#32;ill-defined&#32;value.)</emphasis>
+00427 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00428"/><link linkend="_luaconf_8h_1a4b0d24a7a90003778668e2d01831bb88">00428</link> <emphasis role="preprocessor">#define&#32;lua_numbertointeger(n,p)&#32;\</emphasis>
+00429 <emphasis role="preprocessor">&#32;&#32;((n)&#32;&gt;=&#32;(LUA_NUMBER)(LUA_MININTEGER)&#32;&amp;&amp;&#32;\</emphasis>
+00430 <emphasis role="preprocessor">&#32;&#32;&#32;(n)&#32;&lt;&#32;-(LUA_NUMBER)(LUA_MININTEGER)&#32;&amp;&amp;&#32;\</emphasis>
+00431 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;(*(p)&#32;=&#32;(LUA_INTEGER)(n),&#32;1))</emphasis>
+00432 
+00433 
+00434 <emphasis role="comment">/*&#32;now&#32;the&#32;variable&#32;definitions&#32;*/</emphasis>
+00435 
+00436 <emphasis role="preprocessor">#if&#32;LUA_FLOAT_TYPE&#32;==&#32;LUA_FLOAT_FLOAT&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;single&#32;float&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00437 
+00438 <emphasis role="preprocessor">#define&#32;LUA_NUMBER&#32;&#32;float</emphasis>
+00439 
+00440 <emphasis role="preprocessor">#define&#32;l_floatatt(n)&#32;&#32;&#32;&#32;&#32;&#32;&#32;(FLT_##n)</emphasis>
+00441 
+00442 <emphasis role="preprocessor">#define&#32;LUAI_UACNUMBER&#32;&#32;double</emphasis>
+00443 
+00444 <emphasis role="preprocessor">#define&#32;LUA_NUMBER_FRMLEN&#32;&#32;&#32;&quot;&quot;</emphasis>
+00445 <emphasis role="preprocessor">#define&#32;LUA_NUMBER_FMT&#32;&#32;&#32;&#32;&#32;&#32;&quot;%.7g&quot;</emphasis>
+00446 
+00447 <emphasis role="preprocessor">#define&#32;l_mathop(op)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;op##f</emphasis>
+00448 
+00449 <emphasis role="preprocessor">#define&#32;lua_str2number(s,p)&#32;strtof((s),&#32;(p))</emphasis>
+00450 
+00451 
+00452 <emphasis role="preprocessor">#elif&#32;LUA_FLOAT_TYPE&#32;==&#32;LUA_FLOAT_LONGDOUBLE&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;long&#32;double&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00453 
+00454 <emphasis role="preprocessor">#define&#32;LUA_NUMBER&#32;&#32;long&#32;double</emphasis>
+00455 
+00456 <emphasis role="preprocessor">#define&#32;l_floatatt(n)&#32;&#32;&#32;&#32;&#32;&#32;&#32;(LDBL_##n)</emphasis>
+00457 
+00458 <emphasis role="preprocessor">#define&#32;LUAI_UACNUMBER&#32;&#32;long&#32;double</emphasis>
+00459 
+00460 <emphasis role="preprocessor">#define&#32;LUA_NUMBER_FRMLEN&#32;&#32;&#32;&quot;L&quot;</emphasis>
+00461 <emphasis role="preprocessor">#define&#32;LUA_NUMBER_FMT&#32;&#32;&#32;&#32;&#32;&#32;&quot;%.19Lg&quot;</emphasis>
+00462 
+00463 <emphasis role="preprocessor">#define&#32;l_mathop(op)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;op##l</emphasis>
+00464 
+00465 <emphasis role="preprocessor">#define&#32;lua_str2number(s,p)&#32;strtold((s),&#32;(p))</emphasis>
+00466 
+00467 <emphasis role="preprocessor">#elif&#32;LUA_FLOAT_TYPE&#32;==&#32;LUA_FLOAT_DOUBLE&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;double&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00468 
+<anchor xml:id="_luaconf_8h_source_1l00469"/><link linkend="_luaconf_8h_1a459532244178d9e61e65aaf40fb42de1">00469</link> <emphasis role="preprocessor">#define&#32;LUA_NUMBER&#32;&#32;double</emphasis>
+00470 
+<anchor xml:id="_luaconf_8h_source_1l00471"/><link linkend="_luaconf_8h_1af41b220b80eae0908ca2e190ca024990">00471</link> <emphasis role="preprocessor">#define&#32;l_floatatt(n)&#32;&#32;&#32;&#32;&#32;&#32;&#32;(DBL_##n)</emphasis>
+00472 
+<anchor xml:id="_luaconf_8h_source_1l00473"/><link linkend="_luaconf_8h_1ae3594e990592ab0bf7243dad64c76d2a">00473</link> <emphasis role="preprocessor">#define&#32;LUAI_UACNUMBER&#32;&#32;double</emphasis>
+00474 
+<anchor xml:id="_luaconf_8h_source_1l00475"/><link linkend="_luaconf_8h_1a673aa80d0742c8b420ddd05844432d80">00475</link> <emphasis role="preprocessor">#define&#32;LUA_NUMBER_FRMLEN&#32;&#32;&#32;&quot;&quot;</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00476"/><link linkend="_luaconf_8h_1a8d91a1bf1619825be5a0275c36f20216">00476</link> <emphasis role="preprocessor">#define&#32;LUA_NUMBER_FMT&#32;&#32;&#32;&#32;&#32;&#32;&quot;%.14g&quot;</emphasis>
+00477 
+<anchor xml:id="_luaconf_8h_source_1l00478"/><link linkend="_luaconf_8h_1a919f548d82dc9a0681dd0ba8996d986d">00478</link> <emphasis role="preprocessor">#define&#32;l_mathop(op)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;op</emphasis>
+00479 
+<anchor xml:id="_luaconf_8h_source_1l00480"/><link linkend="_luaconf_8h_1a4b751913c0b1598d6de4acb99ae48f5a">00480</link> <emphasis role="preprocessor">#define&#32;lua_str2number(s,p)&#32;strtod((s),&#32;(p))</emphasis>
+00481 
+00482 <emphasis role="preprocessor">#else&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00483 
+00484 <emphasis role="preprocessor">#error&#32;&quot;numeric&#32;float&#32;type&#32;not&#32;defined&quot;</emphasis>
+00485 
+00486 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00487 
+00488 
+00489 
+00490 <emphasis role="comment">/*</emphasis>
+00491 <emphasis role="comment">@@&#32;LUA_INTEGER&#32;is&#32;the&#32;integer&#32;type&#32;used&#32;by&#32;Lua.</emphasis>
+00492 <emphasis role="comment">**</emphasis>
+00493 <emphasis role="comment">@@&#32;LUA_UNSIGNED&#32;is&#32;the&#32;unsigned&#32;version&#32;of&#32;LUA_INTEGER.</emphasis>
+00494 <emphasis role="comment">**</emphasis>
+00495 <emphasis role="comment">@@&#32;LUAI_UACINT&#32;is&#32;the&#32;result&#32;of&#32;a&#32;&apos;default&#32;argument&#32;promotion&apos;</emphasis>
+00496 <emphasis role="comment">@@&#32;over&#32;a&#32;LUA_INTEGER.</emphasis>
+00497 <emphasis role="comment">@@&#32;LUA_INTEGER_FRMLEN&#32;is&#32;the&#32;length&#32;modifier&#32;for&#32;reading/writing&#32;integers.</emphasis>
+00498 <emphasis role="comment">@@&#32;LUA_INTEGER_FMT&#32;is&#32;the&#32;format&#32;for&#32;writing&#32;integers.</emphasis>
+00499 <emphasis role="comment">@@&#32;LUA_MAXINTEGER&#32;is&#32;the&#32;maximum&#32;value&#32;for&#32;a&#32;LUA_INTEGER.</emphasis>
+00500 <emphasis role="comment">@@&#32;LUA_MININTEGER&#32;is&#32;the&#32;minimum&#32;value&#32;for&#32;a&#32;LUA_INTEGER.</emphasis>
+00501 <emphasis role="comment">@@&#32;LUA_MAXUNSIGNED&#32;is&#32;the&#32;maximum&#32;value&#32;for&#32;a&#32;LUA_UNSIGNED.</emphasis>
+00502 <emphasis role="comment">@@&#32;LUA_UNSIGNEDBITS&#32;is&#32;the&#32;number&#32;of&#32;bits&#32;in&#32;a&#32;LUA_UNSIGNED.</emphasis>
+00503 <emphasis role="comment">@@&#32;lua_integer2str&#32;converts&#32;an&#32;integer&#32;to&#32;a&#32;string.</emphasis>
+00504 <emphasis role="comment">*/</emphasis>
+00505 
+00506 
+00507 <emphasis role="comment">/*&#32;The&#32;following&#32;definitions&#32;are&#32;good&#32;for&#32;most&#32;cases&#32;here&#32;*/</emphasis>
+00508 
+<anchor xml:id="_luaconf_8h_source_1l00509"/><link linkend="_luaconf_8h_1a0147f0a7d04c83b70f691a7549c1e3ed">00509</link> <emphasis role="preprocessor">#define&#32;LUA_INTEGER_FMT&#32;&#32;&#32;&#32;&#32;&quot;%&quot;&#32;LUA_INTEGER_FRMLEN&#32;&quot;d&quot;</emphasis>
+00510 
+<anchor xml:id="_luaconf_8h_source_1l00511"/><link linkend="_luaconf_8h_1a7a9d650ef5ea12d81160db595fe9f177">00511</link> <emphasis role="preprocessor">#define&#32;LUAI_UACINT&#32;&#32;&#32;&#32;&#32;LUA_INTEGER</emphasis>
+00512 
+<anchor xml:id="_luaconf_8h_source_1l00513"/><link linkend="_luaconf_8h_1a6bd94665fb1db85f2bb6aed3fa1cb455">00513</link> <emphasis role="preprocessor">#define&#32;lua_integer2str(s,sz,n)&#32;&#32;\</emphasis>
+00514 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;l_sprintf((s),&#32;sz,&#32;LUA_INTEGER_FMT,&#32;(LUAI_UACINT)(n))</emphasis>
+00515 
+00516 <emphasis role="comment">/*</emphasis>
+00517 <emphasis role="comment">**&#32;use&#32;LUAI_UACINT&#32;here&#32;to&#32;avoid&#32;problems&#32;with&#32;promotions&#32;(which</emphasis>
+00518 <emphasis role="comment">**&#32;can&#32;turn&#32;a&#32;comparison&#32;between&#32;unsigneds&#32;into&#32;a&#32;signed&#32;comparison)</emphasis>
+00519 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00520"/><link linkend="_luaconf_8h_1aebcf6bf84bcfb38b3004d9ff0b937c35">00520</link> <emphasis role="preprocessor">#define&#32;LUA_UNSIGNED&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;unsigned&#32;LUAI_UACINT</emphasis>
+00521 
+00522 
+<anchor xml:id="_luaconf_8h_source_1l00523"/><link linkend="_luaconf_8h_1a50aa473164b6b09a54c5b9e00d3d885a">00523</link> <emphasis role="preprocessor">#define&#32;LUA_UNSIGNEDBITS&#32;&#32;&#32;&#32;(sizeof(LUA_UNSIGNED)&#32;*&#32;CHAR_BIT)</emphasis>
+00524 
+00525 
+00526 <emphasis role="comment">/*&#32;now&#32;the&#32;variable&#32;definitions&#32;*/</emphasis>
+00527 
+00528 <emphasis role="preprocessor">#if&#32;LUA_INT_TYPE&#32;==&#32;LUA_INT_INT&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;int&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00529 
+00530 <emphasis role="preprocessor">#define&#32;LUA_INTEGER&#32;&#32;&#32;&#32;&#32;int</emphasis>
+00531 <emphasis role="preprocessor">#define&#32;LUA_INTEGER_FRMLEN&#32;&#32;&quot;&quot;</emphasis>
+00532 
+00533 <emphasis role="preprocessor">#define&#32;LUA_MAXINTEGER&#32;&#32;&#32;&#32;&#32;&#32;INT_MAX</emphasis>
+00534 <emphasis role="preprocessor">#define&#32;LUA_MININTEGER&#32;&#32;&#32;&#32;&#32;&#32;INT_MIN</emphasis>
+00535 
+00536 <emphasis role="preprocessor">#define&#32;LUA_MAXUNSIGNED&#32;&#32;&#32;&#32;&#32;UINT_MAX</emphasis>
+00537 
+00538 <emphasis role="preprocessor">#elif&#32;LUA_INT_TYPE&#32;==&#32;LUA_INT_LONG&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;long&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00539 
+00540 <emphasis role="preprocessor">#define&#32;LUA_INTEGER&#32;&#32;&#32;&#32;&#32;long</emphasis>
+00541 <emphasis role="preprocessor">#define&#32;LUA_INTEGER_FRMLEN&#32;&#32;&quot;l&quot;</emphasis>
+00542 
+00543 <emphasis role="preprocessor">#define&#32;LUA_MAXINTEGER&#32;&#32;&#32;&#32;&#32;&#32;LONG_MAX</emphasis>
+00544 <emphasis role="preprocessor">#define&#32;LUA_MININTEGER&#32;&#32;&#32;&#32;&#32;&#32;LONG_MIN</emphasis>
+00545 
+00546 <emphasis role="preprocessor">#define&#32;LUA_MAXUNSIGNED&#32;&#32;&#32;&#32;&#32;ULONG_MAX</emphasis>
+00547 
+00548 <emphasis role="preprocessor">#elif&#32;LUA_INT_TYPE&#32;==&#32;LUA_INT_LONGLONG&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;long&#32;long&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00549 
+00550 <emphasis role="comment">/*&#32;use&#32;presence&#32;of&#32;macro&#32;LLONG_MAX&#32;as&#32;proxy&#32;for&#32;C99&#32;compliance&#32;*/</emphasis>
+00551 <emphasis role="preprocessor">#if&#32;defined(LLONG_MAX)&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00552 <emphasis role="comment">/*&#32;use&#32;ISO&#32;C99&#32;stuff&#32;*/</emphasis>
+00553 
+00554 <emphasis role="preprocessor">#define&#32;LUA_INTEGER&#32;&#32;&#32;&#32;&#32;long&#32;long</emphasis>
+00555 <emphasis role="preprocessor">#define&#32;LUA_INTEGER_FRMLEN&#32;&#32;&quot;ll&quot;</emphasis>
+00556 
+00557 <emphasis role="preprocessor">#define&#32;LUA_MAXINTEGER&#32;&#32;&#32;&#32;&#32;&#32;LLONG_MAX</emphasis>
+00558 <emphasis role="preprocessor">#define&#32;LUA_MININTEGER&#32;&#32;&#32;&#32;&#32;&#32;LLONG_MIN</emphasis>
+00559 
+00560 <emphasis role="preprocessor">#define&#32;LUA_MAXUNSIGNED&#32;&#32;&#32;&#32;&#32;ULLONG_MAX</emphasis>
+00561 
+00562 <emphasis role="preprocessor">#elif&#32;defined(LUA_USE_WINDOWS)&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00563 <emphasis role="comment">/*&#32;in&#32;Windows,&#32;can&#32;use&#32;specific&#32;Windows&#32;types&#32;*/</emphasis>
+00564 
+00565 <emphasis role="preprocessor">#define&#32;LUA_INTEGER&#32;&#32;&#32;&#32;&#32;__int64</emphasis>
+00566 <emphasis role="preprocessor">#define&#32;LUA_INTEGER_FRMLEN&#32;&#32;&quot;I64&quot;</emphasis>
+00567 
+00568 <emphasis role="preprocessor">#define&#32;LUA_MAXINTEGER&#32;&#32;&#32;&#32;&#32;&#32;_I64_MAX</emphasis>
+00569 <emphasis role="preprocessor">#define&#32;LUA_MININTEGER&#32;&#32;&#32;&#32;&#32;&#32;_I64_MIN</emphasis>
+00570 
+00571 <emphasis role="preprocessor">#define&#32;LUA_MAXUNSIGNED&#32;&#32;&#32;&#32;&#32;_UI64_MAX</emphasis>
+00572 
+00573 <emphasis role="preprocessor">#else&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00574 
+00575 <emphasis role="preprocessor">#error&#32;&quot;Compiler&#32;does&#32;not&#32;support&#32;&apos;long&#32;long&apos;.&#32;Use&#32;option&#32;&apos;-DLUA_32BITS&apos;&#32;\</emphasis>
+00576 <emphasis role="preprocessor">&#32;&#32;or&#32;&apos;-DLUA_C89_NUMBERS&apos;&#32;(see&#32;file&#32;&apos;luaconf.h&apos;&#32;for&#32;details)&quot;</emphasis>
+00577 
+00578 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00579 
+00580 <emphasis role="preprocessor">#else&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00581 
+00582 <emphasis role="preprocessor">#error&#32;&quot;numeric&#32;integer&#32;type&#32;not&#32;defined&quot;</emphasis>
+00583 
+00584 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00585 
+00586 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00587 
+00588 
+00589 <emphasis role="comment">/*</emphasis>
+00590 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00591 <emphasis role="comment">**&#32;Dependencies&#32;with&#32;C99&#32;and&#32;other&#32;C&#32;details</emphasis>
+00592 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00593 <emphasis role="comment">*/</emphasis>
+00594 
+00595 <emphasis role="comment">/*</emphasis>
+00596 <emphasis role="comment">@@&#32;l_sprintf&#32;is&#32;equivalent&#32;to&#32;&apos;snprintf&apos;&#32;or&#32;&apos;sprintf&apos;&#32;in&#32;C89.</emphasis>
+00597 <emphasis role="comment">**&#32;(All&#32;uses&#32;in&#32;Lua&#32;have&#32;only&#32;one&#32;format&#32;item.)</emphasis>
+00598 <emphasis role="comment">*/</emphasis>
+00599 <emphasis role="preprocessor">#if&#32;!defined(LUA_USE_C89)</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00600"/><link linkend="_luaconf_8h_1a66e2cc299fcf55c169a67b5b3781a955">00600</link> <emphasis role="preprocessor">#define&#32;l_sprintf(s,sz,f,i)&#32;snprintf(s,sz,f,i)</emphasis>
+00601 <emphasis role="preprocessor">#else</emphasis>
+00602 <emphasis role="preprocessor">#define&#32;l_sprintf(s,sz,f,i)&#32;((void)(sz),&#32;sprintf(s,f,i))</emphasis>
+00603 <emphasis role="preprocessor">#endif</emphasis>
+00604 
+00605 
+00606 <emphasis role="comment">/*</emphasis>
+00607 <emphasis role="comment">@@&#32;lua_strx2number&#32;converts&#32;a&#32;hexadecimal&#32;numeral&#32;to&#32;a&#32;number.</emphasis>
+00608 <emphasis role="comment">**&#32;In&#32;C99,&#32;&apos;strtod&apos;&#32;does&#32;that&#32;conversion.&#32;Otherwise,&#32;you&#32;can</emphasis>
+00609 <emphasis role="comment">**&#32;leave&#32;&apos;lua_strx2number&apos;&#32;undefined&#32;and&#32;Lua&#32;will&#32;provide&#32;its&#32;own</emphasis>
+00610 <emphasis role="comment">**&#32;implementation.</emphasis>
+00611 <emphasis role="comment">*/</emphasis>
+00612 <emphasis role="preprocessor">#if&#32;!defined(LUA_USE_C89)</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00613"/><link linkend="_luaconf_8h_1a4b53a01f7ac167204d227cb6e8d8c1e2">00613</link> <emphasis role="preprocessor">#define&#32;lua_strx2number(s,p)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;lua_str2number(s,p)</emphasis>
+00614 <emphasis role="preprocessor">#endif</emphasis>
+00615 
+00616 
+00617 <emphasis role="comment">/*</emphasis>
+00618 <emphasis role="comment">@@&#32;lua_pointer2str&#32;converts&#32;a&#32;pointer&#32;to&#32;a&#32;readable&#32;string&#32;in&#32;a</emphasis>
+00619 <emphasis role="comment">**&#32;non-specified&#32;way.</emphasis>
+00620 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00621"/><link linkend="_luaconf_8h_1a927f26920bfa5ced499783fca8cf1e2f">00621</link> <emphasis role="preprocessor">#define&#32;lua_pointer2str(buff,sz,p)&#32;&#32;l_sprintf(buff,sz,&quot;%p&quot;,p)</emphasis>
+00622 
+00623 
+00624 <emphasis role="comment">/*</emphasis>
+00625 <emphasis role="comment">@@&#32;lua_number2strx&#32;converts&#32;a&#32;float&#32;to&#32;a&#32;hexadecimal&#32;numeral.</emphasis>
+00626 <emphasis role="comment">**&#32;In&#32;C99,&#32;&apos;sprintf&apos;&#32;(with&#32;format&#32;specifiers&#32;&apos;%a&apos;/&apos;%A&apos;)&#32;does&#32;that.</emphasis>
+00627 <emphasis role="comment">**&#32;Otherwise,&#32;you&#32;can&#32;leave&#32;&apos;lua_number2strx&apos;&#32;undefined&#32;and&#32;Lua&#32;will</emphasis>
+00628 <emphasis role="comment">**&#32;provide&#32;its&#32;own&#32;implementation.</emphasis>
+00629 <emphasis role="comment">*/</emphasis>
+00630 <emphasis role="preprocessor">#if&#32;!defined(LUA_USE_C89)</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00631"/><link linkend="_luaconf_8h_1aac67fd4fc4890ea6ee5a623abfae127a">00631</link> <emphasis role="preprocessor">#define&#32;lua_number2strx(L,b,sz,f,n)&#32;&#32;\</emphasis>
+00632 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;((void)L,&#32;l_sprintf(b,sz,f,(LUAI_UACNUMBER)(n)))</emphasis>
+00633 <emphasis role="preprocessor">#endif</emphasis>
+00634 
+00635 
+00636 <emphasis role="comment">/*</emphasis>
+00637 <emphasis role="comment">**&#32;&apos;strtof&apos;&#32;and&#32;&apos;opf&apos;&#32;variants&#32;for&#32;math&#32;functions&#32;are&#32;not&#32;valid&#32;in</emphasis>
+00638 <emphasis role="comment">**&#32;C89.&#32;Otherwise,&#32;the&#32;macro&#32;&apos;HUGE_VALF&apos;&#32;is&#32;a&#32;good&#32;proxy&#32;for&#32;testing&#32;the</emphasis>
+00639 <emphasis role="comment">**&#32;availability&#32;of&#32;these&#32;variants.&#32;(&apos;math.h&apos;&#32;is&#32;already&#32;included&#32;in</emphasis>
+00640 <emphasis role="comment">**&#32;all&#32;files&#32;that&#32;use&#32;these&#32;macros.)</emphasis>
+00641 <emphasis role="comment">*/</emphasis>
+00642 <emphasis role="preprocessor">#if&#32;defined(LUA_USE_C89)&#32;||&#32;(defined(HUGE_VAL)&#32;&amp;&amp;&#32;!defined(HUGE_VALF))</emphasis>
+00643 <emphasis role="preprocessor">#undef&#32;l_mathop&#32;&#32;</emphasis><emphasis role="comment">/*&#32;variants&#32;not&#32;available&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00644 <emphasis role="preprocessor">#undef&#32;lua_str2number</emphasis>
+00645 <emphasis role="preprocessor">#define&#32;l_mathop(op)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(lua_Number)op&#32;&#32;</emphasis><emphasis role="comment">/*&#32;no&#32;variant&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00646 <emphasis role="preprocessor">#define&#32;lua_str2number(s,p)&#32;((lua_Number)strtod((s),&#32;(p)))</emphasis>
+00647 <emphasis role="preprocessor">#endif</emphasis>
+00648 
+00649 
+00650 <emphasis role="comment">/*</emphasis>
+00651 <emphasis role="comment">@@&#32;LUA_KCONTEXT&#32;is&#32;the&#32;type&#32;of&#32;the&#32;context&#32;(&apos;ctx&apos;)&#32;for&#32;continuation</emphasis>
+00652 <emphasis role="comment">**&#32;functions.&#32;&#32;It&#32;must&#32;be&#32;a&#32;numerical&#32;type;&#32;Lua&#32;will&#32;use&#32;&apos;intptr_t&apos;&#32;if</emphasis>
+00653 <emphasis role="comment">**&#32;available,&#32;otherwise&#32;it&#32;will&#32;use&#32;&apos;ptrdiff_t&apos;&#32;(the&#32;nearest&#32;thing&#32;to</emphasis>
+00654 <emphasis role="comment">**&#32;&apos;intptr_t&apos;&#32;in&#32;C89)</emphasis>
+00655 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00656"/><link linkend="_luaconf_8h_1aa0ee03595b0ac0cf402754071af956de">00656</link> <emphasis role="preprocessor">#define&#32;LUA_KCONTEXT&#32;&#32;&#32;&#32;ptrdiff_t</emphasis>
+00657 
+00658 <emphasis role="preprocessor">#if&#32;!defined(LUA_USE_C89)&#32;&amp;&amp;&#32;defined(__STDC_VERSION__)&#32;&amp;&amp;&#32;\</emphasis>
+00659 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;__STDC_VERSION__&#32;&gt;=&#32;199901L</emphasis>
+00660 <emphasis role="preprocessor">#include&#32;&lt;stdint.h&gt;</emphasis>
+00661 <emphasis role="preprocessor">#if&#32;defined(INTPTR_MAX)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;even&#32;in&#32;C99&#32;this&#32;type&#32;is&#32;optional&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00662 <emphasis role="preprocessor">#undef&#32;LUA_KCONTEXT</emphasis>
+00663 <emphasis role="preprocessor">#define&#32;LUA_KCONTEXT&#32;&#32;&#32;&#32;intptr_t</emphasis>
+00664 <emphasis role="preprocessor">#endif</emphasis>
+00665 <emphasis role="preprocessor">#endif</emphasis>
+00666 
+00667 
+00668 <emphasis role="comment">/*</emphasis>
+00669 <emphasis role="comment">@@&#32;lua_getlocaledecpoint&#32;gets&#32;the&#32;locale&#32;&quot;radix&#32;character&quot;&#32;(decimal&#32;point).</emphasis>
+00670 <emphasis role="comment">**&#32;Change&#32;that&#32;if&#32;you&#32;do&#32;not&#32;want&#32;to&#32;use&#32;C&#32;locales.&#32;(Code&#32;using&#32;this</emphasis>
+00671 <emphasis role="comment">**&#32;macro&#32;must&#32;include&#32;the&#32;header&#32;&apos;locale.h&apos;.)</emphasis>
+00672 <emphasis role="comment">*/</emphasis>
+00673 <emphasis role="preprocessor">#if&#32;!defined(lua_getlocaledecpoint)</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00674"/><link linkend="_luaconf_8h_1a20bcdecbc9221570e70455f767061698">00674</link> <emphasis role="preprocessor">#define&#32;lua_getlocaledecpoint()&#32;&#32;&#32;&#32;&#32;(localeconv()-&gt;decimal_point[0])</emphasis>
+00675 <emphasis role="preprocessor">#endif</emphasis>
+00676 
+00677 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00678 
+00679 
+00680 <emphasis role="comment">/*</emphasis>
+00681 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00682 <emphasis role="comment">**&#32;Language&#32;Variations</emphasis>
+00683 <emphasis role="comment">**&#32;=====================================================================</emphasis>
+00684 <emphasis role="comment">*/</emphasis>
+00685 
+00686 <emphasis role="comment">/*</emphasis>
+00687 <emphasis role="comment">@@&#32;LUA_NOCVTN2S/LUA_NOCVTS2N&#32;control&#32;how&#32;Lua&#32;performs&#32;some</emphasis>
+00688 <emphasis role="comment">**&#32;coercions.&#32;Define&#32;LUA_NOCVTN2S&#32;to&#32;turn&#32;off&#32;automatic&#32;coercion&#32;from</emphasis>
+00689 <emphasis role="comment">**&#32;numbers&#32;to&#32;strings.&#32;Define&#32;LUA_NOCVTS2N&#32;to&#32;turn&#32;off&#32;automatic</emphasis>
+00690 <emphasis role="comment">**&#32;coercion&#32;from&#32;strings&#32;to&#32;numbers.</emphasis>
+00691 <emphasis role="comment">*/</emphasis>
+00692 <emphasis role="comment">/*&#32;#define&#32;LUA_NOCVTN2S&#32;*/</emphasis>
+00693 <emphasis role="comment">/*&#32;#define&#32;LUA_NOCVTS2N&#32;*/</emphasis>
+00694 
+00695 
+00696 <emphasis role="comment">/*</emphasis>
+00697 <emphasis role="comment">@@&#32;LUA_USE_APICHECK&#32;turns&#32;on&#32;several&#32;consistency&#32;checks&#32;on&#32;the&#32;C&#32;API.</emphasis>
+00698 <emphasis role="comment">**&#32;Define&#32;it&#32;as&#32;a&#32;help&#32;when&#32;debugging&#32;C&#32;code.</emphasis>
+00699 <emphasis role="comment">*/</emphasis>
+00700 <emphasis role="preprocessor">#if&#32;defined(LUA_USE_APICHECK)</emphasis>
+00701 <emphasis role="preprocessor">#include&#32;&lt;assert.h&gt;</emphasis>
+00702 <emphasis role="preprocessor">#define&#32;luai_apicheck(l,e)&#32;&#32;assert(e)</emphasis>
+00703 <emphasis role="preprocessor">#endif</emphasis>
+00704 
+00705 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00706 
+00707 
+00708 <emphasis role="comment">/*</emphasis>
+00709 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00710 <emphasis role="comment">**&#32;Macros&#32;that&#32;affect&#32;the&#32;API&#32;and&#32;must&#32;be&#32;stable&#32;(that&#32;is,&#32;must&#32;be&#32;the</emphasis>
+00711 <emphasis role="comment">**&#32;same&#32;when&#32;you&#32;compile&#32;Lua&#32;and&#32;when&#32;you&#32;compile&#32;code&#32;that&#32;links&#32;to</emphasis>
+00712 <emphasis role="comment">**&#32;Lua).</emphasis>
+00713 <emphasis role="comment">**&#32;=====================================================================</emphasis>
+00714 <emphasis role="comment">*/</emphasis>
+00715 
+00716 <emphasis role="comment">/*</emphasis>
+00717 <emphasis role="comment">@@&#32;LUAI_MAXSTACK&#32;limits&#32;the&#32;size&#32;of&#32;the&#32;Lua&#32;stack.</emphasis>
+00718 <emphasis role="comment">**&#32;CHANGE&#32;it&#32;if&#32;you&#32;need&#32;a&#32;different&#32;limit.&#32;This&#32;limit&#32;is&#32;arbitrary;</emphasis>
+00719 <emphasis role="comment">**&#32;its&#32;only&#32;purpose&#32;is&#32;to&#32;stop&#32;Lua&#32;from&#32;consuming&#32;unlimited&#32;stack</emphasis>
+00720 <emphasis role="comment">**&#32;space&#32;(and&#32;to&#32;reserve&#32;some&#32;numbers&#32;for&#32;pseudo-indices).</emphasis>
+00721 <emphasis role="comment">**&#32;(It&#32;must&#32;fit&#32;into&#32;max(size_t)/32.)</emphasis>
+00722 <emphasis role="comment">*/</emphasis>
+00723 <emphasis role="preprocessor">#if&#32;LUAI_IS32INT</emphasis>
+00724 <emphasis role="preprocessor">#define&#32;LUAI_MAXSTACK&#32;&#32;&#32;&#32;&#32;&#32;&#32;1000000</emphasis>
+00725 <emphasis role="preprocessor">#else</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00726"/><link linkend="_luaconf_8h_1ad7b065ae58f10bfa5800866b84de5f1e">00726</link> <emphasis role="preprocessor">#define&#32;LUAI_MAXSTACK&#32;&#32;&#32;&#32;&#32;&#32;&#32;15000</emphasis>
+00727 <emphasis role="preprocessor">#endif</emphasis>
+00728 
+00729 
+00730 <emphasis role="comment">/*</emphasis>
+00731 <emphasis role="comment">@@&#32;LUA_EXTRASPACE&#32;defines&#32;the&#32;size&#32;of&#32;a&#32;raw&#32;memory&#32;area&#32;associated&#32;with</emphasis>
+00732 <emphasis role="comment">**&#32;a&#32;Lua&#32;state&#32;with&#32;very&#32;fast&#32;access.</emphasis>
+00733 <emphasis role="comment">**&#32;CHANGE&#32;it&#32;if&#32;you&#32;need&#32;a&#32;different&#32;size.</emphasis>
+00734 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00735"/><link linkend="_luaconf_8h_1ae25668dff58d6257a4fc5b01c1e5820b">00735</link> <emphasis role="preprocessor">#define&#32;LUA_EXTRASPACE&#32;&#32;&#32;&#32;&#32;&#32;(sizeof(void&#32;*))</emphasis>
+00736 
+00737 
+00738 <emphasis role="comment">/*</emphasis>
+00739 <emphasis role="comment">@@&#32;LUA_IDSIZE&#32;gives&#32;the&#32;maximum&#32;size&#32;for&#32;the&#32;description&#32;of&#32;the&#32;source</emphasis>
+00740 <emphasis role="comment">@@&#32;of&#32;a&#32;function&#32;in&#32;debug&#32;information.</emphasis>
+00741 <emphasis role="comment">**&#32;CHANGE&#32;it&#32;if&#32;you&#32;want&#32;a&#32;different&#32;size.</emphasis>
+00742 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00743"/><link linkend="_luaconf_8h_1a49c31c00aa2852af25a2c43046a21aeb">00743</link> <emphasis role="preprocessor">#define&#32;LUA_IDSIZE&#32;&#32;60</emphasis>
+00744 
+00745 
+00746 <emphasis role="comment">/*</emphasis>
+00747 <emphasis role="comment">@@&#32;LUAL_BUFFERSIZE&#32;is&#32;the&#32;buffer&#32;size&#32;used&#32;by&#32;the&#32;lauxlib&#32;buffer&#32;system.</emphasis>
+00748 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00749"/><link linkend="_luaconf_8h_1af360ad37a770dfdc29291a99c398f42d">00749</link> <emphasis role="preprocessor">#define&#32;LUAL_BUFFERSIZE&#32;&#32;&#32;((int)(16&#32;*&#32;sizeof(void*)&#32;*&#32;sizeof(lua_Number)))</emphasis>
+00750 
+00751 
+00752 <emphasis role="comment">/*</emphasis>
+00753 <emphasis role="comment">@@&#32;LUAI_MAXALIGN&#32;defines&#32;fields&#32;that,&#32;when&#32;used&#32;in&#32;a&#32;union,&#32;ensure</emphasis>
+00754 <emphasis role="comment">**&#32;maximum&#32;alignment&#32;for&#32;the&#32;other&#32;items&#32;in&#32;that&#32;union.</emphasis>
+00755 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_luaconf_8h_source_1l00756"/><link linkend="_luaconf_8h_1a07ff709daaaf9cee410310059ef7bc75">00756</link> <emphasis role="preprocessor">#define&#32;LUAI_MAXALIGN&#32;&#32;lua_Number&#32;n;&#32;double&#32;u;&#32;void&#32;*s;&#32;lua_Integer&#32;i;&#32;long&#32;l</emphasis>
+00757 
+00758 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00759 
+00760 
+00761 
+00762 
+00763 
+00764 <emphasis role="comment">/*&#32;===================================================================&#32;*/</emphasis>
+00765 
+00766 <emphasis role="comment">/*</emphasis>
+00767 <emphasis role="comment">**&#32;Local&#32;configuration.&#32;You&#32;can&#32;use&#32;this&#32;space&#32;to&#32;add&#32;your&#32;redefinitions</emphasis>
+00768 <emphasis role="comment">**&#32;without&#32;modifying&#32;the&#32;main&#32;part&#32;of&#32;the&#32;file.</emphasis>
+00769 <emphasis role="comment">*/</emphasis>
+00770 
+00771 
+00772 
+00773 
+00774 
+00775 <emphasis role="preprocessor">#endif</emphasis>
+00776 
+</programlisting></section>

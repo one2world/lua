@@ -1,0 +1,147 @@
+.TH "D:/gitworkspace/lua/src/lstring.h" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lstring.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lgc\&.h'\fP
+.br
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'lstate\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBMEMERRMSG\fP   'not enough memory'"
+.br
+.ti -1c
+.RI "#define \fBsizelstring\fP(l)   (offsetof(\fBTString\fP, contents) + ((l) + 1) * sizeof(char))"
+.br
+.ti -1c
+.RI "#define \fBluaS_newliteral\fP(L,  s)"
+.br
+.ti -1c
+.RI "#define \fBisreserved\fP(s)   ((s)\->tt == \fBLUA_VSHRSTR\fP && (s)\->extra > 0)"
+.br
+.ti -1c
+.RI "#define \fBeqshrstr\fP(a,  b)   \fBcheck_exp\fP((a)\->tt == \fBLUA_VSHRSTR\fP, (a) == (b))"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "\fBLUAI_FUNC\fP unsigned int \fBluaS_hash\fP (const char *str, size_t l, unsigned int seed, size_t step)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP unsigned int \fBluaS_hashlongstr\fP (\fBTString\fP *ts)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaS_eqlngstr\fP (\fBTString\fP *a, \fBTString\fP *b)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaS_resize\fP (\fBlua_State\fP *L, int newsize)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaS_clearcache\fP (\fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaS_init\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaS_remove\fP (\fBlua_State\fP *L, \fBTString\fP *ts)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP \fBUdata\fP * \fBluaS_newudata\fP (\fBlua_State\fP *L, size_t s, int nuvalue)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP \fBTString\fP * \fBluaS_newlstr\fP (\fBlua_State\fP *L, const char *str, size_t l)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP \fBTString\fP * \fBluaS_new\fP (\fBlua_State\fP *L, const char *str)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP \fBTString\fP * \fBluaS_createlngstrobj\fP (\fBlua_State\fP *L, size_t l)"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define eqshrstr(a, b)   \fBcheck_exp\fP((a)\->tt == \fBLUA_VSHRSTR\fP, (a) == (b))"
+
+.PP
+在文件 lstring\&.h 第 41 行定义\&.
+.SS "#define isreserved(s)   ((s)\->tt == \fBLUA_VSHRSTR\fP && (s)\->extra > 0)"
+
+.PP
+在文件 lstring\&.h 第 35 行定义\&.
+.SS "#define luaS_newliteral(L, s)"
+\fB值:\fP
+.PP
+.nf
+                                 (luaS_newlstr(L, "" s, \
+                                 (sizeof(s)/sizeof(char))-1))
+.fi
+.PP
+在文件 lstring\&.h 第 28 行定义\&.
+.SS "#define MEMERRMSG   'not enough memory'"
+
+.PP
+在文件 lstring\&.h 第 19 行定义\&.
+.SS "#define sizelstring(l)   (offsetof(\fBTString\fP, contents) + ((l) + 1) * sizeof(char))"
+
+.PP
+在文件 lstring\&.h 第 26 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "\fBLUAI_FUNC\fP void luaS_clearcache (\fBglobal_State\fP * g)"
+
+.PP
+在文件 lstring\&.c 第 122 行定义\&.
+.SS "\fBLUAI_FUNC\fP \fBTString\fP* luaS_createlngstrobj (\fBlua_State\fP * L, size_t l)"
+
+.PP
+在文件 lstring\&.c 第 169 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaS_eqlngstr (\fBTString\fP * a, \fBTString\fP * b)"
+
+.PP
+在文件 lstring\&.c 第 44 行定义\&.
+.SS "\fBLUAI_FUNC\fP unsigned int luaS_hash (const char * str, size_t l, unsigned int seed, size_t step)"
+
+.PP
+在文件 lstring\&.c 第 53 行定义\&.
+.SS "\fBLUAI_FUNC\fP unsigned int luaS_hashlongstr (\fBTString\fP * ts)"
+
+.PP
+在文件 lstring\&.c 第 62 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaS_init (\fBlua_State\fP * L)"
+
+.PP
+在文件 lstring\&.c 第 135 行定义\&.
+.SS "\fBLUAI_FUNC\fP \fBTString\fP* luaS_new (\fBlua_State\fP * L, const char * str)"
+
+.PP
+在文件 lstring\&.c 第 253 行定义\&.
+.SS "\fBLUAI_FUNC\fP \fBTString\fP* luaS_newlstr (\fBlua_State\fP * L, const char * str, size_t l)"
+
+.PP
+在文件 lstring\&.c 第 233 行定义\&.
+.SS "\fBLUAI_FUNC\fP \fBUdata\fP* luaS_newudata (\fBlua_State\fP * L, size_t s, int nuvalue)"
+
+.PP
+在文件 lstring\&.c 第 270 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaS_remove (\fBlua_State\fP * L, \fBTString\fP * ts)"
+
+.PP
+在文件 lstring\&.c 第 176 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaS_resize (\fBlua_State\fP * L, int newsize)"
+
+.PP
+在文件 lstring\&.c 第 97 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

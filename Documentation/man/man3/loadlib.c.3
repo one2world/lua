@@ -1,0 +1,393 @@
+.TH "D:/gitworkspace/lua/src/loadlib.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/loadlib.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lauxlib\&.h'\fP
+.br
+\fC#include 'lualib\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBloadlib_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_LIB\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_IGMARK\fP   '\-'"
+.br
+.ti -1c
+.RI "#define \fBLUA_CSUBSEP\fP   \fBLUA_DIRSEP\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_LSUBSEP\fP   \fBLUA_DIRSEP\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_POF\fP   'luaopen_'"
+.br
+.ti -1c
+.RI "#define \fBLUA_OFSEP\fP   '_'"
+.br
+.ti -1c
+.RI "#define \fBLIB_FAIL\fP   'open'"
+.br
+.ti -1c
+.RI "#define \fBsetprogdir\fP(L)   ((void)0)"
+.br
+.ti -1c
+.RI "#define \fBLIB_FAIL\fP   'absent'"
+.br
+.ti -1c
+.RI "#define \fBDLMSG\fP   'dynamic libraries not enabled; \fBcheck\fP your Lua installation'"
+.br
+.ti -1c
+.RI "#define \fBLUA_PATH_VAR\fP   'LUA_PATH'"
+.br
+.ti -1c
+.RI "#define \fBLUA_CPATH_VAR\fP   'LUA_CPATH'"
+.br
+.ti -1c
+.RI "#define \fBERRLIB\fP   1"
+.br
+.ti -1c
+.RI "#define \fBERRFUNC\fP   2"
+.br
+.in -1c
+.SS "类型定义"
+
+.in +1c
+.ti -1c
+.RI "typedef void(* \fBvoidf\fP) (void)"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static void \fBlsys_unloadlib\fP (void *lib)"
+.br
+.ti -1c
+.RI "static void * \fBlsys_load\fP (\fBlua_State\fP *L, const char *path, int seeglb)"
+.br
+.ti -1c
+.RI "static \fBlua_CFunction\fP \fBlsys_sym\fP (\fBlua_State\fP *L, void *lib, const char *sym)"
+.br
+.ti -1c
+.RI "static int \fBnoenv\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBsetpath\fP (\fBlua_State\fP *L, const char *fieldname, const char *envname, const char *dft)"
+.br
+.ti -1c
+.RI "static void * \fBcheckclib\fP (\fBlua_State\fP *L, const char *path)"
+.br
+.ti -1c
+.RI "static void \fBaddtoclib\fP (\fBlua_State\fP *L, const char *path, void *plib)"
+.br
+.ti -1c
+.RI "static int \fBgctm\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBlookforfunc\fP (\fBlua_State\fP *L, const char *path, const char *sym)"
+.br
+.ti -1c
+.RI "static int \fBll_loadlib\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBreadable\fP (const char *filename)"
+.br
+.ti -1c
+.RI "static const char * \fBgetnextfilename\fP (char **path, char *end)"
+.br
+.ti -1c
+.RI "static void \fBpusherrornotfound\fP (\fBlua_State\fP *L, const char *path)"
+.br
+.ti -1c
+.RI "static const char * \fBsearchpath\fP (\fBlua_State\fP *L, const char *name, const char *path, const char *sep, const char *dirsep)"
+.br
+.ti -1c
+.RI "static int \fBll_searchpath\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static const char * \fBfindfile\fP (\fBlua_State\fP *L, const char *name, const char *pname, const char *dirsep)"
+.br
+.ti -1c
+.RI "static int \fBcheckload\fP (\fBlua_State\fP *L, int stat, const char *filename)"
+.br
+.ti -1c
+.RI "static int \fBsearcher_Lua\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBloadfunc\fP (\fBlua_State\fP *L, const char *filename, const char *modname)"
+.br
+.ti -1c
+.RI "static int \fBsearcher_C\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBsearcher_Croot\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBsearcher_preload\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBfindloader\fP (\fBlua_State\fP *L, const char *name)"
+.br
+.ti -1c
+.RI "static int \fBll_require\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBcreatesearcherstable\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBcreateclibstable\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAMOD_API\fP int \fBluaopen_package\fP (\fBlua_State\fP *L)"
+.br
+.in -1c
+.SS "变量"
+
+.in +1c
+.ti -1c
+.RI "static const char *const \fBCLIBS\fP = '_CLIBS'"
+.br
+.ti -1c
+.RI "static const \fBluaL_Reg\fP \fBpk_funcs\fP []"
+.br
+.ti -1c
+.RI "static const \fBluaL_Reg\fP \fBll_funcs\fP []"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define DLMSG   'dynamic libraries not enabled; \fBcheck\fP your Lua installation'"
+
+.PP
+在文件 loadlib\&.c 第 235 行定义\&.
+.SS "#define ERRFUNC   2"
+
+.PP
+在文件 loadlib\&.c 第 375 行定义\&.
+.SS "#define ERRLIB   1"
+
+.PP
+在文件 loadlib\&.c 第 374 行定义\&.
+.SS "#define LIB_FAIL   'open'"
+
+.PP
+在文件 loadlib\&.c 第 232 行定义\&.
+.SS "#define LIB_FAIL   'absent'"
+
+.PP
+在文件 loadlib\&.c 第 232 行定义\&.
+.SS "#define loadlib_c"
+
+.PP
+在文件 loadlib\&.c 第 11 行定义\&.
+.SS "#define LUA_CPATH_VAR   'LUA_CPATH'"
+
+.PP
+在文件 loadlib\&.c 第 275 行定义\&.
+.SS "#define LUA_CSUBSEP   \fBLUA_DIRSEP\fP"
+
+.PP
+在文件 loadlib\&.c 第 43 行定义\&.
+.SS "#define LUA_IGMARK   '\-'"
+
+.PP
+在文件 loadlib\&.c 第 32 行定义\&.
+.SS "#define LUA_LIB"
+
+.PP
+在文件 loadlib\&.c 第 12 行定义\&.
+.SS "#define LUA_LSUBSEP   \fBLUA_DIRSEP\fP"
+
+.PP
+在文件 loadlib\&.c 第 47 行定义\&.
+.SS "#define LUA_OFSEP   '_'"
+
+.PP
+在文件 loadlib\&.c 第 55 行定义\&.
+.SS "#define LUA_PATH_VAR   'LUA_PATH'"
+
+.PP
+在文件 loadlib\&.c 第 271 行定义\&.
+.SS "#define LUA_POF   'luaopen_'"
+
+.PP
+在文件 loadlib\&.c 第 52 行定义\&.
+.SS "#define setprogdir(L)   ((void)0)"
+
+.PP
+在文件 loadlib\&.c 第 67 行定义\&.
+.SH "类型定义说明"
+.PP 
+.SS "typedef void(* voidf) (void)"
+
+.PP
+在文件 loadlib\&.c 第 74 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static void addtoclib (\fBlua_State\fP * L, const char * path, void * plib)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 347 行定义\&.
+.SS "static void* checkclib (\fBlua_State\fP * L, const char * path)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 333 行定义\&.
+.SS "static int checkload (\fBlua_State\fP * L, int stat, const char * filename)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 532 行定义\&.
+.SS "static void createclibstable (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 727 行定义\&.
+.SS "static void createsearcherstable (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 707 行定义\&.
+.SS "static const char* findfile (\fBlua_State\fP * L, const char * name, const char * pname, const char * dirsep)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 520 行定义\&.
+.SS "static void findloader (\fBlua_State\fP * L, const char * name)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 622 行定义\&.
+.SS "static int gctm (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 361 行定义\&.
+.SS "static const char* getnextfilename (char ** path, char * end)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 445 行定义\&.
+.SS "static int ll_loadlib (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 409 行定义\&.
+.SS "static int ll_require (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 654 行定义\&.
+.SS "static int ll_searchpath (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 506 行定义\&.
+.SS "static int loadfunc (\fBlua_State\fP * L, const char * filename, const char * modname)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 560 行定义\&.
+.SS "static int lookforfunc (\fBlua_State\fP * L, const char * path, const char * sym)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 388 行定义\&.
+.SS "static void * lsys_load (\fBlua_State\fP * L, const char * path, int seeglb)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 243 行定义\&.
+.SS "static \fBlua_CFunction\fP lsys_sym (\fBlua_State\fP * L, void * lib, const char * sym)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 250 行定义\&.
+.SS "static void lsys_unloadlib (void * lib)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 238 行定义\&.
+.SS "\fBLUAMOD_API\fP int luaopen_package (\fBlua_State\fP * L)"
+
+.PP
+在文件 loadlib\&.c 第 736 行定义\&.
+.SS "static int noenv (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 283 行定义\&.
+.SS "static void pusherrornotfound (\fBlua_State\fP * L, const char * path)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 469 行定义\&.
+.SS "static int readable (const char * filename)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 432 行定义\&.
+.SS "static int searcher_C (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 578 行定义\&.
+.SS "static int searcher_Croot (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 586 行定义\&.
+.SS "static int searcher_Lua (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 543 行定义\&.
+.SS "static int searcher_preload (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 608 行定义\&.
+.SS "static const char* searchpath (\fBlua_State\fP * L, const char * name, const char * path, const char * sep, const char * dirsep)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 479 行定义\&.
+.SS "static void setpath (\fBlua_State\fP * L, const char * fieldname, const char * envname, const char * dft)\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 295 行定义\&.
+.SH "变量说明"
+.PP 
+.SS "const char* const CLIBS = '_CLIBS'\fC [static]\fP"
+
+.PP
+在文件 loadlib\&.c 第 62 行定义\&.
+.SS "const \fBluaL_Reg\fP ll_funcs[]\fC [static]\fP"
+\fB初始值:\fP
+.PP
+.nf
+= {
+  {"require", ll_require},
+  {NULL, NULL}
+}
+.fi
+.PP
+在文件 loadlib\&.c 第 701 行定义\&.
+.SS "const \fBluaL_Reg\fP pk_funcs[]\fC [static]\fP"
+\fB初始值:\fP
+.PP
+.nf
+= {
+  {"loadlib", ll_loadlib},
+  {"searchpath", ll_searchpath},
+  
+  {"preload", NULL},
+  {"cpath", NULL},
+  {"path", NULL},
+  {"searchers", NULL},
+  {"loaded", NULL},
+  {NULL, NULL}
+}
+.fi
+.PP
+在文件 loadlib\&.c 第 688 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

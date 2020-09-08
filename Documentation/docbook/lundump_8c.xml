@@ -1,0 +1,592 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lundump_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/lundump.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lundump.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;limits.h&gt;
+#include &lt;string.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;ldebug.h&quot;
+#include &quot;ldo.h&quot;
+#include &quot;lfunc.h&quot;
+#include &quot;lmem.h&quot;
+#include &quot;lobject.h&quot;
+#include &quot;lstring.h&quot;
+#include &quot;lundump.h&quot;
+#include &quot;lzio.h&quot;
+</programlisting>lundump.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>结构体    </title>
+        <itemizedlist>
+            <listitem><para>struct <link linkend="_struct_load_state">LoadState</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lundump_8c_1aa480de4ebd1ff43b613879e98ab2bcd8">lundump_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lundump_8c_1abf0b3947b59218777a8e928a10be205b">LUA_CORE</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lundump_8c_1ac24baf04a83a58a79d218599dc7474c7">luai_verifycode</link>(L,  f)   /* empty */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lundump_8c_1ac2c6d25be53702eb5dac5a27feec260e">loadVector</link>(S,  b,  n)   <link linkend="_lundump_8c_1a4670431cdf12dffe51a41446256a537f">loadBlock</link>(S,b,(n)*sizeof((b)[0]))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lundump_8c_1ab1d6f5039e26f72694ca2e711b21a232">loadVar</link>(S,  x)   <link linkend="_lundump_8c_1ac2c6d25be53702eb5dac5a27feec260e">loadVector</link>(S,&amp;x,1)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lundump_8c_1a022b57a9b68e60fd3daa99a557d9b92f">checksize</link>(S,  t)   <link linkend="_lundump_8c_1adc6b144eed9f7f11d35f27ef83901e99">fchecksize</link>(S,sizeof(t),#t)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> <link linkend="_lundump_8c_1a4359a67dfcb96fbedf2becab47365599">error</link> (<link linkend="_struct_load_state">LoadState</link> *S, const char *why)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lundump_8c_1a4670431cdf12dffe51a41446256a537f">loadBlock</link> (<link linkend="_struct_load_state">LoadState</link> *S, void *b, size_t size)</para>
+</listitem>
+            <listitem><para>static <link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> <link linkend="_lundump_8c_1a42ccd2fdd0830eda677e6b0b4bb5ec5a">loadByte</link> (<link linkend="_struct_load_state">LoadState</link> *S)</para>
+</listitem>
+            <listitem><para>static size_t <link linkend="_lundump_8c_1aeba7bac26dc16767005aba9c51d6210c">loadUnsigned</link> (<link linkend="_struct_load_state">LoadState</link> *S, size_t limit)</para>
+</listitem>
+            <listitem><para>static size_t <link linkend="_lundump_8c_1adb3e45444a299e4974bf48f8c4bfde15">loadSize</link> (<link linkend="_struct_load_state">LoadState</link> *S)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lundump_8c_1abc34d9e099b17660e4eaf21b2039ef03">loadInt</link> (<link linkend="_struct_load_state">LoadState</link> *S)</para>
+</listitem>
+            <listitem><para>static <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> <link linkend="_lundump_8c_1abc39c54e4b51ab039f8b8f90f45b3d19">loadNumber</link> (<link linkend="_struct_load_state">LoadState</link> *S)</para>
+</listitem>
+            <listitem><para>static <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> <link linkend="_lundump_8c_1a47c3697d53ebc451a28687215007e69e">loadInteger</link> (<link linkend="_struct_load_state">LoadState</link> *S)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_t_string">TString</link> * <link linkend="_lundump_8c_1a809187a6bdb823c33bbbde30a17eca54">loadStringN</link> (<link linkend="_struct_load_state">LoadState</link> *S, <link linkend="_struct_proto">Proto</link> *p)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_t_string">TString</link> * <link linkend="_lundump_8c_1adf82f91f2291f1cea44f0f28646d6ad5">loadString</link> (<link linkend="_struct_load_state">LoadState</link> *S, <link linkend="_struct_proto">Proto</link> *p)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lundump_8c_1acd554fb4ba9399a7a48919de12daa53f">loadCode</link> (<link linkend="_struct_load_state">LoadState</link> *S, <link linkend="_struct_proto">Proto</link> *f)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lundump_8c_1a894435708ede05d12c7e81033dae380f">loadFunction</link> (<link linkend="_struct_load_state">LoadState</link> *S, <link linkend="_struct_proto">Proto</link> *f, <link linkend="_struct_t_string">TString</link> *psource)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lundump_8c_1a4a169ad6d9eefbca97c3a62641d65e48">loadConstants</link> (<link linkend="_struct_load_state">LoadState</link> *S, <link linkend="_struct_proto">Proto</link> *f)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lundump_8c_1a6a14558eb41ec5a096e4094f033531fe">loadProtos</link> (<link linkend="_struct_load_state">LoadState</link> *S, <link linkend="_struct_proto">Proto</link> *f)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lundump_8c_1a08010fa069d0ec9c6345dfe053001bd7">loadUpvalues</link> (<link linkend="_struct_load_state">LoadState</link> *S, <link linkend="_struct_proto">Proto</link> *f)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lundump_8c_1a121ddfe27d3762c4b5ed14bd3746af7a">loadDebug</link> (<link linkend="_struct_load_state">LoadState</link> *S, <link linkend="_struct_proto">Proto</link> *f)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lundump_8c_1a005ddaa01fdc44c5223b2b641fcb1653">checkliteral</link> (<link linkend="_struct_load_state">LoadState</link> *S, const char *s, const char *msg)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lundump_8c_1adc6b144eed9f7f11d35f27ef83901e99">fchecksize</link> (<link linkend="_struct_load_state">LoadState</link> *S, size_t size, const char *tname)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lundump_8c_1aef0399a03c281a51786c05a14b74b637">checkHeader</link> (<link linkend="_struct_load_state">LoadState</link> *S)</para>
+</listitem>
+            <listitem><para><link linkend="_struct_l_closure">LClosure</link> * <link linkend="_lundump_8c_1a388a74bf67456b3abf167ef9fc85b3db">luaU_undump</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17">ZIO</link> *Z, const char *name)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lundump_8c_1a022b57a9b68e60fd3daa99a557d9b92f"/>    <section>
+    <title>checksize</title>
+<indexterm><primary>checksize</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>checksize</secondary></indexterm>
+<para><computeroutput>#define checksize( S,  t)   <link linkend="_lundump_8c_1adc6b144eed9f7f11d35f27ef83901e99">fchecksize</link>(S,sizeof(t),#t)</computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00288">288</link> 行定义.</para>
+    </section><anchor xml:id="_lundump_8c_1ab1d6f5039e26f72694ca2e711b21a232"/>    <section>
+    <title>loadVar</title>
+<indexterm><primary>loadVar</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>loadVar</secondary></indexterm>
+<para><computeroutput>#define loadVar( S,  x)   <link linkend="_lundump_8c_1ac2c6d25be53702eb5dac5a27feec260e">loadVector</link>(S,&amp;x,1)</computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00058">58</link> 行定义.</para>
+    </section><anchor xml:id="_lundump_8c_1ac2c6d25be53702eb5dac5a27feec260e"/>    <section>
+    <title>loadVector</title>
+<indexterm><primary>loadVector</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>loadVector</secondary></indexterm>
+<para><computeroutput>#define loadVector( S,  b,  n)   <link linkend="_lundump_8c_1a4670431cdf12dffe51a41446256a537f">loadBlock</link>(S,b,(n)*sizeof((b)[0]))</computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00050">50</link> 行定义.</para>
+    </section><anchor xml:id="_lundump_8c_1abf0b3947b59218777a8e928a10be205b"/>    <section>
+    <title>LUA_CORE</title>
+<indexterm><primary>LUA_CORE</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>LUA_CORE</secondary></indexterm>
+<para><computeroutput>#define LUA_CORE</computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00008">8</link> 行定义.</para>
+    </section><anchor xml:id="_lundump_8c_1ac24baf04a83a58a79d218599dc7474c7"/>    <section>
+    <title>luai_verifycode</title>
+<indexterm><primary>luai_verifycode</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>luai_verifycode</secondary></indexterm>
+<para><computeroutput>#define luai_verifycode( L,  f)   /* empty */</computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00029">29</link> 行定义.</para>
+    </section><anchor xml:id="_lundump_8c_1aa480de4ebd1ff43b613879e98ab2bcd8"/>    <section>
+    <title>lundump_c</title>
+<indexterm><primary>lundump_c</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>lundump_c</secondary></indexterm>
+<para><computeroutput>#define lundump_c</computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00007">7</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lundump_8c_1aef0399a03c281a51786c05a14b74b637"/>    <section>
+    <title>checkHeader()</title>
+<indexterm><primary>checkHeader</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>checkHeader</secondary></indexterm>
+<para><computeroutput>static void checkHeader (<link linkend="_struct_load_state">LoadState</link> * S)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00290">290</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_aef0399a03c281a51786c05a14b74b637_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_aef0399a03c281a51786c05a14b74b637_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lundump_8c_1a005ddaa01fdc44c5223b2b641fcb1653"/>    <section>
+    <title>checkliteral()</title>
+<indexterm><primary>checkliteral</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>checkliteral</secondary></indexterm>
+<para><computeroutput>static void checkliteral (<link linkend="_struct_load_state">LoadState</link> * S, const char * s, const char * msg)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00273">273</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a005ddaa01fdc44c5223b2b641fcb1653_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a005ddaa01fdc44c5223b2b641fcb1653_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lundump_8c_1a4359a67dfcb96fbedf2becab47365599"/>    <section>
+    <title>error()</title>
+<indexterm><primary>error</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>error</secondary></indexterm>
+<para><computeroutput>static <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> error (<link linkend="_struct_load_state">LoadState</link> * S, const char * why)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00040">40</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a4359a67dfcb96fbedf2becab47365599_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a4359a67dfcb96fbedf2becab47365599_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lundump_8c_1adc6b144eed9f7f11d35f27ef83901e99"/>    <section>
+    <title>fchecksize()</title>
+<indexterm><primary>fchecksize</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>fchecksize</secondary></indexterm>
+<para><computeroutput>static void fchecksize (<link linkend="_struct_load_state">LoadState</link> * S, size_t size, const char * tname)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00282">282</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_adc6b144eed9f7f11d35f27ef83901e99_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lundump_8c_1a4670431cdf12dffe51a41446256a537f"/>    <section>
+    <title>loadBlock()</title>
+<indexterm><primary>loadBlock</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>loadBlock</secondary></indexterm>
+<para><computeroutput>static void loadBlock (<link linkend="_struct_load_state">LoadState</link> * S, void * b, size_t size)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00052">52</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a4670431cdf12dffe51a41446256a537f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lundump_8c_1a42ccd2fdd0830eda677e6b0b4bb5ec5a"/>    <section>
+    <title>loadByte()</title>
+<indexterm><primary>loadByte</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>loadByte</secondary></indexterm>
+<para><computeroutput>static <link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> loadByte (<link linkend="_struct_load_state">LoadState</link> * S)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00061">61</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a42ccd2fdd0830eda677e6b0b4bb5ec5a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a42ccd2fdd0830eda677e6b0b4bb5ec5a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lundump_8c_1acd554fb4ba9399a7a48919de12daa53f"/>    <section>
+    <title>loadCode()</title>
+<indexterm><primary>loadCode</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>loadCode</secondary></indexterm>
+<para><computeroutput>static void loadCode (<link linkend="_struct_load_state">LoadState</link> * S, <link linkend="_struct_proto">Proto</link> * f)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00144">144</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_acd554fb4ba9399a7a48919de12daa53f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_acd554fb4ba9399a7a48919de12daa53f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lundump_8c_1a4a169ad6d9eefbca97c3a62641d65e48"/>    <section>
+    <title>loadConstants()</title>
+<indexterm><primary>loadConstants</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>loadConstants</secondary></indexterm>
+<para><computeroutput>static void loadConstants (<link linkend="_struct_load_state">LoadState</link> * S, <link linkend="_struct_proto">Proto</link> * f)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00155">155</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a4a169ad6d9eefbca97c3a62641d65e48_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a4a169ad6d9eefbca97c3a62641d65e48_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lundump_8c_1a121ddfe27d3762c4b5ed14bd3746af7a"/>    <section>
+    <title>loadDebug()</title>
+<indexterm><primary>loadDebug</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>loadDebug</secondary></indexterm>
+<para><computeroutput>static void loadDebug (<link linkend="_struct_load_state">LoadState</link> * S, <link linkend="_struct_proto">Proto</link> * f)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00227">227</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a121ddfe27d3762c4b5ed14bd3746af7a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a121ddfe27d3762c4b5ed14bd3746af7a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lundump_8c_1a894435708ede05d12c7e81033dae380f"/>    <section>
+    <title>loadFunction()</title>
+<indexterm><primary>loadFunction</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>loadFunction</secondary></indexterm>
+<para><computeroutput>static void loadFunction (<link linkend="_struct_load_state">LoadState</link> * S, <link linkend="_struct_proto">Proto</link> * f, <link linkend="_struct_t_string">TString</link> * psource)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00256">256</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a894435708ede05d12c7e81033dae380f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a894435708ede05d12c7e81033dae380f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lundump_8c_1abc34d9e099b17660e4eaf21b2039ef03"/>    <section>
+    <title>loadInt()</title>
+<indexterm><primary>loadInt</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>loadInt</secondary></indexterm>
+<para><computeroutput>static int loadInt (<link linkend="_struct_load_state">LoadState</link> * S)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00088">88</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_abc34d9e099b17660e4eaf21b2039ef03_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_abc34d9e099b17660e4eaf21b2039ef03_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lundump_8c_1a47c3697d53ebc451a28687215007e69e"/>    <section>
+    <title>loadInteger()</title>
+<indexterm><primary>loadInteger</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>loadInteger</secondary></indexterm>
+<para><computeroutput>static <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> loadInteger (<link linkend="_struct_load_state">LoadState</link> * S)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00100">100</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a47c3697d53ebc451a28687215007e69e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lundump_8c_1abc39c54e4b51ab039f8b8f90f45b3d19"/>    <section>
+    <title>loadNumber()</title>
+<indexterm><primary>loadNumber</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>loadNumber</secondary></indexterm>
+<para><computeroutput>static <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> loadNumber (<link linkend="_struct_load_state">LoadState</link> * S)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00093">93</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_abc39c54e4b51ab039f8b8f90f45b3d19_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lundump_8c_1a6a14558eb41ec5a096e4094f033531fe"/>    <section>
+    <title>loadProtos()</title>
+<indexterm><primary>loadProtos</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>loadProtos</secondary></indexterm>
+<para><computeroutput>static void loadProtos (<link linkend="_struct_load_state">LoadState</link> * S, <link linkend="_struct_proto">Proto</link> * f)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00191">191</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a6a14558eb41ec5a096e4094f033531fe_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a6a14558eb41ec5a096e4094f033531fe_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lundump_8c_1adb3e45444a299e4974bf48f8c4bfde15"/>    <section>
+    <title>loadSize()</title>
+<indexterm><primary>loadSize</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>loadSize</secondary></indexterm>
+<para><computeroutput>static size_t loadSize (<link linkend="_struct_load_state">LoadState</link> * S)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00083">83</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_adb3e45444a299e4974bf48f8c4bfde15_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_adb3e45444a299e4974bf48f8c4bfde15_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lundump_8c_1adf82f91f2291f1cea44f0f28646d6ad5"/>    <section>
+    <title>loadString()</title>
+<indexterm><primary>loadString</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>loadString</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_t_string">TString</link>* loadString (<link linkend="_struct_load_state">LoadState</link> * S, <link linkend="_struct_proto">Proto</link> * p)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00136">136</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_adf82f91f2291f1cea44f0f28646d6ad5_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_adf82f91f2291f1cea44f0f28646d6ad5_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lundump_8c_1a809187a6bdb823c33bbbde30a17eca54"/>    <section>
+    <title>loadStringN()</title>
+<indexterm><primary>loadStringN</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>loadStringN</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_t_string">TString</link>* loadStringN (<link linkend="_struct_load_state">LoadState</link> * S, <link linkend="_struct_proto">Proto</link> * p)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00110">110</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a809187a6bdb823c33bbbde30a17eca54_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a809187a6bdb823c33bbbde30a17eca54_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lundump_8c_1aeba7bac26dc16767005aba9c51d6210c"/>    <section>
+    <title>loadUnsigned()</title>
+<indexterm><primary>loadUnsigned</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>loadUnsigned</secondary></indexterm>
+<para><computeroutput>static size_t loadUnsigned (<link linkend="_struct_load_state">LoadState</link> * S, size_t limit)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00069">69</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_aeba7bac26dc16767005aba9c51d6210c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_aeba7bac26dc16767005aba9c51d6210c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lundump_8c_1a08010fa069d0ec9c6345dfe053001bd7"/>    <section>
+    <title>loadUpvalues()</title>
+<indexterm><primary>loadUpvalues</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>loadUpvalues</secondary></indexterm>
+<para><computeroutput>static void loadUpvalues (<link linkend="_struct_load_state">LoadState</link> * S, <link linkend="_struct_proto">Proto</link> * f)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00212">212</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a08010fa069d0ec9c6345dfe053001bd7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a08010fa069d0ec9c6345dfe053001bd7_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lundump_8c_1a388a74bf67456b3abf167ef9fc85b3db"/>    <section>
+    <title>luaU_undump()</title>
+<indexterm><primary>luaU_undump</primary><secondary>lundump.c</secondary></indexterm>
+<indexterm><primary>lundump.c</primary><secondary>luaU_undump</secondary></indexterm>
+<para><computeroutput><link linkend="_struct_l_closure">LClosure</link>* luaU_undump (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17">ZIO</link> * Z, const char * name)</computeroutput></para><para>
+在文件 <link linkend="_lundump_8c_source">lundump.c</link> 第 <link linkend="_lundump_8c_source_1l00311">311</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a388a74bf67456b3abf167ef9fc85b3db_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lundump_8c_a388a74bf67456b3abf167ef9fc85b3db_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+</section>

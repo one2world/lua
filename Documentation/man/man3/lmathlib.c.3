@@ -1,0 +1,434 @@
+.TH "D:/gitworkspace/lua/src/lmathlib.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lmathlib.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <float\&.h>\fP
+.br
+\fC#include <limits\&.h>\fP
+.br
+\fC#include <math\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <time\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lauxlib\&.h'\fP
+.br
+\fC#include 'lualib\&.h'\fP
+.br
+
+.SS "结构体"
+
+.in +1c
+.ti -1c
+.RI "struct \fBRand64\fP"
+.br
+.ti -1c
+.RI "struct \fBRanState\fP"
+.br
+.in -1c
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBlmathlib_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_LIB\fP"
+.br
+.ti -1c
+.RI "#define \fBPI\fP   (\fBl_mathop\fP(3\&.141592653589793238462643383279502884))"
+.br
+.ti -1c
+.RI "#define \fBFIGS\fP   \fBl_floatatt\fP(MANT_DIG)"
+.br
+.ti -1c
+.RI "#define \fBtrim32\fP(x)   ((x) & 0xffffffffu)"
+.br
+.ti -1c
+.RI "#define \fBUONE\fP   ((\fBlu_int32\fP)1)"
+.br
+.ti -1c
+.RI "#define \fBscaleFIG\fP   (\fBl_mathop\fP(0\&.5) / (\fBUONE\fP << (\fBFIGS\fP \- 1)))"
+.br
+.in -1c
+.SS "类型定义"
+
+.in +1c
+.ti -1c
+.RI "typedef unsigned long \fBlu_int32\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBRand64\fP \fBRand64\fP"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static int \fBmath_abs\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmath_sin\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmath_cos\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmath_tan\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmath_asin\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmath_acos\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmath_atan\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmath_toint\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBpushnumint\fP (\fBlua_State\fP *L, \fBlua_Number\fP d)"
+.br
+.ti -1c
+.RI "static int \fBmath_floor\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmath_ceil\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmath_fmod\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmath_modf\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmath_sqrt\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmath_ult\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmath_log\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmath_exp\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmath_deg\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmath_rad\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmath_min\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmath_max\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBmath_type\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static \fBRand64\fP \fBpackI\fP (\fBlu_int32\fP h, \fBlu_int32\fP l)"
+.br
+.ti -1c
+.RI "static \fBRand64\fP \fBIshl\fP (\fBRand64\fP i, int n)"
+.br
+.ti -1c
+.RI "static void \fBIxor\fP (\fBRand64\fP *i1, \fBRand64\fP i2)"
+.br
+.ti -1c
+.RI "static \fBRand64\fP \fBIadd\fP (\fBRand64\fP i1, \fBRand64\fP i2)"
+.br
+.ti -1c
+.RI "static \fBRand64\fP \fBtimes5\fP (\fBRand64\fP i)"
+.br
+.ti -1c
+.RI "static \fBRand64\fP \fBtimes9\fP (\fBRand64\fP i)"
+.br
+.ti -1c
+.RI "static \fBRand64\fP \fBrotl\fP (\fBRand64\fP i, int n)"
+.br
+.ti -1c
+.RI "static \fBRand64\fP \fBrotl1\fP (\fBRand64\fP i, int n)"
+.br
+.ti -1c
+.RI "static \fBRand64\fP \fBnextrand\fP (\fBRand64\fP *state)"
+.br
+.ti -1c
+.RI "static \fBlua_Number\fP \fBI2d\fP (\fBRand64\fP x)"
+.br
+.ti -1c
+.RI "static \fBlua_Unsigned\fP \fBI2UInt\fP (\fBRand64\fP x)"
+.br
+.ti -1c
+.RI "static \fBRand64\fP \fBInt2I\fP (\fBlua_Unsigned\fP n)"
+.br
+.ti -1c
+.RI "static \fBlua_Unsigned\fP \fBproject\fP (\fBlua_Unsigned\fP ran, \fBlua_Unsigned\fP n, \fBRanState\fP *state)"
+.br
+.ti -1c
+.RI "static int \fBmath_random\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBsetseed\fP (\fBlua_State\fP *L, \fBRand64\fP *state, \fBlua_Unsigned\fP n1, \fBlua_Unsigned\fP n2)"
+.br
+.ti -1c
+.RI "static void \fBrandseed\fP (\fBlua_State\fP *L, \fBRanState\fP *state)"
+.br
+.ti -1c
+.RI "static int \fBmath_randomseed\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBsetrandfunc\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAMOD_API\fP int \fBluaopen_math\fP (\fBlua_State\fP *L)"
+.br
+.in -1c
+.SS "变量"
+
+.in +1c
+.ti -1c
+.RI "static const \fBluaL_Reg\fP \fBrandfuncs\fP []"
+.br
+.ti -1c
+.RI "static const \fBluaL_Reg\fP \fBmathlib\fP []"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define FIGS   \fBl_floatatt\fP(MANT_DIG)"
+
+.PP
+在文件 lmathlib\&.c 第 252 行定义\&.
+.SS "#define lmathlib_c"
+
+.PP
+在文件 lmathlib\&.c 第 7 行定义\&.
+.SS "#define LUA_LIB"
+
+.PP
+在文件 lmathlib\&.c 第 8 行定义\&.
+.SS "#define PI   (\fBl_mathop\fP(3\&.141592653589793238462643383279502884))"
+
+.PP
+在文件 lmathlib\&.c 第 26 行定义\&.
+.SS "#define scaleFIG   (\fBl_mathop\fP(0\&.5) / (\fBUONE\fP << (\fBFIGS\fP \- 1)))"
+
+.PP
+在文件 lmathlib\&.c 第 460 行定义\&.
+.SS "#define trim32(x)   ((x) & 0xffffffffu)"
+
+.PP
+在文件 lmathlib\&.c 第 373 行定义\&.
+.SS "#define UONE   ((\fBlu_int32\fP)1)"
+
+.PP
+在文件 lmathlib\&.c 第 454 行定义\&.
+.SH "类型定义说明"
+.PP 
+.SS "typedef unsigned long \fBlu_int32\fP"
+
+.PP
+在文件 lmathlib\&.c 第 353 行定义\&.
+.SS "typedef struct \fBRand64\fP \fBRand64\fP"
+
+.SH "函数说明"
+.PP 
+.SS "static \fBlua_Number\fP I2d (\fBRand64\fP x)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 466 行定义\&.
+.SS "static \fBlua_Unsigned\fP I2UInt (\fBRand64\fP x)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 501 行定义\&.
+.SS "static \fBRand64\fP Iadd (\fBRand64\fP i1, \fBRand64\fP i2)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 401 行定义\&.
+.SS "static \fBRand64\fP Int2I (\fBlua_Unsigned\fP n)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 506 行定义\&.
+.SS "static \fBRand64\fP Ishl (\fBRand64\fP i, int n)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 389 行定义\&.
+.SS "static void Ixor (\fBRand64\fP * i1, \fBRand64\fP i2)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 395 行定义\&.
+.SS "\fBLUAMOD_API\fP int luaopen_math (\fBlua_State\fP * L)"
+
+.PP
+在文件 lmathlib\&.c 第 750 行定义\&.
+.SS "static int math_abs (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 29 行定义\&.
+.SS "static int math_acos (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 60 行定义\&.
+.SS "static int math_asin (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 55 行定义\&.
+.SS "static int math_atan (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 65 行定义\&.
+.SS "static int math_ceil (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 106 行定义\&.
+.SS "static int math_cos (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 45 行定义\&.
+.SS "static int math_deg (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 194 行定义\&.
+.SS "static int math_exp (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 189 行定义\&.
+.SS "static int math_floor (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 95 行定义\&.
+.SS "static int math_fmod (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 117 行定义\&.
+.SS "static int math_log (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 169 行定义\&.
+.SS "static int math_max (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 219 行定义\&.
+.SS "static int math_min (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 205 行定义\&.
+.SS "static int math_modf (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 139 行定义\&.
+.SS "static int math_rad (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 199 行定义\&.
+.SS "static int math_random (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 556 行定义\&.
+.SS "static int math_randomseed (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 617 行定义\&.
+.SS "static int math_sin (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 40 行定义\&.
+.SS "static int math_sqrt (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 156 行定义\&.
+.SS "static int math_tan (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 50 行定义\&.
+.SS "static int math_toint (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 73 行定义\&.
+.SS "static int math_type (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 233 行定义\&.
+.SS "static int math_ult (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 162 行定义\&.
+.SS "static \fBRand64\fP nextrand (\fBRand64\fP * state)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 436 行定义\&.
+.SS "static \fBRand64\fP packI (\fBlu_int32\fP h, \fBlu_int32\fP l)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 381 行定义\&.
+.SS "static \fBlua_Unsigned\fP project (\fBlua_Unsigned\fP ran, \fBlua_Unsigned\fP n, \fBRanState\fP * state)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 531 行定义\&.
+.SS "static void pushnumint (\fBlua_State\fP * L, \fBlua_Number\fP d)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 86 行定义\&.
+.SS "static void randseed (\fBlua_State\fP * L, \fBRanState\fP * state)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 610 行定义\&.
+.SS "static \fBRand64\fP rotl (\fBRand64\fP i, int n)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 419 行定义\&.
+.SS "static \fBRand64\fP rotl1 (\fBRand64\fP i, int n)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 426 行定义\&.
+.SS "static void setrandfunc (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 641 行定义\&.
+.SS "static void setseed (\fBlua_State\fP * L, \fBRand64\fP * state, \fBlua_Unsigned\fP n1, \fBlua_Unsigned\fP n2)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 591 行定义\&.
+.SS "static \fBRand64\fP times5 (\fBRand64\fP i)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 409 行定义\&.
+.SS "static \fBRand64\fP times9 (\fBRand64\fP i)\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 414 行定义\&.
+.SH "变量说明"
+.PP 
+.SS "const \fBluaL_Reg\fP mathlib[]\fC [static]\fP"
+
+.PP
+在文件 lmathlib\&.c 第 704 行定义\&.
+.SS "const \fBluaL_Reg\fP randfuncs[]\fC [static]\fP"
+\fB初始值:\fP
+.PP
+.nf
+= {
+  {"random", math_random},
+  {"randomseed", math_randomseed},
+  {NULL, NULL}
+}
+.fi
+.PP
+在文件 lmathlib\&.c 第 631 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

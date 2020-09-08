@@ -1,0 +1,255 @@
+.TH "D:/gitworkspace/lua/src/lstate.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lstate.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <stddef\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lapi\&.h'\fP
+.br
+\fC#include 'ldebug\&.h'\fP
+.br
+\fC#include 'ldo\&.h'\fP
+.br
+\fC#include 'lfunc\&.h'\fP
+.br
+\fC#include 'lgc\&.h'\fP
+.br
+\fC#include 'llex\&.h'\fP
+.br
+\fC#include 'lmem\&.h'\fP
+.br
+\fC#include 'lstate\&.h'\fP
+.br
+\fC#include 'lstring\&.h'\fP
+.br
+\fC#include 'ltable\&.h'\fP
+.br
+\fC#include 'ltm\&.h'\fP
+.br
+\fC#include <time\&.h>\fP
+.br
+
+.SS "结构体"
+
+.in +1c
+.ti -1c
+.RI "struct \fBLX\fP"
+.br
+.ti -1c
+.RI "struct \fBLG\fP"
+.br
+.in -1c
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBlstate_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_CORE\fP"
+.br
+.ti -1c
+.RI "#define \fBfromstate\fP(L)   (\fBcast\fP(\fBLX\fP *, \fBcast\fP(\fBlu_byte\fP *, (L)) \- offsetof(\fBLX\fP, l)))"
+.br
+.ti -1c
+.RI "#define \fBaddbuff\fP(b,  p,  e)"
+.br
+.in -1c
+.SS "类型定义"
+
+.in +1c
+.ti -1c
+.RI "typedef struct \fBLX\fP \fBLX\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBLG\fP \fBLG\fP"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static unsigned int \fBluai_makeseed\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "void \fBluaE_setdebt\fP (\fBglobal_State\fP *g, \fBl_mem\fP debt)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_setcstacklimit\fP (\fBlua_State\fP *L, unsigned int limit)"
+.br
+.ti -1c
+.RI "void \fBluaE_enterCcall\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBCallInfo\fP * \fBluaE_extendCI\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "void \fBluaE_freeCI\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "void \fBluaE_shrinkCI\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBstack_init\fP (\fBlua_State\fP *L1, \fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBfreestack\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static void \fBinit_registry\fP (\fBlua_State\fP *L, \fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static void \fBf_luaopen\fP (\fBlua_State\fP *L, void *ud)"
+.br
+.ti -1c
+.RI "static void \fBpreinit_thread\fP (\fBlua_State\fP *L, \fBglobal_State\fP *g)"
+.br
+.ti -1c
+.RI "static void \fBclose_state\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP \fBlua_State\fP * \fBlua_newthread\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "void \fBluaE_freethread\fP (\fBlua_State\fP *L, \fBlua_State\fP *L1)"
+.br
+.ti -1c
+.RI "int \fBlua_resetthread\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP \fBlua_State\fP * \fBlua_newstate\fP (\fBlua_Alloc\fP f, void *ud)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_close\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "void \fBluaE_warning\fP (\fBlua_State\fP *L, const char *msg, int tocont)"
+.br
+.ti -1c
+.RI "void \fBluaE_warnerror\fP (\fBlua_State\fP *L, const char *where)"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define addbuff(b, p, e)"
+\fB值:\fP
+.PP
+.nf
+  { size_t t = cast_sizet(e); \
+    memcpy(b + p, &t, sizeof(t)); p += sizeof(t); }
+.fi
+.PP
+在文件 lstate\&.c 第 67 行定义\&.
+.SS "#define fromstate(L)   (\fBcast\fP(\fBLX\fP *, \fBcast\fP(\fBlu_byte\fP *, (L)) \- offsetof(\fBLX\fP, l)))"
+
+.PP
+在文件 lstate\&.c 第 51 行定义\&.
+.SS "#define lstate_c"
+
+.PP
+在文件 lstate\&.c 第 7 行定义\&.
+.SS "#define LUA_CORE"
+
+.PP
+在文件 lstate\&.c 第 8 行定义\&.
+.SH "类型定义说明"
+.PP 
+.SS "typedef struct \fBLG\fP \fBLG\fP"
+
+.SS "typedef struct \fBLX\fP \fBLX\fP"
+
+.SH "函数说明"
+.PP 
+.SS "static void close_state (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstate\&.c 第 307 行定义\&.
+.SS "static void f_luaopen (\fBlua_State\fP * L, void * ud)\fC [static]\fP"
+
+.PP
+在文件 lstate\&.c 第 270 行定义\&.
+.SS "static void freestack (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstate\&.c 第 237 行定义\&.
+.SS "static void init_registry (\fBlua_State\fP * L, \fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lstate\&.c 第 250 行定义\&.
+.SS "\fBLUA_API\fP void lua_close (\fBlua_State\fP * L)"
+
+.PP
+在文件 lstate\&.c 第 438 行定义\&.
+.SS "\fBLUA_API\fP \fBlua_State\fP* lua_newstate (\fBlua_Alloc\fP f, void * ud)"
+
+.PP
+在文件 lstate\&.c 第 383 行定义\&.
+.SS "\fBLUA_API\fP \fBlua_State\fP* lua_newthread (\fBlua_State\fP * L)"
+
+.PP
+在文件 lstate\&.c 第 320 行定义\&.
+.SS "int lua_resetthread (\fBlua_State\fP * L)"
+
+.PP
+在文件 lstate\&.c 第 361 行定义\&.
+.SS "\fBLUA_API\fP int lua_setcstacklimit (\fBlua_State\fP * L, unsigned int limit)"
+
+.PP
+在文件 lstate\&.c 第 99 行定义\&.
+.SS "void luaE_enterCcall (\fBlua_State\fP * L)"
+
+.PP
+在文件 lstate\&.c 第 135 行定义\&.
+.SS "\fBCallInfo\fP* luaE_extendCI (\fBlua_State\fP * L)"
+
+.PP
+在文件 lstate\&.c 第 156 行定义\&.
+.SS "void luaE_freeCI (\fBlua_State\fP * L)"
+
+.PP
+在文件 lstate\&.c 第 174 行定义\&.
+.SS "void luaE_freethread (\fBlua_State\fP * L, \fBlua_State\fP * L1)"
+
+.PP
+在文件 lstate\&.c 第 351 行定义\&.
+.SS "void luaE_setdebt (\fBglobal_State\fP * g, \fBl_mem\fP debt)"
+
+.PP
+在文件 lstate\&.c 第 89 行定义\&.
+.SS "void luaE_shrinkCI (\fBlua_State\fP * L)"
+
+.PP
+在文件 lstate\&.c 第 192 行定义\&.
+.SS "void luaE_warnerror (\fBlua_State\fP * L, const char * where)"
+
+.PP
+在文件 lstate\&.c 第 455 行定义\&.
+.SS "void luaE_warning (\fBlua_State\fP * L, const char * msg, int tocont)"
+
+.PP
+在文件 lstate\&.c 第 445 行定义\&.
+.SS "static unsigned int luai_makeseed (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstate\&.c 第 71 行定义\&.
+.SS "static void preinit_thread (\fBlua_State\fP * L, \fBglobal_State\fP * g)\fC [static]\fP"
+
+.PP
+在文件 lstate\&.c 第 288 行定义\&.
+.SS "static void stack_init (\fBlua_State\fP * L1, \fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lstate\&.c 第 214 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

@@ -1,0 +1,408 @@
+\hypertarget{llex_8c}{}\doxysection{D\+:/gitworkspace/lua/src/llex.c 文件参考}
+\label{llex_8c}\index{D:/gitworkspace/lua/src/llex.c@{D:/gitworkspace/lua/src/llex.c}}
+{\ttfamily \#include \char`\"{}lprefix.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$locale.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}lua.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lctype.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ldebug.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ldo.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lgc.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}llex.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lobject.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lparser.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lstate.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lstring.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ltable.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lzio.\+h\char`\"{}}\newline
+\doxysubsection*{宏定义}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{llex_8c_a2e2a05c4292ce934408b59470a78472d}{llex\+\_\+c}}
+\item 
+\#define \mbox{\hyperlink{llex_8c_abf0b3947b59218777a8e928a10be205b}{L\+U\+A\+\_\+\+C\+O\+RE}}
+\item 
+\#define \mbox{\hyperlink{llex_8c_a8ab976102fb046f9974c53caaf5a1995}{next}}(ls)~(ls-\/$>$current = \mbox{\hyperlink{lzio_8h_aecca8ea1e6dc0c97b458f77c0e3491de}{zgetc}}(ls-\/$>$z))
+\item 
+\#define \mbox{\hyperlink{llex_8c_aee0dbe3090a8bf4b0ecd633781c5a09a}{curr\+Is\+Newline}}(ls)~(ls-\/$>$current == \textquotesingle{}\textbackslash{}n\textquotesingle{} $\vert$$\vert$ ls-\/$>$current == \textquotesingle{}\textbackslash{}r\textquotesingle{})
+\item 
+\#define \mbox{\hyperlink{llex_8c_ac4c2ebdfa66caf9c1ef124c30e9d68a5}{save\+\_\+and\+\_\+next}}(ls)~(\mbox{\hyperlink{llex_8c_a3418da69613c587915ff780b0ec3744b}{save}}(ls, ls-\/$>$current), \mbox{\hyperlink{llex_8c_a8ab976102fb046f9974c53caaf5a1995}{next}}(ls))
+\end{DoxyCompactItemize}
+\doxysubsection*{函数}
+\begin{DoxyCompactItemize}
+\item 
+static \mbox{\hyperlink{llimits_8h_a9f743fcc9a5278cb9ee10355f09f7302}{l\+\_\+noret}} \mbox{\hyperlink{llex_8c_a67bb1f3225ffe5738fef1c3d34879735}{lexerror}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, const char $\ast$msg, int token)
+\item 
+static void \mbox{\hyperlink{llex_8c_a3418da69613c587915ff780b0ec3744b}{save}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int c)
+\item 
+void \mbox{\hyperlink{llex_8c_a50834f7eb4b2ac79c8df048988749abe}{lua\+X\+\_\+init}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+const char $\ast$ \mbox{\hyperlink{llex_8c_afbf0654ae651496d0e8dcebeefbefed6}{lua\+X\+\_\+token2str}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int token)
+\item 
+static const char $\ast$ \mbox{\hyperlink{llex_8c_ab53c17c8b5ca50bcdfbd1cddf7310e83}{txt\+Token}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int token)
+\item 
+\mbox{\hyperlink{llimits_8h_a9f743fcc9a5278cb9ee10355f09f7302}{l\+\_\+noret}} \mbox{\hyperlink{llex_8c_aa5303ae41cbf1a2d9ef2f422751f85be}{lua\+X\+\_\+syntaxerror}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, const char $\ast$msg)
+\item 
+\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$ \mbox{\hyperlink{llex_8c_a83f747518666054180f6a7f8da55ac42}{lua\+X\+\_\+newstring}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, const char $\ast$str, size\+\_\+t l)
+\item 
+static void \mbox{\hyperlink{llex_8c_ac030febfa2dc867e1b48f3328aec45b3}{inclinenumber}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+void \mbox{\hyperlink{llex_8c_a169c85d08461f83e3f8a8c32dcb3d151}{lua\+X\+\_\+setinput}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{lzio_8h_a3a6756c936bdfffa304b1d808ce7dc17}{Z\+IO}} $\ast$z, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$source, int firstchar)
+\item 
+static int \mbox{\hyperlink{llex_8c_a7ffd3be1c90014b2b7645e9c7c9641ff}{check\+\_\+next1}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int c)
+\item 
+static int \mbox{\hyperlink{llex_8c_a4f263e61ecf9ca2875bdc3348dfce822}{check\+\_\+next2}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, const char $\ast$set)
+\item 
+static int \mbox{\hyperlink{llex_8c_a6e3870206c0c321cccaf22d6c2772072}{read\+\_\+numeral}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{union_sem_info}{Sem\+Info}} $\ast$seminfo)
+\item 
+static size\+\_\+t \mbox{\hyperlink{llex_8c_a9036c54b00ccc4e9781a6b7bafe93c5c}{skip\+\_\+sep}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static void \mbox{\hyperlink{llex_8c_a87255185250aab5f03dafe716cdda273}{read\+\_\+long\+\_\+string}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{union_sem_info}{Sem\+Info}} $\ast$seminfo, size\+\_\+t sep)
+\item 
+static void \mbox{\hyperlink{llex_8c_a7dedd6d9ea73e7276da6bcd0effa7cc0}{esccheck}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int c, const char $\ast$msg)
+\item 
+static int \mbox{\hyperlink{llex_8c_a3b597edba3bbea967a33f6e82463b2e7}{gethexa}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static int \mbox{\hyperlink{llex_8c_a5887888b2f49f1350b047c9412422d25}{readhexaesc}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static unsigned long \mbox{\hyperlink{llex_8c_a705948fb201cb495e1040cf1ed1de54d}{readutf8esc}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static void \mbox{\hyperlink{llex_8c_ad753772a24bb842f984798034f62611e}{utf8esc}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static int \mbox{\hyperlink{llex_8c_a860413546c7a3220a01e80c57389aa31}{readdecesc}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static void \mbox{\hyperlink{llex_8c_a5a2d8bb78e2b8e9ee25f901c811b2275}{read\+\_\+string}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int del, \mbox{\hyperlink{union_sem_info}{Sem\+Info}} $\ast$seminfo)
+\item 
+static int \mbox{\hyperlink{llex_8c_a83faab0338a28c8b97ff1156725cc61b}{llex}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{union_sem_info}{Sem\+Info}} $\ast$seminfo)
+\item 
+void \mbox{\hyperlink{llex_8c_a8b9f2aa3f74c4e2f814d860dc7f5a6a8}{lua\+X\+\_\+next}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+int \mbox{\hyperlink{llex_8c_af44c274f4e9a24ac9bc41ff31bac5ffb}{lua\+X\+\_\+lookahead}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\end{DoxyCompactItemize}
+\doxysubsection*{变量}
+\begin{DoxyCompactItemize}
+\item 
+static const char $\ast$const \mbox{\hyperlink{llex_8c_a257ea0c8a6651032b46ea8e5d4f8080f}{lua\+X\+\_\+tokens}} \mbox{[}$\,$\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{宏定义说明}
+\mbox{\Hypertarget{llex_8c_aee0dbe3090a8bf4b0ecd633781c5a09a}\label{llex_8c_aee0dbe3090a8bf4b0ecd633781c5a09a}} 
+\index{llex.c@{llex.c}!currIsNewline@{currIsNewline}}
+\index{currIsNewline@{currIsNewline}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{currIsNewline}{currIsNewline}}
+{\footnotesize\ttfamily \#define curr\+Is\+Newline(\begin{DoxyParamCaption}\item[{}]{ls }\end{DoxyParamCaption})~(ls-\/$>$current == \textquotesingle{}\textbackslash{}n\textquotesingle{} $\vert$$\vert$ ls-\/$>$current == \textquotesingle{}\textbackslash{}r\textquotesingle{})}
+
+
+
+在文件 llex.\+c 第 36 行定义.
+
+\mbox{\Hypertarget{llex_8c_a2e2a05c4292ce934408b59470a78472d}\label{llex_8c_a2e2a05c4292ce934408b59470a78472d}} 
+\index{llex.c@{llex.c}!llex\_c@{llex\_c}}
+\index{llex\_c@{llex\_c}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{llex\_c}{llex\_c}}
+{\footnotesize\ttfamily \#define llex\+\_\+c}
+
+
+
+在文件 llex.\+c 第 7 行定义.
+
+\mbox{\Hypertarget{llex_8c_abf0b3947b59218777a8e928a10be205b}\label{llex_8c_abf0b3947b59218777a8e928a10be205b}} 
+\index{llex.c@{llex.c}!LUA\_CORE@{LUA\_CORE}}
+\index{LUA\_CORE@{LUA\_CORE}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{LUA\_CORE}{LUA\_CORE}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+C\+O\+RE}
+
+
+
+在文件 llex.\+c 第 8 行定义.
+
+\mbox{\Hypertarget{llex_8c_a8ab976102fb046f9974c53caaf5a1995}\label{llex_8c_a8ab976102fb046f9974c53caaf5a1995}} 
+\index{llex.c@{llex.c}!next@{next}}
+\index{next@{next}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{next}{next}}
+{\footnotesize\ttfamily \#define next(\begin{DoxyParamCaption}\item[{}]{ls }\end{DoxyParamCaption})~(ls-\/$>$current = \mbox{\hyperlink{lzio_8h_aecca8ea1e6dc0c97b458f77c0e3491de}{zgetc}}(ls-\/$>$z))}
+
+
+
+在文件 llex.\+c 第 32 行定义.
+
+\mbox{\Hypertarget{llex_8c_ac4c2ebdfa66caf9c1ef124c30e9d68a5}\label{llex_8c_ac4c2ebdfa66caf9c1ef124c30e9d68a5}} 
+\index{llex.c@{llex.c}!save\_and\_next@{save\_and\_next}}
+\index{save\_and\_next@{save\_and\_next}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{save\_and\_next}{save\_and\_next}}
+{\footnotesize\ttfamily \#define save\+\_\+and\+\_\+next(\begin{DoxyParamCaption}\item[{}]{ls }\end{DoxyParamCaption})~(\mbox{\hyperlink{llex_8c_a3418da69613c587915ff780b0ec3744b}{save}}(ls, ls-\/$>$current), \mbox{\hyperlink{llex_8c_a8ab976102fb046f9974c53caaf5a1995}{next}}(ls))}
+
+
+
+在文件 llex.\+c 第 51 行定义.
+
+
+
+\doxysubsection{函数说明}
+\mbox{\Hypertarget{llex_8c_a7ffd3be1c90014b2b7645e9c7c9641ff}\label{llex_8c_a7ffd3be1c90014b2b7645e9c7c9641ff}} 
+\index{llex.c@{llex.c}!check\_next1@{check\_next1}}
+\index{check\_next1@{check\_next1}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{check\_next1()}{check\_next1()}}
+{\footnotesize\ttfamily static int check\+\_\+next1 (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{c }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 llex.\+c 第 189 行定义.
+
+\mbox{\Hypertarget{llex_8c_a4f263e61ecf9ca2875bdc3348dfce822}\label{llex_8c_a4f263e61ecf9ca2875bdc3348dfce822}} 
+\index{llex.c@{llex.c}!check\_next2@{check\_next2}}
+\index{check\_next2@{check\_next2}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{check\_next2()}{check\_next2()}}
+{\footnotesize\ttfamily static int check\+\_\+next2 (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{const char $\ast$}]{set }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 llex.\+c 第 202 行定义.
+
+\mbox{\Hypertarget{llex_8c_a7dedd6d9ea73e7276da6bcd0effa7cc0}\label{llex_8c_a7dedd6d9ea73e7276da6bcd0effa7cc0}} 
+\index{llex.c@{llex.c}!esccheck@{esccheck}}
+\index{esccheck@{esccheck}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{esccheck()}{esccheck()}}
+{\footnotesize\ttfamily static void esccheck (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{c,  }\item[{const char $\ast$}]{msg }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 llex.\+c 第 316 行定义.
+
+\mbox{\Hypertarget{llex_8c_a3b597edba3bbea967a33f6e82463b2e7}\label{llex_8c_a3b597edba3bbea967a33f6e82463b2e7}} 
+\index{llex.c@{llex.c}!gethexa@{gethexa}}
+\index{gethexa@{gethexa}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{gethexa()}{gethexa()}}
+{\footnotesize\ttfamily static int gethexa (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 llex.\+c 第 325 行定义.
+
+\mbox{\Hypertarget{llex_8c_ac030febfa2dc867e1b48f3328aec45b3}\label{llex_8c_ac030febfa2dc867e1b48f3328aec45b3}} 
+\index{llex.c@{llex.c}!inclinenumber@{inclinenumber}}
+\index{inclinenumber@{inclinenumber}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{inclinenumber()}{inclinenumber()}}
+{\footnotesize\ttfamily static void inclinenumber (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 llex.\+c 第 154 行定义.
+
+\mbox{\Hypertarget{llex_8c_a67bb1f3225ffe5738fef1c3d34879735}\label{llex_8c_a67bb1f3225ffe5738fef1c3d34879735}} 
+\index{llex.c@{llex.c}!lexerror@{lexerror}}
+\index{lexerror@{lexerror}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{lexerror()}{lexerror()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{llimits_8h_a9f743fcc9a5278cb9ee10355f09f7302}{l\+\_\+noret}} lexerror (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{const char $\ast$}]{msg,  }\item[{int}]{token }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 llex.\+c 第 112 行定义.
+
+\mbox{\Hypertarget{llex_8c_a83faab0338a28c8b97ff1156725cc61b}\label{llex_8c_a83faab0338a28c8b97ff1156725cc61b}} 
+\index{llex.c@{llex.c}!llex@{llex}}
+\index{llex@{llex}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{llex()}{llex()}}
+{\footnotesize\ttfamily static int llex (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{union_sem_info}{Sem\+Info}} $\ast$}]{seminfo }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 llex.\+c 第 442 行定义.
+
+\mbox{\Hypertarget{llex_8c_a50834f7eb4b2ac79c8df048988749abe}\label{llex_8c_a50834f7eb4b2ac79c8df048988749abe}} 
+\index{llex.c@{llex.c}!luaX\_init@{luaX\_init}}
+\index{luaX\_init@{luaX\_init}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{luaX\_init()}{luaX\_init()}}
+{\footnotesize\ttfamily void lua\+X\+\_\+init (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})}
+
+
+
+在文件 llex.\+c 第 70 行定义.
+
+\mbox{\Hypertarget{llex_8c_af44c274f4e9a24ac9bc41ff31bac5ffb}\label{llex_8c_af44c274f4e9a24ac9bc41ff31bac5ffb}} 
+\index{llex.c@{llex.c}!luaX\_lookahead@{luaX\_lookahead}}
+\index{luaX\_lookahead@{luaX\_lookahead}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{luaX\_lookahead()}{luaX\_lookahead()}}
+{\footnotesize\ttfamily int lua\+X\+\_\+lookahead (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})}
+
+
+
+在文件 llex.\+c 第 573 行定义.
+
+\mbox{\Hypertarget{llex_8c_a83f747518666054180f6a7f8da55ac42}\label{llex_8c_a83f747518666054180f6a7f8da55ac42}} 
+\index{llex.c@{llex.c}!luaX\_newstring@{luaX\_newstring}}
+\index{luaX\_newstring@{luaX\_newstring}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{luaX\_newstring()}{luaX\_newstring()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_t_string}{T\+String}}$\ast$ lua\+X\+\_\+newstring (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{const char $\ast$}]{str,  }\item[{size\+\_\+t}]{l }\end{DoxyParamCaption})}
+
+
+
+在文件 llex.\+c 第 130 行定义.
+
+\mbox{\Hypertarget{llex_8c_a8b9f2aa3f74c4e2f814d860dc7f5a6a8}\label{llex_8c_a8b9f2aa3f74c4e2f814d860dc7f5a6a8}} 
+\index{llex.c@{llex.c}!luaX\_next@{luaX\_next}}
+\index{luaX\_next@{luaX\_next}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{luaX\_next()}{luaX\_next()}}
+{\footnotesize\ttfamily void lua\+X\+\_\+next (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})}
+
+
+
+在文件 llex.\+c 第 562 行定义.
+
+\mbox{\Hypertarget{llex_8c_a169c85d08461f83e3f8a8c32dcb3d151}\label{llex_8c_a169c85d08461f83e3f8a8c32dcb3d151}} 
+\index{llex.c@{llex.c}!luaX\_setinput@{luaX\_setinput}}
+\index{luaX\_setinput@{luaX\_setinput}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{luaX\_setinput()}{luaX\_setinput()}}
+{\footnotesize\ttfamily void lua\+X\+\_\+setinput (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{lzio_8h_a3a6756c936bdfffa304b1d808ce7dc17}{Z\+IO}} $\ast$}]{z,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{source,  }\item[{int}]{firstchar }\end{DoxyParamCaption})}
+
+
+
+在文件 llex.\+c 第 165 行定义.
+
+\mbox{\Hypertarget{llex_8c_aa5303ae41cbf1a2d9ef2f422751f85be}\label{llex_8c_aa5303ae41cbf1a2d9ef2f422751f85be}} 
+\index{llex.c@{llex.c}!luaX\_syntaxerror@{luaX\_syntaxerror}}
+\index{luaX\_syntaxerror@{luaX\_syntaxerror}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{luaX\_syntaxerror()}{luaX\_syntaxerror()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{llimits_8h_a9f743fcc9a5278cb9ee10355f09f7302}{l\+\_\+noret}} lua\+X\+\_\+syntaxerror (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{const char $\ast$}]{msg }\end{DoxyParamCaption})}
+
+
+
+在文件 llex.\+c 第 120 行定义.
+
+\mbox{\Hypertarget{llex_8c_afbf0654ae651496d0e8dcebeefbefed6}\label{llex_8c_afbf0654ae651496d0e8dcebeefbefed6}} 
+\index{llex.c@{llex.c}!luaX\_token2str@{luaX\_token2str}}
+\index{luaX\_token2str@{luaX\_token2str}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{luaX\_token2str()}{luaX\_token2str()}}
+{\footnotesize\ttfamily const char$\ast$ lua\+X\+\_\+token2str (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{token }\end{DoxyParamCaption})}
+
+
+
+在文件 llex.\+c 第 82 行定义.
+
+\mbox{\Hypertarget{llex_8c_a87255185250aab5f03dafe716cdda273}\label{llex_8c_a87255185250aab5f03dafe716cdda273}} 
+\index{llex.c@{llex.c}!read\_long\_string@{read\_long\_string}}
+\index{read\_long\_string@{read\_long\_string}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{read\_long\_string()}{read\_long\_string()}}
+{\footnotesize\ttfamily static void read\+\_\+long\+\_\+string (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{union_sem_info}{Sem\+Info}} $\ast$}]{seminfo,  }\item[{size\+\_\+t}]{sep }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 llex.\+c 第 277 行定义.
+
+\mbox{\Hypertarget{llex_8c_a6e3870206c0c321cccaf22d6c2772072}\label{llex_8c_a6e3870206c0c321cccaf22d6c2772072}} 
+\index{llex.c@{llex.c}!read\_numeral@{read\_numeral}}
+\index{read\_numeral@{read\_numeral}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{read\_numeral()}{read\_numeral()}}
+{\footnotesize\ttfamily static int read\+\_\+numeral (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{union_sem_info}{Sem\+Info}} $\ast$}]{seminfo }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 llex.\+c 第 225 行定义.
+
+\mbox{\Hypertarget{llex_8c_a5a2d8bb78e2b8e9ee25f901c811b2275}\label{llex_8c_a5a2d8bb78e2b8e9ee25f901c811b2275}} 
+\index{llex.c@{llex.c}!read\_string@{read\_string}}
+\index{read\_string@{read\_string}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{read\_string()}{read\_string()}}
+{\footnotesize\ttfamily static void read\+\_\+string (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{del,  }\item[{\mbox{\hyperlink{union_sem_info}{Sem\+Info}} $\ast$}]{seminfo }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 llex.\+c 第 379 行定义.
+
+\mbox{\Hypertarget{llex_8c_a860413546c7a3220a01e80c57389aa31}\label{llex_8c_a860413546c7a3220a01e80c57389aa31}} 
+\index{llex.c@{llex.c}!readdecesc@{readdecesc}}
+\index{readdecesc@{readdecesc}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{readdecesc()}{readdecesc()}}
+{\footnotesize\ttfamily static int readdecesc (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 llex.\+c 第 366 行定义.
+
+\mbox{\Hypertarget{llex_8c_a5887888b2f49f1350b047c9412422d25}\label{llex_8c_a5887888b2f49f1350b047c9412422d25}} 
+\index{llex.c@{llex.c}!readhexaesc@{readhexaesc}}
+\index{readhexaesc@{readhexaesc}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{readhexaesc()}{readhexaesc()}}
+{\footnotesize\ttfamily static int readhexaesc (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 llex.\+c 第 332 行定义.
+
+\mbox{\Hypertarget{llex_8c_a705948fb201cb495e1040cf1ed1de54d}\label{llex_8c_a705948fb201cb495e1040cf1ed1de54d}} 
+\index{llex.c@{llex.c}!readutf8esc@{readutf8esc}}
+\index{readutf8esc@{readutf8esc}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{readutf8esc()}{readutf8esc()}}
+{\footnotesize\ttfamily static unsigned long readutf8esc (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 llex.\+c 第 340 行定义.
+
+\mbox{\Hypertarget{llex_8c_a3418da69613c587915ff780b0ec3744b}\label{llex_8c_a3418da69613c587915ff780b0ec3744b}} 
+\index{llex.c@{llex.c}!save@{save}}
+\index{save@{save}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{save()}{save()}}
+{\footnotesize\ttfamily static void save (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{c }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 llex.\+c 第 57 行定义.
+
+\mbox{\Hypertarget{llex_8c_a9036c54b00ccc4e9781a6b7bafe93c5c}\label{llex_8c_a9036c54b00ccc4e9781a6b7bafe93c5c}} 
+\index{llex.c@{llex.c}!skip\_sep@{skip\_sep}}
+\index{skip\_sep@{skip\_sep}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{skip\_sep()}{skip\_sep()}}
+{\footnotesize\ttfamily static size\+\_\+t skip\+\_\+sep (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 llex.\+c 第 262 行定义.
+
+\mbox{\Hypertarget{llex_8c_ab53c17c8b5ca50bcdfbd1cddf7310e83}\label{llex_8c_ab53c17c8b5ca50bcdfbd1cddf7310e83}} 
+\index{llex.c@{llex.c}!txtToken@{txtToken}}
+\index{txtToken@{txtToken}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{txtToken()}{txtToken()}}
+{\footnotesize\ttfamily static const char$\ast$ txt\+Token (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{token }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 llex.\+c 第 100 行定义.
+
+\mbox{\Hypertarget{llex_8c_ad753772a24bb842f984798034f62611e}\label{llex_8c_ad753772a24bb842f984798034f62611e}} 
+\index{llex.c@{llex.c}!utf8esc@{utf8esc}}
+\index{utf8esc@{utf8esc}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{utf8esc()}{utf8esc()}}
+{\footnotesize\ttfamily static void utf8esc (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 llex.\+c 第 358 行定义.
+
+
+
+\doxysubsection{变量说明}
+\mbox{\Hypertarget{llex_8c_a257ea0c8a6651032b46ea8e5d4f8080f}\label{llex_8c_a257ea0c8a6651032b46ea8e5d4f8080f}} 
+\index{llex.c@{llex.c}!luaX\_tokens@{luaX\_tokens}}
+\index{luaX\_tokens@{luaX\_tokens}!llex.c@{llex.c}}
+\doxysubsubsection{\texorpdfstring{luaX\_tokens}{luaX\_tokens}}
+{\footnotesize\ttfamily const char$\ast$ const lua\+X\+\_\+tokens\mbox{[}$\,$\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries 初始值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{= \{}
+\DoxyCodeLine{    \textcolor{stringliteral}{"{}and"{}}, \textcolor{stringliteral}{"{}break"{}}, \textcolor{stringliteral}{"{}do"{}}, \textcolor{stringliteral}{"{}else"{}}, \textcolor{stringliteral}{"{}elseif"{}},}
+\DoxyCodeLine{    \textcolor{stringliteral}{"{}end"{}}, \textcolor{stringliteral}{"{}false"{}}, \textcolor{stringliteral}{"{}for"{}}, \textcolor{stringliteral}{"{}function"{}}, \textcolor{stringliteral}{"{}goto"{}}, \textcolor{stringliteral}{"{}if"{}},}
+\DoxyCodeLine{    \textcolor{stringliteral}{"{}in"{}}, \textcolor{stringliteral}{"{}local"{}}, \textcolor{stringliteral}{"{}nil"{}}, \textcolor{stringliteral}{"{}not"{}}, \textcolor{stringliteral}{"{}or"{}}, \textcolor{stringliteral}{"{}repeat"{}},}
+\DoxyCodeLine{    \textcolor{stringliteral}{"{}return"{}}, \textcolor{stringliteral}{"{}then"{}}, \textcolor{stringliteral}{"{}true"{}}, \textcolor{stringliteral}{"{}until"{}}, \textcolor{stringliteral}{"{}while"{}},}
+\DoxyCodeLine{    \textcolor{stringliteral}{"{}//"{}}, \textcolor{stringliteral}{"{}.."{}}, \textcolor{stringliteral}{"{}..."{}}, \textcolor{stringliteral}{"{}=="{}}, \textcolor{stringliteral}{"{}>="{}}, \textcolor{stringliteral}{"{}<="{}}, \textcolor{stringliteral}{"{}\string~="{}},}
+\DoxyCodeLine{    \textcolor{stringliteral}{"{}<<"{}}, \textcolor{stringliteral}{"{}>>"{}}, \textcolor{stringliteral}{"{}::"{}}, \textcolor{stringliteral}{"{}<eof>"{}},}
+\DoxyCodeLine{    \textcolor{stringliteral}{"{}<number>"{}}, \textcolor{stringliteral}{"{}<integer>"{}}, \textcolor{stringliteral}{"{}<name>"{}}, \textcolor{stringliteral}{"{}<string>"{}}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+在文件 llex.\+c 第 40 行定义.
+

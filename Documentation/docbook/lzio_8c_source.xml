@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lzio_8c_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/lzio.c</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;lzio.c&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Buffered&#32;streams</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+<anchor xml:id="_lzio_8c_source_1l00007"/><link linkend="_lzio_8c_1a5951afcafb16519a9de1dede747aefb8">00007</link> <emphasis role="preprocessor">#define&#32;lzio_c</emphasis>
+<anchor xml:id="_lzio_8c_source_1l00008"/><link linkend="_lzio_8c_1abf0b3947b59218777a8e928a10be205b">00008</link> <emphasis role="preprocessor">#define&#32;LUA_CORE</emphasis>
+00009 
+00010 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lprefix_8h">lprefix.h</link>&quot;</emphasis>
+00011 
+00012 
+00013 <emphasis role="preprocessor">#include&#32;&lt;string.h&gt;</emphasis>
+00014 
+00015 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lua_8h">lua.h</link>&quot;</emphasis>
+00016 
+00017 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_llimits_8h">llimits.h</link>&quot;</emphasis>
+00018 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lmem_8h">lmem.h</link>&quot;</emphasis>
+00019 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lstate_8h">lstate.h</link>&quot;</emphasis>
+00020 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lzio_8h">lzio.h</link>&quot;</emphasis>
+00021 
+00022 
+<anchor xml:id="_lzio_8c_source_1l00023"/><link linkend="_lzio_8h_1a407faec289b7559f210ac784e11a59bb">00023</link> <emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lzio_8c_1a7d496b76e161e81d07f9200af4784cb2">luaZ_fill</link>&#32;(<link linkend="_struct_zio">ZIO</link>&#32;*z)&#32;{
+00024 &#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;size;
+00025 &#32;&#32;<link linkend="_structlua___state">lua_State</link>&#32;*L&#32;=&#32;z-&gt;<link linkend="_struct_zio_1a62f94dfc0036bec0c14106c2f15caf3e">L</link>;
+00026 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*buff;
+00027 &#32;&#32;<link linkend="_llimits_8h_1a1781f2a7d9161848a246d475a9171875">lua_unlock</link>(L);
+00028 &#32;&#32;buff&#32;=&#32;z-&gt;<link linkend="_struct_zio_1a58679f709a49abc5db634ce0b4b52f63">reader</link>(L,&#32;z-&gt;<link linkend="_struct_zio_1a735984d41155bc1032e09bece8f8d66d">data</link>,&#32;&amp;size);
+00029 &#32;&#32;<link linkend="_llimits_8h_1aa68a48b9104aeadf4842c25c12a9b8c9">lua_lock</link>(L);
+00030 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(buff&#32;==&#32;NULL&#32;||&#32;size&#32;==&#32;0)
+00031 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lzio_8h_1a8341bdc72db5a2f045e18440f9523008">EOZ</link>;
+00032 &#32;&#32;z-&gt;<link linkend="_struct_zio_1a3d05cf6aa68b03e254d70afbe869e305">n</link>&#32;=&#32;size&#32;-&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;discount&#32;char&#32;being&#32;returned&#32;*/</emphasis>
+00033 &#32;&#32;z-&gt;<link linkend="_struct_zio_1a6bc6b007533335efe02bafff799ec64c">p</link>&#32;=&#32;buff;
+00034 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_llimits_8h_1aa0c49a2b32329cc39df5ccafd1f720e0">cast_uchar</link>(*(z-&gt;<link linkend="_struct_zio_1a6bc6b007533335efe02bafff799ec64c">p</link>++));
+00035 }
+00036 
+00037 
+<anchor xml:id="_lzio_8c_source_1l00038"/><link linkend="_lzio_8h_1a182323feac5ab7363dbf654d87f057d5">00038</link> <emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lzio_8c_1aeac95715238190000a710e2c304133a2">luaZ_init</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_zio">ZIO</link>&#32;*z,&#32;<link linkend="_lua_8h_1a4081d57135fee907807ba5070d528fdf">lua_Reader</link>&#32;reader,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*data)&#32;{
+00039 &#32;&#32;z-&gt;<link linkend="_struct_zio_1a62f94dfc0036bec0c14106c2f15caf3e">L</link>&#32;=&#32;L;
+00040 &#32;&#32;z-&gt;<link linkend="_struct_zio_1a58679f709a49abc5db634ce0b4b52f63">reader</link>&#32;=&#32;reader;
+00041 &#32;&#32;z-&gt;<link linkend="_struct_zio_1a735984d41155bc1032e09bece8f8d66d">data</link>&#32;=&#32;data;
+00042 &#32;&#32;z-&gt;<link linkend="_struct_zio_1a3d05cf6aa68b03e254d70afbe869e305">n</link>&#32;=&#32;0;
+00043 &#32;&#32;z-&gt;<link linkend="_struct_zio_1a6bc6b007533335efe02bafff799ec64c">p</link>&#32;=&#32;NULL;
+00044 }
+00045 
+00046 
+00047 <emphasis role="comment">/*&#32;---------------------------------------------------------------&#32;read&#32;---&#32;*/</emphasis>
+<anchor xml:id="_lzio_8c_source_1l00048"/><link linkend="_lzio_8h_1a1f10428fa224047cec9e9b1756a0b733">00048</link> <emphasis role="keywordtype">size_t</emphasis>&#32;<link linkend="_lzio_8c_1a8f724436a986edc42726b43aded0759a">luaZ_read</link>&#32;(<link linkend="_struct_zio">ZIO</link>&#32;*z,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*b,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;n)&#32;{
+00049 &#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;(n)&#32;{
+00050 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;m;
+00051 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(z-&gt;<link linkend="_struct_zio_1a3d05cf6aa68b03e254d70afbe869e305">n</link>&#32;==&#32;0)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;no&#32;bytes&#32;in&#32;buffer?&#32;*/</emphasis>
+00052 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lzio_8c_1a7d496b76e161e81d07f9200af4784cb2">luaZ_fill</link>(z)&#32;==&#32;<link linkend="_lzio_8h_1a8341bdc72db5a2f045e18440f9523008">EOZ</link>)&#32;&#32;<emphasis role="comment">/*&#32;try&#32;to&#32;read&#32;more&#32;*/</emphasis>
+00053 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;n;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;more&#32;input;&#32;return&#32;number&#32;of&#32;missing&#32;bytes&#32;*/</emphasis>
+00054 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00055 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;z-&gt;<link linkend="_struct_zio_1a3d05cf6aa68b03e254d70afbe869e305">n</link>++;&#32;&#32;<emphasis role="comment">/*&#32;luaZ_fill&#32;consumed&#32;first&#32;byte;&#32;put&#32;it&#32;back&#32;*/</emphasis>
+00056 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;z-&gt;<link linkend="_struct_zio_1a6bc6b007533335efe02bafff799ec64c">p</link>--;
+00057 &#32;&#32;&#32;&#32;&#32;&#32;}
+00058 &#32;&#32;&#32;&#32;}
+00059 &#32;&#32;&#32;&#32;m&#32;=&#32;(n&#32;&lt;=&#32;z-&gt;<link linkend="_struct_zio_1a3d05cf6aa68b03e254d70afbe869e305">n</link>)&#32;?&#32;n&#32;:&#32;z-&gt;<link linkend="_struct_zio_1a3d05cf6aa68b03e254d70afbe869e305">n</link>;&#32;&#32;<emphasis role="comment">/*&#32;min.&#32;between&#32;n&#32;and&#32;z-&gt;n&#32;*/</emphasis>
+00060 &#32;&#32;&#32;&#32;memcpy(b,&#32;z-&gt;<link linkend="_struct_zio_1a6bc6b007533335efe02bafff799ec64c">p</link>,&#32;m);
+00061 &#32;&#32;&#32;&#32;z-&gt;<link linkend="_struct_zio_1a3d05cf6aa68b03e254d70afbe869e305">n</link>&#32;-=&#32;m;
+00062 &#32;&#32;&#32;&#32;z-&gt;<link linkend="_struct_zio_1a6bc6b007533335efe02bafff799ec64c">p</link>&#32;+=&#32;m;
+00063 &#32;&#32;&#32;&#32;b&#32;=&#32;(<emphasis role="keywordtype">char</emphasis>&#32;*)b&#32;+&#32;m;
+00064 &#32;&#32;&#32;&#32;n&#32;-=&#32;m;
+00065 &#32;&#32;}
+00066 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;
+00067 }
+00068 
+</programlisting></section>

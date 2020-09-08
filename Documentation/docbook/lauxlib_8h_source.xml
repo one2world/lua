@@ -1,0 +1,280 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lauxlib_8h_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/lauxlib.h</title>
+<programlisting><anchor xml:id="_lauxlib_8h_source_1l00001"/><link linkend="_lauxlib_8h_1aaed907641807460fcee0e1cb9a9e9ed6">00001</link> <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;lauxlib.h&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Auxiliary&#32;functions&#32;for&#32;building&#32;Lua&#32;libraries</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+00007 
+00008 <emphasis role="preprocessor">#ifndef&#32;lauxlib_h</emphasis>
+00009 <emphasis role="preprocessor">#define&#32;lauxlib_h</emphasis>
+00010 
+00011 
+00012 <emphasis role="preprocessor">#include&#32;&lt;stddef.h&gt;</emphasis>
+00013 <emphasis role="preprocessor">#include&#32;&lt;stdio.h&gt;</emphasis>
+00014 
+00015 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lua_8h">lua.h</link>&quot;</emphasis>
+00016 
+00017 
+00018 <emphasis role="comment">/*&#32;global&#32;table&#32;*/</emphasis>
+<anchor xml:id="_lauxlib_8h_source_1l00019"/><link linkend="_lauxlib_8h_1a074d53b3afd2b899d4b986c9643fb41a">00019</link> <emphasis role="preprocessor">#define&#32;LUA_GNAME&#32;&#32;&#32;&quot;_G&quot;</emphasis>
+00020 
+00021 
+00022 <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;<link linkend="_structlua_l___buffer">luaL_Buffer</link>;
+00023 
+00024 
+00025 <emphasis role="comment">/*&#32;extra&#32;error&#32;code&#32;for&#32;&apos;luaL_loadfilex&apos;&#32;*/</emphasis>
+<anchor xml:id="_lauxlib_8h_source_1l00026"/><link linkend="_lauxlib_8h_1ab8d4418d33cd59728435db95ac2caf5a">00026</link> <emphasis role="preprocessor">#define&#32;LUA_ERRFILE&#32;&#32;&#32;&#32;&#32;(LUA_ERRERR+1)</emphasis>
+00027 
+00028 
+00029 <emphasis role="comment">/*&#32;key,&#32;in&#32;the&#32;registry,&#32;for&#32;table&#32;of&#32;loaded&#32;modules&#32;*/</emphasis>
+<anchor xml:id="_lauxlib_8h_source_1l00030"/><link linkend="_lauxlib_8h_1a0fbee1a8156dc622618c9f6048281a73">00030</link> <emphasis role="preprocessor">#define&#32;LUA_LOADED_TABLE&#32;&#32;&#32;&#32;&quot;_LOADED&quot;</emphasis>
+00031 
+00032 
+00033 <emphasis role="comment">/*&#32;key,&#32;in&#32;the&#32;registry,&#32;for&#32;table&#32;of&#32;preloaded&#32;loaders&#32;*/</emphasis>
+<anchor xml:id="_lauxlib_8h_source_1l00034"/><link linkend="_lauxlib_8h_1ab654a257ab8f9de4ba519a64a9a9ea91">00034</link> <emphasis role="preprocessor">#define&#32;LUA_PRELOAD_TABLE&#32;&#32;&#32;&quot;_PRELOAD&quot;</emphasis>
+00035 
+00036 
+<anchor xml:id="_lauxlib_8h_source_1l00037"/><link linkend="_structlua_l___reg">00037</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_structlua_l___reg">luaL_Reg</link>&#32;{
+<anchor xml:id="_lauxlib_8h_source_1l00038"/><link linkend="_structlua_l___reg_1a8f8f80d37794cde9472343e4487ba3eb">00038</link> &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_structlua_l___reg_1a8f8f80d37794cde9472343e4487ba3eb">name</link>;
+<anchor xml:id="_lauxlib_8h_source_1l00039"/><link linkend="_structlua_l___reg_1a9ee443558d897affd625361767eb0cec">00039</link> &#32;&#32;<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>&#32;<link linkend="_structlua_l___reg_1a9ee443558d897affd625361767eb0cec">func</link>;
+<anchor xml:id="_lauxlib_8h_source_1l00040"/><link linkend="_lauxlib_8h_1ab5ca0c51890e3970d0db1df2a1922b34">00040</link> }&#32;<link linkend="_lauxlib_8h_1ab5ca0c51890e3970d0db1df2a1922b34">luaL_Reg</link>;
+00041 
+00042 
+<anchor xml:id="_lauxlib_8h_source_1l00043"/><link linkend="_lauxlib_8h_1ae6c79b83e1d493d4ab680e74e5a85a6a">00043</link> <emphasis role="preprocessor">#define&#32;LUAL_NUMSIZES&#32;&#32;&#32;(sizeof(lua_Integer)*16&#32;+&#32;sizeof(lua_Number))</emphasis>
+00044 
+00045 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;void&#32;(<link linkend="_lauxlib_8h_1ab42194a5a9cd8a6f6ee9123ef1807e52">luaL_checkversion_</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link>&#32;ver,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;sz);
+<anchor xml:id="_lauxlib_8h_source_1l00046"/><link linkend="_lauxlib_8h_1aa538485cd28f143fabea2325b9ecd477">00046</link> <emphasis role="preprocessor">#define&#32;luaL_checkversion(L)&#32;&#32;\</emphasis>
+00047 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;luaL_checkversion_(L,&#32;LUA_VERSION_NUM,&#32;LUAL_NUMSIZES)</emphasis>
+00048 
+00049 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;int&#32;(<link linkend="_lauxlib_8h_1aed3f129411ba1ec14f813d650f16384d">luaL_getmetafield</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;obj,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*e);
+00050 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;int&#32;(<link linkend="_lauxlib_8h_1af26aec8cce4a3f4448c60f402d78f17d">luaL_callmeta</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;obj,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*e);
+00051 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*(<link linkend="_lauxlib_8h_1aef6da057d1e26ed6449b92177f1f2f5a">luaL_tolstring</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;*len);
+00052 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;int&#32;(<link linkend="_lauxlib_8h_1ad0599591343ae7836d46e685b16e69de">luaL_argerror</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*extramsg);
+00053 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;int&#32;(<link linkend="_lauxlib_8h_1a38cc1bb8d85efadc840f38b33e37326b">luaL_typeerror</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*tname);
+00054 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*(<link linkend="_lauxlib_8h_1aba7169b56524dab1c9f67f71b0417d86">luaL_checklstring</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg,
+00055 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;*l);
+00056 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*(<link linkend="_lauxlib_8h_1a3340783871347b1c95cf4ede72d5c67b">luaL_optlstring</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg,
+00057 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*def,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;*l);
+00058 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link>&#32;(<link linkend="_lauxlib_8h_1ac0919af2e419b4b9e86d6ddb355cec65">luaL_checknumber</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg);
+00059 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link>&#32;(<link linkend="_lauxlib_8h_1aa26a2aaafd22fe5c02c84eb9a7098fd8">luaL_optnumber</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg,&#32;<link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link>&#32;def);
+00060 
+00061 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;(<link linkend="_lauxlib_8h_1a4fab48acb62fbf5344ff26e482afaab2">luaL_checkinteger</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg);
+00062 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;(<link linkend="_lauxlib_8h_1aeb7f0d9ff0b8244215c2a5950a168bb8">luaL_optinteger</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg,
+00063 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;def);
+00064 
+00065 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;void&#32;(<link linkend="_lauxlib_8h_1a724f5a5aeee97c0b40948c8bca91341c">luaL_checkstack</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;sz,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg);
+00066 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;void&#32;(<link linkend="_lauxlib_8h_1ae9c9f80f66ca2ff9567e4db4d1d704e3">luaL_checktype</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg,&#32;<emphasis role="keywordtype">int</emphasis>&#32;t);
+00067 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;void&#32;(<link linkend="_lauxlib_8h_1a21ba19f50ce2a499224d2710f6fa7728">luaL_checkany</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg);
+00068 
+00069 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;int&#32;&#32;&#32;(<link linkend="_lauxlib_8h_1a0e9e032108e7aedc05836b0c1d72a0fa">luaL_newmetatable</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*tname);
+00070 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;void&#32;&#32;(<link linkend="_lauxlib_8h_1a4ef6497609d8cb52f8f4dc0ec489bb7a">luaL_setmetatable</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*tname);
+00071 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*(<link linkend="_lauxlib_8h_1ab40f618f7e65d9af23e01f3924c3d6c8">luaL_testudata</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;ud,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*tname);
+00072 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;*(<link linkend="_lauxlib_8h_1aed8d8e4f3b95c6bcac246ec9895027b1">luaL_checkudata</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;ud,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*tname);
+00073 
+00074 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;void&#32;(<link linkend="_lauxlib_8h_1a269122a77674ca63c9193c2a30b4729e">luaL_where</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;lvl);
+00075 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;int&#32;(<link linkend="_lauxlib_8h_1a994f73d7985c30672469a260d9e86ae6">luaL_error</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*fmt,&#32;...);
+00076 
+00077 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;int&#32;(<link linkend="_lauxlib_8h_1ae4a7f494cc400b09f5cbccfc3f8187c5">luaL_checkoption</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*def,
+00078 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<emphasis role="keyword">const</emphasis>&#32;lst[]);
+00079 
+00080 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;int&#32;(<link linkend="_lauxlib_8h_1ab94b3cb77f5a0ae622ae4ba5f99af4c7">luaL_fileresult</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;stat,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*fname);
+00081 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;int&#32;(<link linkend="_lauxlib_8h_1a2e009e523534f5ad087e7834e711b781">luaL_execresult</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;stat);
+00082 
+00083 
+00084 <emphasis role="comment">/*&#32;predefined&#32;references&#32;*/</emphasis>
+<anchor xml:id="_lauxlib_8h_source_1l00085"/><link linkend="_lauxlib_8h_1a3bfb758f2ac7c9ecb758e1aeaaa82d3d">00085</link> <emphasis role="preprocessor">#define&#32;LUA_NOREF&#32;&#32;&#32;&#32;&#32;&#32;&#32;(-2)</emphasis>
+<anchor xml:id="_lauxlib_8h_source_1l00086"/><link linkend="_lauxlib_8h_1a004a6b76c047f3b94890a08dbdcbbee7">00086</link> <emphasis role="preprocessor">#define&#32;LUA_REFNIL&#32;&#32;&#32;&#32;&#32;&#32;(-1)</emphasis>
+00087 
+00088 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;int&#32;(<link linkend="_lauxlib_8h_1a2b69e67252d95df410818251f4b2d8e5">luaL_ref</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;t);
+00089 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;void&#32;(<link linkend="_lauxlib_8h_1a6200030ecae784852045161274501e0e">luaL_unref</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;t,&#32;<emphasis role="keywordtype">int</emphasis>&#32;ref);
+00090 
+00091 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;int&#32;(<link linkend="_lauxlib_8h_1a8c38c6dcf9db7e110e525b46742bacf8">luaL_loadfilex</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*filename,
+00092 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*mode);
+00093 
+<anchor xml:id="_lauxlib_8h_source_1l00094"/><link linkend="_lauxlib_8h_1a023c745560d0ed613efb6eada57a3c13">00094</link> <emphasis role="preprocessor">#define&#32;luaL_loadfile(L,f)&#32;&#32;luaL_loadfilex(L,f,NULL)</emphasis>
+00095 
+00096 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;int&#32;(<link linkend="_lauxlib_8h_1a3ab1955dd9322cf03e2d3626ebfae669">luaL_loadbufferx</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*buff,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;sz,
+00097 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*mode);
+00098 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;int&#32;(<link linkend="_lauxlib_8h_1ac88130d6214ff6b3e2f1781f327807eb">luaL_loadstring</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*s);
+00099 
+00100 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;<link linkend="_structlua___state">lua_State</link>&#32;*(<link linkend="_lauxlib_8h_1a7d8712fcede90ae93d5a9a7b409c586e">luaL_newstate</link>)&#32;(<emphasis role="keywordtype">void</emphasis>);
+00101 
+00102 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;(<link linkend="_lauxlib_8h_1ac9d38b77e425247b630afdb212401a05">luaL_len</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx);
+00103 
+00104 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lauxlib_8h_1a5dcf12b98ab3ef52b7885a27f48fadea">luaL_addgsub</link>&#32;(<link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;*b,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*s,
+00105 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*p,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*r);
+00106 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*(<link linkend="_lauxlib_8h_1a46672be75da57e1a464c5c6d80f19064">luaL_gsub</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*s,
+00107 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*p,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*r);
+00108 
+00109 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;void&#32;(<link linkend="_lauxlib_8h_1a8750009b9bbc508e4c3818ebd15b4e14">luaL_setfuncs</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_structlua_l___reg">luaL_Reg</link>&#32;*l,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nup);
+00110 
+00111 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;int&#32;(<link linkend="_lauxlib_8h_1a2605da7ef3a12d7e9cfa85939245f941">luaL_getsubtable</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;idx,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*fname);
+00112 
+00113 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;void&#32;(<link linkend="_lauxlib_8h_1a664cc293d6c7a7dc67857fe95583a10e">luaL_traceback</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_structlua___state">lua_State</link>&#32;*L1,
+00114 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg,&#32;<emphasis role="keywordtype">int</emphasis>&#32;level);
+00115 
+00116 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;void&#32;(<link linkend="_lauxlib_8h_1af6e3e3ca0a445a50f34cfc26f89c7d61">luaL_requiref</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*modname,
+00117 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>&#32;openf,&#32;<emphasis role="keywordtype">int</emphasis>&#32;glb);
+00118 
+00119 <emphasis role="comment">/*</emphasis>
+00120 <emphasis role="comment">**&#32;===============================================================</emphasis>
+00121 <emphasis role="comment">**&#32;some&#32;useful&#32;macros</emphasis>
+00122 <emphasis role="comment">**&#32;===============================================================</emphasis>
+00123 <emphasis role="comment">*/</emphasis>
+00124 
+00125 
+<anchor xml:id="_lauxlib_8h_source_1l00126"/><link linkend="_lauxlib_8h_1ad575a4fd1f53fa454b5d9745fedecdc4">00126</link> <emphasis role="preprocessor">#define&#32;luaL_newlibtable(L,l)&#32;&#32;&#32;\</emphasis>
+00127 <emphasis role="preprocessor">&#32;&#32;lua_createtable(L,&#32;0,&#32;sizeof(l)/sizeof((l)[0])&#32;-&#32;1)</emphasis>
+00128 
+<anchor xml:id="_lauxlib_8h_source_1l00129"/><link linkend="_lauxlib_8h_1a5088ff720ec66200d83eb78467b77239">00129</link> <emphasis role="preprocessor">#define&#32;luaL_newlib(L,l)&#32;&#32;\</emphasis>
+00130 <emphasis role="preprocessor">&#32;&#32;(luaL_checkversion(L),&#32;luaL_newlibtable(L,l),&#32;luaL_setfuncs(L,l,0))</emphasis>
+00131 
+<anchor xml:id="_lauxlib_8h_source_1l00132"/><link linkend="_lauxlib_8h_1a48ce6cd86a7448e97f258097a7abc44d">00132</link> <emphasis role="preprocessor">#define&#32;luaL_argcheck(L,&#32;cond,arg,extramsg)&#32;\</emphasis>
+00133 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;((void)((cond)&#32;||&#32;luaL_argerror(L,&#32;(arg),&#32;(extramsg))))</emphasis>
+00134 
+<anchor xml:id="_lauxlib_8h_source_1l00135"/><link linkend="_lauxlib_8h_1ad13737dbd230fffc0b9925b1c728c58e">00135</link> <emphasis role="preprocessor">#define&#32;luaL_argexpected(L,cond,arg,tname)&#32;&#32;\</emphasis>
+00136 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;((void)((cond)&#32;||&#32;luaL_typeerror(L,&#32;(arg),&#32;(tname))))</emphasis>
+00137 
+<anchor xml:id="_lauxlib_8h_source_1l00138"/><link linkend="_lauxlib_8h_1ad9917d22c79651fdd73d42c146b5056f">00138</link> <emphasis role="preprocessor">#define&#32;luaL_checkstring(L,n)&#32;&#32;&#32;(luaL_checklstring(L,&#32;(n),&#32;NULL))</emphasis>
+<anchor xml:id="_lauxlib_8h_source_1l00139"/><link linkend="_lauxlib_8h_1a732bc5882c4a5da46b236649ab6db47b">00139</link> <emphasis role="preprocessor">#define&#32;luaL_optstring(L,n,d)&#32;&#32;&#32;(luaL_optlstring(L,&#32;(n),&#32;(d),&#32;NULL))</emphasis>
+00140 
+<anchor xml:id="_lauxlib_8h_source_1l00141"/><link linkend="_lauxlib_8h_1a2bee94954917c5bccb05d6578f3c675b">00141</link> <emphasis role="preprocessor">#define&#32;luaL_typename(L,i)&#32;&#32;lua_typename(L,&#32;lua_type(L,(i)))</emphasis>
+00142 
+<anchor xml:id="_lauxlib_8h_source_1l00143"/><link linkend="_lauxlib_8h_1aa49a7a47a683d6e7868ede50ceb826be">00143</link> <emphasis role="preprocessor">#define&#32;luaL_dofile(L,&#32;fn)&#32;\</emphasis>
+00144 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;(luaL_loadfile(L,&#32;fn)&#32;||&#32;lua_pcall(L,&#32;0,&#32;LUA_MULTRET,&#32;0))</emphasis>
+00145 
+<anchor xml:id="_lauxlib_8h_source_1l00146"/><link linkend="_lauxlib_8h_1a1a0639bfde6b1e2f6181af45b0137cf5">00146</link> <emphasis role="preprocessor">#define&#32;luaL_dostring(L,&#32;s)&#32;\</emphasis>
+00147 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;(luaL_loadstring(L,&#32;s)&#32;||&#32;lua_pcall(L,&#32;0,&#32;LUA_MULTRET,&#32;0))</emphasis>
+00148 
+<anchor xml:id="_lauxlib_8h_source_1l00149"/><link linkend="_lauxlib_8h_1a201407aa41ff74577c67308372a130d9">00149</link> <emphasis role="preprocessor">#define&#32;luaL_getmetatable(L,n)&#32;&#32;(lua_getfield(L,&#32;LUA_REGISTRYINDEX,&#32;(n)))</emphasis>
+00150 
+<anchor xml:id="_lauxlib_8h_source_1l00151"/><link linkend="_lauxlib_8h_1aca033280b0176012ef290131876f706e">00151</link> <emphasis role="preprocessor">#define&#32;luaL_opt(L,f,n,d)&#32;&#32;&#32;(lua_isnoneornil(L,(n))&#32;?&#32;(d)&#32;:&#32;f(L,(n)))</emphasis>
+00152 
+<anchor xml:id="_lauxlib_8h_source_1l00153"/><link linkend="_lauxlib_8h_1ae210c8b2a9a27ee62b2e846e93ae876f">00153</link> <emphasis role="preprocessor">#define&#32;luaL_loadbuffer(L,s,sz,n)&#32;&#32;&#32;luaL_loadbufferx(L,s,sz,n,NULL)</emphasis>
+00154 
+00155 
+00156 <emphasis role="comment">/*&#32;push&#32;the&#32;value&#32;used&#32;to&#32;represent&#32;failure/error&#32;*/</emphasis>
+<anchor xml:id="_lauxlib_8h_source_1l00157"/><link linkend="_lauxlib_8h_1a8666135f7a1412f5eaa14857aec279f0">00157</link> <emphasis role="preprocessor">#define&#32;luaL_pushfail(L)&#32;&#32;&#32;&#32;lua_pushnil(L)</emphasis>
+00158 
+00159 
+00160 <emphasis role="comment">/*</emphasis>
+00161 <emphasis role="comment">**&#32;{======================================================</emphasis>
+00162 <emphasis role="comment">**&#32;Generic&#32;Buffer&#32;manipulation</emphasis>
+00163 <emphasis role="comment">**&#32;=======================================================</emphasis>
+00164 <emphasis role="comment">*/</emphasis>
+00165 
+<anchor xml:id="_lauxlib_8h_source_1l00166"/><link linkend="_structlua_l___buffer">00166</link> <emphasis role="keyword">struct&#32;</emphasis><link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;{
+<anchor xml:id="_lauxlib_8h_source_1l00167"/><link linkend="_structlua_l___buffer_1aafe80d64508a05a94be4d07b648244d0">00167</link> &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_structlua_l___buffer_1aafe80d64508a05a94be4d07b648244d0">b</link>;&#32;&#32;<emphasis role="comment">/*&#32;buffer&#32;address&#32;*/</emphasis>
+<anchor xml:id="_lauxlib_8h_source_1l00168"/><link linkend="_structlua_l___buffer_1a854352f53b148adc24983a58a1866d66">00168</link> &#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;<link linkend="_structlua_l___buffer_1a854352f53b148adc24983a58a1866d66">size</link>;&#32;&#32;<emphasis role="comment">/*&#32;buffer&#32;size&#32;*/</emphasis>
+<anchor xml:id="_lauxlib_8h_source_1l00169"/><link linkend="_structlua_l___buffer_1a3d05cf6aa68b03e254d70afbe869e305">00169</link> &#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;<link linkend="_structlua_l___buffer_1a3d05cf6aa68b03e254d70afbe869e305">n</link>;&#32;&#32;<emphasis role="comment">/*&#32;number&#32;of&#32;characters&#32;in&#32;buffer&#32;*/</emphasis>
+<anchor xml:id="_lauxlib_8h_source_1l00170"/><link linkend="_structlua_l___buffer_1a62f94dfc0036bec0c14106c2f15caf3e">00170</link> &#32;&#32;<link linkend="_structlua___state">lua_State</link>&#32;*<link linkend="_structlua_l___buffer_1a62f94dfc0036bec0c14106c2f15caf3e">L</link>;
+00171 &#32;&#32;<emphasis role="keyword">union&#32;</emphasis>{
+<anchor xml:id="_lauxlib_8h_source_1l00172"/><link linkend="_structlua_l___buffer_1ab6831aedf257af2792e40e0666ac6530">00172</link> &#32;&#32;&#32;&#32;<link linkend="_structlua_l___buffer_1ab6831aedf257af2792e40e0666ac6530">LUAI_MAXALIGN</link>;&#32;&#32;<emphasis role="comment">/*&#32;ensure&#32;maximum&#32;alignment&#32;for&#32;buffer&#32;*/</emphasis>
+<anchor xml:id="_lauxlib_8h_source_1l00173"/><link linkend="_structlua_l___buffer_1a651fd8714c18becfa9e89eb5ca5c48e2">00173</link> &#32;&#32;&#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;<link linkend="_structlua_l___buffer_1aafe80d64508a05a94be4d07b648244d0">b</link>[<link linkend="_ltests_8h_1af360ad37a770dfdc29291a99c398f42d">LUAL_BUFFERSIZE</link>];&#32;&#32;<emphasis role="comment">/*&#32;initial&#32;buffer&#32;*/</emphasis>
+<anchor xml:id="_lauxlib_8h_source_1l00174"/><link linkend="_structlua_l___buffer_1ac1767f98426851390cb9b85009e68bdf">00174</link> &#32;&#32;}&#32;<link linkend="_structlua_l___buffer_1ac1767f98426851390cb9b85009e68bdf">init</link>;
+00175 };
+00176 
+00177 
+<anchor xml:id="_lauxlib_8h_source_1l00178"/><link linkend="_lauxlib_8h_1ab43380e8ecfabde7c32aec748df1cf59">00178</link> <emphasis role="preprocessor">#define&#32;luaL_bufflen(bf)&#32;&#32;&#32;&#32;((bf)-&gt;n)</emphasis>
+<anchor xml:id="_lauxlib_8h_source_1l00179"/><link linkend="_lauxlib_8h_1a3328ae8405aac1707d4b400d0d2c26dd">00179</link> <emphasis role="preprocessor">#define&#32;luaL_buffaddr(bf)&#32;&#32;&#32;((bf)-&gt;b)</emphasis>
+00180 
+00181 
+<anchor xml:id="_lauxlib_8h_source_1l00182"/><link linkend="_lauxlib_8h_1a63935c5b4cf5d45930c875f6cc5e1432">00182</link> <emphasis role="preprocessor">#define&#32;luaL_addchar(B,c)&#32;\</emphasis>
+00183 <emphasis role="preprocessor">&#32;&#32;((void)((B)-&gt;n&#32;&lt;&#32;(B)-&gt;size&#32;||&#32;luaL_prepbuffsize((B),&#32;1)),&#32;\</emphasis>
+00184 <emphasis role="preprocessor">&#32;&#32;&#32;((B)-&gt;b[(B)-&gt;n++]&#32;=&#32;(c)))</emphasis>
+00185 
+<anchor xml:id="_lauxlib_8h_source_1l00186"/><link linkend="_lauxlib_8h_1a7c0adb7401e0be1a843946cee0556684">00186</link> <emphasis role="preprocessor">#define&#32;luaL_addsize(B,s)&#32;&#32;&#32;((B)-&gt;n&#32;+=&#32;(s))</emphasis>
+00187 
+<anchor xml:id="_lauxlib_8h_source_1l00188"/><link linkend="_lauxlib_8h_1a1f4e8f07742faa5e6c25a971a53f1e7b">00188</link> <emphasis role="preprocessor">#define&#32;luaL_buffsub(B,s)&#32;&#32;&#32;((B)-&gt;n&#32;-=&#32;(s))</emphasis>
+00189 
+00190 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;void&#32;(<link linkend="_lauxlib_8h_1aab6af54c782855fee2bef84eb41bdc00">luaL_buffinit</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;*B);
+00191 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*(<link linkend="_lauxlib_8h_1a0fb6d10de24960ceed452061b47c2c06">luaL_prepbuffsize</link>)&#32;(<link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;*B,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;sz);
+00192 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;void&#32;(<link linkend="_lauxlib_8h_1a06fceedb3abb1272566ca22c96e34b95">luaL_addlstring</link>)&#32;(<link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;*B,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*s,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;l);
+00193 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;void&#32;(<link linkend="_lauxlib_8h_1ad9c038f6e108e216011aca1801f84f44">luaL_addstring</link>)&#32;(<link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;*B,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*s);
+00194 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;void&#32;(<link linkend="_lauxlib_8h_1aeeb03d69681da0ec0e952b582ce3841c">luaL_addvalue</link>)&#32;(<link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;*B);
+00195 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;void&#32;(<link linkend="_lauxlib_8h_1aac5dfab9ba0ced4f5ae3b22aa35faffe">luaL_pushresult</link>)&#32;(<link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;*B);
+00196 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;void&#32;(<link linkend="_lauxlib_8h_1ac12082513e8da6bfd5b834e840789682">luaL_pushresultsize</link>)&#32;(<link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;*B,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;sz);
+00197 <link linkend="_luaconf_8h_1a373d5a572c4c65a5f35a6e4ee9293c95">LUALIB_API</link>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*(<link linkend="_lauxlib_8h_1ab8f18fe563cab9ea411ae84d2c1c2518">luaL_buffinitsize</link>)&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;*B,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;sz);
+00198 
+<anchor xml:id="_lauxlib_8h_source_1l00199"/><link linkend="_lauxlib_8h_1acc49fd35fabb25016f7de3256eb9bc6c">00199</link> <emphasis role="preprocessor">#define&#32;luaL_prepbuffer(B)&#32;&#32;luaL_prepbuffsize(B,&#32;LUAL_BUFFERSIZE)</emphasis>
+00200 
+00201 <emphasis role="comment">/*&#32;}======================================================&#32;*/</emphasis>
+00202 
+00203 
+00204 
+00205 <emphasis role="comment">/*</emphasis>
+00206 <emphasis role="comment">**&#32;{======================================================</emphasis>
+00207 <emphasis role="comment">**&#32;File&#32;handles&#32;for&#32;IO&#32;library</emphasis>
+00208 <emphasis role="comment">**&#32;=======================================================</emphasis>
+00209 <emphasis role="comment">*/</emphasis>
+00210 
+00211 <emphasis role="comment">/*</emphasis>
+00212 <emphasis role="comment">**&#32;A&#32;file&#32;handle&#32;is&#32;a&#32;userdata&#32;with&#32;metatable&#32;&apos;LUA_FILEHANDLE&apos;&#32;and</emphasis>
+00213 <emphasis role="comment">**&#32;initial&#32;structure&#32;&apos;luaL_Stream&apos;&#32;(it&#32;may&#32;contain&#32;other&#32;fields</emphasis>
+00214 <emphasis role="comment">**&#32;after&#32;that&#32;initial&#32;structure).</emphasis>
+00215 <emphasis role="comment">*/</emphasis>
+00216 
+<anchor xml:id="_lauxlib_8h_source_1l00217"/><link linkend="_lauxlib_8h_1a36f3babeb54bee1ebba63fe4fa94189a">00217</link> <emphasis role="preprocessor">#define&#32;LUA_FILEHANDLE&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&quot;FILE*&quot;</emphasis>
+00218 
+00219 
+<anchor xml:id="_lauxlib_8h_source_1l00220"/><link linkend="_structlua_l___stream">00220</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_structlua_l___stream">luaL_Stream</link>&#32;{
+<anchor xml:id="_lauxlib_8h_source_1l00221"/><link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">00221</link> &#32;&#32;FILE&#32;*<link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>;&#32;&#32;<emphasis role="comment">/*&#32;stream&#32;(NULL&#32;for&#32;incompletely&#32;created&#32;streams)&#32;*/</emphasis>
+<anchor xml:id="_lauxlib_8h_source_1l00222"/><link linkend="_structlua_l___stream_1a421c7b3efc694e922fefb29e3263d17c">00222</link> &#32;&#32;<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>&#32;<link linkend="_structlua_l___stream_1a421c7b3efc694e922fefb29e3263d17c">closef</link>;&#32;&#32;<emphasis role="comment">/*&#32;to&#32;close&#32;stream&#32;(NULL&#32;for&#32;closed&#32;streams)&#32;*/</emphasis>
+<anchor xml:id="_lauxlib_8h_source_1l00223"/><link linkend="_lauxlib_8h_1a21bf593878812ad2cc1b962ae5efc064">00223</link> }&#32;<link linkend="_lauxlib_8h_1a21bf593878812ad2cc1b962ae5efc064">luaL_Stream</link>;
+00224 
+00225 <emphasis role="comment">/*&#32;}======================================================&#32;*/</emphasis>
+00226 
+00227 <emphasis role="comment">/*</emphasis>
+00228 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00229 <emphasis role="comment">**&#32;&quot;Abstraction&#32;Layer&quot;&#32;for&#32;basic&#32;report&#32;of&#32;messages&#32;and&#32;errors</emphasis>
+00230 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00231 <emphasis role="comment">*/</emphasis>
+00232 
+00233 <emphasis role="comment">/*&#32;print&#32;a&#32;string&#32;*/</emphasis>
+00234 <emphasis role="preprocessor">#if&#32;!defined(lua_writestring)</emphasis>
+<anchor xml:id="_lauxlib_8h_source_1l00235"/><link linkend="_lauxlib_8h_1a575f50815c13a7a99b8ed1ac03fe714a">00235</link> <emphasis role="preprocessor">#define&#32;lua_writestring(s,l)&#32;&#32;&#32;fwrite((s),&#32;sizeof(char),&#32;(l),&#32;stdout)</emphasis>
+00236 <emphasis role="preprocessor">#endif</emphasis>
+00237 
+00238 <emphasis role="comment">/*&#32;print&#32;a&#32;newline&#32;and&#32;flush&#32;the&#32;output&#32;*/</emphasis>
+00239 <emphasis role="preprocessor">#if&#32;!defined(lua_writeline)</emphasis>
+<anchor xml:id="_lauxlib_8h_source_1l00240"/><link linkend="_lauxlib_8h_1aa4791d9826315ea2d1c716f852026246">00240</link> <emphasis role="preprocessor">#define&#32;lua_writeline()&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(lua_writestring(&quot;\n&quot;,&#32;1),&#32;fflush(stdout))</emphasis>
+00241 <emphasis role="preprocessor">#endif</emphasis>
+00242 
+00243 <emphasis role="comment">/*&#32;print&#32;an&#32;error&#32;message&#32;*/</emphasis>
+00244 <emphasis role="preprocessor">#if&#32;!defined(lua_writestringerror)</emphasis>
+<anchor xml:id="_lauxlib_8h_source_1l00245"/><link linkend="_lauxlib_8h_1a0706f68a79575584d365d033d613707b">00245</link> <emphasis role="preprocessor">#define&#32;lua_writestringerror(s,p)&#32;\</emphasis>
+00246 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(fprintf(stderr,&#32;(s),&#32;(p)),&#32;fflush(stderr))</emphasis>
+00247 <emphasis role="preprocessor">#endif</emphasis>
+00248 
+00249 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00250 
+00251 
+00252 <emphasis role="comment">/*</emphasis>
+00253 <emphasis role="comment">**&#32;{============================================================</emphasis>
+00254 <emphasis role="comment">**&#32;Compatibility&#32;with&#32;deprecated&#32;conversions</emphasis>
+00255 <emphasis role="comment">**&#32;=============================================================</emphasis>
+00256 <emphasis role="comment">*/</emphasis>
+00257 <emphasis role="preprocessor">#if&#32;defined(LUA_COMPAT_APIINTCASTS)</emphasis>
+00258 
+00259 <emphasis role="preprocessor">#define&#32;luaL_checkunsigned(L,a)&#32;((lua_Unsigned)luaL_checkinteger(L,a))</emphasis>
+00260 <emphasis role="preprocessor">#define&#32;luaL_optunsigned(L,a,d)&#32;\</emphasis>
+00261 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;((lua_Unsigned)luaL_optinteger(L,a,(lua_Integer)(d)))</emphasis>
+00262 
+00263 <emphasis role="preprocessor">#define&#32;luaL_checkint(L,n)&#32;&#32;((int)luaL_checkinteger(L,&#32;(n)))</emphasis>
+00264 <emphasis role="preprocessor">#define&#32;luaL_optint(L,n,d)&#32;&#32;((int)luaL_optinteger(L,&#32;(n),&#32;(d)))</emphasis>
+00265 
+00266 <emphasis role="preprocessor">#define&#32;luaL_checklong(L,n)&#32;((long)luaL_checkinteger(L,&#32;(n)))</emphasis>
+00267 <emphasis role="preprocessor">#define&#32;luaL_optlong(L,n,d)&#32;((long)luaL_optinteger(L,&#32;(n),&#32;(d)))</emphasis>
+00268 
+00269 <emphasis role="preprocessor">#endif</emphasis>
+00270 <emphasis role="comment">/*&#32;}============================================================&#32;*/</emphasis>
+00271 
+00272 
+00273 
+00274 <emphasis role="preprocessor">#endif</emphasis>
+00275 
+00276 
+</programlisting></section>

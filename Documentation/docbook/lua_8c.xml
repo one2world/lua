@@ -1,0 +1,911 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lua_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/lua.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lua.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;signal.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;lauxlib.h&quot;
+#include &quot;lualib.h&quot;
+</programlisting>lua.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lua_8c_1a09f0a4e06f4ea52525adbd7eb990ec1b">lua_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lua_8c_1af34f43dfd47b8179ae1eb1a03e4abc60">LUA_PROGNAME</link>   &quot;lua&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lua_8c_1aa26556c39a8c231bc647902b495de4a6">LUA_INIT_VAR</link>   &quot;LUA_INIT&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lua_8c_1a23a4ddde7b8770311b5f5cfe0e7b6b9c">LUA_INITVARVERSION</link>   <link linkend="_lua_8c_1aa26556c39a8c231bc647902b495de4a6">LUA_INIT_VAR</link> <link linkend="_lualib_8h_1a06a8221265cf7c226030b5a16b18a1f0">LUA_VERSUFFIX</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lua_8c_1a7aa07cb625a50d1de019e68b223629dd">has_error</link>   1	/* bad option */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lua_8c_1abe04c677e6b350ca13b68c28a2a12f04">has_i</link>   2	/* -i */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lua_8c_1a7136ee26052850280aaffb4e04db8f0d">has_v</link>   4	/* -v */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lua_8c_1a062f4556e993b5521901729db1abb78b">has_e</link>   8	/* -e */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lua_8c_1a8c7799a931aadcdf663a40d5973e9457">has_E</link>   16	/* -E */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lua_8c_1aa23cea14795d309b45458e284c03feb4">LUA_PROMPT</link>   &quot;&gt; &quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lua_8c_1ac2d8f72be488d4fcc8483eda1f19e10d">LUA_PROMPT2</link>   &quot;&gt;&gt; &quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lua_8c_1a05ae1f2d6224a7ed765d937f3e29b273">LUA_MAXINPUT</link>   512</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lua_8c_1ac64250ed95450c29366bf34f4b1f0cbf">lua_stdin_is_tty</link>()   1  /* assume stdin is a tty */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lua_8c_1a1be3c5b4b1cc3a2b27aef6eebecdd482">lua_initreadline</link>(L)   ((void)L)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lua_8c_1afe1d78b44717d692becd41251c1edeea">lua_readline</link>(L,  b,  p)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lua_8c_1ab02d1e224c8aabccb5e313584493c32b">lua_saveline</link>(L,  line)   { (void)L; (void)line; }</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lua_8c_1a57d068e6351de5511a9837517ed34282">lua_freeline</link>(L,  b)   { (void)L; (void)b; }</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lua_8c_1a0972b8ff1b2e2d2abdd184890b79ad90">EOFMARK</link>   &quot;&lt;eof&gt;&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lua_8c_1af4095ba5ce624b3061385b49e5863c90">marklen</link>   (sizeof(<link linkend="_lua_8c_1a0972b8ff1b2e2d2abdd184890b79ad90">EOFMARK</link>)/sizeof(char) - 1)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static void <link linkend="_lua_8c_1a6da2ce581018529235ae1da1e32c7919">lstop</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_structlua___debug">lua_Debug</link> *ar)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lua_8c_1acbccdc65e78da44329f7ee6be03cf0bd">laction</link> (int i)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lua_8c_1a91632fe91cad1a0dd44a149ba105f5fc">print_usage</link> (const char *badoption)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lua_8c_1ad0f0975de65acf5a5edf0953299b3747">l_message</link> (const char *pname, const char *msg)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lua_8c_1a037f0feafa76682f422cd7e2fb387f44">report</link> (<link linkend="_structlua___state">lua_State</link> *L, int status)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lua_8c_1aaf236b6f4e03469c893b4a32e9a02ab2">msghandler</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lua_8c_1a49e04420c2846b52e378ef6272bbf75b">docall</link> (<link linkend="_structlua___state">lua_State</link> *L, int narg, int nres)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lua_8c_1a2e0d36c06cdd7fbacb264c67367d3b01">print_version</link> (void)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lua_8c_1ae97a68ae8a927b55520b65d0a56a59d2">createargtable</link> (<link linkend="_structlua___state">lua_State</link> *L, char **argv, int argc, int script)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lua_8c_1a84103428a06a64ccca2c23a8045f3291">dochunk</link> (<link linkend="_structlua___state">lua_State</link> *L, int status)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lua_8c_1a9708ea7bd36bee3c2d952cdd787246cc">dofile</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *name)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lua_8c_1ae8312476ab6a3db74a9a5b1a981d023f">dostring</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *s, const char *name)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lua_8c_1ad256d556c3f941b29351d92606e67753">dolibrary</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *name)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lua_8c_1a1e73bab660617a11ddcbb7d647980d40">pushargs</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lua_8c_1a5a944babaacde1035f1aa8b4156cc06a">handle_script</link> (<link linkend="_structlua___state">lua_State</link> *L, char **argv)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lua_8c_1a1eb8e1daaf00e7189276077c370ee20c">collectargs</link> (char **argv, int *first)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lua_8c_1a95a376c847572def6b3f78d33a7bc881">runargs</link> (<link linkend="_structlua___state">lua_State</link> *L, char **argv, int n)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lua_8c_1a5d9d02779b2853fbef2aa54e2f8e017e">handle_luainit</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lua_8c_1af30330b1ce029ad490faaeab255cf52d">get_prompt</link> (<link linkend="_structlua___state">lua_State</link> *L, int firstline)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lua_8c_1afcb03dd7d7d29972ed50628d7bfdac14">incomplete</link> (<link linkend="_structlua___state">lua_State</link> *L, int status)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lua_8c_1a83a7cb21b34095ca93f2a2a863f58fda">pushline</link> (<link linkend="_structlua___state">lua_State</link> *L, int firstline)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lua_8c_1abe2d2b9101fdac08fba2d071fde373f7">addreturn</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lua_8c_1affef5a04b31963c2c3f5028518777e12">multiline</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lua_8c_1ad7e840f79b193c164616ed9748e68ec6">loadline</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lua_8c_1aa6faba0570416a2dfe7783da2dcbf6df">l_print</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lua_8c_1a946f2675cba972bd3580d9046abf2b6b">doREPL</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lua_8c_1aa0f8bc082ef913cb0a4df437bf5f5019">pmain</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lua_8c_1a3c04138a5bfe5d72780bb7e82a18e627">main</link> (int argc, char **argv)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>变量    </title>
+        <itemizedlist>
+            <listitem><para>static <link linkend="_structlua___state">lua_State</link> * <link linkend="_lua_8c_1af2f256e94f7ca1748abb736e9b311cc4">globalL</link> = NULL</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lua_8c_1ad785d8a8f8ff378aa21eb1fa7a6085df">progname</link> = <link linkend="_lua_8c_1af34f43dfd47b8179ae1eb1a03e4abc60">LUA_PROGNAME</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lua_8c_1a0972b8ff1b2e2d2abdd184890b79ad90"/>    <section>
+    <title>EOFMARK</title>
+<indexterm><primary>EOFMARK</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>EOFMARK</secondary></indexterm>
+<para><computeroutput>#define EOFMARK   &quot;&lt;eof&gt;&quot;</computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00430">430</link> 行定义.</para>
+    </section><anchor xml:id="_lua_8c_1a062f4556e993b5521901729db1abb78b"/>    <section>
+    <title>has_e</title>
+<indexterm><primary>has_e</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>has_e</secondary></indexterm>
+<para><computeroutput>#define has_e   8	/* -e */</computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00238">238</link> 行定义.</para>
+    </section><anchor xml:id="_lua_8c_1a8c7799a931aadcdf663a40d5973e9457"/>    <section>
+    <title>has_E</title>
+<indexterm><primary>has_E</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>has_E</secondary></indexterm>
+<para><computeroutput>#define has_E   16	/* -E */</computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00239">239</link> 行定义.</para>
+    </section><anchor xml:id="_lua_8c_1a7aa07cb625a50d1de019e68b223629dd"/>    <section>
+    <title>has_error</title>
+<indexterm><primary>has_error</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>has_error</secondary></indexterm>
+<para><computeroutput>#define has_error   1	/* bad option */</computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00235">235</link> 行定义.</para>
+    </section><anchor xml:id="_lua_8c_1abe04c677e6b350ca13b68c28a2a12f04"/>    <section>
+    <title>has_i</title>
+<indexterm><primary>has_i</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>has_i</secondary></indexterm>
+<para><computeroutput>#define has_i   2	/* -i */</computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00236">236</link> 行定义.</para>
+    </section><anchor xml:id="_lua_8c_1a7136ee26052850280aaffb4e04db8f0d"/>    <section>
+    <title>has_v</title>
+<indexterm><primary>has_v</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>has_v</secondary></indexterm>
+<para><computeroutput>#define has_v   4	/* -v */</computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00237">237</link> 行定义.</para>
+    </section><anchor xml:id="_lua_8c_1a09f0a4e06f4ea52525adbd7eb990ec1b"/>    <section>
+    <title>lua_c</title>
+<indexterm><primary>lua_c</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>lua_c</secondary></indexterm>
+<para><computeroutput>#define lua_c</computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_lua_8c_1a57d068e6351de5511a9837517ed34282"/>    <section>
+    <title>lua_freeline</title>
+<indexterm><primary>lua_freeline</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>lua_freeline</secondary></indexterm>
+<para><computeroutput>#define lua_freeline( L,  b)   { (void)L; (void)b; }</computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00411">411</link> 行定义.</para>
+    </section><anchor xml:id="_lua_8c_1aa26556c39a8c231bc647902b495de4a6"/>    <section>
+    <title>LUA_INIT_VAR</title>
+<indexterm><primary>LUA_INIT_VAR</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>LUA_INIT_VAR</secondary></indexterm>
+<para><computeroutput>#define LUA_INIT_VAR   &quot;LUA_INIT&quot;</computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00029">29</link> 行定义.</para>
+    </section><anchor xml:id="_lua_8c_1a1be3c5b4b1cc3a2b27aef6eebecdd482"/>    <section>
+    <title>lua_initreadline</title>
+<indexterm><primary>lua_initreadline</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>lua_initreadline</secondary></indexterm>
+<para><computeroutput>#define lua_initreadline( L)   ((void)L)</computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00406">406</link> 行定义.</para>
+    </section><anchor xml:id="_lua_8c_1a23a4ddde7b8770311b5f5cfe0e7b6b9c"/>    <section>
+    <title>LUA_INITVARVERSION</title>
+<indexterm><primary>LUA_INITVARVERSION</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>LUA_INITVARVERSION</secondary></indexterm>
+<para><computeroutput>#define LUA_INITVARVERSION   <link linkend="_lua_8c_1aa26556c39a8c231bc647902b495de4a6">LUA_INIT_VAR</link> <link linkend="_lualib_8h_1a06a8221265cf7c226030b5a16b18a1f0">LUA_VERSUFFIX</link></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00032">32</link> 行定义.</para>
+    </section><anchor xml:id="_lua_8c_1a05ae1f2d6224a7ed765d937f3e29b273"/>    <section>
+    <title>LUA_MAXINPUT</title>
+<indexterm><primary>LUA_MAXINPUT</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>LUA_MAXINPUT</secondary></indexterm>
+<para><computeroutput>#define LUA_MAXINPUT   512</computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00355">355</link> 行定义.</para>
+    </section><anchor xml:id="_lua_8c_1af34f43dfd47b8179ae1eb1a03e4abc60"/>    <section>
+    <title>LUA_PROGNAME</title>
+<indexterm><primary>LUA_PROGNAME</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>LUA_PROGNAME</secondary></indexterm>
+<para><computeroutput>#define LUA_PROGNAME   &quot;lua&quot;</computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00025">25</link> 行定义.</para>
+    </section><anchor xml:id="_lua_8c_1aa23cea14795d309b45458e284c03feb4"/>    <section>
+    <title>LUA_PROMPT</title>
+<indexterm><primary>LUA_PROMPT</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>LUA_PROMPT</secondary></indexterm>
+<para><computeroutput>#define LUA_PROMPT   &quot;&gt; &quot;</computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00350">350</link> 行定义.</para>
+    </section><anchor xml:id="_lua_8c_1ac2d8f72be488d4fcc8483eda1f19e10d"/>    <section>
+    <title>LUA_PROMPT2</title>
+<indexterm><primary>LUA_PROMPT2</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>LUA_PROMPT2</secondary></indexterm>
+<para><computeroutput>#define LUA_PROMPT2   &quot;&gt;&gt; &quot;</computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00351">351</link> 行定义.</para>
+    </section><anchor xml:id="_lua_8c_1afe1d78b44717d692becd41251c1edeea"/>    <section>
+    <title>lua_readline</title>
+<indexterm><primary>lua_readline</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>lua_readline</secondary></indexterm>
+<para><computeroutput>#define lua_readline( L,  b,  p)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;((void)L,&#32;fputs(p,&#32;stdout),&#32;fflush(stdout),&#32;&#32;<emphasis role="comment">/*&#32;show&#32;prompt&#32;*/</emphasis>&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fgets(b,&#32;<link linkend="_lua_8c_1a05ae1f2d6224a7ed765d937f3e29b273">LUA_MAXINPUT</link>,&#32;stdin)&#32;!=&#32;NULL)&#32;&#32;<emphasis role="comment">/*&#32;get&#32;line&#32;*/</emphasis>
+</programlisting><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00407">407</link> 行定义.</para>
+    </section><anchor xml:id="_lua_8c_1ab02d1e224c8aabccb5e313584493c32b"/>    <section>
+    <title>lua_saveline</title>
+<indexterm><primary>lua_saveline</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>lua_saveline</secondary></indexterm>
+<para><computeroutput>#define lua_saveline( L,  line)   { (void)L; (void)line; }</computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00410">410</link> 行定义.</para>
+    </section><anchor xml:id="_lua_8c_1ac64250ed95450c29366bf34f4b1f0cbf"/>    <section>
+    <title>lua_stdin_is_tty</title>
+<indexterm><primary>lua_stdin_is_tty</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>lua_stdin_is_tty</secondary></indexterm>
+<para><computeroutput>#define lua_stdin_is_tty( )   1  /* assume stdin is a tty */</computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00380">380</link> 行定义.</para>
+    </section><anchor xml:id="_lua_8c_1af4095ba5ce624b3061385b49e5863c90"/>    <section>
+    <title>marklen</title>
+<indexterm><primary>marklen</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>marklen</secondary></indexterm>
+<para><computeroutput>#define marklen   (sizeof(<link linkend="_lua_8c_1a0972b8ff1b2e2d2abdd184890b79ad90">EOFMARK</link>)/sizeof(char) - 1)</computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00431">431</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lua_8c_1abe2d2b9101fdac08fba2d071fde373f7"/>    <section>
+    <title>addreturn()</title>
+<indexterm><primary>addreturn</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>addreturn</secondary></indexterm>
+<para><computeroutput>static int addreturn (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00480">480</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_abe2d2b9101fdac08fba2d071fde373f7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_abe2d2b9101fdac08fba2d071fde373f7_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1a1eb8e1daaf00e7189276077c370ee20c"/>    <section>
+    <title>collectargs()</title>
+<indexterm><primary>collectargs</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>collectargs</secondary></indexterm>
+<para><computeroutput>static int collectargs (char ** argv, int * first)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00248">248</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a1eb8e1daaf00e7189276077c370ee20c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1ae97a68ae8a927b55520b65d0a56a59d2"/>    <section>
+    <title>createargtable()</title>
+<indexterm><primary>createargtable</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>createargtable</secondary></indexterm>
+<para><computeroutput>static void createargtable (<link linkend="_structlua___state">lua_State</link> * L, char ** argv, int argc, int script)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00160">160</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_ae97a68ae8a927b55520b65d0a56a59d2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_ae97a68ae8a927b55520b65d0a56a59d2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1a49e04420c2846b52e378ef6272bbf75b"/>    <section>
+    <title>docall()</title>
+<indexterm><primary>docall</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>docall</secondary></indexterm>
+<para><computeroutput>static int docall (<link linkend="_structlua___state">lua_State</link> * L, int narg, int nres)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00132">132</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a49e04420c2846b52e378ef6272bbf75b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a49e04420c2846b52e378ef6272bbf75b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1a84103428a06a64ccca2c23a8045f3291"/>    <section>
+    <title>dochunk()</title>
+<indexterm><primary>dochunk</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>dochunk</secondary></indexterm>
+<para><computeroutput>static int dochunk (<link linkend="_structlua___state">lua_State</link> * L, int status)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00173">173</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a84103428a06a64ccca2c23a8045f3291_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a84103428a06a64ccca2c23a8045f3291_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1a9708ea7bd36bee3c2d952cdd787246cc"/>    <section>
+    <title>dofile()</title>
+<indexterm><primary>dofile</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>dofile</secondary></indexterm>
+<para><computeroutput>static int dofile (<link linkend="_structlua___state">lua_State</link> * L, const char * name)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00179">179</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a9708ea7bd36bee3c2d952cdd787246cc_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a9708ea7bd36bee3c2d952cdd787246cc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1ad256d556c3f941b29351d92606e67753"/>    <section>
+    <title>dolibrary()</title>
+<indexterm><primary>dolibrary</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>dolibrary</secondary></indexterm>
+<para><computeroutput>static int dolibrary (<link linkend="_structlua___state">lua_State</link> * L, const char * name)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00193">193</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_ad256d556c3f941b29351d92606e67753_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_ad256d556c3f941b29351d92606e67753_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1a946f2675cba972bd3580d9046abf2b6b"/>    <section>
+    <title>doREPL()</title>
+<indexterm><primary>doREPL</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>doREPL</secondary></indexterm>
+<para><computeroutput>static void doREPL (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00553">553</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a946f2675cba972bd3580d9046abf2b6b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a946f2675cba972bd3580d9046abf2b6b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1ae8312476ab6a3db74a9a5b1a981d023f"/>    <section>
+    <title>dostring()</title>
+<indexterm><primary>dostring</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>dostring</secondary></indexterm>
+<para><computeroutput>static int dostring (<link linkend="_structlua___state">lua_State</link> * L, const char * s, const char * name)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00184">184</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_ae8312476ab6a3db74a9a5b1a981d023f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_ae8312476ab6a3db74a9a5b1a981d023f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1af30330b1ce029ad490faaeab255cf52d"/>    <section>
+    <title>get_prompt()</title>
+<indexterm><primary>get_prompt</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>get_prompt</secondary></indexterm>
+<para><computeroutput>static const char* get_prompt (<link linkend="_structlua___state">lua_State</link> * L, int firstline)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00421">421</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_af30330b1ce029ad490faaeab255cf52d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_af30330b1ce029ad490faaeab255cf52d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1a5d9d02779b2853fbef2aa54e2f8e017e"/>    <section>
+    <title>handle_luainit()</title>
+<indexterm><primary>handle_luainit</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>handle_luainit</secondary></indexterm>
+<para><computeroutput>static int handle_luainit (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00328">328</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a5d9d02779b2853fbef2aa54e2f8e017e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a5d9d02779b2853fbef2aa54e2f8e017e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1a5a944babaacde1035f1aa8b4156cc06a"/>    <section>
+    <title>handle_script()</title>
+<indexterm><primary>handle_script</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>handle_script</secondary></indexterm>
+<para><computeroutput>static int handle_script (<link linkend="_structlua___state">lua_State</link> * L, char ** argv)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00220">220</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a5a944babaacde1035f1aa8b4156cc06a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a5a944babaacde1035f1aa8b4156cc06a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1afcb03dd7d7d29972ed50628d7bfdac14"/>    <section>
+    <title>incomplete()</title>
+<indexterm><primary>incomplete</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>incomplete</secondary></indexterm>
+<para><computeroutput>static int incomplete (<link linkend="_structlua___state">lua_State</link> * L, int status)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00439">439</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_afcb03dd7d7d29972ed50628d7bfdac14_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_afcb03dd7d7d29972ed50628d7bfdac14_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1ad0f0975de65acf5a5edf0953299b3747"/>    <section>
+    <title>l_message()</title>
+<indexterm><primary>l_message</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>l_message</secondary></indexterm>
+<para><computeroutput>static void l_message (const char * pname, const char * msg)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00089">89</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_ad0f0975de65acf5a5edf0953299b3747_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1aa6faba0570416a2dfe7783da2dcbf6df"/>    <section>
+    <title>l_print()</title>
+<indexterm><primary>l_print</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>l_print</secondary></indexterm>
+<para><computeroutput>static void l_print (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00536">536</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_aa6faba0570416a2dfe7783da2dcbf6df_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_aa6faba0570416a2dfe7783da2dcbf6df_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1acbccdc65e78da44329f7ee6be03cf0bd"/>    <section>
+    <title>laction()</title>
+<indexterm><primary>laction</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>laction</secondary></indexterm>
+<para><computeroutput>static void laction (int i)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00056">56</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_acbccdc65e78da44329f7ee6be03cf0bd_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_acbccdc65e78da44329f7ee6be03cf0bd_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1ad7e840f79b193c164616ed9748e68ec6"/>    <section>
+    <title>loadline()</title>
+<indexterm><primary>loadline</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>loadline</secondary></indexterm>
+<para><computeroutput>static int loadline (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00520">520</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_ad7e840f79b193c164616ed9748e68ec6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_ad7e840f79b193c164616ed9748e68ec6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1a6da2ce581018529235ae1da1e32c7919"/>    <section>
+    <title>lstop()</title>
+<indexterm><primary>lstop</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>lstop</secondary></indexterm>
+<para><computeroutput>static void lstop (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_structlua___debug">lua_Debug</link> * ar)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00043">43</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a6da2ce581018529235ae1da1e32c7919_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a6da2ce581018529235ae1da1e32c7919_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1a3c04138a5bfe5d72780bb7e82a18e627"/>    <section>
+    <title>main()</title>
+<indexterm><primary>main</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>main</secondary></indexterm>
+<para><computeroutput>int main (int argc, char ** argv)</computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00619">619</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a3c04138a5bfe5d72780bb7e82a18e627_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1aaf236b6f4e03469c893b4a32e9a02ab2"/>    <section>
+    <title>msghandler()</title>
+<indexterm><primary>msghandler</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>msghandler</secondary></indexterm>
+<para><computeroutput>static int msghandler (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00113">113</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_aaf236b6f4e03469c893b4a32e9a02ab2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_aaf236b6f4e03469c893b4a32e9a02ab2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1affef5a04b31963c2c3f5028518777e12"/>    <section>
+    <title>multiline()</title>
+<indexterm><primary>multiline</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>multiline</secondary></indexterm>
+<para><computeroutput>static int multiline (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00498">498</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_affef5a04b31963c2c3f5028518777e12_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_affef5a04b31963c2c3f5028518777e12_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1aa0f8bc082ef913cb0a4df437bf5f5019"/>    <section>
+    <title>pmain()</title>
+<indexterm><primary>pmain</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>pmain</secondary></indexterm>
+<para><computeroutput>static int pmain (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00576">576</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_aa0f8bc082ef913cb0a4df437bf5f5019_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_aa0f8bc082ef913cb0a4df437bf5f5019_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1a91632fe91cad1a0dd44a149ba105f5fc"/>    <section>
+    <title>print_usage()</title>
+<indexterm><primary>print_usage</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>print_usage</secondary></indexterm>
+<para><computeroutput>static void print_usage (const char * badoption)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00063">63</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a91632fe91cad1a0dd44a149ba105f5fc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1a2e0d36c06cdd7fbacb264c67367d3b01"/>    <section>
+    <title>print_version()</title>
+<indexterm><primary>print_version</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>print_version</secondary></indexterm>
+<para><computeroutput>static void print_version (void )<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00146">146</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a2e0d36c06cdd7fbacb264c67367d3b01_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1a1e73bab660617a11ddcbb7d647980d40"/>    <section>
+    <title>pushargs()</title>
+<indexterm><primary>pushargs</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>pushargs</secondary></indexterm>
+<para><computeroutput>static int pushargs (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00207">207</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a1e73bab660617a11ddcbb7d647980d40_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a1e73bab660617a11ddcbb7d647980d40_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1a83a7cb21b34095ca93f2a2a863f58fda"/>    <section>
+    <title>pushline()</title>
+<indexterm><primary>pushline</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>pushline</secondary></indexterm>
+<para><computeroutput>static int pushline (<link linkend="_structlua___state">lua_State</link> * L, int firstline)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00455">455</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a83a7cb21b34095ca93f2a2a863f58fda_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a83a7cb21b34095ca93f2a2a863f58fda_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1a037f0feafa76682f422cd7e2fb387f44"/>    <section>
+    <title>report()</title>
+<indexterm><primary>report</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>report</secondary></indexterm>
+<para><computeroutput>static int report (<link linkend="_structlua___state">lua_State</link> * L, int status)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00100">100</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a037f0feafa76682f422cd7e2fb387f44_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a037f0feafa76682f422cd7e2fb387f44_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lua_8c_1a95a376c847572def6b3f78d33a7bc881"/>    <section>
+    <title>runargs()</title>
+<indexterm><primary>runargs</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>runargs</secondary></indexterm>
+<para><computeroutput>static int runargs (<link linkend="_structlua___state">lua_State</link> * L, char ** argv, int n)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00302">302</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a95a376c847572def6b3f78d33a7bc881_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lua_8c_a95a376c847572def6b3f78d33a7bc881_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+<section>
+<title>变量说明</title>
+<anchor xml:id="_lua_8c_1af2f256e94f7ca1748abb736e9b311cc4"/>    <section>
+    <title>globalL</title>
+<indexterm><primary>globalL</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>globalL</secondary></indexterm>
+<para><computeroutput><link linkend="_structlua___state">lua_State</link>* globalL = NULL<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00035">35</link> 行定义.</para>
+    </section><anchor xml:id="_lua_8c_1ad785d8a8f8ff378aa21eb1fa7a6085df"/>    <section>
+    <title>progname</title>
+<indexterm><primary>progname</primary><secondary>lua.c</secondary></indexterm>
+<indexterm><primary>lua.c</primary><secondary>progname</secondary></indexterm>
+<para><computeroutput>const char* progname = <link linkend="_lua_8c_1af34f43dfd47b8179ae1eb1a03e4abc60">LUA_PROGNAME</link><computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lua_8c_source">lua.c</link> 第 <link linkend="_lua_8c_source_1l00037">37</link> 行定义.</para>
+</section>
+</section>
+</section>

@@ -1,0 +1,684 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lobject_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/lobject.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lobject.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;locale.h&gt;
+#include &lt;math.h&gt;
+#include &lt;stdarg.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;lctype.h&quot;
+#include &quot;ldebug.h&quot;
+#include &quot;ldo.h&quot;
+#include &quot;lmem.h&quot;
+#include &quot;lobject.h&quot;
+#include &quot;lstate.h&quot;
+#include &quot;lstring.h&quot;
+#include &quot;lvm.h&quot;
+</programlisting>lobject.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>结构体    </title>
+        <itemizedlist>
+            <listitem><para>struct <link linkend="_struct_buff_f_s">BuffFS</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lobject_8c_1a38dc0318b49040ead76a3cbd8bdc573f">lobject_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8c_1abf0b3947b59218777a8e928a10be205b">LUA_CORE</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8c_1a98d71ac135df4047b2f051fcc7a1f40f">L_MAXLENNUM</link>   200</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8c_1a35cd00c271dac7479b5a1812648be3a6">MAXBY10</link>   <link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(<link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link>, LUA_MAXINTEGER / 10)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8c_1a3a297bd7005980375f9df0c1f8204aca">MAXLASTD</link>   <link linkend="_llimits_8h_1a37a9e2c4b53433d34bad0f12a1500c08">cast_int</link>(LUA_MAXINTEGER % 10)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8c_1a1b113179539a4006182c822ee7da5d0c">MAXNUMBER2STR</link>   44</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8c_1a5df23b13777a59c7db57ba5ed55a5d98">BUFVFS</link>   200</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8c_1a5fa009dd087e1c8394b09e5bd9087bc7">addsize</link>(b,  sz)   ((b)-&gt;blen += (sz))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8c_1aa932c88a1737cf31f4e16c6d72254f59">RETS</link>   &quot;...&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8c_1a349316092037fdd0773335fab4e15ee8">PRE</link>   &quot;[string \&quot;&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8c_1a63cb3834e6075ddad87f8ce324e53988">POS</link>   &quot;\&quot;]&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lobject_8c_1a0cbd5d41f14d898a5bacbe8935b01d0c">addstr</link>(a,  b,  l)   ( memcpy(a,b,(l) * sizeof(char)), a += (l) )</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>类型定义    </title>
+        <itemizedlist>
+            <listitem><para>typedef struct <link linkend="_struct_buff_f_s">BuffFS</link> <link linkend="_lobject_8c_1a15e052831e7638ed8e7fc07b1bc1e67a">BuffFS</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>int <link linkend="_lobject_8c_1a731a3a2f9db35aaddeadf8cb19d507bd">luaO_ceillog2</link> (unsigned int x)</para>
+</listitem>
+            <listitem><para>static <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> <link linkend="_lobject_8c_1aa6eb9701fada64e32960f82c8d24d8da">intarith</link> (<link linkend="_structlua___state">lua_State</link> *L, int op, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> v1, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> v2)</para>
+</listitem>
+            <listitem><para>static <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> <link linkend="_lobject_8c_1adf4b8d51ae5cde26912864b83cdf6e36">numarith</link> (<link linkend="_structlua___state">lua_State</link> *L, int op, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> v1, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> v2)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lobject_8c_1aae42f4eba2d45e27d6f217f4497d106d">luaO_rawarith</link> (<link linkend="_structlua___state">lua_State</link> *L, int op, const <link linkend="_struct_t_value">TValue</link> *p1, const <link linkend="_struct_t_value">TValue</link> *p2, <link linkend="_struct_t_value">TValue</link> *res)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lobject_8c_1a70e6a84042c5cf25f3812cba16e1fc3d">luaO_arith</link> (<link linkend="_structlua___state">lua_State</link> *L, int op, const <link linkend="_struct_t_value">TValue</link> *p1, const <link linkend="_struct_t_value">TValue</link> *p2, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> res)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lobject_8c_1ab73b1325bd3b1a6f9affc08fb46c07ec">luaO_hexavalue</link> (int c)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lobject_8c_1a3234b1ccb9cfbbd0892dcc6190a45876">isneg</link> (const char **s)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lobject_8c_1a58b5660686590a5ed833cc0f89fbe832">l_str2dloc</link> (const char *s, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> *result, int mode)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lobject_8c_1a331ebab44d182775ef47eeebeeb58dbd">l_str2d</link> (const char *s, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> *result)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lobject_8c_1ac5f6271088cb629a2359a93c283dc6ce">l_str2int</link> (const char *s, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> *result)</para>
+</listitem>
+            <listitem><para>size_t <link linkend="_lobject_8c_1ab1956c979ca7ff39b07534390714505d">luaO_str2num</link> (const char *s, <link linkend="_struct_t_value">TValue</link> *o)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lobject_8c_1af3136de4693789b08f78aafda9604676">luaO_utf8esc</link> (char *buff, unsigned long x)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lobject_8c_1a8a7886b6335aca97db23dfe3e220c728">tostringbuff</link> (<link linkend="_struct_t_value">TValue</link> *obj, char *buff)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lobject_8c_1a53824ade5220a50d44148175f7787199">luaO_tostring</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_t_value">TValue</link> *obj)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lobject_8c_1a90720e7e38c0e352e9b97d3f8def9e1a">pushstr</link> (<link linkend="_struct_buff_f_s">BuffFS</link> *buff, const char *str, size_t l)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lobject_8c_1a6ec2716e64cd75e3e6614a87ee92e4d2">clearbuff</link> (<link linkend="_struct_buff_f_s">BuffFS</link> *buff)</para>
+</listitem>
+            <listitem><para>static char * <link linkend="_lobject_8c_1ac4ab924f2ea45ef73319f1159033eab1">getbuff</link> (<link linkend="_struct_buff_f_s">BuffFS</link> *buff, int sz)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lobject_8c_1a874ab64f433ee35f2197a81e10452cb1">addstr2buff</link> (<link linkend="_struct_buff_f_s">BuffFS</link> *buff, const char *str, size_t slen)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lobject_8c_1a1d02fb9304e4700ce1fd20e34ae68784">addnum2buff</link> (<link linkend="_struct_buff_f_s">BuffFS</link> *buff, <link linkend="_struct_t_value">TValue</link> *num)</para>
+</listitem>
+            <listitem><para>const char * <link linkend="_lobject_8c_1aa83fa444a36d79521e846a766fa083d5">luaO_pushvfstring</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *fmt, va_list argp)</para>
+</listitem>
+            <listitem><para>const char * <link linkend="_lobject_8c_1a8e224db7123c74d695076a96d1bfda61">luaO_pushfstring</link> (<link linkend="_structlua___state">lua_State</link> *L, const char *fmt,...)</para>
+</listitem>
+            <listitem><para>void <link linkend="_lobject_8c_1ac331b4119bbeb45a8a7e5a1afe553b2e">luaO_chunkid</link> (char *out, const char *source, size_t srclen)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lobject_8c_1a5fa009dd087e1c8394b09e5bd9087bc7"/>    <section>
+    <title>addsize</title>
+<indexterm><primary>addsize</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>addsize</secondary></indexterm>
+<para><computeroutput>#define addsize( b,  sz)   ((b)-&gt;blen += (sz))</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00436">436</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8c_1a0cbd5d41f14d898a5bacbe8935b01d0c"/>    <section>
+    <title>addstr</title>
+<indexterm><primary>addstr</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>addstr</secondary></indexterm>
+<para><computeroutput>#define addstr( a,  b,  l)   ( memcpy(a,b,(l) * sizeof(char)), a += (l) )</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00555">555</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8c_1a5df23b13777a59c7db57ba5ed55a5d98"/>    <section>
+    <title>BUFVFS</title>
+<indexterm><primary>BUFVFS</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>BUFVFS</secondary></indexterm>
+<para><computeroutput>#define BUFVFS   200</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00390">390</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8c_1a98d71ac135df4047b2f051fcc7a1f40f"/>    <section>
+    <title>L_MAXLENNUM</title>
+<indexterm><primary>L_MAXLENNUM</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>L_MAXLENNUM</secondary></indexterm>
+<para><computeroutput>#define L_MAXLENNUM   200</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00220">220</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8c_1a38dc0318b49040ead76a3cbd8bdc573f"/>    <section>
+    <title>lobject_c</title>
+<indexterm><primary>lobject_c</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>lobject_c</secondary></indexterm>
+<para><computeroutput>#define lobject_c</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8c_1abf0b3947b59218777a8e928a10be205b"/>    <section>
+    <title>LUA_CORE</title>
+<indexterm><primary>LUA_CORE</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>LUA_CORE</secondary></indexterm>
+<para><computeroutput>#define LUA_CORE</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00008">8</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8c_1a35cd00c271dac7479b5a1812648be3a6"/>    <section>
+    <title>MAXBY10</title>
+<indexterm><primary>MAXBY10</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>MAXBY10</secondary></indexterm>
+<para><computeroutput>#define MAXBY10   <link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(<link linkend="_lua_8h_1a2357bdcd9af1aaef0a6895a9c3b7eccf">lua_Unsigned</link>, LUA_MAXINTEGER / 10)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00273">273</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8c_1a3a297bd7005980375f9df0c1f8204aca"/>    <section>
+    <title>MAXLASTD</title>
+<indexterm><primary>MAXLASTD</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>MAXLASTD</secondary></indexterm>
+<para><computeroutput>#define MAXLASTD   <link linkend="_llimits_8h_1a37a9e2c4b53433d34bad0f12a1500c08">cast_int</link>(LUA_MAXINTEGER % 10)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00274">274</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8c_1a1b113179539a4006182c822ee7da5d0c"/>    <section>
+    <title>MAXNUMBER2STR</title>
+<indexterm><primary>MAXNUMBER2STR</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>MAXNUMBER2STR</secondary></indexterm>
+<para><computeroutput>#define MAXNUMBER2STR   44</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00349">349</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8c_1a63cb3834e6075ddad87f8ce324e53988"/>    <section>
+    <title>POS</title>
+<indexterm><primary>POS</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>POS</secondary></indexterm>
+<para><computeroutput>#define POS   &quot;\&quot;]&quot;</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00553">553</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8c_1a349316092037fdd0773335fab4e15ee8"/>    <section>
+    <title>PRE</title>
+<indexterm><primary>PRE</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>PRE</secondary></indexterm>
+<para><computeroutput>#define PRE   &quot;[string \&quot;&quot;</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00552">552</link> 行定义.</para>
+    </section><anchor xml:id="_lobject_8c_1aa932c88a1737cf31f4e16c6d72254f59"/>    <section>
+    <title>RETS</title>
+<indexterm><primary>RETS</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>RETS</secondary></indexterm>
+<para><computeroutput>#define RETS   &quot;...&quot;</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00551">551</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>类型定义说明</title>
+<anchor xml:id="_lobject_8c_1a15e052831e7638ed8e7fc07b1bc1e67a"/>    <section>
+    <title>BuffFS</title>
+<indexterm><primary>BuffFS</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>BuffFS</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_buff_f_s">BuffFS</link> <link linkend="_struct_buff_f_s">BuffFS</link></computeroutput></para></section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lobject_8c_1a1d02fb9304e4700ce1fd20e34ae68784"/>    <section>
+    <title>addnum2buff()</title>
+<indexterm><primary>addnum2buff</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>addnum2buff</secondary></indexterm>
+<para><computeroutput>static void addnum2buff (<link linkend="_struct_buff_f_s">BuffFS</link> * buff, <link linkend="_struct_t_value">TValue</link> * num)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00459">459</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a1d02fb9304e4700ce1fd20e34ae68784_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a1d02fb9304e4700ce1fd20e34ae68784_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1a874ab64f433ee35f2197a81e10452cb1"/>    <section>
+    <title>addstr2buff()</title>
+<indexterm><primary>addstr2buff</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>addstr2buff</secondary></indexterm>
+<para><computeroutput>static void addstr2buff (<link linkend="_struct_buff_f_s">BuffFS</link> * buff, const char * str, size_t slen)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00443">443</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a874ab64f433ee35f2197a81e10452cb1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a874ab64f433ee35f2197a81e10452cb1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1a6ec2716e64cd75e3e6614a87ee92e4d2"/>    <section>
+    <title>clearbuff()</title>
+<indexterm><primary>clearbuff</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>clearbuff</secondary></indexterm>
+<para><computeroutput>static void clearbuff (<link linkend="_struct_buff_f_s">BuffFS</link> * buff)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00418">418</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a6ec2716e64cd75e3e6614a87ee92e4d2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a6ec2716e64cd75e3e6614a87ee92e4d2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1ac4ab924f2ea45ef73319f1159033eab1"/>    <section>
+    <title>getbuff()</title>
+<indexterm><primary>getbuff</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>getbuff</secondary></indexterm>
+<para><computeroutput>static char* getbuff (<link linkend="_struct_buff_f_s">BuffFS</link> * buff, int sz)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00428">428</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_ac4ab924f2ea45ef73319f1159033eab1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_ac4ab924f2ea45ef73319f1159033eab1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1aa6eb9701fada64e32960f82c8d24d8da"/>    <section>
+    <title>intarith()</title>
+<indexterm><primary>intarith</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>intarith</secondary></indexterm>
+<para><computeroutput>static <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> intarith (<link linkend="_structlua___state">lua_State</link> * L, int op, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> v1, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> v2)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00053">53</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_aa6eb9701fada64e32960f82c8d24d8da_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_aa6eb9701fada64e32960f82c8d24d8da_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1a3234b1ccb9cfbbd0892dcc6190a45876"/>    <section>
+    <title>isneg()</title>
+<indexterm><primary>isneg</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>isneg</secondary></indexterm>
+<para><computeroutput>static int isneg (const char ** s)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00141">141</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a3234b1ccb9cfbbd0892dcc6190a45876_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1a331ebab44d182775ef47eeebeeb58dbd"/>    <section>
+    <title>l_str2d()</title>
+<indexterm><primary>l_str2d</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>l_str2d</secondary></indexterm>
+<para><computeroutput>static const char* l_str2d (const char * s, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> * result)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00251">251</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a331ebab44d182775ef47eeebeeb58dbd_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a331ebab44d182775ef47eeebeeb58dbd_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1a58b5660686590a5ed833cc0f89fbe832"/>    <section>
+    <title>l_str2dloc()</title>
+<indexterm><primary>l_str2dloc</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>l_str2dloc</secondary></indexterm>
+<para><computeroutput>static const char* l_str2dloc (const char * s, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> * result, int mode)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00228">228</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a58b5660686590a5ed833cc0f89fbe832_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1ac5f6271088cb629a2359a93c283dc6ce"/>    <section>
+    <title>l_str2int()</title>
+<indexterm><primary>l_str2int</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>l_str2int</secondary></indexterm>
+<para><computeroutput>static const char* l_str2int (const char * s, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> * result)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00276">276</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_ac5f6271088cb629a2359a93c283dc6ce_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_ac5f6271088cb629a2359a93c283dc6ce_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1a70e6a84042c5cf25f3812cba16e1fc3d"/>    <section>
+    <title>luaO_arith()</title>
+<indexterm><primary>luaO_arith</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>luaO_arith</secondary></indexterm>
+<para><computeroutput>void luaO_arith (<link linkend="_structlua___state">lua_State</link> * L, int op, const <link linkend="_struct_t_value">TValue</link> * p1, const <link linkend="_struct_t_value">TValue</link> * p2, <link linkend="_lobject_8h_1a75170ac0f54a6beb06b8a7f9db47d073">StkId</link> res)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00126">126</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a70e6a84042c5cf25f3812cba16e1fc3d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a70e6a84042c5cf25f3812cba16e1fc3d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1a731a3a2f9db35aaddeadf8cb19d507bd"/>    <section>
+    <title>luaO_ceillog2()</title>
+<indexterm><primary>luaO_ceillog2</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>luaO_ceillog2</secondary></indexterm>
+<para><computeroutput>int luaO_ceillog2 (unsigned int x)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00035">35</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a731a3a2f9db35aaddeadf8cb19d507bd_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1ac331b4119bbeb45a8a7e5a1afe553b2e"/>    <section>
+    <title>luaO_chunkid()</title>
+<indexterm><primary>luaO_chunkid</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>luaO_chunkid</secondary></indexterm>
+<para><computeroutput>void luaO_chunkid (char * out, const char * source, size_t srclen)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00557">557</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_ac331b4119bbeb45a8a7e5a1afe553b2e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1ab73b1325bd3b1a6f9affc08fb46c07ec"/>    <section>
+    <title>luaO_hexavalue()</title>
+<indexterm><primary>luaO_hexavalue</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>luaO_hexavalue</secondary></indexterm>
+<para><computeroutput>int luaO_hexavalue (int c)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00135">135</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_ab73b1325bd3b1a6f9affc08fb46c07ec_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1a8e224db7123c74d695076a96d1bfda61"/>    <section>
+    <title>luaO_pushfstring()</title>
+<indexterm><primary>luaO_pushfstring</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>luaO_pushfstring</secondary></indexterm>
+<para><computeroutput>const char* luaO_pushfstring (<link linkend="_structlua___state">lua_State</link> * L, const char * fmt,  ...)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00539">539</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a8e224db7123c74d695076a96d1bfda61_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a8e224db7123c74d695076a96d1bfda61_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1aa83fa444a36d79521e846a766fa083d5"/>    <section>
+    <title>luaO_pushvfstring()</title>
+<indexterm><primary>luaO_pushvfstring</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>luaO_pushvfstring</secondary></indexterm>
+<para><computeroutput>const char* luaO_pushvfstring (<link linkend="_structlua___state">lua_State</link> * L, const char * fmt, va_list argp)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00470">470</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_aa83fa444a36d79521e846a766fa083d5_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_aa83fa444a36d79521e846a766fa083d5_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1aae42f4eba2d45e27d6f217f4497d106d"/>    <section>
+    <title>luaO_rawarith()</title>
+<indexterm><primary>luaO_rawarith</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>luaO_rawarith</secondary></indexterm>
+<para><computeroutput>int luaO_rawarith (<link linkend="_structlua___state">lua_State</link> * L, int op, const <link linkend="_struct_t_value">TValue</link> * p1, const <link linkend="_struct_t_value">TValue</link> * p2, <link linkend="_struct_t_value">TValue</link> * res)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00089">89</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_aae42f4eba2d45e27d6f217f4497d106d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_aae42f4eba2d45e27d6f217f4497d106d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1ab1956c979ca7ff39b07534390714505d"/>    <section>
+    <title>luaO_str2num()</title>
+<indexterm><primary>luaO_str2num</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>luaO_str2num</secondary></indexterm>
+<para><computeroutput>size_t luaO_str2num (const char * s, <link linkend="_struct_t_value">TValue</link> * o)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00308">308</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_ab1956c979ca7ff39b07534390714505d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_ab1956c979ca7ff39b07534390714505d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1a53824ade5220a50d44148175f7787199"/>    <section>
+    <title>luaO_tostring()</title>
+<indexterm><primary>luaO_tostring</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>luaO_tostring</secondary></indexterm>
+<para><computeroutput>void luaO_tostring (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_t_value">TValue</link> * obj)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00374">374</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a53824ade5220a50d44148175f7787199_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a53824ade5220a50d44148175f7787199_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1af3136de4693789b08f78aafda9604676"/>    <section>
+    <title>luaO_utf8esc()</title>
+<indexterm><primary>luaO_utf8esc</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>luaO_utf8esc</secondary></indexterm>
+<para><computeroutput>int luaO_utf8esc (char * buff, unsigned long x)</computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00323">323</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_af3136de4693789b08f78aafda9604676_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1adf4b8d51ae5cde26912864b83cdf6e36"/>    <section>
+    <title>numarith()</title>
+<indexterm><primary>numarith</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>numarith</secondary></indexterm>
+<para><computeroutput>static <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> numarith (<link linkend="_structlua___state">lua_State</link> * L, int op, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> v1, <link linkend="_lua_8h_1af0a6ed3b852d680769cfc410a0672172">lua_Number</link> v2)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00073">73</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_adf4b8d51ae5cde26912864b83cdf6e36_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_adf4b8d51ae5cde26912864b83cdf6e36_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1a90720e7e38c0e352e9b97d3f8def9e1a"/>    <section>
+    <title>pushstr()</title>
+<indexterm><primary>pushstr</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>pushstr</secondary></indexterm>
+<para><computeroutput>static void pushstr (<link linkend="_struct_buff_f_s">BuffFS</link> * buff, const char * str, size_t l)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00405">405</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a90720e7e38c0e352e9b97d3f8def9e1a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a90720e7e38c0e352e9b97d3f8def9e1a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lobject_8c_1a8a7886b6335aca97db23dfe3e220c728"/>    <section>
+    <title>tostringbuff()</title>
+<indexterm><primary>tostringbuff</primary><secondary>lobject.c</secondary></indexterm>
+<indexterm><primary>lobject.c</primary><secondary>tostringbuff</secondary></indexterm>
+<para><computeroutput>static int tostringbuff (<link linkend="_struct_t_value">TValue</link> * obj, char * buff)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lobject_8c_source">lobject.c</link> 第 <link linkend="_lobject_8c_source_1l00355">355</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lobject_8c_a8a7886b6335aca97db23dfe3e220c728_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+</section>

@@ -1,0 +1,316 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lmem_8h" xml:lang="zh">
+<title>D:/gitworkspace/lua/lmem.h 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lmem.h</primary></indexterm>
+<programlisting>#include &lt;stddef.h&gt;
+#include &quot;llimits.h&quot;
+#include &quot;lua.h&quot;
+</programlisting>lmem.h 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmem_8h__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmem_8h__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lmem_8h_1ae11aaaf07d13b2f0c3a671b01d7e3822">luaM_error</link>(L)   <link linkend="_ldo_8h_1a3bfc211173876f40cde6808e408cd305">luaD_throw</link>(L, <link linkend="_lua_8h_1ac28ced8d63f58b5164a298d7d254f658">LUA_ERRMEM</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmem_8h_1aaa4ae2ac3a122058ba3e73b1f438a89c">luaM_testsize</link>(n,  e)   	(sizeof(n) &gt;= sizeof(size_t) &amp;&amp; <link linkend="_llimits_8h_1a025d385a5ce274fa6eade82b6e1458d1">cast_sizet</link>((n)) + 1 &gt; <link linkend="_lstrlib_8c_1aa927c7bf177c162feda3483e1e972b3a">MAX_SIZET</link>/(e))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmem_8h_1a0ab87210cc8c1a531b9397f6d55b1a97">luaM_checksize</link>(L,  n,  e)   	(<link linkend="_lmem_8h_1aaa4ae2ac3a122058ba3e73b1f438a89c">luaM_testsize</link>(n,e) ? <link linkend="_lmem_8h_1a23b8703b7b50e1c5dd37d41569a09a9a">luaM_toobig</link>(L) : <link linkend="_llimits_8h_1a52a5166d7dc0590b63a9331cfc0f4564">cast_void</link>(0))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmem_8h_1a29ccefa76d4743ffb490cdbc291f708a">luaM_limitN</link>(n,  t)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmem_8h_1a5904278d180acc29faf199e1d76f3e85">luaM_reallocvchar</link>(L,  b,  on,  n)     <link linkend="_llimits_8h_1a1d905979f8c901b7143b43ee98341206">cast_charp</link>(<link linkend="_lmem_8h_1a0e576053c97b77716cd2c48dd104ecb7">luaM_saferealloc_</link>(L, (b), (on)*sizeof(char), (n)*sizeof(char)))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmem_8h_1a159fd0a4f45c4aa195990526f9d0bf01">luaM_freemem</link>(L,  b,  s)   <link linkend="_lmem_8h_1a1596632e07c593bd9558ee4920fbe5de">luaM_free_</link>(L, (b), (s))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmem_8h_1ad927ceb6a17a9e89a00b83dcc4482988">luaM_free</link>(L,  b)   <link linkend="_lmem_8h_1a1596632e07c593bd9558ee4920fbe5de">luaM_free_</link>(L, (b), sizeof(*(b)))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmem_8h_1a574612879aa6814c76b8b57c41e4af5a">luaM_freearray</link>(L,  b,  n)   <link linkend="_lmem_8h_1a1596632e07c593bd9558ee4920fbe5de">luaM_free_</link>(L, (b), (n)*sizeof(*(b)))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmem_8h_1ae72bd363be924fa9a67be67de0802ad7">luaM_new</link>(L,  t)   <link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(t*, <link linkend="_lmem_8h_1a96658ef7ad4e37d8dbd71b788733941b">luaM_malloc_</link>(L, sizeof(t), 0))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmem_8h_1a715cc368a85506c7a104cda58f270f3e">luaM_newvector</link>(L,  n,  t)   <link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(t*, <link linkend="_lmem_8h_1a96658ef7ad4e37d8dbd71b788733941b">luaM_malloc_</link>(L, (n)*sizeof(t), 0))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmem_8h_1ab223744a0660c0aa48e388ca51466839">luaM_newvectorchecked</link>(L,  n,  t)     (<link linkend="_lmem_8h_1a0ab87210cc8c1a531b9397f6d55b1a97">luaM_checksize</link>(L,n,sizeof(t)), <link linkend="_lmem_8h_1a715cc368a85506c7a104cda58f270f3e">luaM_newvector</link>(L,n,t))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmem_8h_1a0ce640c4b032a327440e3820365d7167">luaM_newobject</link>(L,  tag,  s)   <link linkend="_lmem_8h_1a96658ef7ad4e37d8dbd71b788733941b">luaM_malloc_</link>(L, (s), tag)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmem_8h_1a38823c4cdf0d53b73e1e3015affb06f9">luaM_growvector</link>(L,  v,  nelems,  size,  t,  limit,  e)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmem_8h_1ab1174e625ed7a62e5f8ba33a7e1c1917">luaM_reallocvector</link>(L,  v,  oldn,  n,  t)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lmem_8h_1ab90797c53a311d30154c486b2b8561d5">luaM_shrinkvector</link>(L,  v,  size,  fs,  t)      ((v)=<link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(t *, <link linkend="_lmem_8h_1a84227d0880b31ba10479080cb096b3d2">luaM_shrinkvector_</link>(L, v, &amp;(size), fs, sizeof(t))))</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> <link linkend="_lmem_8h_1a23b8703b7b50e1c5dd37d41569a09a9a">luaM_toobig</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void * <link linkend="_lmem_8h_1ae7dc8a57fc5dbca825653a88a356a72d">luaM_realloc_</link> (<link linkend="_structlua___state">lua_State</link> *L, void *<link linkend="_lparser_8c_1a235428bed4c6be6cb6d2760cd0fa9d34">block</link>, size_t oldsize, size_t size)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void * <link linkend="_lmem_8h_1a0e576053c97b77716cd2c48dd104ecb7">luaM_saferealloc_</link> (<link linkend="_structlua___state">lua_State</link> *L, void *<link linkend="_lparser_8c_1a235428bed4c6be6cb6d2760cd0fa9d34">block</link>, size_t oldsize, size_t size)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lmem_8h_1a1596632e07c593bd9558ee4920fbe5de">luaM_free_</link> (<link linkend="_structlua___state">lua_State</link> *L, void *<link linkend="_lparser_8c_1a235428bed4c6be6cb6d2760cd0fa9d34">block</link>, size_t osize)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void * <link linkend="_lmem_8h_1a28fa4e4a69de0a640dd25c23fd3aa721">luaM_growaux_</link> (<link linkend="_structlua___state">lua_State</link> *L, void *<link linkend="_lparser_8c_1a235428bed4c6be6cb6d2760cd0fa9d34">block</link>, int nelems, int *size, int size_elem, int limit, const char *what)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void * <link linkend="_lmem_8h_1a84227d0880b31ba10479080cb096b3d2">luaM_shrinkvector_</link> (<link linkend="_structlua___state">lua_State</link> *L, void *<link linkend="_lparser_8c_1a235428bed4c6be6cb6d2760cd0fa9d34">block</link>, int *nelem, int final_n, int size_elem)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void * <link linkend="_lmem_8h_1a96658ef7ad4e37d8dbd71b788733941b">luaM_malloc_</link> (<link linkend="_structlua___state">lua_State</link> *L, size_t size, int tag)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lmem_8h_1a0ab87210cc8c1a531b9397f6d55b1a97"/>    <section>
+    <title>luaM_checksize</title>
+<indexterm><primary>luaM_checksize</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_checksize</secondary></indexterm>
+<para><computeroutput>#define luaM_checksize( L,  n,  e)   	(<link linkend="_lmem_8h_1aaa4ae2ac3a122058ba3e73b1f438a89c">luaM_testsize</link>(n,e) ? <link linkend="_lmem_8h_1a23b8703b7b50e1c5dd37d41569a09a9a">luaM_toobig</link>(L) : <link linkend="_llimits_8h_1a52a5166d7dc0590b63a9331cfc0f4564">cast_void</link>(0))</computeroutput></para><para>
+在文件 <link linkend="_lmem_8h_source">lmem.h</link> 第 <link linkend="_lmem_8h_source_1l00034">34</link> 行定义.</para>
+    </section><anchor xml:id="_lmem_8h_1ae11aaaf07d13b2f0c3a671b01d7e3822"/>    <section>
+    <title>luaM_error</title>
+<indexterm><primary>luaM_error</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_error</secondary></indexterm>
+<para><computeroutput>#define luaM_error( L)   <link linkend="_ldo_8h_1a3bfc211173876f40cde6808e408cd305">luaD_throw</link>(L, <link linkend="_lua_8h_1ac28ced8d63f58b5164a298d7d254f658">LUA_ERRMEM</link>)</computeroutput></para><para>
+在文件 <link linkend="_lmem_8h_source">lmem.h</link> 第 <link linkend="_lmem_8h_source_1l00017">17</link> 行定义.</para>
+    </section><anchor xml:id="_lmem_8h_1ad927ceb6a17a9e89a00b83dcc4482988"/>    <section>
+    <title>luaM_free</title>
+<indexterm><primary>luaM_free</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_free</secondary></indexterm>
+<para><computeroutput>#define luaM_free( L,  b)   <link linkend="_lmem_8h_1a1596632e07c593bd9558ee4920fbe5de">luaM_free_</link>(L, (b), sizeof(*(b)))</computeroutput></para><para>
+在文件 <link linkend="_lmem_8h_source">lmem.h</link> 第 <link linkend="_lmem_8h_source_1l00056">56</link> 行定义.</para>
+    </section><anchor xml:id="_lmem_8h_1a574612879aa6814c76b8b57c41e4af5a"/>    <section>
+    <title>luaM_freearray</title>
+<indexterm><primary>luaM_freearray</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_freearray</secondary></indexterm>
+<para><computeroutput>#define luaM_freearray( L,  b,  n)   <link linkend="_lmem_8h_1a1596632e07c593bd9558ee4920fbe5de">luaM_free_</link>(L, (b), (n)*sizeof(*(b)))</computeroutput></para><para>
+在文件 <link linkend="_lmem_8h_source">lmem.h</link> 第 <link linkend="_lmem_8h_source_1l00057">57</link> 行定义.</para>
+    </section><anchor xml:id="_lmem_8h_1a159fd0a4f45c4aa195990526f9d0bf01"/>    <section>
+    <title>luaM_freemem</title>
+<indexterm><primary>luaM_freemem</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_freemem</secondary></indexterm>
+<para><computeroutput>#define luaM_freemem( L,  b,  s)   <link linkend="_lmem_8h_1a1596632e07c593bd9558ee4920fbe5de">luaM_free_</link>(L, (b), (s))</computeroutput></para><para>
+在文件 <link linkend="_lmem_8h_source">lmem.h</link> 第 <link linkend="_lmem_8h_source_1l00055">55</link> 行定义.</para>
+    </section><anchor xml:id="_lmem_8h_1a38823c4cdf0d53b73e1e3015affb06f9"/>    <section>
+    <title>luaM_growvector</title>
+<indexterm><primary>luaM_growvector</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_growvector</secondary></indexterm>
+<para><computeroutput>#define luaM_growvector( L,  v,  nelems,  size,  t,  limit,  e)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;((v)=<link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(t&#32;*,&#32;<link linkend="_lmem_8h_1a28fa4e4a69de0a640dd25c23fd3aa721">luaM_growaux_</link>(L,v,nelems,&amp;(size),<emphasis role="keyword">sizeof</emphasis>(t),&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lmem_8h_1a29ccefa76d4743ffb490cdbc291f708a">luaM_limitN</link>(limit,t),e)))
+</programlisting><para>
+在文件 <link linkend="_lmem_8h_source">lmem.h</link> 第 <link linkend="_lmem_8h_source_1l00066">66</link> 行定义.</para>
+    </section><anchor xml:id="_lmem_8h_1a29ccefa76d4743ffb490cdbc291f708a"/>    <section>
+    <title>luaM_limitN</title>
+<indexterm><primary>luaM_limitN</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_limitN</secondary></indexterm>
+<para><computeroutput>#define luaM_limitN( n,  t)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;((<link linkend="_llimits_8h_1a025d385a5ce274fa6eade82b6e1458d1">cast_sizet</link>(n)&#32;&lt;=&#32;<link linkend="_lauxlib_8c_1aa927c7bf177c162feda3483e1e972b3a">MAX_SIZET</link>/<emphasis role="keyword">sizeof</emphasis>(t))&#32;?&#32;(n)&#32;:&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1a6ce2ddc5b419ed6f302573db3cc03e56">cast_uint</link>((<link linkend="_lauxlib_8c_1aa927c7bf177c162feda3483e1e972b3a">MAX_SIZET</link>/<emphasis role="keyword">sizeof</emphasis>(t))))
+</programlisting><para>
+在文件 <link linkend="_lmem_8h_source">lmem.h</link> 第 <link linkend="_lmem_8h_source_1l00044">44</link> 行定义.</para>
+    </section><anchor xml:id="_lmem_8h_1ae72bd363be924fa9a67be67de0802ad7"/>    <section>
+    <title>luaM_new</title>
+<indexterm><primary>luaM_new</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_new</secondary></indexterm>
+<para><computeroutput>#define luaM_new( L,  t)   <link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(t*, <link linkend="_lmem_8h_1a96658ef7ad4e37d8dbd71b788733941b">luaM_malloc_</link>(L, sizeof(t), 0))</computeroutput></para><para>
+在文件 <link linkend="_lmem_8h_source">lmem.h</link> 第 <link linkend="_lmem_8h_source_1l00059">59</link> 行定义.</para>
+    </section><anchor xml:id="_lmem_8h_1a0ce640c4b032a327440e3820365d7167"/>    <section>
+    <title>luaM_newobject</title>
+<indexterm><primary>luaM_newobject</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_newobject</secondary></indexterm>
+<para><computeroutput>#define luaM_newobject( L,  tag,  s)   <link linkend="_lmem_8h_1a96658ef7ad4e37d8dbd71b788733941b">luaM_malloc_</link>(L, (s), tag)</computeroutput></para><para>
+在文件 <link linkend="_lmem_8h_source">lmem.h</link> 第 <link linkend="_lmem_8h_source_1l00064">64</link> 行定义.</para>
+    </section><anchor xml:id="_lmem_8h_1a715cc368a85506c7a104cda58f270f3e"/>    <section>
+    <title>luaM_newvector</title>
+<indexterm><primary>luaM_newvector</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_newvector</secondary></indexterm>
+<para><computeroutput>#define luaM_newvector( L,  n,  t)   <link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(t*, <link linkend="_lmem_8h_1a96658ef7ad4e37d8dbd71b788733941b">luaM_malloc_</link>(L, (n)*sizeof(t), 0))</computeroutput></para><para>
+在文件 <link linkend="_lmem_8h_source">lmem.h</link> 第 <link linkend="_lmem_8h_source_1l00060">60</link> 行定义.</para>
+    </section><anchor xml:id="_lmem_8h_1ab223744a0660c0aa48e388ca51466839"/>    <section>
+    <title>luaM_newvectorchecked</title>
+<indexterm><primary>luaM_newvectorchecked</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_newvectorchecked</secondary></indexterm>
+<para><computeroutput>#define luaM_newvectorchecked( L,  n,  t)     (<link linkend="_lmem_8h_1a0ab87210cc8c1a531b9397f6d55b1a97">luaM_checksize</link>(L,n,sizeof(t)), <link linkend="_lmem_8h_1a715cc368a85506c7a104cda58f270f3e">luaM_newvector</link>(L,n,t))</computeroutput></para><para>
+在文件 <link linkend="_lmem_8h_source">lmem.h</link> 第 <link linkend="_lmem_8h_source_1l00061">61</link> 行定义.</para>
+    </section><anchor xml:id="_lmem_8h_1a5904278d180acc29faf199e1d76f3e85"/>    <section>
+    <title>luaM_reallocvchar</title>
+<indexterm><primary>luaM_reallocvchar</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_reallocvchar</secondary></indexterm>
+<para><computeroutput>#define luaM_reallocvchar( L,  b,  on,  n)     <link linkend="_llimits_8h_1a1d905979f8c901b7143b43ee98341206">cast_charp</link>(<link linkend="_lmem_8h_1a0e576053c97b77716cd2c48dd104ecb7">luaM_saferealloc_</link>(L, (b), (on)*sizeof(char), (n)*sizeof(char)))</computeroutput></para><para>
+在文件 <link linkend="_lmem_8h_source">lmem.h</link> 第 <link linkend="_lmem_8h_source_1l00052">52</link> 行定义.</para>
+    </section><anchor xml:id="_lmem_8h_1ab1174e625ed7a62e5f8ba33a7e1c1917"/>    <section>
+    <title>luaM_reallocvector</title>
+<indexterm><primary>luaM_reallocvector</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_reallocvector</secondary></indexterm>
+<para><computeroutput>#define luaM_reallocvector( L,  v,  oldn,  n,  t)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;(<link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(t&#32;*,&#32;<link linkend="_lmem_8h_1ae7dc8a57fc5dbca825653a88a356a72d">luaM_realloc_</link>(L,&#32;v,&#32;<link linkend="_llimits_8h_1a025d385a5ce274fa6eade82b6e1458d1">cast_sizet</link>(oldn)&#32;*&#32;<emphasis role="keyword">sizeof</emphasis>(t),&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1a025d385a5ce274fa6eade82b6e1458d1">cast_sizet</link>(n)&#32;*&#32;<emphasis role="keyword">sizeof</emphasis>(t))))
+</programlisting><para>
+在文件 <link linkend="_lmem_8h_source">lmem.h</link> 第 <link linkend="_lmem_8h_source_1l00070">70</link> 行定义.</para>
+    </section><anchor xml:id="_lmem_8h_1ab90797c53a311d30154c486b2b8561d5"/>    <section>
+    <title>luaM_shrinkvector</title>
+<indexterm><primary>luaM_shrinkvector</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_shrinkvector</secondary></indexterm>
+<para><computeroutput>#define luaM_shrinkvector( L,  v,  size,  fs,  t)      ((v)=<link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(t *, <link linkend="_lmem_8h_1a84227d0880b31ba10479080cb096b3d2">luaM_shrinkvector_</link>(L, v, &amp;(size), fs, sizeof(t))))</computeroutput></para><para>
+在文件 <link linkend="_lmem_8h_source">lmem.h</link> 第 <link linkend="_lmem_8h_source_1l00074">74</link> 行定义.</para>
+    </section><anchor xml:id="_lmem_8h_1aaa4ae2ac3a122058ba3e73b1f438a89c"/>    <section>
+    <title>luaM_testsize</title>
+<indexterm><primary>luaM_testsize</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_testsize</secondary></indexterm>
+<para><computeroutput>#define luaM_testsize( n,  e)   	(sizeof(n) &gt;= sizeof(size_t) &amp;&amp; <link linkend="_llimits_8h_1a025d385a5ce274fa6eade82b6e1458d1">cast_sizet</link>((n)) + 1 &gt; <link linkend="_lstrlib_8c_1aa927c7bf177c162feda3483e1e972b3a">MAX_SIZET</link>/(e))</computeroutput></para><para>
+在文件 <link linkend="_lmem_8h_source">lmem.h</link> 第 <link linkend="_lmem_8h_source_1l00031">31</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lmem_8h_1a1596632e07c593bd9558ee4920fbe5de"/>    <section>
+    <title>luaM_free_()</title>
+<indexterm><primary>luaM_free_</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_free_</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaM_free_ (<link linkend="_structlua___state">lua_State</link> * L, void * block, size_t osize)</computeroutput></para><para>
+在文件 <link linkend="_lmem_8c_source">lmem.c</link> 第 <link linkend="_lmem_8c_source_1l00132">132</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmem_8h_a1596632e07c593bd9558ee4920fbe5de_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmem_8h_1a28fa4e4a69de0a640dd25c23fd3aa721"/>    <section>
+    <title>luaM_growaux_()</title>
+<indexterm><primary>luaM_growaux_</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_growaux_</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void* luaM_growaux_ (<link linkend="_structlua___state">lua_State</link> * L, void * block, int nelems, int * size, int size_elem, int limit, const char * what)</computeroutput></para><para>
+在文件 <link linkend="_lmem_8c_source">lmem.c</link> 第 <link linkend="_lmem_8c_source_1l00079">79</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmem_8h_a28fa4e4a69de0a640dd25c23fd3aa721_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmem_8h_1a96658ef7ad4e37d8dbd71b788733941b"/>    <section>
+    <title>luaM_malloc_()</title>
+<indexterm><primary>luaM_malloc_</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_malloc_</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void* luaM_malloc_ (<link linkend="_structlua___state">lua_State</link> * L, size_t size, int tag)</computeroutput></para><para>
+在文件 <link linkend="_lmem_8c_source">lmem.c</link> 第 <link linkend="_lmem_8c_source_1l00188">188</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmem_8h_a96658ef7ad4e37d8dbd71b788733941b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmem_8h_1ae7dc8a57fc5dbca825653a88a356a72d"/>    <section>
+    <title>luaM_realloc_()</title>
+<indexterm><primary>luaM_realloc_</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_realloc_</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void* luaM_realloc_ (<link linkend="_structlua___state">lua_State</link> * L, void * block, size_t oldsize, size_t size)</computeroutput></para><para>
+在文件 <link linkend="_lmem_8c_source">lmem.c</link> 第 <link linkend="_lmem_8c_source_1l00162">162</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmem_8h_ae7dc8a57fc5dbca825653a88a356a72d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmem_8h_ae7dc8a57fc5dbca825653a88a356a72d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmem_8h_1a0e576053c97b77716cd2c48dd104ecb7"/>    <section>
+    <title>luaM_saferealloc_()</title>
+<indexterm><primary>luaM_saferealloc_</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_saferealloc_</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void* luaM_saferealloc_ (<link linkend="_structlua___state">lua_State</link> * L, void * block, size_t oldsize, size_t size)</computeroutput></para><para>
+在文件 <link linkend="_lmem_8c_source">lmem.c</link> 第 <link linkend="_lmem_8c_source_1l00179">179</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmem_8h_a0e576053c97b77716cd2c48dd104ecb7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmem_8h_a0e576053c97b77716cd2c48dd104ecb7_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmem_8h_1a84227d0880b31ba10479080cb096b3d2"/>    <section>
+    <title>luaM_shrinkvector_()</title>
+<indexterm><primary>luaM_shrinkvector_</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_shrinkvector_</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void* luaM_shrinkvector_ (<link linkend="_structlua___state">lua_State</link> * L, void * block, int * nelem, int final_n, int size_elem)</computeroutput></para><para>
+在文件 <link linkend="_lmem_8c_source">lmem.c</link> 第 <link linkend="_lmem_8c_source_1l00110">110</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmem_8h_a84227d0880b31ba10479080cb096b3d2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lmem_8h_1a23b8703b7b50e1c5dd37d41569a09a9a"/>    <section>
+    <title>luaM_toobig()</title>
+<indexterm><primary>luaM_toobig</primary><secondary>lmem.h</secondary></indexterm>
+<indexterm><primary>lmem.h</primary><secondary>luaM_toobig</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> luaM_toobig (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lmem_8c_source">lmem.c</link> 第 <link linkend="_lmem_8c_source_1l00124">124</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmem_8h_a23b8703b7b50e1c5dd37d41569a09a9a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lmem_8h_a23b8703b7b50e1c5dd37d41569a09a9a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+</section>

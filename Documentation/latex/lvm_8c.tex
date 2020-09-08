@@ -1,0 +1,1234 @@
+\hypertarget{lvm_8c}{}\doxysection{D\+:/gitworkspace/lua/src/lvm.c 文件参考}
+\label{lvm_8c}\index{D:/gitworkspace/lua/src/lvm.c@{D:/gitworkspace/lua/src/lvm.c}}
+{\ttfamily \#include \char`\"{}lprefix.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$float.\+h$>$}\newline
+{\ttfamily \#include $<$limits.\+h$>$}\newline
+{\ttfamily \#include $<$math.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}lua.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ldebug.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ldo.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lfunc.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lgc.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lobject.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lopcodes.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lstate.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lstring.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ltable.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ltm.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lvm.\+h\char`\"{}}\newline
+\doxysubsection*{宏定义}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a26fd89afa52fe8d2335f741f35611ea2}{lvm\+\_\+c}}
+\item 
+\#define \mbox{\hyperlink{lvm_8c_abf0b3947b59218777a8e928a10be205b}{L\+U\+A\+\_\+\+C\+O\+RE}}
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a23db0b8d14efa41ab925d3c939eff24b}{L\+U\+A\+\_\+\+U\+S\+E\+\_\+\+J\+U\+M\+P\+T\+A\+B\+LE}}~0
+\item 
+\#define \mbox{\hyperlink{lvm_8c_aa25ebed8c5d8537e72643d5c81420bea}{M\+A\+X\+T\+A\+G\+L\+O\+OP}}~2000
+\item 
+\#define \mbox{\hyperlink{lvm_8c_ae126772a4eeffe9b1f4ad8b8bea1228f}{N\+BM}}~(\mbox{\hyperlink{luaconf_8h_af41b220b80eae0908ca2e190ca024990}{l\+\_\+floatatt}}(M\+A\+N\+T\+\_\+\+D\+IG))
+\item 
+\#define \mbox{\hyperlink{lvm_8c_ae3419ac662e1d1cf37cde228781d8ad9}{l\+\_\+intfitsf}}(i)~1
+\item 
+\#define \mbox{\hyperlink{lvm_8c_ac4af8d3b7a2c325068e51a81b01d0a65}{tostring}}(L,  o)~	(\mbox{\hyperlink{lobject_8h_a9bdf057a0de8da2ffae3ac35662dd255}{ttisstring}}(o) $\vert$$\vert$ (\mbox{\hyperlink{lvm_8h_aa6af30bdcb0dce1826c81061cec16d81}{cvt2str}}(o) \&\& (\mbox{\hyperlink{lobject_8h_a007d2c6293fee953f3af21f60f8133ba}{lua\+O\+\_\+tostring}}(L, o), 1)))
+\item 
+\#define \mbox{\hyperlink{lvm_8c_ae8f3af735ff64fa28e84ea124ff77861}{isemptystr}}(o)~(\mbox{\hyperlink{lobject_8h_a6513e161c7e8cc7276a9677d50a99b76}{ttisshrstring}}(o) \&\& \mbox{\hyperlink{lobject_8h_a8661397faed512ccc9c70a4661f1a83d}{tsvalue}}(o)-\/$>$shrlen == 0)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a671db1197d35e1db5d5bf18f1af5ed3f}{N\+B\+I\+TS}}~\mbox{\hyperlink{llimits_8h_a37a9e2c4b53433d34bad0f12a1500c08}{cast\+\_\+int}}(sizeof(\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}) $\ast$ C\+H\+A\+R\+\_\+\+B\+IT)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a1696d36ebff18f8164f4aa2f993c2088}{lua\+V\+\_\+shiftr}}(x,  y)~\mbox{\hyperlink{lvm_8h_aa785f0ac32664e47c2d3689d75edc5e8}{lua\+V\+\_\+shiftl}}(x,-\/(y))
+\item 
+\#define \mbox{\hyperlink{lvm_8c_ad15610968ca2288a0ee43de0ac00fc56}{l\+\_\+addi}}(L,  a,  b)~\mbox{\hyperlink{lvm_8h_a6c054eb9ce53c1b282e7ff0088895a37}{intop}}(+, a, b)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_adca3ee1c8bff66cff29c485a8b0f8d0b}{l\+\_\+subi}}(L,  a,  b)~\mbox{\hyperlink{lvm_8h_a6c054eb9ce53c1b282e7ff0088895a37}{intop}}(-\/, a, b)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a87f648fd6055968d928dc2fef3e2d05b}{l\+\_\+muli}}(L,  a,  b)~\mbox{\hyperlink{lvm_8h_a6c054eb9ce53c1b282e7ff0088895a37}{intop}}($\ast$, a, b)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a2ae697e156c4a4f2c92f2d1e133a5255}{l\+\_\+band}}(a,  b)~\mbox{\hyperlink{lvm_8h_a6c054eb9ce53c1b282e7ff0088895a37}{intop}}(\&, a, b)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a2c1a2e4332f652bc78071b89b06b3d58}{l\+\_\+bor}}(a,  b)~\mbox{\hyperlink{lvm_8h_a6c054eb9ce53c1b282e7ff0088895a37}{intop}}($\vert$, a, b)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a1719c71ba0a699fa728a6d3091114941}{l\+\_\+bxor}}(a,  b)~\mbox{\hyperlink{lvm_8h_a6c054eb9ce53c1b282e7ff0088895a37}{intop}}($^\wedge$, a, b)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a52eace142e89aebd3cc76b2257bc1ac6}{l\+\_\+lti}}(a,  b)~(a $<$ b)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_af018f58bdf08a419023bcb94d0fab609}{l\+\_\+lei}}(a,  b)~(a $<$= b)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a8fdefcbe99129a14abac1d25be4794bc}{l\+\_\+gti}}(a,  b)~(a $>$ b)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a3890b28845d18e2c75d51b3e7fd85f9c}{l\+\_\+gei}}(a,  b)~(a $>$= b)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a64f748f1270f46a82d9740b510e0cd3a}{op\+\_\+arithI}}(L,  iop,  fop)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a27c82162e3bd29ab27ae1cd6660207ca}{op\+\_\+arithf\+\_\+aux}}(L,  v1,  v2,  fop)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a3a4f9c96d42bbb54c163fd3f3799a53c}{op\+\_\+arithf}}(L,  fop)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a2bf3c022ca2f380a54b253dcb57ed4fc}{op\+\_\+arithfK}}(L,  fop)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a293974e782860ba3cc56e8357d0c2ac4}{op\+\_\+arith\+\_\+aux}}(L,  v1,  v2,  iop,  fop)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_accac296bbdd639e9a290dd90e6ee97bc}{op\+\_\+arith}}(L,  iop,  fop)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_af99dda342975a0c5aa932cd408476008}{op\+\_\+arithK}}(L,  iop,  fop)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a58d4f607b71631156a48372cf05d403e}{op\+\_\+bitwiseK}}(L,  op)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a65ec8fe21615050150ecc5aed115bc1b}{op\+\_\+bitwise}}(L,  op)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a427d042b492c9feb6beaeea80f6bd594}{op\+\_\+order}}(L,  opi,  opn,  other)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_ac2b4fecc5abdaf3ec282df9a7b728e13}{op\+\_\+orderI}}(L,  opi,  opf,  inv,  tm)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a721dd0af7e652d2d98b1f765f7860bcb}{RA}}(i)~(base+\mbox{\hyperlink{lopcodes_8h_a1d504abc1e2246548f89977210dce0b9}{G\+E\+T\+A\+R\+G\+\_\+A}}(i))
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a2688e9bc2c975760015dd57956107eb4}{RB}}(i)~(base+\mbox{\hyperlink{lopcodes_8h_a7a343159ef7669a438c2097b839b2b13}{G\+E\+T\+A\+R\+G\+\_\+B}}(i))
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a83fae87b4e07c8e466b98d2085582562}{v\+RB}}(i)~\mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(\mbox{\hyperlink{lvm_8c_a2688e9bc2c975760015dd57956107eb4}{RB}}(i))
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a11423b97da0e060b24d31d7e71534844}{KB}}(i)~(k+\mbox{\hyperlink{lopcodes_8h_a7a343159ef7669a438c2097b839b2b13}{G\+E\+T\+A\+R\+G\+\_\+B}}(i))
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a316a781a03ac24357a00b0037fb38565}{RC}}(i)~(base+\mbox{\hyperlink{lopcodes_8h_af96cb84f2685fda7f36d3d099dba6a44}{G\+E\+T\+A\+R\+G\+\_\+C}}(i))
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a0c07e0d29b6b7d24e42617450d7bff24}{v\+RC}}(i)~\mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(\mbox{\hyperlink{lvm_8c_a316a781a03ac24357a00b0037fb38565}{RC}}(i))
+\item 
+\#define \mbox{\hyperlink{lvm_8c_ac0b1105a4fbcaf1eaaeeb21fde493268}{KC}}(i)~(k+\mbox{\hyperlink{lopcodes_8h_af96cb84f2685fda7f36d3d099dba6a44}{G\+E\+T\+A\+R\+G\+\_\+C}}(i))
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a621b920c2683748903f90d71a1fb157b}{R\+KC}}(i)~((\mbox{\hyperlink{lopcodes_8h_aa874f9aac8107c30bf683067661a988a}{T\+E\+S\+T\+A\+R\+G\+\_\+k}}(i)) ? k + \mbox{\hyperlink{lopcodes_8h_af96cb84f2685fda7f36d3d099dba6a44}{G\+E\+T\+A\+R\+G\+\_\+C}}(i) \+: \mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(base + \mbox{\hyperlink{lopcodes_8h_af96cb84f2685fda7f36d3d099dba6a44}{G\+E\+T\+A\+R\+G\+\_\+C}}(i)))
+\item 
+\#define \mbox{\hyperlink{lvm_8c_abb4b554ff3bfb81c40e994b89c466728}{updatetrap}}(ci)~(trap = ci-\/$>$u.\+l.\+trap)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a8e2f8e15f68c38d8c1a784fa79fbfe2d}{updatebase}}(ci)~(base = ci-\/$>$func + 1)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_aa2532fb78de8437337c3a287df45a139}{updatestack}}(ci)~\{ if (trap) \{ \mbox{\hyperlink{lvm_8c_a8e2f8e15f68c38d8c1a784fa79fbfe2d}{updatebase}}(ci); ra = \mbox{\hyperlink{lvm_8c_a721dd0af7e652d2d98b1f765f7860bcb}{RA}}(i); \} \}
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a145a3aec07a6b2a6b78e91f83b810a9f}{dojump}}(ci,  i,  e)~\{ pc += \mbox{\hyperlink{lopcodes_8h_a1e69b8e862462ab13df4acd8de7ef54c}{G\+E\+T\+A\+R\+G\+\_\+sJ}}(i) + e; \mbox{\hyperlink{lvm_8c_abb4b554ff3bfb81c40e994b89c466728}{updatetrap}}(ci); \}
+\item 
+\#define \mbox{\hyperlink{lvm_8c_ab6c6e5c0af31fccecc3464db950e8107}{donextjump}}(ci)~\{ \mbox{\hyperlink{llimits_8h_aa81d2e7f7263ef29946852d4966a192e}{Instruction}} ni = $\ast$pc; \mbox{\hyperlink{lvm_8c_a145a3aec07a6b2a6b78e91f83b810a9f}{dojump}}(ci, ni, 1); \}
+\item 
+\#define \mbox{\hyperlink{lvm_8c_af4484c1945bfa516c6dec5382c7d3f20}{docondjump}}()~if (\mbox{\hyperlink{lparser_8c_a24002c50a108445d916457eb3c21d5e1}{cond}} != \mbox{\hyperlink{lopcodes_8h_aa9ce1e6169ccc23a1e9c783f61af343f}{G\+E\+T\+A\+R\+G\+\_\+k}}(i)) pc++; else \mbox{\hyperlink{lvm_8c_ab6c6e5c0af31fccecc3464db950e8107}{donextjump}}(ci);
+\item 
+\#define \mbox{\hyperlink{lvm_8c_af118f5c1afd189a53b6d967d5e2f5479}{savepc}}(L)~(ci-\/$>$u.\+l.\+savedpc = pc)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a59d34ce7e11dd5c6aa72c76fa2fe09a0}{savestate}}(L,  ci)~(\mbox{\hyperlink{lvm_8c_af118f5c1afd189a53b6d967d5e2f5479}{savepc}}(L), L-\/$>$top = ci-\/$>$top)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_ae20e156330a1cdfb3738f042f7eae35a}{Protect}}(exp)~(\mbox{\hyperlink{lvm_8c_a59d34ce7e11dd5c6aa72c76fa2fe09a0}{savestate}}(L,ci), (exp), \mbox{\hyperlink{lvm_8c_abb4b554ff3bfb81c40e994b89c466728}{updatetrap}}(ci))
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a240b167bd7f3ed903cd1518960b1489c}{Protect\+NT}}(exp)~(\mbox{\hyperlink{lvm_8c_af118f5c1afd189a53b6d967d5e2f5479}{savepc}}(L), (exp), \mbox{\hyperlink{lvm_8c_abb4b554ff3bfb81c40e994b89c466728}{updatetrap}}(ci))
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a89acfdec431169d8ad8bde3952bbd844}{half\+Protect}}(exp)~(\mbox{\hyperlink{lvm_8c_a59d34ce7e11dd5c6aa72c76fa2fe09a0}{savestate}}(L,ci), (exp))
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a8d3732d68d992f7662e63fedf2e781c9}{half\+Protect\+NT}}(exp)~(\mbox{\hyperlink{lvm_8c_af118f5c1afd189a53b6d967d5e2f5479}{savepc}}(L), (exp))
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a05f520b99525b2ec56d5597ed4a15eb8}{check\+GC}}(L,  c)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_ae2618898a2f8e320a173906bb811c9bd}{vmfetch}}()
+\item 
+\#define \mbox{\hyperlink{lvm_8c_ae65c98d22c152f2d423102a999a821c9}{vmdispatch}}(o)~switch(o)
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a64ed762fd3da016b8792d4ac0d0cf17f}{vmcase}}(l)~case l\+:
+\item 
+\#define \mbox{\hyperlink{lvm_8c_a362451cac7ed1e9ebf8978cd761a01fb}{vmbreak}}~break
+\end{DoxyCompactItemize}
+\doxysubsection*{函数}
+\begin{DoxyCompactItemize}
+\item 
+static int \mbox{\hyperlink{lvm_8c_ad20630400fb41a023f723f86d1bcf2ee}{l\+\_\+strton}} (const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$obj, \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$result)
+\item 
+int \mbox{\hyperlink{lvm_8c_adf13f75d26fb8674d228c32803abe382}{lua\+V\+\_\+tonumber\+\_\+}} (const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$obj, \mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} $\ast$n)
+\item 
+int \mbox{\hyperlink{lvm_8c_a3a9a9378ccdbd0ea4cba6555673dccf9}{lua\+V\+\_\+flttointeger}} (\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} n, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} $\ast$p, \mbox{\hyperlink{lvm_8h_a1639065f78212a54317141b2703061c0}{F2\+Imod}} mode)
+\item 
+int \mbox{\hyperlink{lvm_8c_aed793e2bcd34f922ab591e317e57d375}{lua\+V\+\_\+tointegerns}} (const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$obj, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} $\ast$p, \mbox{\hyperlink{lvm_8h_a1639065f78212a54317141b2703061c0}{F2\+Imod}} mode)
+\item 
+int \mbox{\hyperlink{lvm_8c_a924f46c2bf450e137210ca19b4461747}{lua\+V\+\_\+tointeger}} (const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$obj, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} $\ast$p, \mbox{\hyperlink{lvm_8h_a1639065f78212a54317141b2703061c0}{F2\+Imod}} mode)
+\item 
+static int \mbox{\hyperlink{lvm_8c_a74de39e56f455130121e51b2cae6685a}{forlimit}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} init, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$lim, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} $\ast$p, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} step)
+\item 
+static int \mbox{\hyperlink{lvm_8c_a8d9c9746ae6f28dd1b17982a88589b51}{forprep}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}} ra)
+\item 
+static int \mbox{\hyperlink{lvm_8c_ae1da05262daf2e1f5616c2f0e6472264}{floatforloop}} (\mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}} ra)
+\item 
+void \mbox{\hyperlink{lvm_8c_a45c30a70c51ed843f58bd446aa2096c9}{lua\+V\+\_\+finishget}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$t, \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$key, \mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}} val, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$slot)
+\item 
+void \mbox{\hyperlink{lvm_8c_a190116824dc13c5d37a6b2962f425a0d}{lua\+V\+\_\+finishset}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$t, \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$key, \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$val, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$slot)
+\item 
+static int \mbox{\hyperlink{lvm_8c_af609f8da5aa129c2dfe05d03f7001c03}{l\+\_\+strcmp}} (const \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$ls, const \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$rs)
+\item 
+static int \mbox{\hyperlink{lvm_8c_aed56b743321d737d2c2df6268674281f}{L\+Tintfloat}} (\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} i, \mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} f)
+\item 
+static int \mbox{\hyperlink{lvm_8c_ab394eec9acbce8e5be88eeaf799d6a13}{L\+Eintfloat}} (\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} i, \mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} f)
+\item 
+static int \mbox{\hyperlink{lvm_8c_a4c8a4beda3cf0a265070dc6832183318}{L\+Tfloatint}} (\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} f, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} i)
+\item 
+static int \mbox{\hyperlink{lvm_8c_a29b512f6e7e0c458be29cf7fe250bba3}{L\+Efloatint}} (\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} f, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} i)
+\item 
+static int \mbox{\hyperlink{lvm_8c_a1e3534dce31fc52f71f974802bc6ace2}{L\+Tnum}} (const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$l, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$r)
+\item 
+static int \mbox{\hyperlink{lvm_8c_aa531a8c826e4bbb1918f43bd84b9456a}{L\+Enum}} (const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$l, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$r)
+\item 
+static int \mbox{\hyperlink{lvm_8c_a13f124eec78027029d2e8fd9b83ee614}{lessthanothers}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$l, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$r)
+\item 
+int \mbox{\hyperlink{lvm_8c_a82cf4e4e2322eef8c4c53b98669e2ada}{lua\+V\+\_\+lessthan}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$l, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$r)
+\item 
+static int \mbox{\hyperlink{lvm_8c_aa12d860dd59154d1952911589fd72fb2}{lessequalothers}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$l, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$r)
+\item 
+int \mbox{\hyperlink{lvm_8c_a03d32b640c60651c78bc5ae0f2bc0549}{lua\+V\+\_\+lessequal}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$l, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$r)
+\item 
+int \mbox{\hyperlink{lvm_8c_a4826066036eb5f7cf0f8a33f7073f49e}{lua\+V\+\_\+equalobj}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$t1, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$t2)
+\item 
+static void \mbox{\hyperlink{lvm_8c_a7f03a9c23b77ec5cd280bb955ec430b8}{copy2buff}} (\mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}} top, int n, char $\ast$buff)
+\item 
+void \mbox{\hyperlink{lvm_8c_a2f076040af405dcb50d661edd692eca7}{lua\+V\+\_\+concat}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int total)
+\item 
+void \mbox{\hyperlink{lvm_8c_aae23b597659b2aae680f1d0a0b39ab3b}{lua\+V\+\_\+objlen}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}} ra, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$rb)
+\item 
+\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} \mbox{\hyperlink{lvm_8c_a8815b6d106992c5713900b20a0da5e29}{lua\+V\+\_\+idiv}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} m, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} n)
+\item 
+\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} \mbox{\hyperlink{lvm_8c_af1241d1650e114f39843626fd879d3d6}{lua\+V\+\_\+mod}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} m, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} n)
+\item 
+\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} \mbox{\hyperlink{lvm_8c_ac0162e10dc7e235089eb3cbef4addca7}{lua\+V\+\_\+modf}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} m, \mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} n)
+\item 
+\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} \mbox{\hyperlink{lvm_8c_ade6c9565152d0bb1f6116a90ea2c867a}{lua\+V\+\_\+shiftl}} (\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} x, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} y)
+\item 
+static void \mbox{\hyperlink{lvm_8c_a4bcc07915cc8b4d397b6d411e4d2723c}{pushclosure}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_proto}{Proto}} $\ast$p, \mbox{\hyperlink{struct_up_val}{Up\+Val}} $\ast$$\ast$encup, \mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}} base, \mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}} ra)
+\item 
+void \mbox{\hyperlink{lvm_8c_a8ccb90ee001013b54a5005df64c7359d}{lua\+V\+\_\+finish\+Op}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+void \mbox{\hyperlink{lvm_8c_a221e6dd0bc488dc961e9007ed8e21189}{lua\+V\+\_\+execute}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_call_info}{Call\+Info}} $\ast$ci)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{宏定义说明}
+\mbox{\Hypertarget{lvm_8c_a05f520b99525b2ec56d5597ed4a15eb8}\label{lvm_8c_a05f520b99525b2ec56d5597ed4a15eb8}} 
+\index{lvm.c@{lvm.c}!checkGC@{checkGC}}
+\index{checkGC@{checkGC}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{checkGC}{checkGC}}
+{\footnotesize\ttfamily \#define check\+GC(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{c }\end{DoxyParamCaption})}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{    \{ \mbox{\hyperlink{lgc_8h_a52f302b0dac5467152f322c8fe1c1a3e}{luaC\_condGC}}(L, L-\/>top = (c),  \textcolor{comment}{/* limit of live values */} \(\backslash\)}
+\DoxyCodeLine{                         \mbox{\hyperlink{lvm_8c_abb4b554ff3bfb81c40e994b89c466728}{updatetrap}}(ci)); \(\backslash\)}
+\DoxyCodeLine{           luai\_threadyield(L); \}}
+
+\end{DoxyCode}
+
+
+在文件 lvm.\+c 第 1106 行定义.
+
+\mbox{\Hypertarget{lvm_8c_af4484c1945bfa516c6dec5382c7d3f20}\label{lvm_8c_af4484c1945bfa516c6dec5382c7d3f20}} 
+\index{lvm.c@{lvm.c}!docondjump@{docondjump}}
+\index{docondjump@{docondjump}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{docondjump}{docondjump}}
+{\footnotesize\ttfamily \#define docondjump(\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})~if (\mbox{\hyperlink{lparser_8c_a24002c50a108445d916457eb3c21d5e1}{cond}} != \mbox{\hyperlink{lopcodes_8h_aa9ce1e6169ccc23a1e9c783f61af343f}{G\+E\+T\+A\+R\+G\+\_\+k}}(i)) pc++; else \mbox{\hyperlink{lvm_8c_ab6c6e5c0af31fccecc3464db950e8107}{donextjump}}(ci);}
+
+
+
+在文件 lvm.\+c 第 1070 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a145a3aec07a6b2a6b78e91f83b810a9f}\label{lvm_8c_a145a3aec07a6b2a6b78e91f83b810a9f}} 
+\index{lvm.c@{lvm.c}!dojump@{dojump}}
+\index{dojump@{dojump}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{dojump}{dojump}}
+{\footnotesize\ttfamily \#define dojump(\begin{DoxyParamCaption}\item[{}]{ci,  }\item[{}]{i,  }\item[{}]{e }\end{DoxyParamCaption})~\{ pc += \mbox{\hyperlink{lopcodes_8h_a1e69b8e862462ab13df4acd8de7ef54c}{G\+E\+T\+A\+R\+G\+\_\+sJ}}(i) + e; \mbox{\hyperlink{lvm_8c_abb4b554ff3bfb81c40e994b89c466728}{updatetrap}}(ci); \}}
+
+
+
+在文件 lvm.\+c 第 1059 行定义.
+
+\mbox{\Hypertarget{lvm_8c_ab6c6e5c0af31fccecc3464db950e8107}\label{lvm_8c_ab6c6e5c0af31fccecc3464db950e8107}} 
+\index{lvm.c@{lvm.c}!donextjump@{donextjump}}
+\index{donextjump@{donextjump}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{donextjump}{donextjump}}
+{\footnotesize\ttfamily \#define donextjump(\begin{DoxyParamCaption}\item[{}]{ci }\end{DoxyParamCaption})~\{ \mbox{\hyperlink{llimits_8h_aa81d2e7f7263ef29946852d4966a192e}{Instruction}} ni = $\ast$pc; \mbox{\hyperlink{lvm_8c_a145a3aec07a6b2a6b78e91f83b810a9f}{dojump}}(ci, ni, 1); \}}
+
+
+
+在文件 lvm.\+c 第 1063 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a89acfdec431169d8ad8bde3952bbd844}\label{lvm_8c_a89acfdec431169d8ad8bde3952bbd844}} 
+\index{lvm.c@{lvm.c}!halfProtect@{halfProtect}}
+\index{halfProtect@{halfProtect}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{halfProtect}{halfProtect}}
+{\footnotesize\ttfamily \#define half\+Protect(\begin{DoxyParamCaption}\item[{}]{exp }\end{DoxyParamCaption})~(\mbox{\hyperlink{lvm_8c_a59d34ce7e11dd5c6aa72c76fa2fe09a0}{savestate}}(L,ci), (exp))}
+
+
+
+在文件 lvm.\+c 第 1100 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a8d3732d68d992f7662e63fedf2e781c9}\label{lvm_8c_a8d3732d68d992f7662e63fedf2e781c9}} 
+\index{lvm.c@{lvm.c}!halfProtectNT@{halfProtectNT}}
+\index{halfProtectNT@{halfProtectNT}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{halfProtectNT}{halfProtectNT}}
+{\footnotesize\ttfamily \#define half\+Protect\+NT(\begin{DoxyParamCaption}\item[{}]{exp }\end{DoxyParamCaption})~(\mbox{\hyperlink{lvm_8c_af118f5c1afd189a53b6d967d5e2f5479}{savepc}}(L), (exp))}
+
+
+
+在文件 lvm.\+c 第 1103 行定义.
+
+\mbox{\Hypertarget{lvm_8c_ae8f3af735ff64fa28e84ea124ff77861}\label{lvm_8c_ae8f3af735ff64fa28e84ea124ff77861}} 
+\index{lvm.c@{lvm.c}!isemptystr@{isemptystr}}
+\index{isemptystr@{isemptystr}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{isemptystr}{isemptystr}}
+{\footnotesize\ttfamily \#define isemptystr(\begin{DoxyParamCaption}\item[{}]{o }\end{DoxyParamCaption})~(\mbox{\hyperlink{lobject_8h_a6513e161c7e8cc7276a9677d50a99b76}{ttisshrstring}}(o) \&\& \mbox{\hyperlink{lobject_8h_a8661397faed512ccc9c70a4661f1a83d}{tsvalue}}(o)-\/$>$shrlen == 0)}
+
+
+
+在文件 lvm.\+c 第 619 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a11423b97da0e060b24d31d7e71534844}\label{lvm_8c_a11423b97da0e060b24d31d7e71534844}} 
+\index{lvm.c@{lvm.c}!KB@{KB}}
+\index{KB@{KB}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{KB}{KB}}
+{\footnotesize\ttfamily \#define KB(\begin{DoxyParamCaption}\item[{}]{i }\end{DoxyParamCaption})~(k+\mbox{\hyperlink{lopcodes_8h_a7a343159ef7669a438c2097b839b2b13}{G\+E\+T\+A\+R\+G\+\_\+B}}(i))}
+
+
+
+在文件 lvm.\+c 第 1039 行定义.
+
+\mbox{\Hypertarget{lvm_8c_ac0b1105a4fbcaf1eaaeeb21fde493268}\label{lvm_8c_ac0b1105a4fbcaf1eaaeeb21fde493268}} 
+\index{lvm.c@{lvm.c}!KC@{KC}}
+\index{KC@{KC}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{KC}{KC}}
+{\footnotesize\ttfamily \#define KC(\begin{DoxyParamCaption}\item[{}]{i }\end{DoxyParamCaption})~(k+\mbox{\hyperlink{lopcodes_8h_af96cb84f2685fda7f36d3d099dba6a44}{G\+E\+T\+A\+R\+G\+\_\+C}}(i))}
+
+
+
+在文件 lvm.\+c 第 1042 行定义.
+
+\mbox{\Hypertarget{lvm_8c_ad15610968ca2288a0ee43de0ac00fc56}\label{lvm_8c_ad15610968ca2288a0ee43de0ac00fc56}} 
+\index{lvm.c@{lvm.c}!l\_addi@{l\_addi}}
+\index{l\_addi@{l\_addi}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{l\_addi}{l\_addi}}
+{\footnotesize\ttfamily \#define l\+\_\+addi(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{a,  }\item[{}]{b }\end{DoxyParamCaption})~\mbox{\hyperlink{lvm_8h_a6c054eb9ce53c1b282e7ff0088895a37}{intop}}(+, a, b)}
+
+
+
+在文件 lvm.\+c 第 868 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a2ae697e156c4a4f2c92f2d1e133a5255}\label{lvm_8c_a2ae697e156c4a4f2c92f2d1e133a5255}} 
+\index{lvm.c@{lvm.c}!l\_band@{l\_band}}
+\index{l\_band@{l\_band}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{l\_band}{l\_band}}
+{\footnotesize\ttfamily \#define l\+\_\+band(\begin{DoxyParamCaption}\item[{}]{a,  }\item[{}]{b }\end{DoxyParamCaption})~\mbox{\hyperlink{lvm_8h_a6c054eb9ce53c1b282e7ff0088895a37}{intop}}(\&, a, b)}
+
+
+
+在文件 lvm.\+c 第 871 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a2c1a2e4332f652bc78071b89b06b3d58}\label{lvm_8c_a2c1a2e4332f652bc78071b89b06b3d58}} 
+\index{lvm.c@{lvm.c}!l\_bor@{l\_bor}}
+\index{l\_bor@{l\_bor}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{l\_bor}{l\_bor}}
+{\footnotesize\ttfamily \#define l\+\_\+bor(\begin{DoxyParamCaption}\item[{}]{a,  }\item[{}]{b }\end{DoxyParamCaption})~\mbox{\hyperlink{lvm_8h_a6c054eb9ce53c1b282e7ff0088895a37}{intop}}($\vert$, a, b)}
+
+
+
+在文件 lvm.\+c 第 872 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a1719c71ba0a699fa728a6d3091114941}\label{lvm_8c_a1719c71ba0a699fa728a6d3091114941}} 
+\index{lvm.c@{lvm.c}!l\_bxor@{l\_bxor}}
+\index{l\_bxor@{l\_bxor}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{l\_bxor}{l\_bxor}}
+{\footnotesize\ttfamily \#define l\+\_\+bxor(\begin{DoxyParamCaption}\item[{}]{a,  }\item[{}]{b }\end{DoxyParamCaption})~\mbox{\hyperlink{lvm_8h_a6c054eb9ce53c1b282e7ff0088895a37}{intop}}($^\wedge$, a, b)}
+
+
+
+在文件 lvm.\+c 第 873 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a3890b28845d18e2c75d51b3e7fd85f9c}\label{lvm_8c_a3890b28845d18e2c75d51b3e7fd85f9c}} 
+\index{lvm.c@{lvm.c}!l\_gei@{l\_gei}}
+\index{l\_gei@{l\_gei}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{l\_gei}{l\_gei}}
+{\footnotesize\ttfamily \#define l\+\_\+gei(\begin{DoxyParamCaption}\item[{}]{a,  }\item[{}]{b }\end{DoxyParamCaption})~(a $>$= b)}
+
+
+
+在文件 lvm.\+c 第 878 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a8fdefcbe99129a14abac1d25be4794bc}\label{lvm_8c_a8fdefcbe99129a14abac1d25be4794bc}} 
+\index{lvm.c@{lvm.c}!l\_gti@{l\_gti}}
+\index{l\_gti@{l\_gti}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{l\_gti}{l\_gti}}
+{\footnotesize\ttfamily \#define l\+\_\+gti(\begin{DoxyParamCaption}\item[{}]{a,  }\item[{}]{b }\end{DoxyParamCaption})~(a $>$ b)}
+
+
+
+在文件 lvm.\+c 第 877 行定义.
+
+\mbox{\Hypertarget{lvm_8c_ae3419ac662e1d1cf37cde228781d8ad9}\label{lvm_8c_ae3419ac662e1d1cf37cde228781d8ad9}} 
+\index{lvm.c@{lvm.c}!l\_intfitsf@{l\_intfitsf}}
+\index{l\_intfitsf@{l\_intfitsf}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{l\_intfitsf}{l\_intfitsf}}
+{\footnotesize\ttfamily \#define l\+\_\+intfitsf(\begin{DoxyParamCaption}\item[{}]{i }\end{DoxyParamCaption})~1}
+
+
+
+在文件 lvm.\+c 第 78 行定义.
+
+\mbox{\Hypertarget{lvm_8c_af018f58bdf08a419023bcb94d0fab609}\label{lvm_8c_af018f58bdf08a419023bcb94d0fab609}} 
+\index{lvm.c@{lvm.c}!l\_lei@{l\_lei}}
+\index{l\_lei@{l\_lei}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{l\_lei}{l\_lei}}
+{\footnotesize\ttfamily \#define l\+\_\+lei(\begin{DoxyParamCaption}\item[{}]{a,  }\item[{}]{b }\end{DoxyParamCaption})~(a $<$= b)}
+
+
+
+在文件 lvm.\+c 第 876 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a52eace142e89aebd3cc76b2257bc1ac6}\label{lvm_8c_a52eace142e89aebd3cc76b2257bc1ac6}} 
+\index{lvm.c@{lvm.c}!l\_lti@{l\_lti}}
+\index{l\_lti@{l\_lti}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{l\_lti}{l\_lti}}
+{\footnotesize\ttfamily \#define l\+\_\+lti(\begin{DoxyParamCaption}\item[{}]{a,  }\item[{}]{b }\end{DoxyParamCaption})~(a $<$ b)}
+
+
+
+在文件 lvm.\+c 第 875 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a87f648fd6055968d928dc2fef3e2d05b}\label{lvm_8c_a87f648fd6055968d928dc2fef3e2d05b}} 
+\index{lvm.c@{lvm.c}!l\_muli@{l\_muli}}
+\index{l\_muli@{l\_muli}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{l\_muli}{l\_muli}}
+{\footnotesize\ttfamily \#define l\+\_\+muli(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{a,  }\item[{}]{b }\end{DoxyParamCaption})~\mbox{\hyperlink{lvm_8h_a6c054eb9ce53c1b282e7ff0088895a37}{intop}}($\ast$, a, b)}
+
+
+
+在文件 lvm.\+c 第 870 行定义.
+
+\mbox{\Hypertarget{lvm_8c_adca3ee1c8bff66cff29c485a8b0f8d0b}\label{lvm_8c_adca3ee1c8bff66cff29c485a8b0f8d0b}} 
+\index{lvm.c@{lvm.c}!l\_subi@{l\_subi}}
+\index{l\_subi@{l\_subi}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{l\_subi}{l\_subi}}
+{\footnotesize\ttfamily \#define l\+\_\+subi(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{a,  }\item[{}]{b }\end{DoxyParamCaption})~\mbox{\hyperlink{lvm_8h_a6c054eb9ce53c1b282e7ff0088895a37}{intop}}(-\/, a, b)}
+
+
+
+在文件 lvm.\+c 第 869 行定义.
+
+\mbox{\Hypertarget{lvm_8c_abf0b3947b59218777a8e928a10be205b}\label{lvm_8c_abf0b3947b59218777a8e928a10be205b}} 
+\index{lvm.c@{lvm.c}!LUA\_CORE@{LUA\_CORE}}
+\index{LUA\_CORE@{LUA\_CORE}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{LUA\_CORE}{LUA\_CORE}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+C\+O\+RE}
+
+
+
+在文件 lvm.\+c 第 8 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a23db0b8d14efa41ab925d3c939eff24b}\label{lvm_8c_a23db0b8d14efa41ab925d3c939eff24b}} 
+\index{lvm.c@{lvm.c}!LUA\_USE\_JUMPTABLE@{LUA\_USE\_JUMPTABLE}}
+\index{LUA\_USE\_JUMPTABLE@{LUA\_USE\_JUMPTABLE}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{LUA\_USE\_JUMPTABLE}{LUA\_USE\_JUMPTABLE}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+U\+S\+E\+\_\+\+J\+U\+M\+P\+T\+A\+B\+LE~0}
+
+
+
+在文件 lvm.\+c 第 42 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a1696d36ebff18f8164f4aa2f993c2088}\label{lvm_8c_a1696d36ebff18f8164f4aa2f993c2088}} 
+\index{lvm.c@{lvm.c}!luaV\_shiftr@{luaV\_shiftr}}
+\index{luaV\_shiftr@{luaV\_shiftr}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{luaV\_shiftr}{luaV\_shiftr}}
+{\footnotesize\ttfamily \#define lua\+V\+\_\+shiftr(\begin{DoxyParamCaption}\item[{}]{x,  }\item[{}]{y }\end{DoxyParamCaption})~\mbox{\hyperlink{lvm_8h_aa785f0ac32664e47c2d3689d75edc5e8}{lua\+V\+\_\+shiftl}}(x,-\/(y))}
+
+
+
+在文件 lvm.\+c 第 766 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a26fd89afa52fe8d2335f741f35611ea2}\label{lvm_8c_a26fd89afa52fe8d2335f741f35611ea2}} 
+\index{lvm.c@{lvm.c}!lvm\_c@{lvm\_c}}
+\index{lvm\_c@{lvm\_c}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{lvm\_c}{lvm\_c}}
+{\footnotesize\ttfamily \#define lvm\+\_\+c}
+
+
+
+在文件 lvm.\+c 第 7 行定义.
+
+\mbox{\Hypertarget{lvm_8c_aa25ebed8c5d8537e72643d5c81420bea}\label{lvm_8c_aa25ebed8c5d8537e72643d5c81420bea}} 
+\index{lvm.c@{lvm.c}!MAXTAGLOOP@{MAXTAGLOOP}}
+\index{MAXTAGLOOP@{MAXTAGLOOP}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{MAXTAGLOOP}{MAXTAGLOOP}}
+{\footnotesize\ttfamily \#define M\+A\+X\+T\+A\+G\+L\+O\+OP~2000}
+
+
+
+在文件 lvm.\+c 第 49 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a671db1197d35e1db5d5bf18f1af5ed3f}\label{lvm_8c_a671db1197d35e1db5d5bf18f1af5ed3f}} 
+\index{lvm.c@{lvm.c}!NBITS@{NBITS}}
+\index{NBITS@{NBITS}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{NBITS}{NBITS}}
+{\footnotesize\ttfamily \#define N\+B\+I\+TS~\mbox{\hyperlink{llimits_8h_a37a9e2c4b53433d34bad0f12a1500c08}{cast\+\_\+int}}(sizeof(\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}) $\ast$ C\+H\+A\+R\+\_\+\+B\+IT)}
+
+
+
+在文件 lvm.\+c 第 761 行定义.
+
+\mbox{\Hypertarget{lvm_8c_ae126772a4eeffe9b1f4ad8b8bea1228f}\label{lvm_8c_ae126772a4eeffe9b1f4ad8b8bea1228f}} 
+\index{lvm.c@{lvm.c}!NBM@{NBM}}
+\index{NBM@{NBM}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{NBM}{NBM}}
+{\footnotesize\ttfamily \#define N\+BM~(\mbox{\hyperlink{luaconf_8h_af41b220b80eae0908ca2e190ca024990}{l\+\_\+floatatt}}(M\+A\+N\+T\+\_\+\+D\+IG))}
+
+
+
+在文件 lvm.\+c 第 58 行定义.
+
+\mbox{\Hypertarget{lvm_8c_accac296bbdd639e9a290dd90e6ee97bc}\label{lvm_8c_accac296bbdd639e9a290dd90e6ee97bc}} 
+\index{lvm.c@{lvm.c}!op\_arith@{op\_arith}}
+\index{op\_arith@{op\_arith}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{op\_arith}{op\_arith}}
+{\footnotesize\ttfamily \#define op\+\_\+arith(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{iop,  }\item[{}]{fop }\end{DoxyParamCaption})}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{  \{  \(\backslash\)}
+\DoxyCodeLine{  TValue *v1 = \mbox{\hyperlink{lvm_8c_a83fae87b4e07c8e466b98d2085582562}{vRB}}(i);  \(\backslash\)}
+\DoxyCodeLine{  TValue *v2 = \mbox{\hyperlink{lvm_8c_a0c07e0d29b6b7d24e42617450d7bff24}{vRC}}(i);  \(\backslash\)}
+\DoxyCodeLine{  op\_arith\_aux(L, v1, v2, iop, fop); \}}
+
+\end{DoxyCode}
+
+
+在文件 lvm.\+c 第 942 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a293974e782860ba3cc56e8357d0c2ac4}\label{lvm_8c_a293974e782860ba3cc56e8357d0c2ac4}} 
+\index{lvm.c@{lvm.c}!op\_arith\_aux@{op\_arith\_aux}}
+\index{op\_arith\_aux@{op\_arith\_aux}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{op\_arith\_aux}{op\_arith\_aux}}
+{\footnotesize\ttfamily \#define op\+\_\+arith\+\_\+aux(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{v1,  }\item[{}]{v2,  }\item[{}]{iop,  }\item[{}]{fop }\end{DoxyParamCaption})}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{  \{  \(\backslash\)}
+\DoxyCodeLine{  if (\mbox{\hyperlink{lobject_8h_abade243295a9140f7b86838fbb049054}{ttisinteger}}(v1) \&\& \mbox{\hyperlink{lobject_8h_abade243295a9140f7b86838fbb049054}{ttisinteger}}(v2)) \{  \(\backslash\)}
+\DoxyCodeLine{    lua\_Integer i1 = \mbox{\hyperlink{lobject_8h_af1a59636db050b842a791cd19086d925}{ivalue}}(v1); \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\_Integer}} i2 = \mbox{\hyperlink{lobject_8h_af1a59636db050b842a791cd19086d925}{ivalue}}(v2);  \(\backslash\)}
+\DoxyCodeLine{    pc++; \mbox{\hyperlink{lobject_8h_af9dd109ba186841ab26efb2d62baf4f6}{setivalue}}(\mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(ra), iop(L, i1, i2));  \(\backslash\)}
+\DoxyCodeLine{  \}  \(\backslash\)}
+\DoxyCodeLine{  else \mbox{\hyperlink{lvm_8c_a27c82162e3bd29ab27ae1cd6660207ca}{op\_arithf\_aux}}(L, v1, v2, fop); \}}
+
+\end{DoxyCode}
+
+
+在文件 lvm.\+c 第 931 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a3a4f9c96d42bbb54c163fd3f3799a53c}\label{lvm_8c_a3a4f9c96d42bbb54c163fd3f3799a53c}} 
+\index{lvm.c@{lvm.c}!op\_arithf@{op\_arithf}}
+\index{op\_arithf@{op\_arithf}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{op\_arithf}{op\_arithf}}
+{\footnotesize\ttfamily \#define op\+\_\+arithf(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{fop }\end{DoxyParamCaption})}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{  \{  \(\backslash\)}
+\DoxyCodeLine{  TValue *v1 = \mbox{\hyperlink{lvm_8c_a83fae87b4e07c8e466b98d2085582562}{vRB}}(i);  \(\backslash\)}
+\DoxyCodeLine{  TValue *v2 = \mbox{\hyperlink{lvm_8c_a0c07e0d29b6b7d24e42617450d7bff24}{vRC}}(i);  \(\backslash\)}
+\DoxyCodeLine{  op\_arithf\_aux(L, v1, v2, fop); \}}
+
+\end{DoxyCode}
+
+
+在文件 lvm.\+c 第 913 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a27c82162e3bd29ab27ae1cd6660207ca}\label{lvm_8c_a27c82162e3bd29ab27ae1cd6660207ca}} 
+\index{lvm.c@{lvm.c}!op\_arithf\_aux@{op\_arithf\_aux}}
+\index{op\_arithf\_aux@{op\_arithf\_aux}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{op\_arithf\_aux}{op\_arithf\_aux}}
+{\footnotesize\ttfamily \#define op\+\_\+arithf\+\_\+aux(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{v1,  }\item[{}]{v2,  }\item[{}]{fop }\end{DoxyParamCaption})}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{  \{  \(\backslash\)}
+\DoxyCodeLine{  lua\_Number n1; \mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\_Number}} n2;  \(\backslash\)}
+\DoxyCodeLine{  if (\mbox{\hyperlink{lvm_8h_a1c1072a8845c14cc7b5b7744ef4d18a4}{tonumberns}}(v1, n1) \&\& \mbox{\hyperlink{lvm_8h_a1c1072a8845c14cc7b5b7744ef4d18a4}{tonumberns}}(v2, n2)) \{  \(\backslash\)}
+\DoxyCodeLine{    pc++; \mbox{\hyperlink{lobject_8h_ae357382324a8220a3cf77607752de887}{setfltvalue}}(\mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(ra), fop(L, n1, n2));  \(\backslash\)}
+\DoxyCodeLine{  \}\}}
+
+\end{DoxyCode}
+
+
+在文件 lvm.\+c 第 903 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a2bf3c022ca2f380a54b253dcb57ed4fc}\label{lvm_8c_a2bf3c022ca2f380a54b253dcb57ed4fc}} 
+\index{lvm.c@{lvm.c}!op\_arithfK@{op\_arithfK}}
+\index{op\_arithfK@{op\_arithfK}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{op\_arithfK}{op\_arithfK}}
+{\footnotesize\ttfamily \#define op\+\_\+arithfK(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{fop }\end{DoxyParamCaption})}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{  \{  \(\backslash\)}
+\DoxyCodeLine{  TValue *v1 = \mbox{\hyperlink{lvm_8c_a83fae87b4e07c8e466b98d2085582562}{vRB}}(i);  \(\backslash\)}
+\DoxyCodeLine{  TValue *v2 = \mbox{\hyperlink{lvm_8c_ac0b1105a4fbcaf1eaaeeb21fde493268}{KC}}(i);  \(\backslash\)}
+\DoxyCodeLine{  op\_arithf\_aux(L, v1, v2, fop); \}}
+
+\end{DoxyCode}
+
+
+在文件 lvm.\+c 第 922 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a64f748f1270f46a82d9740b510e0cd3a}\label{lvm_8c_a64f748f1270f46a82d9740b510e0cd3a}} 
+\index{lvm.c@{lvm.c}!op\_arithI@{op\_arithI}}
+\index{op\_arithI@{op\_arithI}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{op\_arithI}{op\_arithI}}
+{\footnotesize\ttfamily \#define op\+\_\+arithI(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{iop,  }\item[{}]{fop }\end{DoxyParamCaption})}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{  \{  \(\backslash\)}
+\DoxyCodeLine{  TValue *v1 = \mbox{\hyperlink{lvm_8c_a83fae87b4e07c8e466b98d2085582562}{vRB}}(i);  \(\backslash\)}
+\DoxyCodeLine{  int imm = \mbox{\hyperlink{lopcodes_8h_a2dadd55729fda230ce1765caef7ea416}{GETARG\_sC}}(i);  \(\backslash\)}
+\DoxyCodeLine{  if (\mbox{\hyperlink{lobject_8h_abade243295a9140f7b86838fbb049054}{ttisinteger}}(v1)) \{  \(\backslash\)}
+\DoxyCodeLine{    lua\_Integer iv1 = \mbox{\hyperlink{lobject_8h_af1a59636db050b842a791cd19086d925}{ivalue}}(v1);  \(\backslash\)}
+\DoxyCodeLine{    pc++; \mbox{\hyperlink{lobject_8h_af9dd109ba186841ab26efb2d62baf4f6}{setivalue}}(\mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(ra), iop(L, iv1, imm));  \(\backslash\)}
+\DoxyCodeLine{  \}  \(\backslash\)}
+\DoxyCodeLine{  else \textcolor{keywordflow}{if} (\mbox{\hyperlink{lobject_8h_ac1338b5ac67cadf27489f5ae7e939c29}{ttisfloat}}(v1)) \{  \(\backslash\)}
+\DoxyCodeLine{    lua\_Number nb = \mbox{\hyperlink{lobject_8h_a7d7d6b08f40350c9e7364e9cb984d744}{fltvalue}}(v1);  \(\backslash\)}
+\DoxyCodeLine{    lua\_Number fimm = \mbox{\hyperlink{llimits_8h_ac92cecb12c5aba1164877e81e76e2cb6}{cast\_num}}(imm);  \(\backslash\)}
+\DoxyCodeLine{    pc++; \mbox{\hyperlink{lobject_8h_ae357382324a8220a3cf77607752de887}{setfltvalue}}(\mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(ra), fop(L, nb, fimm)); \(\backslash\)}
+\DoxyCodeLine{  \}\}}
+
+\end{DoxyCode}
+
+
+在文件 lvm.\+c 第 885 行定义.
+
+\mbox{\Hypertarget{lvm_8c_af99dda342975a0c5aa932cd408476008}\label{lvm_8c_af99dda342975a0c5aa932cd408476008}} 
+\index{lvm.c@{lvm.c}!op\_arithK@{op\_arithK}}
+\index{op\_arithK@{op\_arithK}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{op\_arithK}{op\_arithK}}
+{\footnotesize\ttfamily \#define op\+\_\+arithK(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{iop,  }\item[{}]{fop }\end{DoxyParamCaption})}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{  \{  \(\backslash\)}
+\DoxyCodeLine{  TValue *v1 = \mbox{\hyperlink{lvm_8c_a83fae87b4e07c8e466b98d2085582562}{vRB}}(i);  \(\backslash\)}
+\DoxyCodeLine{  TValue *v2 = \mbox{\hyperlink{lvm_8c_ac0b1105a4fbcaf1eaaeeb21fde493268}{KC}}(i);  \(\backslash\)}
+\DoxyCodeLine{  op\_arith\_aux(L, v1, v2, iop, fop); \}}
+
+\end{DoxyCode}
+
+
+在文件 lvm.\+c 第 951 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a65ec8fe21615050150ecc5aed115bc1b}\label{lvm_8c_a65ec8fe21615050150ecc5aed115bc1b}} 
+\index{lvm.c@{lvm.c}!op\_bitwise@{op\_bitwise}}
+\index{op\_bitwise@{op\_bitwise}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{op\_bitwise}{op\_bitwise}}
+{\footnotesize\ttfamily \#define op\+\_\+bitwise(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{op }\end{DoxyParamCaption})}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{  \{  \(\backslash\)}
+\DoxyCodeLine{  TValue *v1 = \mbox{\hyperlink{lvm_8c_a83fae87b4e07c8e466b98d2085582562}{vRB}}(i);  \(\backslash\)}
+\DoxyCodeLine{  TValue *v2 = \mbox{\hyperlink{lvm_8c_a0c07e0d29b6b7d24e42617450d7bff24}{vRC}}(i);  \(\backslash\)}
+\DoxyCodeLine{  lua\_Integer i1; \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\_Integer}} i2;  \(\backslash\)}
+\DoxyCodeLine{  if (\mbox{\hyperlink{lvm_8h_a0b3a6eff12747eacea6551dbc2d42707}{tointegerns}}(v1, \&i1) \&\& \mbox{\hyperlink{lvm_8h_a0b3a6eff12747eacea6551dbc2d42707}{tointegerns}}(v2, \&i2)) \{  \(\backslash\)}
+\DoxyCodeLine{    pc++; \mbox{\hyperlink{lobject_8h_af9dd109ba186841ab26efb2d62baf4f6}{setivalue}}(\mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(ra), op(i1, i2));  \(\backslash\)}
+\DoxyCodeLine{  \}\}}
+
+\end{DoxyCode}
+
+
+在文件 lvm.\+c 第 973 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a58d4f607b71631156a48372cf05d403e}\label{lvm_8c_a58d4f607b71631156a48372cf05d403e}} 
+\index{lvm.c@{lvm.c}!op\_bitwiseK@{op\_bitwiseK}}
+\index{op\_bitwiseK@{op\_bitwiseK}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{op\_bitwiseK}{op\_bitwiseK}}
+{\footnotesize\ttfamily \#define op\+\_\+bitwiseK(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{op }\end{DoxyParamCaption})}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{  \{  \(\backslash\)}
+\DoxyCodeLine{  TValue *v1 = \mbox{\hyperlink{lvm_8c_a83fae87b4e07c8e466b98d2085582562}{vRB}}(i);  \(\backslash\)}
+\DoxyCodeLine{  TValue *v2 = \mbox{\hyperlink{lvm_8c_ac0b1105a4fbcaf1eaaeeb21fde493268}{KC}}(i);  \(\backslash\)}
+\DoxyCodeLine{  lua\_Integer i1;  \(\backslash\)}
+\DoxyCodeLine{  lua\_Integer i2 = \mbox{\hyperlink{lobject_8h_af1a59636db050b842a791cd19086d925}{ivalue}}(v2);  \(\backslash\)}
+\DoxyCodeLine{  if (\mbox{\hyperlink{lvm_8h_a0b3a6eff12747eacea6551dbc2d42707}{tointegerns}}(v1, \&i1)) \{  \(\backslash\)}
+\DoxyCodeLine{    pc++; \mbox{\hyperlink{lobject_8h_af9dd109ba186841ab26efb2d62baf4f6}{setivalue}}(\mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(ra), op(i1, i2));  \(\backslash\)}
+\DoxyCodeLine{  \}\}}
+
+\end{DoxyCode}
+
+
+在文件 lvm.\+c 第 960 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a427d042b492c9feb6beaeea80f6bd594}\label{lvm_8c_a427d042b492c9feb6beaeea80f6bd594}} 
+\index{lvm.c@{lvm.c}!op\_order@{op\_order}}
+\index{op\_order@{op\_order}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{op\_order}{op\_order}}
+{\footnotesize\ttfamily \#define op\+\_\+order(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{opi,  }\item[{}]{opn,  }\item[{}]{other }\end{DoxyParamCaption})}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{        \{  \(\backslash\)}
+\DoxyCodeLine{        int \mbox{\hyperlink{lparser_8c_a24002c50a108445d916457eb3c21d5e1}{cond}};  \(\backslash\)}
+\DoxyCodeLine{        TValue *rb = \mbox{\hyperlink{lvm_8c_a83fae87b4e07c8e466b98d2085582562}{vRB}}(i);  \(\backslash\)}
+\DoxyCodeLine{        if (\mbox{\hyperlink{lobject_8h_abade243295a9140f7b86838fbb049054}{ttisinteger}}(\mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(ra)) \&\& \mbox{\hyperlink{lobject_8h_abade243295a9140f7b86838fbb049054}{ttisinteger}}(rb)) \{  \(\backslash\)}
+\DoxyCodeLine{          lua\_Integer ia = \mbox{\hyperlink{lobject_8h_af1a59636db050b842a791cd19086d925}{ivalue}}(\mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(ra));  \(\backslash\)}
+\DoxyCodeLine{          lua\_Integer ib = \mbox{\hyperlink{lobject_8h_af1a59636db050b842a791cd19086d925}{ivalue}}(rb);  \(\backslash\)}
+\DoxyCodeLine{          cond = opi(ia, ib);  \(\backslash\)}
+\DoxyCodeLine{        \}  \(\backslash\)}
+\DoxyCodeLine{        else \textcolor{keywordflow}{if} (\mbox{\hyperlink{lobject_8h_a7a1392f89b1f29ed3b1afa37a22d0be2}{ttisnumber}}(\mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(ra)) \&\& \mbox{\hyperlink{lobject_8h_a7a1392f89b1f29ed3b1afa37a22d0be2}{ttisnumber}}(rb))  \(\backslash\)}
+\DoxyCodeLine{          cond = opn(\mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(ra), rb);  \mbox{\hyperlink{lvm_8c_ae20e156330a1cdfb3738f042f7eae35a}{\(\backslash\)}}}
+\DoxyCodeLine{\mbox{\hyperlink{lvm_8c_ae20e156330a1cdfb3738f042f7eae35a}{        else  \(\backslash\)}}}
+\DoxyCodeLine{\mbox{\hyperlink{lvm_8c_ae20e156330a1cdfb3738f042f7eae35a}{          Protect}}(\mbox{\hyperlink{lparser_8c_a24002c50a108445d916457eb3c21d5e1}{cond}} = other(L, \mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(ra), rb));  \(\backslash\)}
+\DoxyCodeLine{        docondjump(); \}}
+
+\end{DoxyCode}
+
+
+在文件 lvm.\+c 第 987 行定义.
+
+\mbox{\Hypertarget{lvm_8c_ac2b4fecc5abdaf3ec282df9a7b728e13}\label{lvm_8c_ac2b4fecc5abdaf3ec282df9a7b728e13}} 
+\index{lvm.c@{lvm.c}!op\_orderI@{op\_orderI}}
+\index{op\_orderI@{op\_orderI}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{op\_orderI}{op\_orderI}}
+{\footnotesize\ttfamily \#define op\+\_\+orderI(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{opi,  }\item[{}]{opf,  }\item[{}]{inv,  }\item[{}]{tm }\end{DoxyParamCaption})}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{        \{  \(\backslash\)}
+\DoxyCodeLine{        int \mbox{\hyperlink{lparser_8c_a24002c50a108445d916457eb3c21d5e1}{cond}};  \(\backslash\)}
+\DoxyCodeLine{        int im = \mbox{\hyperlink{lopcodes_8h_a7af64834446acb4afeec51438217c73d}{GETARG\_sB}}(i);  \(\backslash\)}
+\DoxyCodeLine{        if (\mbox{\hyperlink{lobject_8h_abade243295a9140f7b86838fbb049054}{ttisinteger}}(\mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(ra)))  \(\backslash\)}
+\DoxyCodeLine{          cond = opi(\mbox{\hyperlink{lobject_8h_af1a59636db050b842a791cd19086d925}{ivalue}}(\mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(ra)), im);  \(\backslash\)}
+\DoxyCodeLine{        else \textcolor{keywordflow}{if} (\mbox{\hyperlink{lobject_8h_ac1338b5ac67cadf27489f5ae7e939c29}{ttisfloat}}(\mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(ra))) \{  \(\backslash\)}
+\DoxyCodeLine{          lua\_Number fa = \mbox{\hyperlink{lobject_8h_a7d7d6b08f40350c9e7364e9cb984d744}{fltvalue}}(\mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(ra));  \(\backslash\)}
+\DoxyCodeLine{          lua\_Number fim = \mbox{\hyperlink{llimits_8h_ac92cecb12c5aba1164877e81e76e2cb6}{cast\_num}}(im);  \(\backslash\)}
+\DoxyCodeLine{          cond = opf(fa, fim);  \(\backslash\)}
+\DoxyCodeLine{        \}  \(\backslash\)}
+\DoxyCodeLine{        else \{  \(\backslash\)}
+\DoxyCodeLine{          int isf = \mbox{\hyperlink{lopcodes_8h_af96cb84f2685fda7f36d3d099dba6a44}{GETARG\_C}}(i);  \(\backslash\)}
+\DoxyCodeLine{          Protect(\mbox{\hyperlink{lparser_8c_a24002c50a108445d916457eb3c21d5e1}{cond}} = \mbox{\hyperlink{ltm_8c_a690946d84a71c365611e06711cb5beb7}{luaT\_callorderiTM}}(L, \mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(ra), im, inv, isf, tm));  \(\backslash\)}
+\DoxyCodeLine{        \}  \(\backslash\)}
+\DoxyCodeLine{        docondjump(); \}}
+
+\end{DoxyCode}
+
+
+在文件 lvm.\+c 第 1006 行定义.
+
+\mbox{\Hypertarget{lvm_8c_ae20e156330a1cdfb3738f042f7eae35a}\label{lvm_8c_ae20e156330a1cdfb3738f042f7eae35a}} 
+\index{lvm.c@{lvm.c}!Protect@{Protect}}
+\index{Protect@{Protect}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{Protect}{Protect}}
+{\footnotesize\ttfamily \#define Protect(\begin{DoxyParamCaption}\item[{}]{exp }\end{DoxyParamCaption})~(\mbox{\hyperlink{lvm_8c_a59d34ce7e11dd5c6aa72c76fa2fe09a0}{savestate}}(L,ci), (exp), \mbox{\hyperlink{lvm_8c_abb4b554ff3bfb81c40e994b89c466728}{updatetrap}}(ci))}
+
+
+
+在文件 lvm.\+c 第 1090 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a240b167bd7f3ed903cd1518960b1489c}\label{lvm_8c_a240b167bd7f3ed903cd1518960b1489c}} 
+\index{lvm.c@{lvm.c}!ProtectNT@{ProtectNT}}
+\index{ProtectNT@{ProtectNT}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{ProtectNT}{ProtectNT}}
+{\footnotesize\ttfamily \#define Protect\+NT(\begin{DoxyParamCaption}\item[{}]{exp }\end{DoxyParamCaption})~(\mbox{\hyperlink{lvm_8c_af118f5c1afd189a53b6d967d5e2f5479}{savepc}}(L), (exp), \mbox{\hyperlink{lvm_8c_abb4b554ff3bfb81c40e994b89c466728}{updatetrap}}(ci))}
+
+
+
+在文件 lvm.\+c 第 1093 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a721dd0af7e652d2d98b1f765f7860bcb}\label{lvm_8c_a721dd0af7e652d2d98b1f765f7860bcb}} 
+\index{lvm.c@{lvm.c}!RA@{RA}}
+\index{RA@{RA}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{RA}{RA}}
+{\footnotesize\ttfamily \#define RA(\begin{DoxyParamCaption}\item[{}]{i }\end{DoxyParamCaption})~(base+\mbox{\hyperlink{lopcodes_8h_a1d504abc1e2246548f89977210dce0b9}{G\+E\+T\+A\+R\+G\+\_\+A}}(i))}
+
+
+
+在文件 lvm.\+c 第 1036 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a2688e9bc2c975760015dd57956107eb4}\label{lvm_8c_a2688e9bc2c975760015dd57956107eb4}} 
+\index{lvm.c@{lvm.c}!RB@{RB}}
+\index{RB@{RB}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{RB}{RB}}
+{\footnotesize\ttfamily \#define RB(\begin{DoxyParamCaption}\item[{}]{i }\end{DoxyParamCaption})~(base+\mbox{\hyperlink{lopcodes_8h_a7a343159ef7669a438c2097b839b2b13}{G\+E\+T\+A\+R\+G\+\_\+B}}(i))}
+
+
+
+在文件 lvm.\+c 第 1037 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a316a781a03ac24357a00b0037fb38565}\label{lvm_8c_a316a781a03ac24357a00b0037fb38565}} 
+\index{lvm.c@{lvm.c}!RC@{RC}}
+\index{RC@{RC}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{RC}{RC}}
+{\footnotesize\ttfamily \#define RC(\begin{DoxyParamCaption}\item[{}]{i }\end{DoxyParamCaption})~(base+\mbox{\hyperlink{lopcodes_8h_af96cb84f2685fda7f36d3d099dba6a44}{G\+E\+T\+A\+R\+G\+\_\+C}}(i))}
+
+
+
+在文件 lvm.\+c 第 1040 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a621b920c2683748903f90d71a1fb157b}\label{lvm_8c_a621b920c2683748903f90d71a1fb157b}} 
+\index{lvm.c@{lvm.c}!RKC@{RKC}}
+\index{RKC@{RKC}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{RKC}{RKC}}
+{\footnotesize\ttfamily \#define R\+KC(\begin{DoxyParamCaption}\item[{}]{i }\end{DoxyParamCaption})~((\mbox{\hyperlink{lopcodes_8h_aa874f9aac8107c30bf683067661a988a}{T\+E\+S\+T\+A\+R\+G\+\_\+k}}(i)) ? k + \mbox{\hyperlink{lopcodes_8h_af96cb84f2685fda7f36d3d099dba6a44}{G\+E\+T\+A\+R\+G\+\_\+C}}(i) \+: \mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(base + \mbox{\hyperlink{lopcodes_8h_af96cb84f2685fda7f36d3d099dba6a44}{G\+E\+T\+A\+R\+G\+\_\+C}}(i)))}
+
+
+
+在文件 lvm.\+c 第 1043 行定义.
+
+\mbox{\Hypertarget{lvm_8c_af118f5c1afd189a53b6d967d5e2f5479}\label{lvm_8c_af118f5c1afd189a53b6d967d5e2f5479}} 
+\index{lvm.c@{lvm.c}!savepc@{savepc}}
+\index{savepc@{savepc}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{savepc}{savepc}}
+{\footnotesize\ttfamily \#define savepc(\begin{DoxyParamCaption}\item[{}]{L }\end{DoxyParamCaption})~(ci-\/$>$u.\+l.\+savedpc = pc)}
+
+
+
+在文件 lvm.\+c 第 1076 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a59d34ce7e11dd5c6aa72c76fa2fe09a0}\label{lvm_8c_a59d34ce7e11dd5c6aa72c76fa2fe09a0}} 
+\index{lvm.c@{lvm.c}!savestate@{savestate}}
+\index{savestate@{savestate}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{savestate}{savestate}}
+{\footnotesize\ttfamily \#define savestate(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{ci }\end{DoxyParamCaption})~(\mbox{\hyperlink{lvm_8c_af118f5c1afd189a53b6d967d5e2f5479}{savepc}}(L), L-\/$>$top = ci-\/$>$top)}
+
+
+
+在文件 lvm.\+c 第 1083 行定义.
+
+\mbox{\Hypertarget{lvm_8c_ac4af8d3b7a2c325068e51a81b01d0a65}\label{lvm_8c_ac4af8d3b7a2c325068e51a81b01d0a65}} 
+\index{lvm.c@{lvm.c}!tostring@{tostring}}
+\index{tostring@{tostring}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{tostring}{tostring}}
+{\footnotesize\ttfamily \#define tostring(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{o }\end{DoxyParamCaption})~	(\mbox{\hyperlink{lobject_8h_a9bdf057a0de8da2ffae3ac35662dd255}{ttisstring}}(o) $\vert$$\vert$ (\mbox{\hyperlink{lvm_8h_aa6af30bdcb0dce1826c81061cec16d81}{cvt2str}}(o) \&\& (\mbox{\hyperlink{lobject_8h_a007d2c6293fee953f3af21f60f8133ba}{lua\+O\+\_\+tostring}}(L, o), 1)))}
+
+
+
+在文件 lvm.\+c 第 616 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a8e2f8e15f68c38d8c1a784fa79fbfe2d}\label{lvm_8c_a8e2f8e15f68c38d8c1a784fa79fbfe2d}} 
+\index{lvm.c@{lvm.c}!updatebase@{updatebase}}
+\index{updatebase@{updatebase}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{updatebase}{updatebase}}
+{\footnotesize\ttfamily \#define updatebase(\begin{DoxyParamCaption}\item[{}]{ci }\end{DoxyParamCaption})~(base = ci-\/$>$func + 1)}
+
+
+
+在文件 lvm.\+c 第 1049 行定义.
+
+\mbox{\Hypertarget{lvm_8c_aa2532fb78de8437337c3a287df45a139}\label{lvm_8c_aa2532fb78de8437337c3a287df45a139}} 
+\index{lvm.c@{lvm.c}!updatestack@{updatestack}}
+\index{updatestack@{updatestack}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{updatestack}{updatestack}}
+{\footnotesize\ttfamily \#define updatestack(\begin{DoxyParamCaption}\item[{}]{ci }\end{DoxyParamCaption})~\{ if (trap) \{ \mbox{\hyperlink{lvm_8c_a8e2f8e15f68c38d8c1a784fa79fbfe2d}{updatebase}}(ci); ra = \mbox{\hyperlink{lvm_8c_a721dd0af7e652d2d98b1f765f7860bcb}{RA}}(i); \} \}}
+
+
+
+在文件 lvm.\+c 第 1052 行定义.
+
+\mbox{\Hypertarget{lvm_8c_abb4b554ff3bfb81c40e994b89c466728}\label{lvm_8c_abb4b554ff3bfb81c40e994b89c466728}} 
+\index{lvm.c@{lvm.c}!updatetrap@{updatetrap}}
+\index{updatetrap@{updatetrap}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{updatetrap}{updatetrap}}
+{\footnotesize\ttfamily \#define updatetrap(\begin{DoxyParamCaption}\item[{}]{ci }\end{DoxyParamCaption})~(trap = ci-\/$>$u.\+l.\+trap)}
+
+
+
+在文件 lvm.\+c 第 1047 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a362451cac7ed1e9ebf8978cd761a01fb}\label{lvm_8c_a362451cac7ed1e9ebf8978cd761a01fb}} 
+\index{lvm.c@{lvm.c}!vmbreak@{vmbreak}}
+\index{vmbreak@{vmbreak}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{vmbreak}{vmbreak}}
+{\footnotesize\ttfamily \#define vmbreak~break}
+
+
+
+在文件 lvm.\+c 第 1124 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a64ed762fd3da016b8792d4ac0d0cf17f}\label{lvm_8c_a64ed762fd3da016b8792d4ac0d0cf17f}} 
+\index{lvm.c@{lvm.c}!vmcase@{vmcase}}
+\index{vmcase@{vmcase}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{vmcase}{vmcase}}
+{\footnotesize\ttfamily \#define vmcase(\begin{DoxyParamCaption}\item[{}]{l }\end{DoxyParamCaption})~case l\+:}
+
+
+
+在文件 lvm.\+c 第 1123 行定义.
+
+\mbox{\Hypertarget{lvm_8c_ae65c98d22c152f2d423102a999a821c9}\label{lvm_8c_ae65c98d22c152f2d423102a999a821c9}} 
+\index{lvm.c@{lvm.c}!vmdispatch@{vmdispatch}}
+\index{vmdispatch@{vmdispatch}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{vmdispatch}{vmdispatch}}
+{\footnotesize\ttfamily \#define vmdispatch(\begin{DoxyParamCaption}\item[{}]{o }\end{DoxyParamCaption})~switch(o)}
+
+
+
+在文件 lvm.\+c 第 1122 行定义.
+
+\mbox{\Hypertarget{lvm_8c_ae2618898a2f8e320a173906bb811c9bd}\label{lvm_8c_ae2618898a2f8e320a173906bb811c9bd}} 
+\index{lvm.c@{lvm.c}!vmfetch@{vmfetch}}
+\index{vmfetch@{vmfetch}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{vmfetch}{vmfetch}}
+{\footnotesize\ttfamily \#define vmfetch(\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{  \{ \(\backslash\)}
+\DoxyCodeLine{  if (trap) \{  \textcolor{comment}{/* stack reallocation or hooks? */} \(\backslash\)}
+\DoxyCodeLine{    trap = \mbox{\hyperlink{ldebug_8c_aa85fcb28f50397f11ac54ed47be24f8b}{luaG\_traceexec}}(L, pc);  \textcolor{comment}{/* handle hooks */} \(\backslash\)}
+\DoxyCodeLine{    updatebase(ci);  \textcolor{comment}{/* correct stack */} \(\backslash\)}
+\DoxyCodeLine{  \} \(\backslash\)}
+\DoxyCodeLine{  i = *(pc++); \(\backslash\)}
+\DoxyCodeLine{  ra = \mbox{\hyperlink{lvm_8c_a721dd0af7e652d2d98b1f765f7860bcb}{RA}}(i); \textcolor{comment}{/* WARNING: any stack reallocation invalidates 'ra' */} \(\backslash\)}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+在文件 lvm.\+c 第 1113 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a83fae87b4e07c8e466b98d2085582562}\label{lvm_8c_a83fae87b4e07c8e466b98d2085582562}} 
+\index{lvm.c@{lvm.c}!vRB@{vRB}}
+\index{vRB@{vRB}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{vRB}{vRB}}
+{\footnotesize\ttfamily \#define v\+RB(\begin{DoxyParamCaption}\item[{}]{i }\end{DoxyParamCaption})~\mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(\mbox{\hyperlink{lvm_8c_a2688e9bc2c975760015dd57956107eb4}{RB}}(i))}
+
+
+
+在文件 lvm.\+c 第 1038 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a0c07e0d29b6b7d24e42617450d7bff24}\label{lvm_8c_a0c07e0d29b6b7d24e42617450d7bff24}} 
+\index{lvm.c@{lvm.c}!vRC@{vRC}}
+\index{vRC@{vRC}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{vRC}{vRC}}
+{\footnotesize\ttfamily \#define v\+RC(\begin{DoxyParamCaption}\item[{}]{i }\end{DoxyParamCaption})~\mbox{\hyperlink{lobject_8h_a8c21cbb67def90b23342840cd08a5cfd}{s2v}}(\mbox{\hyperlink{lvm_8c_a316a781a03ac24357a00b0037fb38565}{RC}}(i))}
+
+
+
+在文件 lvm.\+c 第 1041 行定义.
+
+
+
+\doxysubsection{函数说明}
+\mbox{\Hypertarget{lvm_8c_a7f03a9c23b77ec5cd280bb955ec430b8}\label{lvm_8c_a7f03a9c23b77ec5cd280bb955ec430b8}} 
+\index{lvm.c@{lvm.c}!copy2buff@{copy2buff}}
+\index{copy2buff@{copy2buff}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{copy2buff()}{copy2buff()}}
+{\footnotesize\ttfamily static void copy2buff (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}}}]{top,  }\item[{int}]{n,  }\item[{char $\ast$}]{buff }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lvm.\+c 第 622 行定义.
+
+\mbox{\Hypertarget{lvm_8c_ae1da05262daf2e1f5616c2f0e6472264}\label{lvm_8c_ae1da05262daf2e1f5616c2f0e6472264}} 
+\index{lvm.c@{lvm.c}!floatforloop@{floatforloop}}
+\index{floatforloop@{floatforloop}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{floatforloop()}{floatforloop()}}
+{\footnotesize\ttfamily static int floatforloop (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}}}]{ra }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lvm.\+c 第 266 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a74de39e56f455130121e51b2cae6685a}\label{lvm_8c_a74de39e56f455130121e51b2cae6685a}} 
+\index{lvm.c@{lvm.c}!forlimit@{forlimit}}
+\index{forlimit@{forlimit}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{forlimit()}{forlimit()}}
+{\footnotesize\ttfamily static int forlimit (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{init,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{lim,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} $\ast$}]{p,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{step }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lvm.\+c 第 176 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a8d9c9746ae6f28dd1b17982a88589b51}\label{lvm_8c_a8d9c9746ae6f28dd1b17982a88589b51}} 
+\index{lvm.c@{lvm.c}!forprep@{forprep}}
+\index{forprep@{forprep}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{forprep()}{forprep()}}
+{\footnotesize\ttfamily static int forprep (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}}}]{ra }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lvm.\+c 第 206 行定义.
+
+\mbox{\Hypertarget{lvm_8c_af609f8da5aa129c2dfe05d03f7001c03}\label{lvm_8c_af609f8da5aa129c2dfe05d03f7001c03}} 
+\index{lvm.c@{lvm.c}!l\_strcmp@{l\_strcmp}}
+\index{l\_strcmp@{l\_strcmp}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{l\_strcmp()}{l\_strcmp()}}
+{\footnotesize\ttfamily static int l\+\_\+strcmp (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{ls,  }\item[{const \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{rs }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lvm.\+c 第 378 行定义.
+
+\mbox{\Hypertarget{lvm_8c_ad20630400fb41a023f723f86d1bcf2ee}\label{lvm_8c_ad20630400fb41a023f723f86d1bcf2ee}} 
+\index{lvm.c@{lvm.c}!l\_strton@{l\_strton}}
+\index{l\_strton@{l\_strton}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{l\_strton()}{l\_strton()}}
+{\footnotesize\ttfamily static int l\+\_\+strton (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{obj,  }\item[{\mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{result }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lvm.\+c 第 90 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a29b512f6e7e0c458be29cf7fe250bba3}\label{lvm_8c_a29b512f6e7e0c458be29cf7fe250bba3}} 
+\index{lvm.c@{lvm.c}!LEfloatint@{LEfloatint}}
+\index{LEfloatint@{LEfloatint}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{LEfloatint()}{LEfloatint()}}
+{\footnotesize\ttfamily static int L\+Efloatint (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}}}]{f,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{i }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lvm.\+c 第 463 行定义.
+
+\mbox{\Hypertarget{lvm_8c_ab394eec9acbce8e5be88eeaf799d6a13}\label{lvm_8c_ab394eec9acbce8e5be88eeaf799d6a13}} 
+\index{lvm.c@{lvm.c}!LEintfloat@{LEintfloat}}
+\index{LEintfloat@{LEintfloat}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{LEintfloat()}{LEintfloat()}}
+{\footnotesize\ttfamily static int L\+Eintfloat (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{i,  }\item[{\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}}}]{f }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lvm.\+c 第 429 行定义.
+
+\mbox{\Hypertarget{lvm_8c_aa531a8c826e4bbb1918f43bd84b9456a}\label{lvm_8c_aa531a8c826e4bbb1918f43bd84b9456a}} 
+\index{lvm.c@{lvm.c}!LEnum@{LEnum}}
+\index{LEnum@{LEnum}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{LEnum()}{LEnum()}}
+{\footnotesize\ttfamily static int L\+Enum (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{l,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{r }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lvm.\+c 第 501 行定义.
+
+\mbox{\Hypertarget{lvm_8c_aa12d860dd59154d1952911589fd72fb2}\label{lvm_8c_aa12d860dd59154d1952911589fd72fb2}} 
+\index{lvm.c@{lvm.c}!lessequalothers@{lessequalothers}}
+\index{lessequalothers@{lessequalothers}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{lessequalothers()}{lessequalothers()}}
+{\footnotesize\ttfamily static int lessequalothers (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{l,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{r }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lvm.\+c 第 545 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a13f124eec78027029d2e8fd9b83ee614}\label{lvm_8c_a13f124eec78027029d2e8fd9b83ee614}} 
+\index{lvm.c@{lvm.c}!lessthanothers@{lessthanothers}}
+\index{lessthanothers@{lessthanothers}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{lessthanothers()}{lessthanothers()}}
+{\footnotesize\ttfamily static int lessthanothers (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{l,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{r }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lvm.\+c 第 523 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a4c8a4beda3cf0a265070dc6832183318}\label{lvm_8c_a4c8a4beda3cf0a265070dc6832183318}} 
+\index{lvm.c@{lvm.c}!LTfloatint@{LTfloatint}}
+\index{LTfloatint@{LTfloatint}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{LTfloatint()}{LTfloatint()}}
+{\footnotesize\ttfamily static int L\+Tfloatint (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}}}]{f,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{i }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lvm.\+c 第 446 行定义.
+
+\mbox{\Hypertarget{lvm_8c_aed56b743321d737d2c2df6268674281f}\label{lvm_8c_aed56b743321d737d2c2df6268674281f}} 
+\index{lvm.c@{lvm.c}!LTintfloat@{LTintfloat}}
+\index{LTintfloat@{LTintfloat}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{LTintfloat()}{LTintfloat()}}
+{\footnotesize\ttfamily static int L\+Tintfloat (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{i,  }\item[{\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}}}]{f }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lvm.\+c 第 412 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a1e3534dce31fc52f71f974802bc6ace2}\label{lvm_8c_a1e3534dce31fc52f71f974802bc6ace2}} 
+\index{lvm.c@{lvm.c}!LTnum@{LTnum}}
+\index{LTnum@{LTnum}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{LTnum()}{LTnum()}}
+{\footnotesize\ttfamily static int L\+Tnum (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{l,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{r }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lvm.\+c 第 479 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a2f076040af405dcb50d661edd692eca7}\label{lvm_8c_a2f076040af405dcb50d661edd692eca7}} 
+\index{lvm.c@{lvm.c}!luaV\_concat@{luaV\_concat}}
+\index{luaV\_concat@{luaV\_concat}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{luaV\_concat()}{luaV\_concat()}}
+{\footnotesize\ttfamily void lua\+V\+\_\+concat (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{total }\end{DoxyParamCaption})}
+
+
+
+在文件 lvm.\+c 第 636 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a4826066036eb5f7cf0f8a33f7073f49e}\label{lvm_8c_a4826066036eb5f7cf0f8a33f7073f49e}} 
+\index{lvm.c@{lvm.c}!luaV\_equalobj@{luaV\_equalobj}}
+\index{luaV\_equalobj@{luaV\_equalobj}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{luaV\_equalobj()}{luaV\_equalobj()}}
+{\footnotesize\ttfamily int lua\+V\+\_\+equalobj (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{t1,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{t2 }\end{DoxyParamCaption})}
+
+
+
+在文件 lvm.\+c 第 568 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a221e6dd0bc488dc961e9007ed8e21189}\label{lvm_8c_a221e6dd0bc488dc961e9007ed8e21189}} 
+\index{lvm.c@{lvm.c}!luaV\_execute@{luaV\_execute}}
+\index{luaV\_execute@{luaV\_execute}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{luaV\_execute()}{luaV\_execute()}}
+{\footnotesize\ttfamily void lua\+V\+\_\+execute (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_call_info}{Call\+Info}} $\ast$}]{ci }\end{DoxyParamCaption})}
+
+
+
+在文件 lvm.\+c 第 1127 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a45c30a70c51ed843f58bd446aa2096c9}\label{lvm_8c_a45c30a70c51ed843f58bd446aa2096c9}} 
+\index{lvm.c@{lvm.c}!luaV\_finishget@{luaV\_finishget}}
+\index{luaV\_finishget@{luaV\_finishget}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{luaV\_finishget()}{luaV\_finishget()}}
+{\footnotesize\ttfamily void lua\+V\+\_\+finishget (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{t,  }\item[{\mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{key,  }\item[{\mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}}}]{val,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{slot }\end{DoxyParamCaption})}
+
+
+
+在文件 lvm.\+c 第 287 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a8ccb90ee001013b54a5005df64c7359d}\label{lvm_8c_a8ccb90ee001013b54a5005df64c7359d}} 
+\index{lvm.c@{lvm.c}!luaV\_finishOp@{luaV\_finishOp}}
+\index{luaV\_finishOp@{luaV\_finishOp}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{luaV\_finishOp()}{luaV\_finishOp()}}
+{\footnotesize\ttfamily void lua\+V\+\_\+finish\+Op (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})}
+
+
+
+在文件 lvm.\+c 第 805 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a190116824dc13c5d37a6b2962f425a0d}\label{lvm_8c_a190116824dc13c5d37a6b2962f425a0d}} 
+\index{lvm.c@{lvm.c}!luaV\_finishset@{luaV\_finishset}}
+\index{luaV\_finishset@{luaV\_finishset}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{luaV\_finishset()}{luaV\_finishset()}}
+{\footnotesize\ttfamily void lua\+V\+\_\+finishset (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{t,  }\item[{\mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{key,  }\item[{\mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{val,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{slot }\end{DoxyParamCaption})}
+
+
+
+在文件 lvm.\+c 第 330 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a3a9a9378ccdbd0ea4cba6555673dccf9}\label{lvm_8c_a3a9a9378ccdbd0ea4cba6555673dccf9}} 
+\index{lvm.c@{lvm.c}!luaV\_flttointeger@{luaV\_flttointeger}}
+\index{luaV\_flttointeger@{luaV\_flttointeger}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{luaV\_flttointeger()}{luaV\_flttointeger()}}
+{\footnotesize\ttfamily int lua\+V\+\_\+flttointeger (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}}}]{n,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} $\ast$}]{p,  }\item[{\mbox{\hyperlink{lvm_8h_a1639065f78212a54317141b2703061c0}{F2\+Imod}}}]{mode }\end{DoxyParamCaption})}
+
+
+
+在文件 lvm.\+c 第 121 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a8815b6d106992c5713900b20a0da5e29}\label{lvm_8c_a8815b6d106992c5713900b20a0da5e29}} 
+\index{lvm.c@{lvm.c}!luaV\_idiv@{luaV\_idiv}}
+\index{luaV\_idiv@{luaV\_idiv}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{luaV\_idiv()}{luaV\_idiv()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} lua\+V\+\_\+idiv (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{m,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lvm.\+c 第 715 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a03d32b640c60651c78bc5ae0f2bc0549}\label{lvm_8c_a03d32b640c60651c78bc5ae0f2bc0549}} 
+\index{lvm.c@{lvm.c}!luaV\_lessequal@{luaV\_lessequal}}
+\index{luaV\_lessequal@{luaV\_lessequal}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{luaV\_lessequal()}{luaV\_lessequal()}}
+{\footnotesize\ttfamily int lua\+V\+\_\+lessequal (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{l,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{r }\end{DoxyParamCaption})}
+
+
+
+在文件 lvm.\+c 第 557 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a82cf4e4e2322eef8c4c53b98669e2ada}\label{lvm_8c_a82cf4e4e2322eef8c4c53b98669e2ada}} 
+\index{lvm.c@{lvm.c}!luaV\_lessthan@{luaV\_lessthan}}
+\index{luaV\_lessthan@{luaV\_lessthan}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{luaV\_lessthan()}{luaV\_lessthan()}}
+{\footnotesize\ttfamily int lua\+V\+\_\+lessthan (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{l,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{r }\end{DoxyParamCaption})}
+
+
+
+在文件 lvm.\+c 第 535 行定义.
+
+\mbox{\Hypertarget{lvm_8c_af1241d1650e114f39843626fd879d3d6}\label{lvm_8c_af1241d1650e114f39843626fd879d3d6}} 
+\index{lvm.c@{lvm.c}!luaV\_mod@{luaV\_mod}}
+\index{luaV\_mod@{luaV\_mod}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{luaV\_mod()}{luaV\_mod()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} lua\+V\+\_\+mod (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{m,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lvm.\+c 第 735 行定义.
+
+\mbox{\Hypertarget{lvm_8c_ac0162e10dc7e235089eb3cbef4addca7}\label{lvm_8c_ac0162e10dc7e235089eb3cbef4addca7}} 
+\index{lvm.c@{lvm.c}!luaV\_modf@{luaV\_modf}}
+\index{luaV\_modf@{luaV\_modf}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{luaV\_modf()}{luaV\_modf()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} lua\+V\+\_\+modf (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}}}]{m,  }\item[{\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}}}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lvm.\+c 第 753 行定义.
+
+\mbox{\Hypertarget{lvm_8c_aae23b597659b2aae680f1d0a0b39ab3b}\label{lvm_8c_aae23b597659b2aae680f1d0a0b39ab3b}} 
+\index{lvm.c@{lvm.c}!luaV\_objlen@{luaV\_objlen}}
+\index{luaV\_objlen@{luaV\_objlen}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{luaV\_objlen()}{luaV\_objlen()}}
+{\footnotesize\ttfamily void lua\+V\+\_\+objlen (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}}}]{ra,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{rb }\end{DoxyParamCaption})}
+
+
+
+在文件 lvm.\+c 第 680 行定义.
+
+\mbox{\Hypertarget{lvm_8c_ade6c9565152d0bb1f6116a90ea2c867a}\label{lvm_8c_ade6c9565152d0bb1f6116a90ea2c867a}} 
+\index{lvm.c@{lvm.c}!luaV\_shiftl@{luaV\_shiftl}}
+\index{luaV\_shiftl@{luaV\_shiftl}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{luaV\_shiftl()}{luaV\_shiftl()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} lua\+V\+\_\+shiftl (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{x,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{y }\end{DoxyParamCaption})}
+
+
+
+在文件 lvm.\+c 第 768 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a924f46c2bf450e137210ca19b4461747}\label{lvm_8c_a924f46c2bf450e137210ca19b4461747}} 
+\index{lvm.c@{lvm.c}!luaV\_tointeger@{luaV\_tointeger}}
+\index{luaV\_tointeger@{luaV\_tointeger}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{luaV\_tointeger()}{luaV\_tointeger()}}
+{\footnotesize\ttfamily int lua\+V\+\_\+tointeger (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{obj,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} $\ast$}]{p,  }\item[{\mbox{\hyperlink{lvm_8h_a1639065f78212a54317141b2703061c0}{F2\+Imod}}}]{mode }\end{DoxyParamCaption})}
+
+
+
+在文件 lvm.\+c 第 152 行定义.
+
+\mbox{\Hypertarget{lvm_8c_aed793e2bcd34f922ab591e317e57d375}\label{lvm_8c_aed793e2bcd34f922ab591e317e57d375}} 
+\index{lvm.c@{lvm.c}!luaV\_tointegerns@{luaV\_tointegerns}}
+\index{luaV\_tointegerns@{luaV\_tointegerns}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{luaV\_tointegerns()}{luaV\_tointegerns()}}
+{\footnotesize\ttfamily int lua\+V\+\_\+tointegerns (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{obj,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} $\ast$}]{p,  }\item[{\mbox{\hyperlink{lvm_8h_a1639065f78212a54317141b2703061c0}{F2\+Imod}}}]{mode }\end{DoxyParamCaption})}
+
+
+
+在文件 lvm.\+c 第 137 行定义.
+
+\mbox{\Hypertarget{lvm_8c_adf13f75d26fb8674d228c32803abe382}\label{lvm_8c_adf13f75d26fb8674d228c32803abe382}} 
+\index{lvm.c@{lvm.c}!luaV\_tonumber\_@{luaV\_tonumber\_}}
+\index{luaV\_tonumber\_@{luaV\_tonumber\_}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{luaV\_tonumber\_()}{luaV\_tonumber\_()}}
+{\footnotesize\ttfamily int lua\+V\+\_\+tonumber\+\_\+ (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{obj,  }\item[{\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} $\ast$}]{n }\end{DoxyParamCaption})}
+
+
+
+在文件 lvm.\+c 第 103 行定义.
+
+\mbox{\Hypertarget{lvm_8c_a4bcc07915cc8b4d397b6d411e4d2723c}\label{lvm_8c_a4bcc07915cc8b4d397b6d411e4d2723c}} 
+\index{lvm.c@{lvm.c}!pushclosure@{pushclosure}}
+\index{pushclosure@{pushclosure}!lvm.c@{lvm.c}}
+\doxysubsubsection{\texorpdfstring{pushclosure()}{pushclosure()}}
+{\footnotesize\ttfamily static void pushclosure (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_proto}{Proto}} $\ast$}]{p,  }\item[{\mbox{\hyperlink{struct_up_val}{Up\+Val}} $\ast$$\ast$}]{encup,  }\item[{\mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}}}]{base,  }\item[{\mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}}}]{ra }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lvm.\+c 第 784 行定义.
+

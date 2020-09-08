@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.20"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Lua_Docmention: D:/gitworkspace/lua/src/lstring.h 源文件</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectlogo"><img alt="Logo" src="luaa.gif"/></td>
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">Lua_Docmention
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.8.20 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+var searchBox = new SearchBox("searchBox", "search",false,'搜索');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(function() {
+  initMenu('',true,false,'search.php','搜索');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */</script>
+<div id="main-nav"></div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li>  </ul>
+</div>
+</div><!-- top -->
+<div class="header">
+  <div class="headertitle">
+<div class="title">lstring.h</div>  </div>
+</div><!--header-->
+<div class="contents">
+<a href="lstring_8h.html">浏览该文件的文档.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">/*</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">** $Id: lstring.h $</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment">** String table (keep all strings handled by Lua)</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment">** See Copyright Notice in lua.h</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="comment">*/</span></div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#ifndef lstring_h</span></div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#define lstring_h</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160; </div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="lgc_8h.html">lgc.h</a>&quot;</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="lobject_8h.html">lobject.h</a>&quot;</span></div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="lstate_8h.html">lstate.h</a>&quot;</span></div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="comment">/*</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="comment">** Memory-allocation error message must be preallocated (it cannot</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="comment">** be created after memory is exhausted)</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment">*/</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="lstring_8h.html#a36d62c6c0c5a33c2f29cf26ff9137cbf">   19</a></span>&#160;<span class="preprocessor">#define MEMERRMSG       &quot;not enough memory&quot;</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment">/*</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment">** Size of a TString: Size of the header plus space for the string</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment">** itself (including final &#39;\0&#39;).</span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment">*/</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno"><a class="line" href="lstring_8h.html#a160d701eba216310b09be7447f47794d">   26</a></span>&#160;<span class="preprocessor">#define sizelstring(l)  (offsetof(TString, contents) + ((l) + 1) * sizeof(char))</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
+<div class="line"><a name="l00028"></a><span class="lineno"><a class="line" href="lstring_8h.html#a1cd2754b136ed096325a76c6d16a82f5">   28</a></span>&#160;<span class="preprocessor">#define luaS_newliteral(L, s)   (luaS_newlstr(L, &quot;&quot; s, \</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor">                                 (sizeof(s)/sizeof(char))-1))</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; </div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment">/*</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">** test whether a string is a reserved word</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">*/</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno"><a class="line" href="lstring_8h.html#a7b490cd8212260e1cf975f59a16fb745">   35</a></span>&#160;<span class="preprocessor">#define isreserved(s)   ((s)-&gt;tt == LUA_VSHRSTR &amp;&amp; (s)-&gt;extra &gt; 0)</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160; </div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160; </div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment">/*</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">** equality for short strings, which are always internalized</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">*/</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno"><a class="line" href="lstring_8h.html#add3806315bf73de7d3138c019ed7c0ce">   41</a></span>&#160;<span class="preprocessor">#define eqshrstr(a,b)   check_exp((a)-&gt;tt == LUA_VSHRSTR, (a) == (b))</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="lstring_8h.html#a37602b681f80916f4740da5f1368e65f">luaS_hash</a> (<span class="keyword">const</span> <span class="keywordtype">char</span> *str, <span class="keywordtype">size_t</span> l,</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;                                  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> seed, <span class="keywordtype">size_t</span> step);</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="lstring_8h.html#aaa383bdce27b05699fb1bc432220abbf">luaS_hashlongstr</a> (<a class="code" href="struct_t_string.html">TString</a> *ts);</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">int</span> <a class="code" href="lstring_8h.html#a11b7f1ae66d3102d667159acefc3d643">luaS_eqlngstr</a> (<a class="code" href="struct_t_string.html">TString</a> *a, <a class="code" href="struct_t_string.html">TString</a> *b);</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">void</span> <a class="code" href="lstring_8h.html#a44d549eb0ace165927a896f37330e2cd">luaS_resize</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <span class="keywordtype">int</span> newsize);</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">void</span> <a class="code" href="lstring_8h.html#adf6ce45154f1aabbdec670cef4d9a955">luaS_clearcache</a> (<a class="code" href="structglobal___state.html">global_State</a> *g);</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">void</span> <a class="code" href="lstring_8h.html#a83805363ffda500e327df43007dc0208">luaS_init</a> (<a class="code" href="structlua___state.html">lua_State</a> *L);</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">void</span> <a class="code" href="lstring_8h.html#a187dea46b6f3964a1eb7446627ef3fdc">luaS_remove</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <a class="code" href="struct_t_string.html">TString</a> *ts);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <a class="code" href="struct_udata.html">Udata</a> *<a class="code" href="lstring_8h.html#ad3da18d682039022687b2e3a7f5225f5">luaS_newudata</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <span class="keywordtype">size_t</span> s, <span class="keywordtype">int</span> nuvalue);</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <a class="code" href="struct_t_string.html">TString</a> *<a class="code" href="lstring_8h.html#a248e72694b9116b07b2e7f4a9a3a5331">luaS_newlstr</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <span class="keyword">const</span> <span class="keywordtype">char</span> *str, <span class="keywordtype">size_t</span> l);</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <a class="code" href="struct_t_string.html">TString</a> *<a class="code" href="lstring_8h.html#a6929da8cfde3e74a0d51a6467909ef9d">luaS_new</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <span class="keyword">const</span> <span class="keywordtype">char</span> *str);</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <a class="code" href="struct_t_string.html">TString</a> *<a class="code" href="lstring_8h.html#ab2f7b029336ac9813aa287a840e2453f">luaS_createlngstrobj</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <span class="keywordtype">size_t</span> l);</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160; </div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="preprocessor">#endif</span></div>
+</div><!-- fragment --></div><!-- contents -->
+<div class="ttc" id="aluaconf_8h_html_a3f43b35a70c93f2cfde1db42a5a24f1e"><div class="ttname"><a href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a></div><div class="ttdeci">#define LUAI_FUNC</div><div class="ttdef"><b>Definition:</b> <a href="luaconf_8h_source.html#l00322">luaconf.h:322</a></div></div>
+<div class="ttc" id="alstate_8h_html"><div class="ttname"><a href="lstate_8h.html">lstate.h</a></div></div>
+<div class="ttc" id="alstring_8h_html_a6929da8cfde3e74a0d51a6467909ef9d"><div class="ttname"><a href="lstring_8h.html#a6929da8cfde3e74a0d51a6467909ef9d">luaS_new</a></div><div class="ttdeci">LUAI_FUNC TString * luaS_new(lua_State *L, const char *str)</div><div class="ttdef"><b>Definition:</b> <a href="lstring_8c_source.html#l00253">lstring.c:253</a></div></div>
+<div class="ttc" id="alstring_8h_html_a187dea46b6f3964a1eb7446627ef3fdc"><div class="ttname"><a href="lstring_8h.html#a187dea46b6f3964a1eb7446627ef3fdc">luaS_remove</a></div><div class="ttdeci">LUAI_FUNC void luaS_remove(lua_State *L, TString *ts)</div><div class="ttdef"><b>Definition:</b> <a href="lstring_8c_source.html#l00176">lstring.c:176</a></div></div>
+<div class="ttc" id="alstring_8h_html_adf6ce45154f1aabbdec670cef4d9a955"><div class="ttname"><a href="lstring_8h.html#adf6ce45154f1aabbdec670cef4d9a955">luaS_clearcache</a></div><div class="ttdeci">LUAI_FUNC void luaS_clearcache(global_State *g)</div><div class="ttdef"><b>Definition:</b> <a href="lstring_8c_source.html#l00122">lstring.c:122</a></div></div>
+<div class="ttc" id="alstring_8h_html_a37602b681f80916f4740da5f1368e65f"><div class="ttname"><a href="lstring_8h.html#a37602b681f80916f4740da5f1368e65f">luaS_hash</a></div><div class="ttdeci">LUAI_FUNC unsigned int luaS_hash(const char *str, size_t l, unsigned int seed, size_t step)</div><div class="ttdef"><b>Definition:</b> <a href="lstring_8c_source.html#l00053">lstring.c:53</a></div></div>
+<div class="ttc" id="alstring_8h_html_a11b7f1ae66d3102d667159acefc3d643"><div class="ttname"><a href="lstring_8h.html#a11b7f1ae66d3102d667159acefc3d643">luaS_eqlngstr</a></div><div class="ttdeci">LUAI_FUNC int luaS_eqlngstr(TString *a, TString *b)</div><div class="ttdef"><b>Definition:</b> <a href="lstring_8c_source.html#l00044">lstring.c:44</a></div></div>
+<div class="ttc" id="alstring_8h_html_a44d549eb0ace165927a896f37330e2cd"><div class="ttname"><a href="lstring_8h.html#a44d549eb0ace165927a896f37330e2cd">luaS_resize</a></div><div class="ttdeci">LUAI_FUNC void luaS_resize(lua_State *L, int newsize)</div><div class="ttdef"><b>Definition:</b> <a href="lstring_8c_source.html#l00097">lstring.c:97</a></div></div>
+<div class="ttc" id="astruct_t_string_html"><div class="ttname"><a href="struct_t_string.html">TString</a></div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00361">lobject.h:361</a></div></div>
+<div class="ttc" id="astruct_udata_html"><div class="ttname"><a href="struct_udata.html">Udata</a></div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00436">lobject.h:436</a></div></div>
+<div class="ttc" id="alstring_8h_html_ad3da18d682039022687b2e3a7f5225f5"><div class="ttname"><a href="lstring_8h.html#ad3da18d682039022687b2e3a7f5225f5">luaS_newudata</a></div><div class="ttdeci">LUAI_FUNC Udata * luaS_newudata(lua_State *L, size_t s, int nuvalue)</div><div class="ttdef"><b>Definition:</b> <a href="lstring_8c_source.html#l00270">lstring.c:270</a></div></div>
+<div class="ttc" id="alstring_8h_html_aaa383bdce27b05699fb1bc432220abbf"><div class="ttname"><a href="lstring_8h.html#aaa383bdce27b05699fb1bc432220abbf">luaS_hashlongstr</a></div><div class="ttdeci">LUAI_FUNC unsigned int luaS_hashlongstr(TString *ts)</div><div class="ttdef"><b>Definition:</b> <a href="lstring_8c_source.html#l00062">lstring.c:62</a></div></div>
+<div class="ttc" id="alobject_8h_html"><div class="ttname"><a href="lobject_8h.html">lobject.h</a></div></div>
+<div class="ttc" id="astructglobal___state_html"><div class="ttname"><a href="structglobal___state.html">global_State</a></div><div class="ttdef"><b>Definition:</b> <a href="lstate_8h_source.html#l00230">lstate.h:230</a></div></div>
+<div class="ttc" id="astructlua___state_html"><div class="ttname"><a href="structlua___state.html">lua_State</a></div><div class="ttdef"><b>Definition:</b> <a href="lstate_8h_source.html#l00284">lstate.h:284</a></div></div>
+<div class="ttc" id="alstring_8h_html_a83805363ffda500e327df43007dc0208"><div class="ttname"><a href="lstring_8h.html#a83805363ffda500e327df43007dc0208">luaS_init</a></div><div class="ttdeci">LUAI_FUNC void luaS_init(lua_State *L)</div><div class="ttdef"><b>Definition:</b> <a href="lstring_8c_source.html#l00135">lstring.c:135</a></div></div>
+<div class="ttc" id="alstring_8h_html_a248e72694b9116b07b2e7f4a9a3a5331"><div class="ttname"><a href="lstring_8h.html#a248e72694b9116b07b2e7f4a9a3a5331">luaS_newlstr</a></div><div class="ttdeci">LUAI_FUNC TString * luaS_newlstr(lua_State *L, const char *str, size_t l)</div><div class="ttdef"><b>Definition:</b> <a href="lstring_8c_source.html#l00233">lstring.c:233</a></div></div>
+<div class="ttc" id="algc_8h_html"><div class="ttname"><a href="lgc_8h.html">lgc.h</a></div></div>
+<div class="ttc" id="alstring_8h_html_ab2f7b029336ac9813aa287a840e2453f"><div class="ttname"><a href="lstring_8h.html#ab2f7b029336ac9813aa287a840e2453f">luaS_createlngstrobj</a></div><div class="ttdeci">LUAI_FUNC TString * luaS_createlngstrobj(lua_State *L, size_t l)</div><div class="ttdef"><b>Definition:</b> <a href="lstring_8c_source.html#l00169">lstring.c:169</a></div></div>
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+制作者&#160;<a href="http://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.8.20
+</small></address>
+</body>
+</html>

@@ -1,0 +1,349 @@
+.TH "D:/gitworkspace/lua/src/ldo.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/ldo.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <setjmp\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lapi\&.h'\fP
+.br
+\fC#include 'ldebug\&.h'\fP
+.br
+\fC#include 'ldo\&.h'\fP
+.br
+\fC#include 'lfunc\&.h'\fP
+.br
+\fC#include 'lgc\&.h'\fP
+.br
+\fC#include 'lmem\&.h'\fP
+.br
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'lopcodes\&.h'\fP
+.br
+\fC#include 'lparser\&.h'\fP
+.br
+\fC#include 'lstate\&.h'\fP
+.br
+\fC#include 'lstring\&.h'\fP
+.br
+\fC#include 'ltable\&.h'\fP
+.br
+\fC#include 'ltm\&.h'\fP
+.br
+\fC#include 'lundump\&.h'\fP
+.br
+\fC#include 'lvm\&.h'\fP
+.br
+\fC#include 'lzio\&.h'\fP
+.br
+
+.SS "结构体"
+
+.in +1c
+.ti -1c
+.RI "struct \fBlua_longjmp\fP"
+.br
+.ti -1c
+.RI "struct \fBSParser\fP"
+.br
+.in -1c
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBldo_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_CORE\fP"
+.br
+.ti -1c
+.RI "#define \fBerrorstatus\fP(s)   ((s) > \fBLUA_YIELD\fP)"
+.br
+.ti -1c
+.RI "#define \fBLUAI_THROW\fP(L,  c)   longjmp((c)\->b, 1)"
+.br
+.ti -1c
+.RI "#define \fBLUAI_TRY\fP(L,  c,  a)   if (setjmp((c)\->b) == 0) { a }"
+.br
+.ti -1c
+.RI "#define \fBluai_jmpbuf\fP   jmp_buf"
+.br
+.ti -1c
+.RI "#define \fBERRORSTACKSIZE\fP   (\fBLUAI_MAXSTACK\fP + 200)"
+.br
+.ti -1c
+.RI "#define \fBnext_ci\fP(L)   (L\->ci\->\fBnext\fP ? L\->ci\->\fBnext\fP : \fBluaE_extendCI\fP(L))"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "void \fBluaD_seterrorobj\fP (\fBlua_State\fP *L, int errcode, \fBStkId\fP oldtop)"
+.br
+.ti -1c
+.RI "\fBl_noret\fP \fBluaD_throw\fP (\fBlua_State\fP *L, int errcode)"
+.br
+.ti -1c
+.RI "int \fBluaD_rawrunprotected\fP (\fBlua_State\fP *L, \fBPfunc\fP f, void *ud)"
+.br
+.ti -1c
+.RI "static void \fBcorrectstack\fP (\fBlua_State\fP *L, \fBStkId\fP oldstack, \fBStkId\fP newstack)"
+.br
+.ti -1c
+.RI "int \fBluaD_reallocstack\fP (\fBlua_State\fP *L, int newsize, int raiseerror)"
+.br
+.ti -1c
+.RI "int \fBluaD_growstack\fP (\fBlua_State\fP *L, int n, int raiseerror)"
+.br
+.ti -1c
+.RI "static int \fBstackinuse\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "void \fBluaD_shrinkstack\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "void \fBluaD_inctop\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "void \fBluaD_hook\fP (\fBlua_State\fP *L, int event, int line, int ftransfer, int ntransfer)"
+.br
+.ti -1c
+.RI "void \fBluaD_hookcall\fP (\fBlua_State\fP *L, \fBCallInfo\fP *ci)"
+.br
+.ti -1c
+.RI "static \fBStkId\fP \fBrethook\fP (\fBlua_State\fP *L, \fBCallInfo\fP *ci, \fBStkId\fP firstres, int nres)"
+.br
+.ti -1c
+.RI "void \fBluaD_tryfuncTM\fP (\fBlua_State\fP *L, \fBStkId\fP func)"
+.br
+.ti -1c
+.RI "static void \fBmoveresults\fP (\fBlua_State\fP *L, \fBStkId\fP res, int nres, int wanted)"
+.br
+.ti -1c
+.RI "void \fBluaD_poscall\fP (\fBlua_State\fP *L, \fBCallInfo\fP *ci, int nres)"
+.br
+.ti -1c
+.RI "void \fBluaD_pretailcall\fP (\fBlua_State\fP *L, \fBCallInfo\fP *ci, \fBStkId\fP func, int narg1)"
+.br
+.ti -1c
+.RI "void \fBluaD_call\fP (\fBlua_State\fP *L, \fBStkId\fP func, int nresults)"
+.br
+.ti -1c
+.RI "void \fBluaD_callnoyield\fP (\fBlua_State\fP *L, \fBStkId\fP func, int nResults)"
+.br
+.ti -1c
+.RI "static void \fBfinishCcall\fP (\fBlua_State\fP *L, int status)"
+.br
+.ti -1c
+.RI "static void \fBunroll\fP (\fBlua_State\fP *L, void *ud)"
+.br
+.ti -1c
+.RI "static \fBCallInfo\fP * \fBfindpcall\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBrecover\fP (\fBlua_State\fP *L, int status)"
+.br
+.ti -1c
+.RI "static int \fBresume_error\fP (\fBlua_State\fP *L, const char *msg, int narg)"
+.br
+.ti -1c
+.RI "static void \fBresume\fP (\fBlua_State\fP *L, void *ud)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_resume\fP (\fBlua_State\fP *L, \fBlua_State\fP *from, int nargs, int *nresults)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_isyieldable\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_yieldk\fP (\fBlua_State\fP *L, int nresults, \fBlua_KContext\fP ctx, \fBlua_KFunction\fP k)"
+.br
+.ti -1c
+.RI "int \fBluaD_pcall\fP (\fBlua_State\fP *L, \fBPfunc\fP func, void *u, ptrdiff_t old_top, ptrdiff_t ef)"
+.br
+.ti -1c
+.RI "static void \fBcheckmode\fP (\fBlua_State\fP *L, const char *mode, const char *x)"
+.br
+.ti -1c
+.RI "static void \fBf_parser\fP (\fBlua_State\fP *L, void *ud)"
+.br
+.ti -1c
+.RI "int \fBluaD_protectedparser\fP (\fBlua_State\fP *L, \fBZIO\fP *z, const char *name, const char *mode)"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define ERRORSTACKSIZE   (\fBLUAI_MAXSTACK\fP + 200)"
+
+.PP
+在文件 ldo\&.c 第 182 行定义\&.
+.SS "#define errorstatus(s)   ((s) > \fBLUA_YIELD\fP)"
+
+.PP
+在文件 ldo\&.c 第 38 行定义\&.
+.SS "#define ldo_c"
+
+.PP
+在文件 ldo\&.c 第 7 行定义\&.
+.SS "#define LUA_CORE"
+
+.PP
+在文件 ldo\&.c 第 8 行定义\&.
+.SS "#define luai_jmpbuf   jmp_buf"
+
+.PP
+在文件 ldo\&.c 第 75 行定义\&.
+.SS "#define LUAI_THROW(L, c)   longjmp((c)\->b, 1)"
+
+.PP
+在文件 ldo\&.c 第 73 行定义\&.
+.SS "#define LUAI_TRY(L, c, a)   if (setjmp((c)\->b) == 0) { a }"
+
+.PP
+在文件 ldo\&.c 第 74 行定义\&.
+.SS "#define next_ci(L)   (L\->ci\->\fBnext\fP ? L\->ci\->\fBnext\fP : \fBluaE_extendCI\fP(L))"
+
+.PP
+在文件 ldo\&.c 第 425 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static void checkmode (\fBlua_State\fP * L, const char * mode, const char * x)\fC [static]\fP"
+
+.PP
+在文件 ldo\&.c 第 777 行定义\&.
+.SS "static void correctstack (\fBlua_State\fP * L, \fBStkId\fP oldstack, \fBStkId\fP newstack)\fC [static]\fP"
+
+.PP
+在文件 ldo\&.c 第 164 行定义\&.
+.SS "static void f_parser (\fBlua_State\fP * L, void * ud)\fC [static]\fP"
+
+.PP
+在文件 ldo\&.c 第 786 行定义\&.
+.SS "static \fBCallInfo\fP* findpcall (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ldo\&.c 第 584 行定义\&.
+.SS "static void finishCcall (\fBlua_State\fP * L, int status)\fC [static]\fP"
+
+.PP
+在文件 ldo\&.c 第 535 行定义\&.
+.SS "\fBLUA_API\fP int lua_isyieldable (\fBlua_State\fP * L)"
+
+.PP
+在文件 ldo\&.c 第 702 行定义\&.
+.SS "\fBLUA_API\fP int lua_resume (\fBlua_State\fP * L, \fBlua_State\fP * from, int nargs, int * nresults)"
+
+.PP
+在文件 ldo\&.c 第 662 行定义\&.
+.SS "\fBLUA_API\fP int lua_yieldk (\fBlua_State\fP * L, int nresults, \fBlua_KContext\fP ctx, \fBlua_KFunction\fP k)"
+
+.PP
+在文件 ldo\&.c 第 707 行定义\&.
+.SS "void luaD_call (\fBlua_State\fP * L, \fBStkId\fP func, int nresults)"
+
+.PP
+在文件 ldo\&.c 第 458 行定义\&.
+.SS "void luaD_callnoyield (\fBlua_State\fP * L, \fBStkId\fP func, int nResults)"
+
+.PP
+在文件 ldo\&.c 第 522 行定义\&.
+.SS "int luaD_growstack (\fBlua_State\fP * L, int n, int raiseerror)"
+
+.PP
+在文件 ldo\&.c 第 209 行定义\&.
+.SS "void luaD_hook (\fBlua_State\fP * L, int event, int line, int ftransfer, int ntransfer)"
+
+.PP
+在文件 ldo\&.c 第 275 行定义\&.
+.SS "void luaD_hookcall (\fBlua_State\fP * L, \fBCallInfo\fP * ci)"
+
+.PP
+在文件 ldo\&.c 第 314 行定义\&.
+.SS "void luaD_inctop (\fBlua_State\fP * L)"
+
+.PP
+在文件 ldo\&.c 第 262 行定义\&.
+.SS "int luaD_pcall (\fBlua_State\fP * L, \fBPfunc\fP func, void * u, ptrdiff_t old_top, ptrdiff_t ef)"
+
+.PP
+在文件 ldo\&.c 第 742 行定义\&.
+.SS "void luaD_poscall (\fBlua_State\fP * L, \fBCallInfo\fP * ci, int nres)"
+
+.PP
+在文件 ldo\&.c 第 415 行定义\&.
+.SS "void luaD_pretailcall (\fBlua_State\fP * L, \fBCallInfo\fP * ci, \fBStkId\fP func, int narg1)"
+
+.PP
+在文件 ldo\&.c 第 433 行定义\&.
+.SS "int luaD_protectedparser (\fBlua_State\fP * L, \fBZIO\fP * z, const char * name, const char * mode)"
+
+.PP
+在文件 ldo\&.c 第 803 行定义\&.
+.SS "int luaD_rawrunprotected (\fBlua_State\fP * L, \fBPfunc\fP f, void * ud)"
+
+.PP
+在文件 ldo\&.c 第 141 行定义\&.
+.SS "int luaD_reallocstack (\fBlua_State\fP * L, int newsize, int raiseerror)"
+
+.PP
+在文件 ldo\&.c 第 185 行定义\&.
+.SS "void luaD_seterrorobj (\fBlua_State\fP * L, int errcode, \fBStkId\fP oldtop)"
+
+.PP
+在文件 ldo\&.c 第 91 行定义\&.
+.SS "void luaD_shrinkstack (\fBlua_State\fP * L)"
+
+.PP
+在文件 ldo\&.c 第 246 行定义\&.
+.SS "\fBl_noret\fP luaD_throw (\fBlua_State\fP * L, int errcode)"
+
+.PP
+在文件 ldo\&.c 第 114 行定义\&.
+.SS "void luaD_tryfuncTM (\fBlua_State\fP * L, \fBStkId\fP func)"
+
+.PP
+在文件 ldo\&.c 第 355 行定义\&.
+.SS "static void moveresults (\fBlua_State\fP * L, \fBStkId\fP res, int nres, int wanted)\fC [static]\fP"
+
+.PP
+在文件 ldo\&.c 第 373 行定义\&.
+.SS "static int recover (\fBlua_State\fP * L, int status)\fC [static]\fP"
+
+.PP
+在文件 ldo\&.c 第 599 行定义\&.
+.SS "static void resume (\fBlua_State\fP * L, void * ud)\fC [static]\fP"
+
+.PP
+在文件 ldo\&.c 第 637 行定义\&.
+.SS "static int resume_error (\fBlua_State\fP * L, const char * msg, int narg)\fC [static]\fP"
+
+.PP
+在文件 ldo\&.c 第 621 行定义\&.
+.SS "static \fBStkId\fP rethook (\fBlua_State\fP * L, \fBCallInfo\fP * ci, \fBStkId\fP firstres, int nres)\fC [static]\fP"
+
+.PP
+在文件 ldo\&.c 第 327 行定义\&.
+.SS "static int stackinuse (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 ldo\&.c 第 235 行定义\&.
+.SS "static void unroll (\fBlua_State\fP * L, void * ud)\fC [static]\fP"
+
+.PP
+在文件 ldo\&.c 第 565 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

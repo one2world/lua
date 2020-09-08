@@ -1,0 +1,396 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lopcodes_8h_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/lopcodes.h</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;lopcodes.h&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Opcodes&#32;for&#32;Lua&#32;virtual&#32;machine</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+00007 <emphasis role="preprocessor">#ifndef&#32;lopcodes_h</emphasis>
+00008 <emphasis role="preprocessor">#define&#32;lopcodes_h</emphasis>
+00009 
+00010 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_llimits_8h">llimits.h</link>&quot;</emphasis>
+00011 
+00012 
+00013 <emphasis role="comment">/*===========================================================================</emphasis>
+00014 <emphasis role="comment">&#32;&#32;We&#32;assume&#32;that&#32;instructions&#32;are&#32;unsigned&#32;32-bit&#32;integers.</emphasis>
+00015 <emphasis role="comment">&#32;&#32;All&#32;instructions&#32;have&#32;an&#32;opcode&#32;in&#32;the&#32;first&#32;7&#32;bits.</emphasis>
+00016 <emphasis role="comment">&#32;&#32;Instructions&#32;can&#32;have&#32;the&#32;following&#32;formats:</emphasis>
+00017 <emphasis role="comment"></emphasis>
+00018 <emphasis role="comment">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;3&#32;3&#32;2&#32;2&#32;2&#32;2&#32;2&#32;2&#32;2&#32;2&#32;2&#32;2&#32;1&#32;1&#32;1&#32;1&#32;1&#32;1&#32;1&#32;1&#32;1&#32;1&#32;0&#32;0&#32;0&#32;0&#32;0&#32;0&#32;0&#32;0&#32;0&#32;0</emphasis>
+00019 <emphasis role="comment">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;1&#32;0&#32;9&#32;8&#32;7&#32;6&#32;5&#32;4&#32;3&#32;2&#32;1&#32;0&#32;9&#32;8&#32;7&#32;6&#32;5&#32;4&#32;3&#32;2&#32;1&#32;0&#32;9&#32;8&#32;7&#32;6&#32;5&#32;4&#32;3&#32;2&#32;1&#32;0</emphasis>
+00020 <emphasis role="comment">iABC&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;C(8)&#32;&#32;&#32;&#32;&#32;|&#32;&#32;&#32;&#32;&#32;&#32;B(8)&#32;&#32;&#32;&#32;&#32;|k|&#32;&#32;&#32;&#32;&#32;A(8)&#32;&#32;&#32;&#32;&#32;&#32;|&#32;&#32;&#32;Op(7)&#32;&#32;&#32;&#32;&#32;|</emphasis>
+00021 <emphasis role="comment">iABx&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;Bx(17)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;|&#32;&#32;&#32;&#32;&#32;A(8)&#32;&#32;&#32;&#32;&#32;&#32;|&#32;&#32;&#32;Op(7)&#32;&#32;&#32;&#32;&#32;|</emphasis>
+00022 <emphasis role="comment">iAsBx&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;sBx&#32;(signed)(17)&#32;&#32;&#32;&#32;&#32;&#32;|&#32;&#32;&#32;&#32;&#32;A(8)&#32;&#32;&#32;&#32;&#32;&#32;|&#32;&#32;&#32;Op(7)&#32;&#32;&#32;&#32;&#32;|</emphasis>
+00023 <emphasis role="comment">iAx&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;Ax(25)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;|&#32;&#32;&#32;Op(7)&#32;&#32;&#32;&#32;&#32;|</emphasis>
+00024 <emphasis role="comment">isJ&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;sJ(25)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;|&#32;&#32;&#32;Op(7)&#32;&#32;&#32;&#32;&#32;|</emphasis>
+00025 <emphasis role="comment"></emphasis>
+00026 <emphasis role="comment">&#32;&#32;A&#32;signed&#32;argument&#32;is&#32;represented&#32;in&#32;excess&#32;K:&#32;the&#32;represented&#32;value&#32;is</emphasis>
+00027 <emphasis role="comment">&#32;&#32;the&#32;written&#32;unsigned&#32;value&#32;minus&#32;K,&#32;where&#32;K&#32;is&#32;half&#32;the&#32;maximum&#32;for&#32;the</emphasis>
+00028 <emphasis role="comment">&#32;&#32;corresponding&#32;unsigned&#32;argument.</emphasis>
+00029 <emphasis role="comment">===========================================================================*/</emphasis>
+00030 
+00031 
+<anchor xml:id="_lopcodes_8h_source_1l00032"/><link linkend="_lopcodes_8h_1a56752d1aeb4bd4940e632396072d68af">00032</link> <emphasis role="keyword">enum</emphasis>&#32;<link linkend="_lopcodes_8h_1a56752d1aeb4bd4940e632396072d68af">OpMode</link>&#32;{<link linkend="_lopcodes_8h_1a56752d1aeb4bd4940e632396072d68afa5032b5bab05a3312f6236ad8a6053cf3">iABC</link>,&#32;<link linkend="_lopcodes_8h_1a56752d1aeb4bd4940e632396072d68afae162f330f7a1e7581cdbbb4af60dc8ea">iABx</link>,&#32;<link linkend="_lopcodes_8h_1a56752d1aeb4bd4940e632396072d68afa5db94456d16691b254a6b2fc7b473e55">iAsBx</link>,&#32;<link linkend="_lopcodes_8h_1a56752d1aeb4bd4940e632396072d68afa453db051897b5faf2716653c2aa5a2e2">iAx</link>,&#32;<link linkend="_lopcodes_8h_1a56752d1aeb4bd4940e632396072d68afa8c4168189c62aed69b9160daeb20f20e">isJ</link>};&#32;&#32;<emphasis role="comment">/*&#32;basic&#32;instruction&#32;formats&#32;*/</emphasis>
+00033 
+00034 
+00035 <emphasis role="comment">/*</emphasis>
+00036 <emphasis role="comment">**&#32;size&#32;and&#32;position&#32;of&#32;opcode&#32;arguments.</emphasis>
+00037 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00038"/><link linkend="_lopcodes_8h_1a5f42703bf77b09689626ca8cf3fc5fc1">00038</link> <emphasis role="preprocessor">#define&#32;SIZE_C&#32;&#32;&#32;&#32;&#32;&#32;8</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00039"/><link linkend="_lopcodes_8h_1ac8795820709810bf0baf1660341cacc2">00039</link> <emphasis role="preprocessor">#define&#32;SIZE_B&#32;&#32;&#32;&#32;&#32;&#32;8</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00040"/><link linkend="_lopcodes_8h_1a4b81cf762841df8820b6077b66c0c619">00040</link> <emphasis role="preprocessor">#define&#32;SIZE_Bx&#32;&#32;&#32;&#32;&#32;(SIZE_C&#32;+&#32;SIZE_B&#32;+&#32;1)</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00041"/><link linkend="_lopcodes_8h_1a205e8f662c5b2496cb7d9e7aa37cda90">00041</link> <emphasis role="preprocessor">#define&#32;SIZE_A&#32;&#32;&#32;&#32;&#32;&#32;8</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00042"/><link linkend="_lopcodes_8h_1a52d077faf8699f2d66aef36bf4e6c751">00042</link> <emphasis role="preprocessor">#define&#32;SIZE_Ax&#32;&#32;&#32;&#32;&#32;(SIZE_Bx&#32;+&#32;SIZE_A)</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00043"/><link linkend="_lopcodes_8h_1a0746f1da0d525504790943f2b79b2856">00043</link> <emphasis role="preprocessor">#define&#32;SIZE_sJ&#32;&#32;&#32;&#32;&#32;(SIZE_Bx&#32;+&#32;SIZE_A)</emphasis>
+00044 
+<anchor xml:id="_lopcodes_8h_source_1l00045"/><link linkend="_lopcodes_8h_1a4c1d995d13200130d713c6dc5e223c13">00045</link> <emphasis role="preprocessor">#define&#32;SIZE_OP&#32;&#32;&#32;&#32;&#32;7</emphasis>
+00046 
+<anchor xml:id="_lopcodes_8h_source_1l00047"/><link linkend="_lopcodes_8h_1a86559e8fac93f9aa28733fc4dd96af51">00047</link> <emphasis role="preprocessor">#define&#32;POS_OP&#32;&#32;&#32;&#32;&#32;&#32;0</emphasis>
+00048 
+<anchor xml:id="_lopcodes_8h_source_1l00049"/><link linkend="_lopcodes_8h_1a9a088c55af7f419a19a3228fd5048ef7">00049</link> <emphasis role="preprocessor">#define&#32;POS_A&#32;&#32;&#32;&#32;&#32;&#32;&#32;(POS_OP&#32;+&#32;SIZE_OP)</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00050"/><link linkend="_lopcodes_8h_1af191be3002964d0ce1e4f56135fa42bc">00050</link> <emphasis role="preprocessor">#define&#32;POS_k&#32;&#32;&#32;&#32;&#32;&#32;&#32;(POS_A&#32;+&#32;SIZE_A)</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00051"/><link linkend="_lopcodes_8h_1ac71a05d32f83f3f83b05fa95bad8c953">00051</link> <emphasis role="preprocessor">#define&#32;POS_B&#32;&#32;&#32;&#32;&#32;&#32;&#32;(POS_k&#32;+&#32;1)</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00052"/><link linkend="_lopcodes_8h_1ab67ab8adf1f91e2c7e2b30b5345d214d">00052</link> <emphasis role="preprocessor">#define&#32;POS_C&#32;&#32;&#32;&#32;&#32;&#32;&#32;(POS_B&#32;+&#32;SIZE_B)</emphasis>
+00053 
+<anchor xml:id="_lopcodes_8h_source_1l00054"/><link linkend="_lopcodes_8h_1a3626b235301aa4d50a1eddfb650ddd87">00054</link> <emphasis role="preprocessor">#define&#32;POS_Bx&#32;&#32;&#32;&#32;&#32;&#32;POS_k</emphasis>
+00055 
+<anchor xml:id="_lopcodes_8h_source_1l00056"/><link linkend="_lopcodes_8h_1a1df1ba0f129f8e4691da2c5e6d1ecc39">00056</link> <emphasis role="preprocessor">#define&#32;POS_Ax&#32;&#32;&#32;&#32;&#32;&#32;POS_A</emphasis>
+00057 
+<anchor xml:id="_lopcodes_8h_source_1l00058"/><link linkend="_lopcodes_8h_1a2e16ff1e3bdd4a468f0872517ebadc0a">00058</link> <emphasis role="preprocessor">#define&#32;POS_sJ&#32;&#32;&#32;&#32;&#32;&#32;POS_A</emphasis>
+00059 
+00060 
+00061 <emphasis role="comment">/*</emphasis>
+00062 <emphasis role="comment">**&#32;limits&#32;for&#32;opcode&#32;arguments.</emphasis>
+00063 <emphasis role="comment">**&#32;we&#32;use&#32;(signed)&#32;&apos;int&apos;&#32;to&#32;manipulate&#32;most&#32;arguments,</emphasis>
+00064 <emphasis role="comment">**&#32;so&#32;they&#32;must&#32;fit&#32;in&#32;ints.</emphasis>
+00065 <emphasis role="comment">*/</emphasis>
+00066 
+00067 <emphasis role="comment">/*&#32;Check&#32;whether&#32;type&#32;&apos;int&apos;&#32;has&#32;at&#32;least&#32;&apos;b&apos;&#32;bits&#32;(&apos;b&apos;&#32;&lt;&#32;32)&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00068"/><link linkend="_lopcodes_8h_1aaefe4466d31a7397a337ee6f83bdc14f">00068</link> <emphasis role="preprocessor">#define&#32;L_INTHASBITS(b)&#32;&#32;&#32;&#32;&#32;((UINT_MAX&#32;&gt;&gt;&#32;((b)&#32;-&#32;1))&#32;&gt;=&#32;1)</emphasis>
+00069 
+00070 
+00071 <emphasis role="preprocessor">#if&#32;L_INTHASBITS(SIZE_Bx)</emphasis>
+00072 <emphasis role="preprocessor">#define&#32;MAXARG_Bx&#32;&#32;&#32;((1&lt;&lt;SIZE_Bx)-1)</emphasis>
+00073 <emphasis role="preprocessor">#else</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00074"/><link linkend="_lopcodes_8h_1aebbf650de6e9cbec539bfabcb9ae50c6">00074</link> <emphasis role="preprocessor">#define&#32;MAXARG_Bx&#32;&#32;&#32;MAX_INT</emphasis>
+00075 <emphasis role="preprocessor">#endif</emphasis>
+00076 
+<anchor xml:id="_lopcodes_8h_source_1l00077"/><link linkend="_lopcodes_8h_1afda4d6a4b816b12ffd722e04b20f0884">00077</link> <emphasis role="preprocessor">#define&#32;OFFSET_sBx&#32;&#32;(MAXARG_Bx&gt;&gt;1)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;&apos;sBx&apos;&#32;is&#32;signed&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00078 
+00079 
+00080 <emphasis role="preprocessor">#if&#32;L_INTHASBITS(SIZE_Ax)</emphasis>
+00081 <emphasis role="preprocessor">#define&#32;MAXARG_Ax&#32;&#32;&#32;((1&lt;&lt;SIZE_Ax)-1)</emphasis>
+00082 <emphasis role="preprocessor">#else</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00083"/><link linkend="_lopcodes_8h_1a742a1bed832225c3800b3f73eb8b20ec">00083</link> <emphasis role="preprocessor">#define&#32;MAXARG_Ax&#32;&#32;&#32;MAX_INT</emphasis>
+00084 <emphasis role="preprocessor">#endif</emphasis>
+00085 
+00086 <emphasis role="preprocessor">#if&#32;L_INTHASBITS(SIZE_sJ)</emphasis>
+00087 <emphasis role="preprocessor">#define&#32;MAXARG_sJ&#32;&#32;&#32;((1&#32;&lt;&lt;&#32;SIZE_sJ)&#32;-&#32;1)</emphasis>
+00088 <emphasis role="preprocessor">#else</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00089"/><link linkend="_lopcodes_8h_1a25010bef992b79abb26404ddde6b47ee">00089</link> <emphasis role="preprocessor">#define&#32;MAXARG_sJ&#32;&#32;&#32;MAX_INT</emphasis>
+00090 <emphasis role="preprocessor">#endif</emphasis>
+00091 
+<anchor xml:id="_lopcodes_8h_source_1l00092"/><link linkend="_lopcodes_8h_1a1618fbbbf634a1b231240cfd6f3a3e5f">00092</link> <emphasis role="preprocessor">#define&#32;OFFSET_sJ&#32;&#32;&#32;(MAXARG_sJ&#32;&gt;&gt;&#32;1)</emphasis>
+00093 
+00094 
+<anchor xml:id="_lopcodes_8h_source_1l00095"/><link linkend="_lopcodes_8h_1ab3c4feecc8cd0add12e881e26bbb3b15">00095</link> <emphasis role="preprocessor">#define&#32;MAXARG_A&#32;&#32;&#32;&#32;((1&lt;&lt;SIZE_A)-1)</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00096"/><link linkend="_lopcodes_8h_1ae5132046fa2196de46214613a36235b2">00096</link> <emphasis role="preprocessor">#define&#32;MAXARG_B&#32;&#32;&#32;&#32;((1&lt;&lt;SIZE_B)-1)</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00097"/><link linkend="_lopcodes_8h_1a15a7daf14e4640990519e4e7f627900f">00097</link> <emphasis role="preprocessor">#define&#32;MAXARG_C&#32;&#32;&#32;&#32;((1&lt;&lt;SIZE_C)-1)</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00098"/><link linkend="_lopcodes_8h_1aa857ab7e20a7c4cb44ec3b6d3d2ec2bd">00098</link> <emphasis role="preprocessor">#define&#32;OFFSET_sC&#32;&#32;&#32;(MAXARG_C&#32;&gt;&gt;&#32;1)</emphasis>
+00099 
+<anchor xml:id="_lopcodes_8h_source_1l00100"/><link linkend="_lopcodes_8h_1a1918af9b0bd50d9a0e6b3a4e243bbaad">00100</link> <emphasis role="preprocessor">#define&#32;int2sC(i)&#32;&#32;&#32;((i)&#32;+&#32;OFFSET_sC)</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00101"/><link linkend="_lopcodes_8h_1a68747af4969db9dc341d6dbff87e9c7a">00101</link> <emphasis role="preprocessor">#define&#32;sC2int(i)&#32;&#32;&#32;((i)&#32;-&#32;OFFSET_sC)</emphasis>
+00102 
+00103 
+00104 <emphasis role="comment">/*&#32;creates&#32;a&#32;mask&#32;with&#32;&apos;n&apos;&#32;1&#32;bits&#32;at&#32;position&#32;&apos;p&apos;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00105"/><link linkend="_lopcodes_8h_1aedd5e7a7ce381d9be03d198dce7db53f">00105</link> <emphasis role="preprocessor">#define&#32;MASK1(n,p)&#32;&#32;((~((~(Instruction)0)&lt;&lt;(n)))&lt;&lt;(p))</emphasis>
+00106 
+00107 <emphasis role="comment">/*&#32;creates&#32;a&#32;mask&#32;with&#32;&apos;n&apos;&#32;0&#32;bits&#32;at&#32;position&#32;&apos;p&apos;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00108"/><link linkend="_lopcodes_8h_1ac38be540eada841367170e3764e93748">00108</link> <emphasis role="preprocessor">#define&#32;MASK0(n,p)&#32;&#32;(~MASK1(n,p))</emphasis>
+00109 
+00110 <emphasis role="comment">/*</emphasis>
+00111 <emphasis role="comment">**&#32;the&#32;following&#32;macros&#32;help&#32;to&#32;manipulate&#32;instructions</emphasis>
+00112 <emphasis role="comment">*/</emphasis>
+00113 
+<anchor xml:id="_lopcodes_8h_source_1l00114"/><link linkend="_lopcodes_8h_1aaa146179c3677b790c5681dcd82f0acc">00114</link> <emphasis role="preprocessor">#define&#32;GET_OPCODE(i)&#32;&#32;&#32;(cast(OpCode,&#32;((i)&gt;&gt;POS_OP)&#32;&amp;&#32;MASK1(SIZE_OP,0)))</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00115"/><link linkend="_lopcodes_8h_1a9ae2b84a40beacf053969ff426aae06f">00115</link> <emphasis role="preprocessor">#define&#32;SET_OPCODE(i,o)&#32;((i)&#32;=&#32;(((i)&amp;MASK0(SIZE_OP,POS_OP))&#32;|&#32;\</emphasis>
+00116 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;((cast(Instruction,&#32;o)&lt;&lt;POS_OP)&amp;MASK1(SIZE_OP,POS_OP))))</emphasis>
+00117 
+<anchor xml:id="_lopcodes_8h_source_1l00118"/><link linkend="_lopcodes_8h_1aa8c8723567bea374193abbc0fecd82cf">00118</link> <emphasis role="preprocessor">#define&#32;checkopm(i,m)&#32;&#32;&#32;(getOpMode(GET_OPCODE(i))&#32;==&#32;m)</emphasis>
+00119 
+00120 
+<anchor xml:id="_lopcodes_8h_source_1l00121"/><link linkend="_lopcodes_8h_1a34176ea971e0563a800c45073da2d09a">00121</link> <emphasis role="preprocessor">#define&#32;getarg(i,pos,size)&#32;&#32;(cast_int(((i)&gt;&gt;(pos))&#32;&amp;&#32;MASK1(size,0)))</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00122"/><link linkend="_lopcodes_8h_1afb6645a4d916d7dab36ba5f6f658bb8a">00122</link> <emphasis role="preprocessor">#define&#32;setarg(i,v,pos,size)&#32;&#32;&#32;&#32;((i)&#32;=&#32;(((i)&amp;MASK0(size,pos))&#32;|&#32;\</emphasis>
+00123 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;((cast(Instruction,&#32;v)&lt;&lt;pos)&amp;MASK1(size,pos))))</emphasis>
+00124 
+<anchor xml:id="_lopcodes_8h_source_1l00125"/><link linkend="_lopcodes_8h_1a1d504abc1e2246548f89977210dce0b9">00125</link> <emphasis role="preprocessor">#define&#32;GETARG_A(i)&#32;getarg(i,&#32;POS_A,&#32;SIZE_A)</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00126"/><link linkend="_lopcodes_8h_1a01900876b9281238c6dbb4d7bc59ca66">00126</link> <emphasis role="preprocessor">#define&#32;SETARG_A(i,v)&#32;&#32;&#32;setarg(i,&#32;v,&#32;POS_A,&#32;SIZE_A)</emphasis>
+00127 
+<anchor xml:id="_lopcodes_8h_source_1l00128"/><link linkend="_lopcodes_8h_1a7a343159ef7669a438c2097b839b2b13">00128</link> <emphasis role="preprocessor">#define&#32;GETARG_B(i)&#32;check_exp(checkopm(i,&#32;iABC),&#32;getarg(i,&#32;POS_B,&#32;SIZE_B))</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00129"/><link linkend="_lopcodes_8h_1a7af64834446acb4afeec51438217c73d">00129</link> <emphasis role="preprocessor">#define&#32;GETARG_sB(i)&#32;&#32;&#32;&#32;sC2int(GETARG_B(i))</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00130"/><link linkend="_lopcodes_8h_1a52ddcdcbd367c4557cc83c38e3e1723f">00130</link> <emphasis role="preprocessor">#define&#32;SETARG_B(i,v)&#32;&#32;&#32;setarg(i,&#32;v,&#32;POS_B,&#32;SIZE_B)</emphasis>
+00131 
+<anchor xml:id="_lopcodes_8h_source_1l00132"/><link linkend="_lopcodes_8h_1af96cb84f2685fda7f36d3d099dba6a44">00132</link> <emphasis role="preprocessor">#define&#32;GETARG_C(i)&#32;check_exp(checkopm(i,&#32;iABC),&#32;getarg(i,&#32;POS_C,&#32;SIZE_C))</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00133"/><link linkend="_lopcodes_8h_1a2dadd55729fda230ce1765caef7ea416">00133</link> <emphasis role="preprocessor">#define&#32;GETARG_sC(i)&#32;&#32;&#32;&#32;sC2int(GETARG_C(i))</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00134"/><link linkend="_lopcodes_8h_1a085f9af93bc2386ddb0b9fb53d5ff0b8">00134</link> <emphasis role="preprocessor">#define&#32;SETARG_C(i,v)&#32;&#32;&#32;setarg(i,&#32;v,&#32;POS_C,&#32;SIZE_C)</emphasis>
+00135 
+<anchor xml:id="_lopcodes_8h_source_1l00136"/><link linkend="_lopcodes_8h_1aa874f9aac8107c30bf683067661a988a">00136</link> <emphasis role="preprocessor">#define&#32;TESTARG_k(i)&#32;&#32;&#32;&#32;check_exp(checkopm(i,&#32;iABC),&#32;(cast_int(((i)&#32;&amp;&#32;(1u&#32;&lt;&lt;&#32;POS_k)))))</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00137"/><link linkend="_lopcodes_8h_1aa9ce1e6169ccc23a1e9c783f61af343f">00137</link> <emphasis role="preprocessor">#define&#32;GETARG_k(i)&#32;check_exp(checkopm(i,&#32;iABC),&#32;getarg(i,&#32;POS_k,&#32;1))</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00138"/><link linkend="_lopcodes_8h_1ac3ce38dc1556d678ef023b240c97fde8">00138</link> <emphasis role="preprocessor">#define&#32;SETARG_k(i,v)&#32;&#32;&#32;setarg(i,&#32;v,&#32;POS_k,&#32;1)</emphasis>
+00139 
+<anchor xml:id="_lopcodes_8h_source_1l00140"/><link linkend="_lopcodes_8h_1acf8d228275fd2789dcf5f019bbabc019">00140</link> <emphasis role="preprocessor">#define&#32;GETARG_Bx(i)&#32;&#32;&#32;&#32;check_exp(checkopm(i,&#32;iABx),&#32;getarg(i,&#32;POS_Bx,&#32;SIZE_Bx))</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00141"/><link linkend="_lopcodes_8h_1a0c476ba8d647ec398f25bb6374a0c088">00141</link> <emphasis role="preprocessor">#define&#32;SETARG_Bx(i,v)&#32;&#32;setarg(i,&#32;v,&#32;POS_Bx,&#32;SIZE_Bx)</emphasis>
+00142 
+<anchor xml:id="_lopcodes_8h_source_1l00143"/><link linkend="_lopcodes_8h_1acfd578bba038b6682b924cf48012d80a">00143</link> <emphasis role="preprocessor">#define&#32;GETARG_Ax(i)&#32;&#32;&#32;&#32;check_exp(checkopm(i,&#32;iAx),&#32;getarg(i,&#32;POS_Ax,&#32;SIZE_Ax))</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00144"/><link linkend="_lopcodes_8h_1afeb0c89bdd47db50d0ba6b78bc894681">00144</link> <emphasis role="preprocessor">#define&#32;SETARG_Ax(i,v)&#32;&#32;setarg(i,&#32;v,&#32;POS_Ax,&#32;SIZE_Ax)</emphasis>
+00145 
+<anchor xml:id="_lopcodes_8h_source_1l00146"/><link linkend="_lopcodes_8h_1a1f61a823709ac7847e481290a596c480">00146</link> <emphasis role="preprocessor">#define&#32;GETARG_sBx(i)&#32;&#32;\</emphasis>
+00147 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;check_exp(checkopm(i,&#32;iAsBx),&#32;getarg(i,&#32;POS_Bx,&#32;SIZE_Bx)&#32;-&#32;OFFSET_sBx)</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00148"/><link linkend="_lopcodes_8h_1ad28b4bc013c6ddae165ac998ebe321c7">00148</link> <emphasis role="preprocessor">#define&#32;SETARG_sBx(i,b)&#32;SETARG_Bx((i),cast_uint((b)+OFFSET_sBx))</emphasis>
+00149 
+<anchor xml:id="_lopcodes_8h_source_1l00150"/><link linkend="_lopcodes_8h_1a1e69b8e862462ab13df4acd8de7ef54c">00150</link> <emphasis role="preprocessor">#define&#32;GETARG_sJ(i)&#32;&#32;\</emphasis>
+00151 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;check_exp(checkopm(i,&#32;isJ),&#32;getarg(i,&#32;POS_sJ,&#32;SIZE_sJ)&#32;-&#32;OFFSET_sJ)</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00152"/><link linkend="_lopcodes_8h_1abfb44d9f7226140f97beb16afad6f6c3">00152</link> <emphasis role="preprocessor">#define&#32;SETARG_sJ(i,j)&#32;\</emphasis>
+00153 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;setarg(i,&#32;cast_uint((j)+OFFSET_sJ),&#32;POS_sJ,&#32;SIZE_sJ)</emphasis>
+00154 
+00155 
+<anchor xml:id="_lopcodes_8h_source_1l00156"/><link linkend="_lopcodes_8h_1a9cb59013204285f8d899c8f3d88d2707">00156</link> <emphasis role="preprocessor">#define&#32;CREATE_ABCk(o,a,b,c,k)&#32;&#32;((cast(Instruction,&#32;o)&lt;&lt;POS_OP)&#32;\</emphasis>
+00157 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;|&#32;(cast(Instruction,&#32;a)&lt;&lt;POS_A)&#32;\</emphasis>
+00158 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;|&#32;(cast(Instruction,&#32;b)&lt;&lt;POS_B)&#32;\</emphasis>
+00159 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;|&#32;(cast(Instruction,&#32;c)&lt;&lt;POS_C)&#32;\</emphasis>
+00160 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;|&#32;(cast(Instruction,&#32;k)&lt;&lt;POS_k))</emphasis>
+00161 
+<anchor xml:id="_lopcodes_8h_source_1l00162"/><link linkend="_lopcodes_8h_1a46bb00b89420c78407eb45a3bc98b50d">00162</link> <emphasis role="preprocessor">#define&#32;CREATE_ABx(o,a,bc)&#32;&#32;((cast(Instruction,&#32;o)&lt;&lt;POS_OP)&#32;\</emphasis>
+00163 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;|&#32;(cast(Instruction,&#32;a)&lt;&lt;POS_A)&#32;\</emphasis>
+00164 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;|&#32;(cast(Instruction,&#32;bc)&lt;&lt;POS_Bx))</emphasis>
+00165 
+<anchor xml:id="_lopcodes_8h_source_1l00166"/><link linkend="_lopcodes_8h_1ae08e838d4e7f9c8ed9b23a6a52d1b819">00166</link> <emphasis role="preprocessor">#define&#32;CREATE_Ax(o,a)&#32;&#32;&#32;&#32;&#32;&#32;((cast(Instruction,&#32;o)&lt;&lt;POS_OP)&#32;\</emphasis>
+00167 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;|&#32;(cast(Instruction,&#32;a)&lt;&lt;POS_Ax))</emphasis>
+00168 
+<anchor xml:id="_lopcodes_8h_source_1l00169"/><link linkend="_lopcodes_8h_1a38d90774993bc1ec075f5705889f9982">00169</link> <emphasis role="preprocessor">#define&#32;CREATE_sJ(o,j,k)&#32;&#32;&#32;&#32;((cast(Instruction,&#32;o)&#32;&lt;&lt;&#32;POS_OP)&#32;\</emphasis>
+00170 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;|&#32;(cast(Instruction,&#32;j)&#32;&lt;&lt;&#32;POS_sJ)&#32;\</emphasis>
+00171 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;|&#32;(cast(Instruction,&#32;k)&#32;&lt;&lt;&#32;POS_k))</emphasis>
+00172 
+00173 
+00174 <emphasis role="preprocessor">#if&#32;!defined(MAXINDEXRK)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;(for&#32;debugging&#32;only)&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00175"/><link linkend="_lopcodes_8h_1a37cd6e85943ea87c9b99ef1ea6bcdb3e">00175</link> <emphasis role="preprocessor">#define&#32;MAXINDEXRK&#32;&#32;MAXARG_B</emphasis>
+00176 <emphasis role="preprocessor">#endif</emphasis>
+00177 
+00178 
+00179 <emphasis role="comment">/*</emphasis>
+00180 <emphasis role="comment">**&#32;invalid&#32;register&#32;that&#32;fits&#32;in&#32;8&#32;bits</emphasis>
+00181 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00182"/><link linkend="_lopcodes_8h_1a6552ce4b3bba3b1a820dc0adaf85974a">00182</link> <emphasis role="preprocessor">#define&#32;NO_REG&#32;&#32;&#32;&#32;&#32;&#32;MAXARG_A</emphasis>
+00183 
+00184 
+00185 <emphasis role="comment">/*</emphasis>
+00186 <emphasis role="comment">**&#32;R[x]&#32;-&#32;register</emphasis>
+00187 <emphasis role="comment">**&#32;K[x]&#32;-&#32;constant&#32;(in&#32;constant&#32;table)</emphasis>
+00188 <emphasis role="comment">**&#32;RK(x)&#32;==&#32;if&#32;k(i)&#32;then&#32;K[x]&#32;else&#32;R[x]</emphasis>
+00189 <emphasis role="comment">*/</emphasis>
+00190 
+00191 
+00192 <emphasis role="comment">/*</emphasis>
+00193 <emphasis role="comment">**&#32;grep&#32;&quot;ORDER&#32;OP&quot;&#32;if&#32;you&#32;change&#32;these&#32;enums</emphasis>
+00194 <emphasis role="comment">*/</emphasis>
+00195 
+<anchor xml:id="_lopcodes_8h_source_1l00196"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">00196</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">enum</emphasis>&#32;{
+00197 <emphasis role="comment">/*----------------------------------------------------------------------</emphasis>
+00198 <emphasis role="comment">&#32;&#32;name&#32;&#32;&#32;&#32;&#32;&#32;args&#32;&#32;&#32;&#32;description</emphasis>
+00199 <emphasis role="comment">------------------------------------------------------------------------*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00200"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7addf83bbc02b6a88d325135c880d12184">00200</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7addf83bbc02b6a88d325135c880d12184">OP_MOVE</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;R[A]&#32;:=&#32;R[B]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00201"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a60de4d2d9c05216369b32f22325ac26c">00201</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a60de4d2d9c05216369b32f22325ac26c">OP_LOADI</link>,<emphasis role="comment">/*&#32;A&#32;sBx&#32;&#32;&#32;R[A]&#32;:=&#32;sBx&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00202"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a82da04477198d0562981ddd7d3adda8b">00202</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a82da04477198d0562981ddd7d3adda8b">OP_LOADF</link>,<emphasis role="comment">/*&#32;A&#32;sBx&#32;&#32;&#32;R[A]&#32;:=&#32;(lua_Number)sBx&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00203"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ab34a8eaf6d32d3c41810653d9eb99c1a">00203</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ab34a8eaf6d32d3c41810653d9eb99c1a">OP_LOADK</link>,<emphasis role="comment">/*&#32;A&#32;Bx&#32;&#32;&#32;&#32;R[A]&#32;:=&#32;K[Bx]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00204"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ae95580de7b3877b66fdf87366b8e5887">00204</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ae95580de7b3877b66fdf87366b8e5887">OP_LOADKX</link>,<emphasis role="comment">/*&#32;&#32;&#32;&#32;A&#32;&#32;&#32;R[A]&#32;:=&#32;K[extra&#32;arg]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00205"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a8653663e33ebaa8572c7e76c86c6539d">00205</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a8653663e33ebaa8572c7e76c86c6539d">OP_LOADFALSE</link>,<emphasis role="comment">/*&#32;A&#32;&#32;&#32;R[A]&#32;:=&#32;false&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00206"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a1163876c1d6575f1f220aca5be6751b8">00206</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a1163876c1d6575f1f220aca5be6751b8">OP_LFALSESKIP</link>,<emphasis role="comment">/*A&#32;&#32;&#32;R[A]&#32;:=&#32;false;&#32;pc++&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00207"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ac1fc81b1c2650990762cf656ac42540d">00207</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ac1fc81b1c2650990762cf656ac42540d">OP_LOADTRUE</link>,<emphasis role="comment">/*&#32;&#32;A&#32;&#32;&#32;R[A]&#32;:=&#32;true&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00208"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a5c399a98a26c923cdae3971b5e5b6432">00208</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a5c399a98a26c923cdae3971b5e5b6432">OP_LOADNIL</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;B&#32;R[A],&#32;R[A+1],&#32;...,&#32;R[A+B]&#32;:=&#32;nil&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00209"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ab48573533495922f053a7d1c9b0d00b4">00209</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ab48573533495922f053a7d1c9b0d00b4">OP_GETUPVAL</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;R[A]&#32;:=&#32;UpValue[B]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00210"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a47df60373847890b47b447c870aea678">00210</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a47df60373847890b47b447c870aea678">OP_SETUPVAL</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;UpValue[B]&#32;:=&#32;R[A]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00211 
+<anchor xml:id="_lopcodes_8h_source_1l00212"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7acba90301f3ac979a3edd23f74182367b">00212</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7acba90301f3ac979a3edd23f74182367b">OP_GETTABUP</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;UpValue[B][K[C]:string]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00213"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ab1ec2a36c59db7612249cc31e382fdd9">00213</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ab1ec2a36c59db7612249cc31e382fdd9">OP_GETTABLE</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B][R[C]]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00214"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a965a4251f6730e9c8e5ca9e4ba4d8568">00214</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a965a4251f6730e9c8e5ca9e4ba4d8568">OP_GETI</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B][C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00215"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ab8cb85274c0cd7f8d8525953bd844207">00215</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ab8cb85274c0cd7f8d8525953bd844207">OP_GETFIELD</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B][K[C]:string]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00216 
+<anchor xml:id="_lopcodes_8h_source_1l00217"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ac486cd83792b58a638e37cb249d54a7e">00217</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ac486cd83792b58a638e37cb249d54a7e">OP_SETTABUP</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;UpValue[A][K[B]:string]&#32;:=&#32;RK(C)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00218"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a34315d7408f31b006bf41c9e9c2d736e">00218</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a34315d7408f31b006bf41c9e9c2d736e">OP_SETTABLE</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A][R[B]]&#32;:=&#32;RK(C)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00219"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a51eb594f07db275f5c6a77621b2de777">00219</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a51eb594f07db275f5c6a77621b2de777">OP_SETI</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A][B]&#32;:=&#32;RK(C)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00220"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a342ca5ec1477419948043acb24ef3032">00220</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a342ca5ec1477419948043acb24ef3032">OP_SETFIELD</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A][K[B]:string]&#32;:=&#32;RK(C)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00221 
+<anchor xml:id="_lopcodes_8h_source_1l00222"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7af4ae9eb9a3c88596112a1d99d0c66280">00222</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7af4ae9eb9a3c88596112a1d99d0c66280">OP_NEWTABLE</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;k&#32;R[A]&#32;:=&#32;{}&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00223 
+<anchor xml:id="_lopcodes_8h_source_1l00224"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a64bea18253f9e73c4c5fcfa6b0d5abd2">00224</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a64bea18253f9e73c4c5fcfa6b0d5abd2">OP_SELF</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A+1]&#32;:=&#32;R[B];&#32;R[A]&#32;:=&#32;R[B][RK(C):string]&#32;&#32;*/</emphasis>
+00225 
+<anchor xml:id="_lopcodes_8h_source_1l00226"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ae59b0459d271ccd33e3b5e525d8d82ec">00226</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ae59b0459d271ccd33e3b5e525d8d82ec">OP_ADDI</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;sC&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;+&#32;sC&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00227 
+<anchor xml:id="_lopcodes_8h_source_1l00228"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7aabeaee235c2d819809ba4179c9ad7c40">00228</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7aabeaee235c2d819809ba4179c9ad7c40">OP_ADDK</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;+&#32;K[C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00229"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7affb0b7800883712a266b8f74d7ed67de">00229</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7affb0b7800883712a266b8f74d7ed67de">OP_SUBK</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;-&#32;K[C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00230"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a2bb6b0300af606f3f17cc492e8a0fd9c">00230</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a2bb6b0300af606f3f17cc492e8a0fd9c">OP_MULK</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;*&#32;K[C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00231"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7acdf979ebf1cab75f05b47c659568a2c2">00231</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7acdf979ebf1cab75f05b47c659568a2c2">OP_MODK</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;%&#32;K[C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00232"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a20894c12c21a091fc6b3965894a66a29">00232</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a20894c12c21a091fc6b3965894a66a29">OP_POWK</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;^&#32;K[C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00233"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a8ea5e5bf7705ac9d64a421520f641561">00233</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a8ea5e5bf7705ac9d64a421520f641561">OP_DIVK</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;/&#32;K[C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00234"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a9cf8f2bf4a89a2965fba615eb70da736">00234</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a9cf8f2bf4a89a2965fba615eb70da736">OP_IDIVK</link>,<emphasis role="comment">/*&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;//&#32;K[C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00235 
+<anchor xml:id="_lopcodes_8h_source_1l00236"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a257504b0bf681f2fbcb9395a3c4e7deb">00236</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a257504b0bf681f2fbcb9395a3c4e7deb">OP_BANDK</link>,<emphasis role="comment">/*&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;&amp;&#32;K[C]:integer&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00237"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a57ac522387add616066acffc523b74f6">00237</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a57ac522387add616066acffc523b74f6">OP_BORK</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;|&#32;K[C]:integer&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00238"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7af49936a7a3eb6346a7f200981837265c">00238</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7af49936a7a3eb6346a7f200981837265c">OP_BXORK</link>,<emphasis role="comment">/*&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;~&#32;K[C]:integer&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00239 
+<anchor xml:id="_lopcodes_8h_source_1l00240"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a9159011638ef566ddb323918488443e8">00240</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a9159011638ef566ddb323918488443e8">OP_SHRI</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;sC&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;&gt;&gt;&#32;sC&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00241"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ab0da05be7645df562d8968b4f254df2b">00241</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ab0da05be7645df562d8968b4f254df2b">OP_SHLI</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;sC&#32;&#32;R[A]&#32;:=&#32;sC&#32;&lt;&lt;&#32;R[B]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00242 
+<anchor xml:id="_lopcodes_8h_source_1l00243"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a96186829480e5b34b1373288e956b1c8">00243</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a96186829480e5b34b1373288e956b1c8">OP_ADD</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;+&#32;R[C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00244"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a6c224b456bd394d4d8bad0631ca8e2b7">00244</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a6c224b456bd394d4d8bad0631ca8e2b7">OP_SUB</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;-&#32;R[C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00245"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7aa0e08a6f94350f03d29e4a55d543ba2f">00245</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7aa0e08a6f94350f03d29e4a55d543ba2f">OP_MUL</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;*&#32;R[C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00246"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a39c596fc7eae450b7218bd97126e37c9">00246</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a39c596fc7eae450b7218bd97126e37c9">OP_MOD</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;%&#32;R[C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00247"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a35127684be890cfd81d556dc84d5f9db">00247</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a35127684be890cfd81d556dc84d5f9db">OP_POW</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;^&#32;R[C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00248"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a719aeab2140dd5f575d1559b95bf74e1">00248</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a719aeab2140dd5f575d1559b95bf74e1">OP_DIV</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;/&#32;R[C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00249"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ac813f8b860222d35f2d02410a84f53b3">00249</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ac813f8b860222d35f2d02410a84f53b3">OP_IDIV</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;//&#32;R[C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00250 
+<anchor xml:id="_lopcodes_8h_source_1l00251"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a6410f6c403b6cd759180c8b8be874cac">00251</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a6410f6c403b6cd759180c8b8be874cac">OP_BAND</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;&amp;&#32;R[C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00252"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a2f4bd7bbcff0799872d56d31e258599b">00252</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a2f4bd7bbcff0799872d56d31e258599b">OP_BOR</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;|&#32;R[C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00253"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7afd5cb32a2593241c564d2cdce914021b">00253</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7afd5cb32a2593241c564d2cdce914021b">OP_BXOR</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;~&#32;R[C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00254"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a845012132d1f5f2d1cd125326476c25b">00254</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a845012132d1f5f2d1cd125326476c25b">OP_SHL</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;&lt;&lt;&#32;R[C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00255"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a789f5e2846cb039c0273aff134011fd4">00255</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a789f5e2846cb039c0273aff134011fd4">OP_SHR</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A]&#32;:=&#32;R[B]&#32;&gt;&gt;&#32;R[C]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00256 
+<anchor xml:id="_lopcodes_8h_source_1l00257"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a25acd5dff5083adb067889345ae100d6">00257</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a25acd5dff5083adb067889345ae100d6">OP_MMBIN</link>,<emphasis role="comment">/*&#32;A&#32;B&#32;C&#32;&#32;&#32;call&#32;C&#32;metamethod&#32;over&#32;R[A]&#32;and&#32;R[B]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00258"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a2068a8603e2904d2abd826877ab9e516">00258</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a2068a8603e2904d2abd826877ab9e516">OP_MMBINI</link>,<emphasis role="comment">/*&#32;&#32;&#32;&#32;A&#32;sB&#32;C&#32;k&#32;&#32;&#32;&#32;call&#32;C&#32;metamethod&#32;over&#32;R[A]&#32;and&#32;sB&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00259"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a023d51bef94e0b9450cce3b76788a229">00259</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a023d51bef94e0b9450cce3b76788a229">OP_MMBINK</link>,<emphasis role="comment">/*&#32;&#32;&#32;&#32;A&#32;B&#32;C&#32;k&#32;&#32;&#32;&#32;&#32;call&#32;C&#32;metamethod&#32;over&#32;R[A]&#32;and&#32;K[B]&#32;&#32;&#32;&#32;*/</emphasis>
+00260 
+<anchor xml:id="_lopcodes_8h_source_1l00261"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ae3fd0932f8be8e5e810d731fd60ab8ef">00261</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ae3fd0932f8be8e5e810d731fd60ab8ef">OP_UNM</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;B&#32;R[A]&#32;:=&#32;-R[B]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00262"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ada36dd48f6870a79b5998262341c57d6">00262</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ada36dd48f6870a79b5998262341c57d6">OP_BNOT</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;R[A]&#32;:=&#32;~R[B]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00263"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a36a6b73cc4823f54891a013e2cc760d1">00263</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a36a6b73cc4823f54891a013e2cc760d1">OP_NOT</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;B&#32;R[A]&#32;:=&#32;not&#32;R[B]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00264"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a55406931f4958f887e6d966d154a1931">00264</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a55406931f4958f887e6d966d154a1931">OP_LEN</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;B&#32;R[A]&#32;:=&#32;length&#32;of&#32;R[B]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00265 
+<anchor xml:id="_lopcodes_8h_source_1l00266"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a28a7da14b1413b441cf2a5d433b43a51">00266</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a28a7da14b1413b441cf2a5d433b43a51">OP_CONCAT</link>,<emphasis role="comment">/*&#32;&#32;&#32;&#32;A&#32;B&#32;R[A]&#32;:=&#32;R[A]..&#32;...&#32;..R[A&#32;+&#32;B&#32;-&#32;1]&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00267 
+<anchor xml:id="_lopcodes_8h_source_1l00268"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a9e771dc35104ec1246adba881d27e372">00268</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a9e771dc35104ec1246adba881d27e372">OP_CLOSE</link>,<emphasis role="comment">/*&#32;A&#32;&#32;&#32;close&#32;all&#32;upvalues&#32;&gt;=&#32;R[A]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00269"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a45ba48df2b6802b55eb5eef6bc66b749">00269</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a45ba48df2b6802b55eb5eef6bc66b749">OP_TBC</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;&#32;&#32;mark&#32;variable&#32;A&#32;&quot;to&#32;be&#32;closed&quot;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00270"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7afd679fab86e6a91d22c91734e287639b">00270</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7afd679fab86e6a91d22c91734e287639b">OP_JMP</link>,<emphasis role="comment">/*&#32;&#32;&#32;sJ&#32;&#32;pc&#32;+=&#32;sJ&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00271"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a1634898deb6e4d1bcb15416034c641c5">00271</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a1634898deb6e4d1bcb15416034c641c5">OP_EQ</link>,<emphasis role="comment">/*&#32;&#32;&#32;&#32;A&#32;B&#32;k&#32;&#32;&#32;if&#32;((R[A]&#32;==&#32;R[B])&#32;~=&#32;k)&#32;then&#32;pc++&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00272"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a7d5ed006824d331041dad8486e52df50">00272</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a7d5ed006824d331041dad8486e52df50">OP_LT</link>,<emphasis role="comment">/*&#32;&#32;&#32;&#32;A&#32;B&#32;k&#32;&#32;&#32;if&#32;((R[A]&#32;&lt;&#32;&#32;R[B])&#32;~=&#32;k)&#32;then&#32;pc++&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00273"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7acef6e71b662db063ff532d89500bb0c0">00273</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7acef6e71b662db063ff532d89500bb0c0">OP_LE</link>,<emphasis role="comment">/*&#32;&#32;&#32;&#32;A&#32;B&#32;k&#32;&#32;&#32;if&#32;((R[A]&#32;&lt;=&#32;R[B])&#32;~=&#32;k)&#32;then&#32;pc++&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00274 
+<anchor xml:id="_lopcodes_8h_source_1l00275"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ac474caab30c580d7a336de092e3e8754">00275</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ac474caab30c580d7a336de092e3e8754">OP_EQK</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;B&#32;k&#32;&#32;&#32;if&#32;((R[A]&#32;==&#32;K[B])&#32;~=&#32;k)&#32;then&#32;pc++&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00276"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a073492f9f138556d12ee1020f01afa9d">00276</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a073492f9f138556d12ee1020f01afa9d">OP_EQI</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;sB&#32;k&#32;&#32;if&#32;((R[A]&#32;==&#32;sB)&#32;~=&#32;k)&#32;then&#32;pc++&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00277"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a7355d162e8b15877fe33c54e3b755746">00277</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a7355d162e8b15877fe33c54e3b755746">OP_LTI</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;sB&#32;k&#32;&#32;if&#32;((R[A]&#32;&lt;&#32;sB)&#32;~=&#32;k)&#32;then&#32;pc++&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00278"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7aec7e53f36f35ef810ecff8a7eb274877">00278</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7aec7e53f36f35ef810ecff8a7eb274877">OP_LEI</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;sB&#32;k&#32;&#32;if&#32;((R[A]&#32;&lt;=&#32;sB)&#32;~=&#32;k)&#32;then&#32;pc++&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00279"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a4c9ef8190def252dc1e0deb1bf7e787e">00279</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a4c9ef8190def252dc1e0deb1bf7e787e">OP_GTI</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;sB&#32;k&#32;&#32;if&#32;((R[A]&#32;&gt;&#32;sB)&#32;~=&#32;k)&#32;then&#32;pc++&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00280"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ade0bd78cc2f7ec9c1bf6c161759221fa">00280</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ade0bd78cc2f7ec9c1bf6c161759221fa">OP_GEI</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;sB&#32;k&#32;&#32;if&#32;((R[A]&#32;&gt;=&#32;sB)&#32;~=&#32;k)&#32;then&#32;pc++&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00281 
+<anchor xml:id="_lopcodes_8h_source_1l00282"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a8952e66300f2660060e38c67ccd21c9d">00282</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a8952e66300f2660060e38c67ccd21c9d">OP_TEST</link>,<emphasis role="comment">/*&#32;&#32;A&#32;k&#32;if&#32;(not&#32;R[A]&#32;==&#32;k)&#32;then&#32;pc++&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00283"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a39b4077a15fb8fffc166f5045dddacee">00283</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a39b4077a15fb8fffc166f5045dddacee">OP_TESTSET</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;B&#32;k&#32;&#32;&#32;if&#32;(not&#32;R[B]&#32;==&#32;k)&#32;then&#32;pc++&#32;else&#32;R[A]&#32;:=&#32;R[B]&#32;&#32;*/</emphasis>
+00284 
+<anchor xml:id="_lopcodes_8h_source_1l00285"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a098bbeea13096667b102f7fd90cbe38f">00285</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a098bbeea13096667b102f7fd90cbe38f">OP_CALL</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;&#32;&#32;R[A],&#32;...&#32;,R[A+C-2]&#32;:=&#32;R[A](R[A+1],&#32;...&#32;,R[A+B-1])&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00286"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7aff2c07ebfd82aa22cc247e9855a16069">00286</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7aff2c07ebfd82aa22cc247e9855a16069">OP_TAILCALL</link>,<emphasis role="comment">/*&#32;&#32;A&#32;B&#32;C&#32;k&#32;return&#32;R[A](R[A+1],&#32;...&#32;,R[A+B-1])&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00287 
+<anchor xml:id="_lopcodes_8h_source_1l00288"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ad436c18b194473f5ec64c28b774e41b3">00288</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ad436c18b194473f5ec64c28b774e41b3">OP_RETURN</link>,<emphasis role="comment">/*&#32;&#32;&#32;&#32;A&#32;B&#32;C&#32;k&#32;return&#32;R[A],&#32;...&#32;,R[A+B-2]&#32;&#32;(see&#32;note)&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00289"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ae3f8033d220b543563720de9ab788e82">00289</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ae3f8033d220b543563720de9ab788e82">OP_RETURN0</link>,<emphasis role="comment">/*&#32;&#32;&#32;&#32;&#32;&#32;&#32;return&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00290"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a85801949afc11b7d95553fd0ee912f38">00290</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a85801949afc11b7d95553fd0ee912f38">OP_RETURN1</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;&#32;&#32;return&#32;R[A]&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00291 
+<anchor xml:id="_lopcodes_8h_source_1l00292"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7aa01470a2fc70a3f2dbd20c7c8f270802">00292</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7aa01470a2fc70a3f2dbd20c7c8f270802">OP_FORLOOP</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;Bx&#32;&#32;&#32;&#32;update&#32;counters;&#32;if&#32;loop&#32;continues&#32;then&#32;pc-=Bx;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00293"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a5277c6eb2b1ab790c4942fdccd749e33">00293</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a5277c6eb2b1ab790c4942fdccd749e33">OP_FORPREP</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;Bx&#32;&#32;&#32;&#32;&lt;check&#32;values&#32;and&#32;prepare&#32;counters&gt;;</emphasis>
+00294 <emphasis role="comment">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;if&#32;not&#32;to&#32;run&#32;then&#32;pc+=Bx+1;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00295 
+<anchor xml:id="_lopcodes_8h_source_1l00296"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7aafeb9e3e631d6f6c1700bf77134d425e">00296</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7aafeb9e3e631d6f6c1700bf77134d425e">OP_TFORPREP</link>,<emphasis role="comment">/*&#32;&#32;A&#32;Bx&#32;&#32;&#32;&#32;create&#32;upvalue&#32;for&#32;R[A&#32;+&#32;3];&#32;pc+=Bx&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00297"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a899602d2c96443e08eec9e477071aa22">00297</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a899602d2c96443e08eec9e477071aa22">OP_TFORCALL</link>,<emphasis role="comment">/*&#32;&#32;A&#32;C&#32;R[A+4],&#32;...&#32;,R[A+3+C]&#32;:=&#32;R[A](R[A+1],&#32;R[A+2]);&#32;&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00298"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a7dabccd7671c8ff374cb4502a6edb9c0">00298</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a7dabccd7671c8ff374cb4502a6edb9c0">OP_TFORLOOP</link>,<emphasis role="comment">/*&#32;&#32;A&#32;Bx&#32;&#32;&#32;&#32;if&#32;R[A+2]&#32;~=&#32;nil&#32;then&#32;{&#32;R[A]=R[A+2];&#32;pc&#32;-=&#32;Bx&#32;}&#32;*/</emphasis>
+00299 
+<anchor xml:id="_lopcodes_8h_source_1l00300"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a01618d8295953fd4ab2ef721b2051718">00300</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a01618d8295953fd4ab2ef721b2051718">OP_SETLIST</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;B&#32;C&#32;k&#32;R[A][(C-1)*FPF+i]&#32;:=&#32;R[A+i],&#32;1&#32;&lt;=&#32;i&#32;&lt;=&#32;B&#32;&#32;&#32;&#32;*/</emphasis>
+00301 
+<anchor xml:id="_lopcodes_8h_source_1l00302"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a407a76cd8c503b0f4dc14603687a77a2">00302</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a407a76cd8c503b0f4dc14603687a77a2">OP_CLOSURE</link>,<emphasis role="comment">/*&#32;&#32;&#32;A&#32;Bx&#32;&#32;&#32;&#32;R[A]&#32;:=&#32;closure(KPROTO[Bx])&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00303 
+<anchor xml:id="_lopcodes_8h_source_1l00304"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a1856103c50818d72aaa506821a4ef004">00304</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a1856103c50818d72aaa506821a4ef004">OP_VARARG</link>,<emphasis role="comment">/*&#32;&#32;&#32;&#32;A&#32;C&#32;R[A],&#32;R[A+1],&#32;...,&#32;R[A+C-2]&#32;=&#32;vararg&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00305 
+<anchor xml:id="_lopcodes_8h_source_1l00306"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a0ac7fd650d101088cfc6beed3757ba44">00306</link> <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7a0ac7fd650d101088cfc6beed3757ba44">OP_VARARGPREP</link>,<emphasis role="comment">/*A&#32;&#32;&#32;(adjust&#32;vararg&#32;parameters)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*/</emphasis>
+00307 
+00308 <link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ae7a29a9b5e1490453da04cba95b39bea">OP_EXTRAARG</link><emphasis role="comment">/*&#32;&#32;&#32;Ax&#32;&#32;extra&#32;(larger)&#32;argument&#32;for&#32;previous&#32;opcode&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00309"/><link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7ae7a29a9b5e1490453da04cba95b39bea">00309</link> }&#32;<link linkend="_lopcodes_8h_1abeb7dfb0e9e2b3114e240a405d046ea7">OpCode</link>;
+00310 
+00311 
+<anchor xml:id="_lopcodes_8h_source_1l00312"/><link linkend="_lopcodes_8h_1a1fb469ba81540d3314cfbe37c675ba20">00312</link> <emphasis role="preprocessor">#define&#32;NUM_OPCODES&#32;((int)(OP_EXTRAARG)&#32;+&#32;1)</emphasis>
+00313 
+00314 
+00315 
+00316 <emphasis role="comment">/*===========================================================================</emphasis>
+00317 <emphasis role="comment">&#32;&#32;Notes:</emphasis>
+00318 <emphasis role="comment">&#32;&#32;(*)&#32;In&#32;OP_CALL,&#32;if&#32;(B&#32;==&#32;0)&#32;then&#32;B&#32;=&#32;top&#32;-&#32;A.&#32;If&#32;(C&#32;==&#32;0),&#32;then</emphasis>
+00319 <emphasis role="comment">&#32;&#32;&apos;top&apos;&#32;is&#32;set&#32;to&#32;last_result+1,&#32;so&#32;next&#32;open&#32;instruction&#32;(OP_CALL,</emphasis>
+00320 <emphasis role="comment">&#32;&#32;OP_RETURN*,&#32;OP_SETLIST)&#32;may&#32;use&#32;&apos;top&apos;.</emphasis>
+00321 <emphasis role="comment"></emphasis>
+00322 <emphasis role="comment">&#32;&#32;(*)&#32;In&#32;OP_VARARG,&#32;if&#32;(C&#32;==&#32;0)&#32;then&#32;use&#32;actual&#32;number&#32;of&#32;varargs&#32;and</emphasis>
+00323 <emphasis role="comment">&#32;&#32;set&#32;top&#32;(like&#32;in&#32;OP_CALL&#32;with&#32;C&#32;==&#32;0).</emphasis>
+00324 <emphasis role="comment"></emphasis>
+00325 <emphasis role="comment">&#32;&#32;(*)&#32;In&#32;OP_RETURN,&#32;if&#32;(B&#32;==&#32;0)&#32;then&#32;return&#32;up&#32;to&#32;&apos;top&apos;.</emphasis>
+00326 <emphasis role="comment"></emphasis>
+00327 <emphasis role="comment">&#32;&#32;(*)&#32;In&#32;OP_LOADKX&#32;and&#32;OP_NEWTABLE,&#32;the&#32;next&#32;instruction&#32;is&#32;always</emphasis>
+00328 <emphasis role="comment">&#32;&#32;OP_EXTRAARG.</emphasis>
+00329 <emphasis role="comment"></emphasis>
+00330 <emphasis role="comment">&#32;&#32;(*)&#32;In&#32;OP_SETLIST,&#32;if&#32;(B&#32;==&#32;0)&#32;then&#32;real&#32;B&#32;=&#32;&apos;top&apos;;&#32;if&#32;k,&#32;then</emphasis>
+00331 <emphasis role="comment">&#32;&#32;real&#32;C&#32;=&#32;EXTRAARG&#32;_&#32;C&#32;(the&#32;bits&#32;of&#32;EXTRAARG&#32;concatenated&#32;with&#32;the</emphasis>
+00332 <emphasis role="comment">&#32;&#32;bits&#32;of&#32;C).</emphasis>
+00333 <emphasis role="comment"></emphasis>
+00334 <emphasis role="comment">&#32;&#32;(*)&#32;In&#32;OP_NEWTABLE,&#32;B&#32;is&#32;log2&#32;of&#32;the&#32;hash&#32;size&#32;(which&#32;is&#32;always&#32;a</emphasis>
+00335 <emphasis role="comment">&#32;&#32;power&#32;of&#32;2)&#32;plus&#32;1,&#32;or&#32;zero&#32;for&#32;size&#32;zero.&#32;If&#32;not&#32;k,&#32;the&#32;array&#32;size</emphasis>
+00336 <emphasis role="comment">&#32;&#32;is&#32;C.&#32;Otherwise,&#32;the&#32;array&#32;size&#32;is&#32;EXTRAARG&#32;_&#32;C.</emphasis>
+00337 <emphasis role="comment"></emphasis>
+00338 <emphasis role="comment">&#32;&#32;(*)&#32;For&#32;comparisons,&#32;k&#32;specifies&#32;what&#32;condition&#32;the&#32;test&#32;should&#32;accept</emphasis>
+00339 <emphasis role="comment">&#32;&#32;(true&#32;or&#32;false).</emphasis>
+00340 <emphasis role="comment"></emphasis>
+00341 <emphasis role="comment">&#32;&#32;(*)&#32;In&#32;OP_MMBINI/OP_MMBINK,&#32;k&#32;means&#32;the&#32;arguments&#32;were&#32;flipped</emphasis>
+00342 <emphasis role="comment">&#32;&#32;&#32;(the&#32;constant&#32;is&#32;the&#32;first&#32;operand).</emphasis>
+00343 <emphasis role="comment"></emphasis>
+00344 <emphasis role="comment">&#32;&#32;(*)&#32;All&#32;&apos;skips&apos;&#32;(pc++)&#32;assume&#32;that&#32;next&#32;instruction&#32;is&#32;a&#32;jump.</emphasis>
+00345 <emphasis role="comment"></emphasis>
+00346 <emphasis role="comment">&#32;&#32;(*)&#32;In&#32;instructions&#32;OP_RETURN/OP_TAILCALL,&#32;&apos;k&apos;&#32;specifies&#32;that&#32;the</emphasis>
+00347 <emphasis role="comment">&#32;&#32;function&#32;builds&#32;upvalues,&#32;which&#32;may&#32;need&#32;to&#32;be&#32;closed.&#32;C&#32;&gt;&#32;0&#32;means</emphasis>
+00348 <emphasis role="comment">&#32;&#32;the&#32;function&#32;is&#32;vararg,&#32;so&#32;that&#32;its&#32;&apos;func&apos;&#32;must&#32;be&#32;corrected&#32;before</emphasis>
+00349 <emphasis role="comment">&#32;&#32;returning;&#32;in&#32;this&#32;case,&#32;(C&#32;-&#32;1)&#32;is&#32;its&#32;number&#32;of&#32;fixed&#32;parameters.</emphasis>
+00350 <emphasis role="comment"></emphasis>
+00351 <emphasis role="comment">&#32;&#32;(*)&#32;In&#32;comparisons&#32;with&#32;an&#32;immediate&#32;operand,&#32;C&#32;signals&#32;whether&#32;the</emphasis>
+00352 <emphasis role="comment">&#32;&#32;original&#32;operand&#32;was&#32;a&#32;float.&#32;(It&#32;must&#32;be&#32;corrected&#32;in&#32;case&#32;of</emphasis>
+00353 <emphasis role="comment">&#32;&#32;metamethods.)</emphasis>
+00354 <emphasis role="comment"></emphasis>
+00355 <emphasis role="comment">===========================================================================*/</emphasis>
+00356 
+00357 
+00358 <emphasis role="comment">/*</emphasis>
+00359 <emphasis role="comment">**&#32;masks&#32;for&#32;instruction&#32;properties.&#32;The&#32;format&#32;is:</emphasis>
+00360 <emphasis role="comment">**&#32;bits&#32;0-2:&#32;op&#32;mode</emphasis>
+00361 <emphasis role="comment">**&#32;bit&#32;3:&#32;instruction&#32;set&#32;register&#32;A</emphasis>
+00362 <emphasis role="comment">**&#32;bit&#32;4:&#32;operator&#32;is&#32;a&#32;test&#32;(next&#32;instruction&#32;must&#32;be&#32;a&#32;jump)</emphasis>
+00363 <emphasis role="comment">**&#32;bit&#32;5:&#32;instruction&#32;uses&#32;&apos;L-&gt;top&apos;&#32;set&#32;by&#32;previous&#32;instruction&#32;(when&#32;B&#32;==&#32;0)</emphasis>
+00364 <emphasis role="comment">**&#32;bit&#32;6:&#32;instruction&#32;sets&#32;&apos;L-&gt;top&apos;&#32;for&#32;next&#32;instruction&#32;(when&#32;C&#32;==&#32;0)</emphasis>
+00365 <emphasis role="comment">**&#32;bit&#32;7:&#32;instruction&#32;is&#32;an&#32;MM&#32;instruction&#32;(call&#32;a&#32;metamethod)</emphasis>
+00366 <emphasis role="comment">*/</emphasis>
+00367 
+00368 <link linkend="_luaconf_8h_1a3f2cdf96bb04b9d2a9a318a126f99182">LUAI_DDEC</link>(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link>&#32;<link linkend="_lopcodes_8c_1a248069754c0d1d3d8c92d4581836be73">luaP_opmodes</link>[<link linkend="_lopcodes_8h_1a1fb469ba81540d3314cfbe37c675ba20">NUM_OPCODES</link>];)
+00369 
+<anchor xml:id="_lopcodes_8h_source_1l00370"/><link linkend="_lopcodes_8h_1afb3fdd221fb95fdd1c254f7ab479739e">00370</link> #define&#32;<link linkend="_lopcodes_8h_1afb3fdd221fb95fdd1c254f7ab479739e">getOpMode</link>(m)&#32;&#32;&#32;&#32;(<link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(<emphasis role="keyword">enum</emphasis>&#32;<link linkend="_lopcodes_8h_1a56752d1aeb4bd4940e632396072d68af">OpMode</link>,&#32;<link linkend="_lopcodes_8c_1a248069754c0d1d3d8c92d4581836be73">luaP_opmodes</link>[m]&#32;&amp;&#32;7))
+<anchor xml:id="_lopcodes_8h_source_1l00371"/><link linkend="_lopcodes_8h_1aaae51a1c7e304923c51509b7cd644f29">00371</link> #define&#32;<link linkend="_lopcodes_8h_1aaae51a1c7e304923c51509b7cd644f29">testAMode</link>(m)&#32;&#32;&#32;&#32;(<link linkend="_lopcodes_8c_1a248069754c0d1d3d8c92d4581836be73">luaP_opmodes</link>[m]&#32;&amp;&#32;(1&#32;&lt;&lt;&#32;3))
+<anchor xml:id="_lopcodes_8h_source_1l00372"/><link linkend="_lopcodes_8h_1a6750851f9d04ae7f9612146b07f88c97">00372</link> <emphasis role="preprocessor">#define&#32;testTMode(m)&#32;&#32;&#32;&#32;(luaP_opmodes[m]&#32;&amp;&#32;(1&#32;&lt;&lt;&#32;4))</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00373"/><link linkend="_lopcodes_8h_1ac5afff4b1215ce8a72b400c40834241b">00373</link> <emphasis role="preprocessor">#define&#32;testITMode(m)&#32;&#32;&#32;(luaP_opmodes[m]&#32;&amp;&#32;(1&#32;&lt;&lt;&#32;5))</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00374"/><link linkend="_lopcodes_8h_1a0d5c4bc6c8c7a22a6591c65a93d9c908">00374</link> <emphasis role="preprocessor">#define&#32;testOTMode(m)&#32;&#32;&#32;(luaP_opmodes[m]&#32;&amp;&#32;(1&#32;&lt;&lt;&#32;6))</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00375"/><link linkend="_lopcodes_8h_1a128c04f70b43fb82ed2eadb2b255cc81">00375</link> <emphasis role="preprocessor">#define&#32;testMMMode(m)&#32;&#32;&#32;(luaP_opmodes[m]&#32;&amp;&#32;(1&#32;&lt;&lt;&#32;7))</emphasis>
+00376 
+00377 <emphasis role="comment">/*&#32;&quot;out&#32;top&quot;&#32;(set&#32;top&#32;for&#32;next&#32;instruction)&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00378"/><link linkend="_lopcodes_8h_1a9b8f96d6711b2f4fa021c770c9edffdb">00378</link> <emphasis role="preprocessor">#define&#32;isOT(i)&#32;&#32;\</emphasis>
+00379 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;((testOTMode(GET_OPCODE(i))&#32;&amp;&amp;&#32;GETARG_C(i)&#32;==&#32;0)&#32;||&#32;\</emphasis>
+00380 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;GET_OPCODE(i)&#32;==&#32;OP_TAILCALL)</emphasis>
+00381 
+00382 <emphasis role="comment">/*&#32;&quot;in&#32;top&quot;&#32;(uses&#32;top&#32;from&#32;previous&#32;instruction)&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00383"/><link linkend="_lopcodes_8h_1ad8d4fbc03d23ff580e821c7fb6f07e3a">00383</link> <emphasis role="preprocessor">#define&#32;isIT(i)&#32;&#32;&#32;&#32;&#32;(testITMode(GET_OPCODE(i))&#32;&amp;&amp;&#32;GETARG_B(i)&#32;==&#32;0)</emphasis>
+00384 
+<anchor xml:id="_lopcodes_8h_source_1l00385"/><link linkend="_lopcodes_8h_1a55f7a6110b36e7c0958f22fa82cd3c45">00385</link> <emphasis role="preprocessor">#define&#32;opmode(mm,ot,it,t,a,m)&#32;&#32;\</emphasis>
+00386 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;(((mm)&#32;&lt;&lt;&#32;7)&#32;|&#32;((ot)&#32;&lt;&lt;&#32;6)&#32;|&#32;((it)&#32;&lt;&lt;&#32;5)&#32;|&#32;((t)&#32;&lt;&lt;&#32;4)&#32;|&#32;((a)&#32;&lt;&lt;&#32;3)&#32;|&#32;(m))</emphasis>
+00387 
+00388 
+00389 <emphasis role="comment">/*&#32;number&#32;of&#32;list&#32;items&#32;to&#32;accumulate&#32;before&#32;a&#32;SETLIST&#32;instruction&#32;*/</emphasis>
+<anchor xml:id="_lopcodes_8h_source_1l00390"/><link linkend="_lopcodes_8h_1a0888e2bcb54f6e603f09208763aadfe9">00390</link> <emphasis role="preprocessor">#define&#32;LFIELDS_PER_FLUSH&#32;&#32;&#32;50</emphasis>
+00391 
+00392 <emphasis role="preprocessor">#endif</emphasis>
+</programlisting></section>

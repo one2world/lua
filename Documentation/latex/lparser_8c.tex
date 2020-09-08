@@ -1,0 +1,1397 @@
+\hypertarget{lparser_8c}{}\doxysection{D\+:/gitworkspace/lua/src/lparser.c 文件参考}
+\label{lparser_8c}\index{D:/gitworkspace/lua/src/lparser.c@{D:/gitworkspace/lua/src/lparser.c}}
+{\ttfamily \#include \char`\"{}lprefix.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$limits.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}lua.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lcode.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ldebug.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ldo.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lfunc.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}llex.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lmem.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lobject.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lopcodes.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lparser.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lstate.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lstring.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ltable.\+h\char`\"{}}\newline
+\doxysubsection*{结构体}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{struct_block_cnt}{Block\+Cnt}}
+\item 
+struct \mbox{\hyperlink{struct_cons_control}{Cons\+Control}}
+\item 
+struct \mbox{\hyperlink{struct_l_h_s__assign}{L\+H\+S\+\_\+assign}}
+\end{DoxyCompactItemize}
+\doxysubsection*{宏定义}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{lparser_8c_a7b083c8164f99ddd60e711ca706869d0}{lparser\+\_\+c}}
+\item 
+\#define \mbox{\hyperlink{lparser_8c_abf0b3947b59218777a8e928a10be205b}{L\+U\+A\+\_\+\+C\+O\+RE}}
+\item 
+\#define \mbox{\hyperlink{lparser_8c_a0879a0e632584a9a8bee5ebffab571ca}{M\+A\+X\+V\+A\+RS}}~200
+\item 
+\#define \mbox{\hyperlink{lparser_8c_a38d6bad3bcde3d124ca880d6a9d82ba6}{hasmultret}}(k)~((k) == \mbox{\hyperlink{lparser_8h_aecced501a9387ab3e6e50a9834615d4eae61a8c04cfeabd756694cd13774e47b7}{V\+C\+A\+LL}} $\vert$$\vert$ (k) == \mbox{\hyperlink{lparser_8h_aecced501a9387ab3e6e50a9834615d4ea3f5f58de0fa9e69449d4e2362ddbfaa1}{V\+V\+A\+R\+A\+RG}})
+\item 
+\#define \mbox{\hyperlink{lparser_8c_a5ea0ac9ed10a85ea4b0db7ca78050824}{eqstr}}(a,  b)~((a) == (b))
+\item 
+\#define \mbox{\hyperlink{lparser_8c_aece9aca90eb75d99df8490bdb813bdd4}{check\+\_\+condition}}(ls,  c,  msg)~\{ if (!(c)) \mbox{\hyperlink{llex_8h_a189ff2bb7bd23c89531fdad321fccd02}{lua\+X\+\_\+syntaxerror}}(ls, msg); \}
+\item 
+\#define \mbox{\hyperlink{lparser_8c_a031fd03dec54eb67a3cfac513b8575bb}{new\+\_\+localvarliteral}}(ls,  v)
+\item 
+\#define \mbox{\hyperlink{lparser_8c_ab61308992bd6c2013519fdebd0d52704}{enterlevel}}(ls)~\mbox{\hyperlink{lstate_8h_a0a0b9a376c81e1247ae41d3cfeb1921c}{lua\+E\+\_\+enter\+Ccall}}((ls)-\/$>$L)
+\item 
+\#define \mbox{\hyperlink{lparser_8c_a147b3ba4d2004b4b4ee7260661ec31e1}{leavelevel}}(ls)~\mbox{\hyperlink{lstate_8h_ab08fafa9debffb694b3a1aec123347da}{lua\+E\+\_\+exit\+Ccall}}((ls)-\/$>$L)
+\item 
+\#define \mbox{\hyperlink{lparser_8c_a521d60e3611f1afe98634adda1a0a050}{U\+N\+A\+R\+Y\+\_\+\+P\+R\+I\+O\+R\+I\+TY}}~12  /$\ast$ \mbox{\hyperlink{lparser_8c_ac6fd7e992c9eb0344ae1d64618ac5d27}{priority}} for unary operators $\ast$/
+\end{DoxyCompactItemize}
+\doxysubsection*{类型定义}
+\begin{DoxyCompactItemize}
+\item 
+typedef struct \mbox{\hyperlink{struct_block_cnt}{Block\+Cnt}} \mbox{\hyperlink{lparser_8c_a672971a1a6f6fb76c404bac87274225f}{Block\+Cnt}}
+\item 
+typedef struct \mbox{\hyperlink{struct_cons_control}{Cons\+Control}} \mbox{\hyperlink{lparser_8c_aac0d82e2c5c45771c53cd25cb8b48972}{Cons\+Control}}
+\end{DoxyCompactItemize}
+\doxysubsection*{函数}
+\begin{DoxyCompactItemize}
+\item 
+static void \mbox{\hyperlink{lparser_8c_ac29df3687aea9407dcfec478092fce4c}{statement}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static void \mbox{\hyperlink{lparser_8c_af2c543df6cbb49247cd0a71956786d92}{expr}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$v)
+\item 
+static \mbox{\hyperlink{llimits_8h_a9f743fcc9a5278cb9ee10355f09f7302}{l\+\_\+noret}} \mbox{\hyperlink{lparser_8c_a285759c10955d85bbf00c0041125e7bc}{error\+\_\+expected}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int token)
+\item 
+static \mbox{\hyperlink{llimits_8h_a9f743fcc9a5278cb9ee10355f09f7302}{l\+\_\+noret}} \mbox{\hyperlink{lparser_8c_ad02c6061a90a3461a24d2eede35cbf1f}{errorlimit}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, int limit, const char $\ast$what)
+\item 
+static void \mbox{\hyperlink{lparser_8c_adcc7a63edd0b578c2e7980371ff7f686}{checklimit}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, int v, int l, const char $\ast$what)
+\item 
+static int \mbox{\hyperlink{lparser_8c_a73a8be4e1269883a7b1f101bc14902e3}{testnext}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int c)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a2c856a5873c90f45525cf0d9abebbfde}{check}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int c)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a00410145409eca75b14b1f1c4f553ca0}{checknext}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int c)
+\item 
+static void \mbox{\hyperlink{lparser_8c_abbe267f2acab7a24f25b89b7782b21a6}{check\+\_\+match}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int what, int who, int where)
+\item 
+static \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$ \mbox{\hyperlink{lparser_8c_ac6a77e92851fefeaf3facfdc47e5e39d}{str\+\_\+checkname}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static void \mbox{\hyperlink{lparser_8c_aaa0cc4c3d9d11b020ff13b23262b8b17}{init\+\_\+exp}} (\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$e, \mbox{\hyperlink{lparser_8h_aecced501a9387ab3e6e50a9834615d4e}{expkind}} k, int i)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a08fd72f32434a2bab9cd08298085e9f9}{codestring}} (\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$e, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$s)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a7da9556e730c9865b3de6c6440640266}{codename}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$e)
+\item 
+static int \mbox{\hyperlink{lparser_8c_ae3420853c676cec8df3bf2c102315f51}{registerlocalvar}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$varname)
+\item 
+static int \mbox{\hyperlink{lparser_8c_a89f5732cbee45d78cfec9dbd1a207bb7}{new\+\_\+localvar}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$name)
+\item 
+static \mbox{\hyperlink{union_vardesc}{Vardesc}} $\ast$ \mbox{\hyperlink{lparser_8c_ae54e8d8f199763735b5175342fbce5ca}{getlocalvardesc}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, int vidx)
+\item 
+static int \mbox{\hyperlink{lparser_8c_a7f8a29677082a5ef36452294a527d740}{stacklevel}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, int nvar)
+\item 
+int \mbox{\hyperlink{lparser_8c_a03d8535460edd67f5c2d495c2a08bdd2}{lua\+Y\+\_\+nvarstack}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs)
+\item 
+static \mbox{\hyperlink{struct_loc_var}{Loc\+Var}} $\ast$ \mbox{\hyperlink{lparser_8c_af4e2a81c94d2b795fd0a4c4a2cd9d22f}{localdebuginfo}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, int vidx)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a234a1dfbb418ebb04cc831ee29dac2b3}{init\+\_\+var}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$e, int vidx)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a68563b28ef658576afc360b4979f3ed6}{check\+\_\+readonly}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$e)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a4f84287f74dc67840aae694b6ace6998}{adjustlocalvars}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int nvars)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a12f6d0b70d7dc43b72f45ad2a6293fb7}{removevars}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, int tolevel)
+\item 
+static int \mbox{\hyperlink{lparser_8c_a4fa16ff6ddba70e699b1b87ca18d30e1}{searchupvalue}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$name)
+\item 
+static \mbox{\hyperlink{struct_upvaldesc}{Upvaldesc}} $\ast$ \mbox{\hyperlink{lparser_8c_a355e8b6a68c23cc5a65e40cd276c38b1}{allocupvalue}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs)
+\item 
+static int \mbox{\hyperlink{lparser_8c_a840fa0de24ef09efda91ce6ebae3876d}{newupvalue}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$name, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$v)
+\item 
+static int \mbox{\hyperlink{lparser_8c_aa0f0bf6be9c3844c8c9bd05074b53c07}{searchvar}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$n, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$var)
+\item 
+static void \mbox{\hyperlink{lparser_8c_ab92f39b4f46a9844ecab9d585d636bd4}{markupval}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, int level)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a4e2939a86340a3fe70c3238288c4af8a}{singlevaraux}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$n, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$var, int base)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a39a46ec796479bdd22eea51ddef11685}{singlevar}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$var)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a7dafcad9b819fe82292276b63a632e80}{adjust\+\_\+assign}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int nvars, int nexps, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$e)
+\item 
+static \mbox{\hyperlink{llimits_8h_a9f743fcc9a5278cb9ee10355f09f7302}{l\+\_\+noret}} \mbox{\hyperlink{lparser_8c_a6095ffe4a3669369b48424a59063fb71}{jumpscopeerror}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{struct_labeldesc}{Labeldesc}} $\ast$gt)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a73b1624593cc10a15008229b30eeae81}{solvegoto}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int g, \mbox{\hyperlink{struct_labeldesc}{Labeldesc}} $\ast$label)
+\item 
+static \mbox{\hyperlink{struct_labeldesc}{Labeldesc}} $\ast$ \mbox{\hyperlink{lparser_8c_a599b5cc6bd2b4abfe73b21b01e09af33}{findlabel}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$name)
+\item 
+static int \mbox{\hyperlink{lparser_8c_ac8408d50bc1af7533968d363841bcf27}{newlabelentry}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{struct_labellist}{Labellist}} $\ast$l, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$name, int line, int pc)
+\item 
+static int \mbox{\hyperlink{lparser_8c_afa4884f1fcf6756c7c9ebadef88a629f}{newgotoentry}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$name, int line, int pc)
+\item 
+static int \mbox{\hyperlink{lparser_8c_abd72e798cea4c3def7bc6791e5f07a43}{solvegotos}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{struct_labeldesc}{Labeldesc}} $\ast$lb)
+\item 
+static int \mbox{\hyperlink{lparser_8c_abfc0a485f2b04026699cafcdaa1bfb04}{createlabel}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$name, int line, int last)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a59499d1fac1f098f62ea922753ff88bb}{movegotosout}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, \mbox{\hyperlink{struct_block_cnt}{Block\+Cnt}} $\ast$bl)
+\item 
+static void \mbox{\hyperlink{lparser_8c_aeed63e1438983826777df4cadc063aee}{enterblock}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, \mbox{\hyperlink{struct_block_cnt}{Block\+Cnt}} $\ast$bl, \mbox{\hyperlink{llimits_8h_ae1fe9ac10d9803bd1d7bdf30b18bad68}{lu\+\_\+byte}} isloop)
+\item 
+static \mbox{\hyperlink{llimits_8h_a9f743fcc9a5278cb9ee10355f09f7302}{l\+\_\+noret}} \mbox{\hyperlink{lparser_8c_a0e6f2c50414357750f14eb41e3d08edc}{undefgoto}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{struct_labeldesc}{Labeldesc}} $\ast$gt)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a9f9c2ed0786c3b036f177f2b33f4f79d}{leaveblock}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs)
+\item 
+static \mbox{\hyperlink{struct_proto}{Proto}} $\ast$ \mbox{\hyperlink{lparser_8c_a57dad991ad72ca00978d43967277d9db}{addprototype}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a3f0a5b9e975f44a4e7291445786434d8}{codeclosure}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$v)
+\item 
+static void \mbox{\hyperlink{lparser_8c_ac89cbbdfd75804eae46bce05f8381915}{open\+\_\+func}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, \mbox{\hyperlink{struct_block_cnt}{Block\+Cnt}} $\ast$bl)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a46bd6da1ec8052eeaf6fd524199ca72a}{close\+\_\+func}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static int \mbox{\hyperlink{lparser_8c_a5be23689d7ea5fd2561c345df03fbf7c}{block\+\_\+follow}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int withuntil)
+\item 
+static void \mbox{\hyperlink{lparser_8c_aff3c4f1970c0f3c50f37a8187a2414e3}{statlist}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a749eb16d6a8c1bb6e94d4c0392e57374}{fieldsel}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$v)
+\item 
+static void \mbox{\hyperlink{lparser_8c_ac3e6a3b89f1a54a2ff4f3570831faf35}{yindex}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$v)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a84d7688b0c57f012eaf7f84c0062f29e}{recfield}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{struct_cons_control}{Cons\+Control}} $\ast$cc)
+\item 
+static void \mbox{\hyperlink{lparser_8c_ab2704183a18ae12a124af76b08b2dccf}{closelistfield}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, \mbox{\hyperlink{struct_cons_control}{Cons\+Control}} $\ast$cc)
+\item 
+static void \mbox{\hyperlink{lparser_8c_aa4a987d1a5d0a2f3e72a02570322e923}{lastlistfield}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, \mbox{\hyperlink{struct_cons_control}{Cons\+Control}} $\ast$cc)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a4ad1cddd376a59ba97755723bdcce8de}{listfield}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{struct_cons_control}{Cons\+Control}} $\ast$cc)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a3a1a4b5a661e480a87ce14027a01f177}{field}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{struct_cons_control}{Cons\+Control}} $\ast$cc)
+\item 
+static void \mbox{\hyperlink{lparser_8c_afd4901e9e6b1ba046efc1a5932cd664c}{constructor}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$t)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a71bb47764e4103bbd98a4285ab97ca5d}{setvararg}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, int nparams)
+\item 
+static void \mbox{\hyperlink{lparser_8c_adc6c3bb5079c197371a6ddcdbc574de6}{parlist}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static void \mbox{\hyperlink{lparser_8c_aa6a712055fa7e1b41488c71be4f55303}{body}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$e, int ismethod, int line)
+\item 
+static int \mbox{\hyperlink{lparser_8c_a25966bcc2d6cf47dbb9e0251fb26d661}{explist}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$v)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a5050696e535c2da862810fc9910b6afc}{funcargs}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$f, int line)
+\item 
+static void \mbox{\hyperlink{lparser_8c_abb6d6e594e184f737324863a01201cce}{primaryexp}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$v)
+\item 
+static void \mbox{\hyperlink{lparser_8c_adecf4ab651d795c1af76b75998a4dd9c}{suffixedexp}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$v)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a3b0b05af60978b05faf5713968573985}{simpleexp}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$v)
+\item 
+static \mbox{\hyperlink{lcode_8h_a36fd1054d39d6fc3373303522a7ef534}{Un\+Opr}} \mbox{\hyperlink{lparser_8c_afb550c9d0656dfe2f49f1b87cb91b648}{getunopr}} (int op)
+\item 
+static \mbox{\hyperlink{lcode_8h_ae9a305c1104efedfc54af8d08b942c83}{Bin\+Opr}} \mbox{\hyperlink{lparser_8c_a762cacc5df371cedf267a03fa2191385}{getbinopr}} (int op)
+\item 
+static \mbox{\hyperlink{lcode_8h_ae9a305c1104efedfc54af8d08b942c83}{Bin\+Opr}} \mbox{\hyperlink{lparser_8c_a49946c41497533490f57063b1ca7cb7c}{subexpr}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$v, int limit)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a235428bed4c6be6cb6d2760cd0fa9d34}{block}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a7d3af7471b2da7a36d18b73683181456}{check\+\_\+conflict}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, struct \mbox{\hyperlink{struct_l_h_s__assign}{L\+H\+S\+\_\+assign}} $\ast$lh, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$v)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a4edcfc19b8a94936c58860eded728be4}{restassign}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, struct \mbox{\hyperlink{struct_l_h_s__assign}{L\+H\+S\+\_\+assign}} $\ast$lh, int nvars)
+\item 
+static int \mbox{\hyperlink{lparser_8c_a24002c50a108445d916457eb3c21d5e1}{cond}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a55bae7d03576b713ff5460644f102dfd}{gotostat}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static void \mbox{\hyperlink{lparser_8c_ae0650c2b4b5d311a24bd0ddb7b267db3}{breakstat}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static void \mbox{\hyperlink{lparser_8c_aae46e95438b3cd72afa0838f362d9423}{checkrepeated}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$name)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a20b1ca0b6642f6a79d5cc5abeb5dae63}{labelstat}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$name, int line)
+\item 
+static void \mbox{\hyperlink{lparser_8c_af24623e7aa293515c8293aaf892de531}{whilestat}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int line)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a8638807967aa30e7700834f6bd4aaa5d}{repeatstat}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int line)
+\item 
+static void \mbox{\hyperlink{lparser_8c_ad7daced5a038385200486346caea6d96}{exp1}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a672ee0543c0616f70608b4ab0c99c646}{fixforjump}} (\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs, int pc, int dest, int back)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a253feeb1a37a9ffb5814070a44893b7f}{forbody}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int base, int line, int nvars, int isgen)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a18532c1a3a900cb8f3399b470c00daf0}{fornum}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$varname, int line)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a5f15a71e248c4e1e9c867ccac8a450c2}{forlist}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$indexname)
+\item 
+static void \mbox{\hyperlink{lparser_8c_af783542828ac360981e0ce0f55abc630}{forstat}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int line)
+\item 
+static int \mbox{\hyperlink{lparser_8c_ac39115fb9e5fd58006bbe36a28eddc7a}{issinglejump}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$$\ast$label, int $\ast$target)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a51dbd956bff1ce06bb45b3e3d9fde83f}{test\+\_\+then\+\_\+block}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int $\ast$escapelist)
+\item 
+static void \mbox{\hyperlink{lparser_8c_ae59a0e4b7bd8d539f377ee6f82eac19b}{ifstat}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int line)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a906778e7e7ae16a38c8c6b38bdc34f13}{localfunc}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static int \mbox{\hyperlink{lparser_8c_aacf507e8cbb1eb7a3b49474c510043a8}{getlocalattribute}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a2940067b35656914fe3c7be633096a9b}{checktoclose}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int level)
+\item 
+static void \mbox{\hyperlink{lparser_8c_aedb81864a38588cc65a205ff4c07abfa}{localstat}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static int \mbox{\hyperlink{lparser_8c_a9c06dde377cf16bda138da1cba949c82}{funcname}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$v)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a7ab22c159a4bdcda2bd652f01229111b}{funcstat}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, int line)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a2bafac5e65f8e5de6e00d717bf90f091}{exprstat}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a7998fc603fbe151c85cf0ff9b5517ad6}{retstat}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls)
+\item 
+static void \mbox{\hyperlink{lparser_8c_a011959c631cc7cfc75646a0fddc1a149}{mainfunc}} (\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$ls, \mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$fs)
+\item 
+\mbox{\hyperlink{struct_l_closure}{L\+Closure}} $\ast$ \mbox{\hyperlink{lparser_8c_ab1aebed32ae816b2979db5b8dd2d1554}{lua\+Y\+\_\+parser}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{lzio_8h_a3a6756c936bdfffa304b1d808ce7dc17}{Z\+IO}} $\ast$z, \mbox{\hyperlink{struct_mbuffer}{Mbuffer}} $\ast$buff, \mbox{\hyperlink{struct_dyndata}{Dyndata}} $\ast$dyd, const char $\ast$name, int firstchar)
+\end{DoxyCompactItemize}
+\doxysubsection*{变量}
+\begin{DoxyCompactItemize}
+\item 
+\begin{tabbing}
+xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=\kill
+union \{\\
+\>\mbox{\hyperlink{llimits_8h_ae1fe9ac10d9803bd1d7bdf30b18bad68}{lu\_byte}} \mbox{\hyperlink{lparser_8c_a3584754acc5e91c03d6fc91359eefd78}{left}}\\
+\>\mbox{\hyperlink{llimits_8h_ae1fe9ac10d9803bd1d7bdf30b18bad68}{lu\_byte}} \mbox{\hyperlink{lparser_8c_a34b07942956eb7acd9d02c5b75177ae6}{right}}\\
+\>int \mbox{\hyperlink{lstrlib_8c_a7c1d654b7b6114d7a0abc8d351dd1bcd}{dummy}}\\
+\>char \mbox{\hyperlink{lstrlib_8c_a5831a9b38577f9ef9b30553737b5b7f9}{little}}\\
+\} \mbox{\hyperlink{lparser_8c_ac6fd7e992c9eb0344ae1d64618ac5d27}{priority}} \mbox{[}$\,$\mbox{]}\\
+
+\end{tabbing}\end{DoxyCompactItemize}
+
+
+\doxysubsection{宏定义说明}
+\mbox{\Hypertarget{lparser_8c_aece9aca90eb75d99df8490bdb813bdd4}\label{lparser_8c_aece9aca90eb75d99df8490bdb813bdd4}} 
+\index{lparser.c@{lparser.c}!check\_condition@{check\_condition}}
+\index{check\_condition@{check\_condition}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{check\_condition}{check\_condition}}
+{\footnotesize\ttfamily \#define check\+\_\+condition(\begin{DoxyParamCaption}\item[{}]{ls,  }\item[{}]{c,  }\item[{}]{msg }\end{DoxyParamCaption})~\{ if (!(c)) \mbox{\hyperlink{llex_8h_a189ff2bb7bd23c89531fdad321fccd02}{lua\+X\+\_\+syntaxerror}}(ls, msg); \}}
+
+
+
+在文件 lparser.\+c 第 122 行定义.
+
+\mbox{\Hypertarget{lparser_8c_ab61308992bd6c2013519fdebd0d52704}\label{lparser_8c_ab61308992bd6c2013519fdebd0d52704}} 
+\index{lparser.c@{lparser.c}!enterlevel@{enterlevel}}
+\index{enterlevel@{enterlevel}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{enterlevel}{enterlevel}}
+{\footnotesize\ttfamily \#define enterlevel(\begin{DoxyParamCaption}\item[{}]{ls }\end{DoxyParamCaption})~\mbox{\hyperlink{lstate_8h_a0a0b9a376c81e1247ae41d3cfeb1921c}{lua\+E\+\_\+enter\+Ccall}}((ls)-\/$>$L)}
+
+
+
+在文件 lparser.\+c 第 495 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a5ea0ac9ed10a85ea4b0db7ca78050824}\label{lparser_8c_a5ea0ac9ed10a85ea4b0db7ca78050824}} 
+\index{lparser.c@{lparser.c}!eqstr@{eqstr}}
+\index{eqstr@{eqstr}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{eqstr}{eqstr}}
+{\footnotesize\ttfamily \#define eqstr(\begin{DoxyParamCaption}\item[{}]{a,  }\item[{}]{b }\end{DoxyParamCaption})~((a) == (b))}
+
+
+
+在文件 lparser.\+c 第 43 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a38d6bad3bcde3d124ca880d6a9d82ba6}\label{lparser_8c_a38d6bad3bcde3d124ca880d6a9d82ba6}} 
+\index{lparser.c@{lparser.c}!hasmultret@{hasmultret}}
+\index{hasmultret@{hasmultret}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{hasmultret}{hasmultret}}
+{\footnotesize\ttfamily \#define hasmultret(\begin{DoxyParamCaption}\item[{}]{k }\end{DoxyParamCaption})~((k) == \mbox{\hyperlink{lparser_8h_aecced501a9387ab3e6e50a9834615d4eae61a8c04cfeabd756694cd13774e47b7}{V\+C\+A\+LL}} $\vert$$\vert$ (k) == \mbox{\hyperlink{lparser_8h_aecced501a9387ab3e6e50a9834615d4ea3f5f58de0fa9e69449d4e2362ddbfaa1}{V\+V\+A\+R\+A\+RG}})}
+
+
+
+在文件 lparser.\+c 第 38 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a147b3ba4d2004b4b4ee7260661ec31e1}\label{lparser_8c_a147b3ba4d2004b4b4ee7260661ec31e1}} 
+\index{lparser.c@{lparser.c}!leavelevel@{leavelevel}}
+\index{leavelevel@{leavelevel}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{leavelevel}{leavelevel}}
+{\footnotesize\ttfamily \#define leavelevel(\begin{DoxyParamCaption}\item[{}]{ls }\end{DoxyParamCaption})~\mbox{\hyperlink{lstate_8h_ab08fafa9debffb694b3a1aec123347da}{lua\+E\+\_\+exit\+Ccall}}((ls)-\/$>$L)}
+
+
+
+在文件 lparser.\+c 第 497 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a7b083c8164f99ddd60e711ca706869d0}\label{lparser_8c_a7b083c8164f99ddd60e711ca706869d0}} 
+\index{lparser.c@{lparser.c}!lparser\_c@{lparser\_c}}
+\index{lparser\_c@{lparser\_c}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{lparser\_c}{lparser\_c}}
+{\footnotesize\ttfamily \#define lparser\+\_\+c}
+
+
+
+在文件 lparser.\+c 第 7 行定义.
+
+\mbox{\Hypertarget{lparser_8c_abf0b3947b59218777a8e928a10be205b}\label{lparser_8c_abf0b3947b59218777a8e928a10be205b}} 
+\index{lparser.c@{lparser.c}!LUA\_CORE@{LUA\_CORE}}
+\index{LUA\_CORE@{LUA\_CORE}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{LUA\_CORE}{LUA\_CORE}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+C\+O\+RE}
+
+
+
+在文件 lparser.\+c 第 8 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a0879a0e632584a9a8bee5ebffab571ca}\label{lparser_8c_a0879a0e632584a9a8bee5ebffab571ca}} 
+\index{lparser.c@{lparser.c}!MAXVARS@{MAXVARS}}
+\index{MAXVARS@{MAXVARS}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{MAXVARS}{MAXVARS}}
+{\footnotesize\ttfamily \#define M\+A\+X\+V\+A\+RS~200}
+
+
+
+在文件 lparser.\+c 第 35 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a031fd03dec54eb67a3cfac513b8575bb}\label{lparser_8c_a031fd03dec54eb67a3cfac513b8575bb}} 
+\index{lparser.c@{lparser.c}!new\_localvarliteral@{new\_localvarliteral}}
+\index{new\_localvarliteral@{new\_localvarliteral}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{new\_localvarliteral}{new\_localvarliteral}}
+{\footnotesize\ttfamily \#define new\+\_\+localvarliteral(\begin{DoxyParamCaption}\item[{}]{ls,  }\item[{}]{v }\end{DoxyParamCaption})}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{    \mbox{\hyperlink{lparser_8c_a89f5732cbee45d78cfec9dbd1a207bb7}{new\_localvar}}(ls,  \(\backslash\)}
+\DoxyCodeLine{      \mbox{\hyperlink{llex_8c_a83f747518666054180f6a7f8da55ac42}{luaX\_newstring}}(ls, \textcolor{stringliteral}{"{}"{}} v, (\textcolor{keyword}{sizeof}(v)/\textcolor{keyword}{sizeof}(\textcolor{keywordtype}{char})) -\/ 1));}
+
+\end{DoxyCode}
+
+
+在文件 lparser.\+c 第 208 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a521d60e3611f1afe98634adda1a0a050}\label{lparser_8c_a521d60e3611f1afe98634adda1a0a050}} 
+\index{lparser.c@{lparser.c}!UNARY\_PRIORITY@{UNARY\_PRIORITY}}
+\index{UNARY\_PRIORITY@{UNARY\_PRIORITY}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{UNARY\_PRIORITY}{UNARY\_PRIORITY}}
+{\footnotesize\ttfamily \#define U\+N\+A\+R\+Y\+\_\+\+P\+R\+I\+O\+R\+I\+TY~12  /$\ast$ \mbox{\hyperlink{lparser_8c_ac6fd7e992c9eb0344ae1d64618ac5d27}{priority}} for unary operators $\ast$/}
+
+
+
+在文件 lparser.\+c 第 1243 行定义.
+
+
+
+\doxysubsection{类型定义说明}
+\mbox{\Hypertarget{lparser_8c_a672971a1a6f6fb76c404bac87274225f}\label{lparser_8c_a672971a1a6f6fb76c404bac87274225f}} 
+\index{lparser.c@{lparser.c}!BlockCnt@{BlockCnt}}
+\index{BlockCnt@{BlockCnt}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{BlockCnt}{BlockCnt}}
+{\footnotesize\ttfamily typedef struct \mbox{\hyperlink{struct_block_cnt}{Block\+Cnt}} \mbox{\hyperlink{struct_block_cnt}{Block\+Cnt}}}
+
+\mbox{\Hypertarget{lparser_8c_aac0d82e2c5c45771c53cd25cb8b48972}\label{lparser_8c_aac0d82e2c5c45771c53cd25cb8b48972}} 
+\index{lparser.c@{lparser.c}!ConsControl@{ConsControl}}
+\index{ConsControl@{ConsControl}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{ConsControl}{ConsControl}}
+{\footnotesize\ttfamily typedef struct \mbox{\hyperlink{struct_cons_control}{Cons\+Control}} \mbox{\hyperlink{struct_cons_control}{Cons\+Control}}}
+
+
+
+\doxysubsection{函数说明}
+\mbox{\Hypertarget{lparser_8c_a57dad991ad72ca00978d43967277d9db}\label{lparser_8c_a57dad991ad72ca00978d43967277d9db}} 
+\index{lparser.c@{lparser.c}!addprototype@{addprototype}}
+\index{addprototype@{addprototype}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{addprototype()}{addprototype()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{struct_proto}{Proto}}$\ast$ addprototype (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 688 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a7dafcad9b819fe82292276b63a632e80}\label{lparser_8c_a7dafcad9b819fe82292276b63a632e80}} 
+\index{lparser.c@{lparser.c}!adjust\_assign@{adjust\_assign}}
+\index{adjust\_assign@{adjust\_assign}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{adjust\_assign()}{adjust\_assign()}}
+{\footnotesize\ttfamily static void adjust\+\_\+assign (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{nvars,  }\item[{int}]{nexps,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{e }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 470 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a4f84287f74dc67840aae694b6ace6998}\label{lparser_8c_a4f84287f74dc67840aae694b6ace6998}} 
+\index{lparser.c@{lparser.c}!adjustlocalvars@{adjustlocalvars}}
+\index{adjustlocalvars@{adjustlocalvars}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{adjustlocalvars()}{adjustlocalvars()}}
+{\footnotesize\ttfamily static void adjustlocalvars (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{nvars }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 311 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a355e8b6a68c23cc5a65e40cd276c38b1}\label{lparser_8c_a355e8b6a68c23cc5a65e40cd276c38b1}} 
+\index{lparser.c@{lparser.c}!allocupvalue@{allocupvalue}}
+\index{allocupvalue@{allocupvalue}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{allocupvalue()}{allocupvalue()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{struct_upvaldesc}{Upvaldesc}}$\ast$ allocupvalue (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 352 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a235428bed4c6be6cb6d2760cd0fa9d34}\label{lparser_8c_a235428bed4c6be6cb6d2760cd0fa9d34}} 
+\index{lparser.c@{lparser.c}!block@{block}}
+\index{block@{block}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{block()}{block()}}
+{\footnotesize\ttfamily static void block (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1295 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a5be23689d7ea5fd2561c345df03fbf7c}\label{lparser_8c_a5be23689d7ea5fd2561c345df03fbf7c}} 
+\index{lparser.c@{lparser.c}!block\_follow@{block\_follow}}
+\index{block\_follow@{block\_follow}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{block\_follow()}{block\_follow()}}
+{\footnotesize\ttfamily static int block\+\_\+follow (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{withuntil }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 778 行定义.
+
+\mbox{\Hypertarget{lparser_8c_aa6a712055fa7e1b41488c71be4f55303}\label{lparser_8c_aa6a712055fa7e1b41488c71be4f55303}} 
+\index{lparser.c@{lparser.c}!body@{body}}
+\index{body@{body}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{body()}{body()}}
+{\footnotesize\ttfamily static void body (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{e,  }\item[{int}]{ismethod,  }\item[{int}]{line }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 980 行定义.
+
+\mbox{\Hypertarget{lparser_8c_ae0650c2b4b5d311a24bd0ddb7b267db3}\label{lparser_8c_ae0650c2b4b5d311a24bd0ddb7b267db3}} 
+\index{lparser.c@{lparser.c}!breakstat@{breakstat}}
+\index{breakstat@{breakstat}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{breakstat()}{breakstat()}}
+{\footnotesize\ttfamily static void breakstat (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1428 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a2c856a5873c90f45525cf0d9abebbfde}\label{lparser_8c_a2c856a5873c90f45525cf0d9abebbfde}} 
+\index{lparser.c@{lparser.c}!check@{check}}
+\index{check@{check}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{check()}{check()}}
+{\footnotesize\ttfamily static void check (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{c }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 107 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a7d3af7471b2da7a36d18b73683181456}\label{lparser_8c_a7d3af7471b2da7a36d18b73683181456}} 
+\index{lparser.c@{lparser.c}!check\_conflict@{check\_conflict}}
+\index{check\_conflict@{check\_conflict}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{check\_conflict()}{check\_conflict()}}
+{\footnotesize\ttfamily static void check\+\_\+conflict (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{struct \mbox{\hyperlink{struct_l_h_s__assign}{L\+H\+S\+\_\+assign}} $\ast$}]{lh,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1321 行定义.
+
+\mbox{\Hypertarget{lparser_8c_abbe267f2acab7a24f25b89b7782b21a6}\label{lparser_8c_abbe267f2acab7a24f25b89b7782b21a6}} 
+\index{lparser.c@{lparser.c}!check\_match@{check\_match}}
+\index{check\_match@{check\_match}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{check\_match()}{check\_match()}}
+{\footnotesize\ttfamily static void check\+\_\+match (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{what,  }\item[{int}]{who,  }\item[{int}]{where }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 130 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a68563b28ef658576afc360b4979f3ed6}\label{lparser_8c_a68563b28ef658576afc360b4979f3ed6}} 
+\index{lparser.c@{lparser.c}!check\_readonly@{check\_readonly}}
+\index{check\_readonly@{check\_readonly}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{check\_readonly()}{check\_readonly()}}
+{\footnotesize\ttfamily static void check\+\_\+readonly (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{e }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 277 行定义.
+
+\mbox{\Hypertarget{lparser_8c_adcc7a63edd0b578c2e7980371ff7f686}\label{lparser_8c_adcc7a63edd0b578c2e7980371ff7f686}} 
+\index{lparser.c@{lparser.c}!checklimit@{checklimit}}
+\index{checklimit@{checklimit}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{checklimit()}{checklimit()}}
+{\footnotesize\ttfamily static void checklimit (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{int}]{v,  }\item[{int}]{l,  }\item[{const char $\ast$}]{what }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 87 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a00410145409eca75b14b1f1c4f553ca0}\label{lparser_8c_a00410145409eca75b14b1f1c4f553ca0}} 
+\index{lparser.c@{lparser.c}!checknext@{checknext}}
+\index{checknext@{checknext}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{checknext()}{checknext()}}
+{\footnotesize\ttfamily static void checknext (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{c }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 116 行定义.
+
+\mbox{\Hypertarget{lparser_8c_aae46e95438b3cd72afa0838f362d9423}\label{lparser_8c_aae46e95438b3cd72afa0838f362d9423}} 
+\index{lparser.c@{lparser.c}!checkrepeated@{checkrepeated}}
+\index{checkrepeated@{checkrepeated}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{checkrepeated()}{checkrepeated()}}
+{\footnotesize\ttfamily static void checkrepeated (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1438 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a2940067b35656914fe3c7be633096a9b}\label{lparser_8c_a2940067b35656914fe3c7be633096a9b}} 
+\index{lparser.c@{lparser.c}!checktoclose@{checktoclose}}
+\index{checktoclose@{checktoclose}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{checktoclose()}{checktoclose()}}
+{\footnotesize\ttfamily static void checktoclose (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{level }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1746 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a46bd6da1ec8052eeaf6fd524199ca72a}\label{lparser_8c_a46bd6da1ec8052eeaf6fd524199ca72a}} 
+\index{lparser.c@{lparser.c}!close\_func@{close\_func}}
+\index{close\_func@{close\_func}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{close\_func()}{close\_func()}}
+{\footnotesize\ttfamily static void close\+\_\+func (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 746 行定义.
+
+\mbox{\Hypertarget{lparser_8c_ab2704183a18ae12a124af76b08b2dccf}\label{lparser_8c_ab2704183a18ae12a124af76b08b2dccf}} 
+\index{lparser.c@{lparser.c}!closelistfield@{closelistfield}}
+\index{closelistfield@{closelistfield}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{closelistfield()}{closelistfield()}}
+{\footnotesize\ttfamily static void closelistfield (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{\mbox{\hyperlink{struct_cons_control}{Cons\+Control}} $\ast$}]{cc }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 858 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a3f0a5b9e975f44a4e7291445786434d8}\label{lparser_8c_a3f0a5b9e975f44a4e7291445786434d8}} 
+\index{lparser.c@{lparser.c}!codeclosure@{codeclosure}}
+\index{codeclosure@{codeclosure}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{codeclosure()}{codeclosure()}}
+{\footnotesize\ttfamily static void codeclosure (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 712 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a7da9556e730c9865b3de6c6440640266}\label{lparser_8c_a7da9556e730c9865b3de6c6440640266}} 
+\index{lparser.c@{lparser.c}!codename@{codename}}
+\index{codename@{codename}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{codename()}{codename()}}
+{\footnotesize\ttfamily static void codename (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{e }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 166 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a08fd72f32434a2bab9cd08298085e9f9}\label{lparser_8c_a08fd72f32434a2bab9cd08298085e9f9}} 
+\index{lparser.c@{lparser.c}!codestring@{codestring}}
+\index{codestring@{codestring}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{codestring()}{codestring()}}
+{\footnotesize\ttfamily static void codestring (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{e,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{s }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 159 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a24002c50a108445d916457eb3c21d5e1}\label{lparser_8c_a24002c50a108445d916457eb3c21d5e1}} 
+\index{lparser.c@{lparser.c}!cond@{cond}}
+\index{cond@{cond}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{cond()}{cond()}}
+{\footnotesize\ttfamily static int cond (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1396 行定义.
+
+\mbox{\Hypertarget{lparser_8c_afd4901e9e6b1ba046efc1a5932cd664c}\label{lparser_8c_afd4901e9e6b1ba046efc1a5932cd664c}} 
+\index{lparser.c@{lparser.c}!constructor@{constructor}}
+\index{constructor@{constructor}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{constructor()}{constructor()}}
+{\footnotesize\ttfamily static void constructor (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{t }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 915 行定义.
+
+\mbox{\Hypertarget{lparser_8c_abfc0a485f2b04026699cafcdaa1bfb04}\label{lparser_8c_abfc0a485f2b04026699cafcdaa1bfb04}} 
+\index{lparser.c@{lparser.c}!createlabel@{createlabel}}
+\index{createlabel@{createlabel}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{createlabel()}{createlabel()}}
+{\footnotesize\ttfamily static int createlabel (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{name,  }\item[{int}]{line,  }\item[{int}]{last }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 598 行定义.
+
+\mbox{\Hypertarget{lparser_8c_aeed63e1438983826777df4cadc063aee}\label{lparser_8c_aeed63e1438983826777df4cadc063aee}} 
+\index{lparser.c@{lparser.c}!enterblock@{enterblock}}
+\index{enterblock@{enterblock}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{enterblock()}{enterblock()}}
+{\footnotesize\ttfamily static void enterblock (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{\mbox{\hyperlink{struct_block_cnt}{Block\+Cnt}} $\ast$}]{bl,  }\item[{\mbox{\hyperlink{llimits_8h_ae1fe9ac10d9803bd1d7bdf30b18bad68}{lu\+\_\+byte}}}]{isloop }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 632 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a285759c10955d85bbf00c0041125e7bc}\label{lparser_8c_a285759c10955d85bbf00c0041125e7bc}} 
+\index{lparser.c@{lparser.c}!error\_expected@{error\_expected}}
+\index{error\_expected@{error\_expected}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{error\_expected()}{error\_expected()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{llimits_8h_a9f743fcc9a5278cb9ee10355f09f7302}{l\+\_\+noret}} error\+\_\+expected (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{token }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 68 行定义.
+
+\mbox{\Hypertarget{lparser_8c_ad02c6061a90a3461a24d2eede35cbf1f}\label{lparser_8c_ad02c6061a90a3461a24d2eede35cbf1f}} 
+\index{lparser.c@{lparser.c}!errorlimit@{errorlimit}}
+\index{errorlimit@{errorlimit}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{errorlimit()}{errorlimit()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{llimits_8h_a9f743fcc9a5278cb9ee10355f09f7302}{l\+\_\+noret}} errorlimit (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{int}]{limit,  }\item[{const char $\ast$}]{what }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 74 行定义.
+
+\mbox{\Hypertarget{lparser_8c_ad7daced5a038385200486346caea6d96}\label{lparser_8c_ad7daced5a038385200486346caea6d96}} 
+\index{lparser.c@{lparser.c}!exp1@{exp1}}
+\index{exp1@{exp1}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{exp1()}{exp1()}}
+{\footnotesize\ttfamily static void exp1 (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1507 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a25966bcc2d6cf47dbb9e0251fb26d661}\label{lparser_8c_a25966bcc2d6cf47dbb9e0251fb26d661}} 
+\index{lparser.c@{lparser.c}!explist@{explist}}
+\index{explist@{explist}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{explist()}{explist()}}
+{\footnotesize\ttfamily static int explist (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1002 行定义.
+
+\mbox{\Hypertarget{lparser_8c_af2c543df6cbb49247cd0a71956786d92}\label{lparser_8c_af2c543df6cbb49247cd0a71956786d92}} 
+\index{lparser.c@{lparser.c}!expr@{expr}}
+\index{expr@{expr}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{expr()}{expr()}}
+{\footnotesize\ttfamily static void expr (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1280 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a2bafac5e65f8e5de6e00d717bf90f091}\label{lparser_8c_a2bafac5e65f8e5de6e00d717bf90f091}} 
+\index{lparser.c@{lparser.c}!exprstat@{exprstat}}
+\index{exprstat@{exprstat}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{exprstat()}{exprstat()}}
+{\footnotesize\ttfamily static void exprstat (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1824 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a3a1a4b5a661e480a87ce14027a01f177}\label{lparser_8c_a3a1a4b5a661e480a87ce14027a01f177}} 
+\index{lparser.c@{lparser.c}!field@{field}}
+\index{field@{field}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{field()}{field()}}
+{\footnotesize\ttfamily static void field (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{struct_cons_control}{Cons\+Control}} $\ast$}]{cc }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 893 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a749eb16d6a8c1bb6e94d4c0392e57374}\label{lparser_8c_a749eb16d6a8c1bb6e94d4c0392e57374}} 
+\index{lparser.c@{lparser.c}!fieldsel@{fieldsel}}
+\index{fieldsel@{fieldsel}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{fieldsel()}{fieldsel()}}
+{\footnotesize\ttfamily static void fieldsel (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 801 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a599b5cc6bd2b4abfe73b21b01e09af33}\label{lparser_8c_a599b5cc6bd2b4abfe73b21b01e09af33}} 
+\index{lparser.c@{lparser.c}!findlabel@{findlabel}}
+\index{findlabel@{findlabel}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{findlabel()}{findlabel()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{struct_labeldesc}{Labeldesc}}$\ast$ findlabel (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 534 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a672ee0543c0616f70608b4ab0c99c646}\label{lparser_8c_a672ee0543c0616f70608b4ab0c99c646}} 
+\index{lparser.c@{lparser.c}!fixforjump@{fixforjump}}
+\index{fixforjump@{fixforjump}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{fixforjump()}{fixforjump()}}
+{\footnotesize\ttfamily static void fixforjump (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{int}]{pc,  }\item[{int}]{dest,  }\item[{int}]{back }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1520 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a253feeb1a37a9ffb5814070a44893b7f}\label{lparser_8c_a253feeb1a37a9ffb5814070a44893b7f}} 
+\index{lparser.c@{lparser.c}!forbody@{forbody}}
+\index{forbody@{forbody}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{forbody()}{forbody()}}
+{\footnotesize\ttfamily static void forbody (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{base,  }\item[{int}]{line,  }\item[{int}]{nvars,  }\item[{int}]{isgen }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1534 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a5f15a71e248c4e1e9c867ccac8a450c2}\label{lparser_8c_a5f15a71e248c4e1e9c867ccac8a450c2}} 
+\index{lparser.c@{lparser.c}!forlist@{forlist}}
+\index{forlist@{forlist}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{forlist()}{forlist()}}
+{\footnotesize\ttfamily static void forlist (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{indexname }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1582 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a18532c1a3a900cb8f3399b470c00daf0}\label{lparser_8c_a18532c1a3a900cb8f3399b470c00daf0}} 
+\index{lparser.c@{lparser.c}!fornum@{fornum}}
+\index{fornum@{fornum}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{fornum()}{fornum()}}
+{\footnotesize\ttfamily static void fornum (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{varname,  }\item[{int}]{line }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1559 行定义.
+
+\mbox{\Hypertarget{lparser_8c_af783542828ac360981e0ce0f55abc630}\label{lparser_8c_af783542828ac360981e0ce0f55abc630}} 
+\index{lparser.c@{lparser.c}!forstat@{forstat}}
+\index{forstat@{forstat}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{forstat()}{forstat()}}
+{\footnotesize\ttfamily static void forstat (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{line }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1610 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a5050696e535c2da862810fc9910b6afc}\label{lparser_8c_a5050696e535c2da862810fc9910b6afc}} 
+\index{lparser.c@{lparser.c}!funcargs@{funcargs}}
+\index{funcargs@{funcargs}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{funcargs()}{funcargs()}}
+{\footnotesize\ttfamily static void funcargs (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{f,  }\item[{int}]{line }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1015 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a9c06dde377cf16bda138da1cba949c82}\label{lparser_8c_a9c06dde377cf16bda138da1cba949c82}} 
+\index{lparser.c@{lparser.c}!funcname@{funcname}}
+\index{funcname@{funcname}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{funcname()}{funcname()}}
+{\footnotesize\ttfamily static int funcname (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1798 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a7ab22c159a4bdcda2bd652f01229111b}\label{lparser_8c_a7ab22c159a4bdcda2bd652f01229111b}} 
+\index{lparser.c@{lparser.c}!funcstat@{funcstat}}
+\index{funcstat@{funcstat}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{funcstat()}{funcstat()}}
+{\footnotesize\ttfamily static void funcstat (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{line }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1812 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a762cacc5df371cedf267a03fa2191385}\label{lparser_8c_a762cacc5df371cedf267a03fa2191385}} 
+\index{lparser.c@{lparser.c}!getbinopr@{getbinopr}}
+\index{getbinopr@{getbinopr}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{getbinopr()}{getbinopr()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{lcode_8h_ae9a305c1104efedfc54af8d08b942c83}{Bin\+Opr}} getbinopr (\begin{DoxyParamCaption}\item[{int}]{op }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1196 行定义.
+
+\mbox{\Hypertarget{lparser_8c_aacf507e8cbb1eb7a3b49474c510043a8}\label{lparser_8c_aacf507e8cbb1eb7a3b49474c510043a8}} 
+\index{lparser.c@{lparser.c}!getlocalattribute@{getlocalattribute}}
+\index{getlocalattribute@{getlocalattribute}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{getlocalattribute()}{getlocalattribute()}}
+{\footnotesize\ttfamily static int getlocalattribute (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1729 行定义.
+
+\mbox{\Hypertarget{lparser_8c_ae54e8d8f199763735b5175342fbce5ca}\label{lparser_8c_ae54e8d8f199763735b5175342fbce5ca}} 
+\index{lparser.c@{lparser.c}!getlocalvardesc@{getlocalvardesc}}
+\index{getlocalvardesc@{getlocalvardesc}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{getlocalvardesc()}{getlocalvardesc()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{union_vardesc}{Vardesc}}$\ast$ getlocalvardesc (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{int}]{vidx }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 219 行定义.
+
+\mbox{\Hypertarget{lparser_8c_afb550c9d0656dfe2f49f1b87cb91b648}\label{lparser_8c_afb550c9d0656dfe2f49f1b87cb91b648}} 
+\index{lparser.c@{lparser.c}!getunopr@{getunopr}}
+\index{getunopr@{getunopr}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{getunopr()}{getunopr()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{lcode_8h_a36fd1054d39d6fc3373303522a7ef534}{Un\+Opr}} getunopr (\begin{DoxyParamCaption}\item[{int}]{op }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1185 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a55bae7d03576b713ff5460644f102dfd}\label{lparser_8c_a55bae7d03576b713ff5460644f102dfd}} 
+\index{lparser.c@{lparser.c}!gotostat@{gotostat}}
+\index{gotostat@{gotostat}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{gotostat()}{gotostat()}}
+{\footnotesize\ttfamily static void gotostat (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1406 行定义.
+
+\mbox{\Hypertarget{lparser_8c_ae59a0e4b7bd8d539f377ee6f82eac19b}\label{lparser_8c_ae59a0e4b7bd8d539f377ee6f82eac19b}} 
+\index{lparser.c@{lparser.c}!ifstat@{ifstat}}
+\index{ifstat@{ifstat}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{ifstat()}{ifstat()}}
+{\footnotesize\ttfamily static void ifstat (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{line }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1703 行定义.
+
+\mbox{\Hypertarget{lparser_8c_aaa0cc4c3d9d11b020ff13b23262b8b17}\label{lparser_8c_aaa0cc4c3d9d11b020ff13b23262b8b17}} 
+\index{lparser.c@{lparser.c}!init\_exp@{init\_exp}}
+\index{init\_exp@{init\_exp}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{init\_exp()}{init\_exp()}}
+{\footnotesize\ttfamily static void init\+\_\+exp (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{e,  }\item[{\mbox{\hyperlink{lparser_8h_aecced501a9387ab3e6e50a9834615d4e}{expkind}}}]{k,  }\item[{int}]{i }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 152 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a234a1dfbb418ebb04cc831ee29dac2b3}\label{lparser_8c_a234a1dfbb418ebb04cc831ee29dac2b3}} 
+\index{lparser.c@{lparser.c}!init\_var@{init\_var}}
+\index{init\_var@{init\_var}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{init\_var()}{init\_var()}}
+{\footnotesize\ttfamily static void init\+\_\+var (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{e,  }\item[{int}]{vidx }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 266 行定义.
+
+\mbox{\Hypertarget{lparser_8c_ac39115fb9e5fd58006bbe36a28eddc7a}\label{lparser_8c_ac39115fb9e5fd58006bbe36a28eddc7a}} 
+\index{lparser.c@{lparser.c}!issinglejump@{issinglejump}}
+\index{issinglejump@{issinglejump}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{issinglejump()}{issinglejump()}}
+{\footnotesize\ttfamily static int issinglejump (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$$\ast$}]{label,  }\item[{int $\ast$}]{target }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1636 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a6095ffe4a3669369b48424a59063fb71}\label{lparser_8c_a6095ffe4a3669369b48424a59063fb71}} 
+\index{lparser.c@{lparser.c}!jumpscopeerror@{jumpscopeerror}}
+\index{jumpscopeerror@{jumpscopeerror}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{jumpscopeerror()}{jumpscopeerror()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{llimits_8h_a9f743fcc9a5278cb9ee10355f09f7302}{l\+\_\+noret}} jumpscopeerror (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{struct_labeldesc}{Labeldesc}} $\ast$}]{gt }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 504 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a20b1ca0b6642f6a79d5cc5abeb5dae63}\label{lparser_8c_a20b1ca0b6642f6a79d5cc5abeb5dae63}} 
+\index{lparser.c@{lparser.c}!labelstat@{labelstat}}
+\index{labelstat@{labelstat}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{labelstat()}{labelstat()}}
+{\footnotesize\ttfamily static void labelstat (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{name,  }\item[{int}]{line }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1448 行定义.
+
+\mbox{\Hypertarget{lparser_8c_aa4a987d1a5d0a2f3e72a02570322e923}\label{lparser_8c_aa4a987d1a5d0a2f3e72a02570322e923}} 
+\index{lparser.c@{lparser.c}!lastlistfield@{lastlistfield}}
+\index{lastlistfield@{lastlistfield}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{lastlistfield()}{lastlistfield()}}
+{\footnotesize\ttfamily static void lastlistfield (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{\mbox{\hyperlink{struct_cons_control}{Cons\+Control}} $\ast$}]{cc }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 870 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a9f9c2ed0786c3b036f177f2b33f4f79d}\label{lparser_8c_a9f9c2ed0786c3b036f177f2b33f4f79d}} 
+\index{lparser.c@{lparser.c}!leaveblock@{leaveblock}}
+\index{leaveblock@{leaveblock}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{leaveblock()}{leaveblock()}}
+{\footnotesize\ttfamily static void leaveblock (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 662 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a4ad1cddd376a59ba97755723bdcce8de}\label{lparser_8c_a4ad1cddd376a59ba97755723bdcce8de}} 
+\index{lparser.c@{lparser.c}!listfield@{listfield}}
+\index{listfield@{listfield}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{listfield()}{listfield()}}
+{\footnotesize\ttfamily static void listfield (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{struct_cons_control}{Cons\+Control}} $\ast$}]{cc }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 886 行定义.
+
+\mbox{\Hypertarget{lparser_8c_af4e2a81c94d2b795fd0a4c4a2cd9d22f}\label{lparser_8c_af4e2a81c94d2b795fd0a4c4a2cd9d22f}} 
+\index{lparser.c@{lparser.c}!localdebuginfo@{localdebuginfo}}
+\index{localdebuginfo@{localdebuginfo}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{localdebuginfo()}{localdebuginfo()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{struct_loc_var}{Loc\+Var}}$\ast$ localdebuginfo (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{int}]{vidx }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 251 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a906778e7e7ae16a38c8c6b38bdc34f13}\label{lparser_8c_a906778e7e7ae16a38c8c6b38bdc34f13}} 
+\index{lparser.c@{lparser.c}!localfunc@{localfunc}}
+\index{localfunc@{localfunc}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{localfunc()}{localfunc()}}
+{\footnotesize\ttfamily static void localfunc (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1717 行定义.
+
+\mbox{\Hypertarget{lparser_8c_aedb81864a38588cc65a205ff4c07abfa}\label{lparser_8c_aedb81864a38588cc65a205ff4c07abfa}} 
+\index{lparser.c@{lparser.c}!localstat@{localstat}}
+\index{localstat@{localstat}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{localstat()}{localstat()}}
+{\footnotesize\ttfamily static void localstat (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1756 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a03d8535460edd67f5c2d495c2a08bdd2}\label{lparser_8c_a03d8535460edd67f5c2d495c2a08bdd2}} 
+\index{lparser.c@{lparser.c}!luaY\_nvarstack@{luaY\_nvarstack}}
+\index{luaY\_nvarstack@{luaY\_nvarstack}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{luaY\_nvarstack()}{luaY\_nvarstack()}}
+{\footnotesize\ttfamily int lua\+Y\+\_\+nvarstack (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs }\end{DoxyParamCaption})}
+
+
+
+在文件 lparser.\+c 第 243 行定义.
+
+\mbox{\Hypertarget{lparser_8c_ab1aebed32ae816b2979db5b8dd2d1554}\label{lparser_8c_ab1aebed32ae816b2979db5b8dd2d1554}} 
+\index{lparser.c@{lparser.c}!luaY\_parser@{luaY\_parser}}
+\index{luaY\_parser@{luaY\_parser}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{luaY\_parser()}{luaY\_parser()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_l_closure}{L\+Closure}}$\ast$ lua\+Y\+\_\+parser (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{lzio_8h_a3a6756c936bdfffa304b1d808ce7dc17}{Z\+IO}} $\ast$}]{z,  }\item[{\mbox{\hyperlink{struct_mbuffer}{Mbuffer}} $\ast$}]{buff,  }\item[{\mbox{\hyperlink{struct_dyndata}{Dyndata}} $\ast$}]{dyd,  }\item[{const char $\ast$}]{name,  }\item[{int}]{firstchar }\end{DoxyParamCaption})}
+
+
+
+在文件 lparser.\+c 第 1971 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a011959c631cc7cfc75646a0fddc1a149}\label{lparser_8c_a011959c631cc7cfc75646a0fddc1a149}} 
+\index{lparser.c@{lparser.c}!mainfunc@{mainfunc}}
+\index{mainfunc@{mainfunc}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{mainfunc()}{mainfunc()}}
+{\footnotesize\ttfamily static void mainfunc (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1953 行定义.
+
+\mbox{\Hypertarget{lparser_8c_ab92f39b4f46a9844ecab9d585d636bd4}\label{lparser_8c_ab92f39b4f46a9844ecab9d585d636bd4}} 
+\index{lparser.c@{lparser.c}!markupval@{markupval}}
+\index{markupval@{markupval}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{markupval()}{markupval()}}
+{\footnotesize\ttfamily static void markupval (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{int}]{level }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 410 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a59499d1fac1f098f62ea922753ff88bb}\label{lparser_8c_a59499d1fac1f098f62ea922753ff88bb}} 
+\index{lparser.c@{lparser.c}!movegotosout@{movegotosout}}
+\index{movegotosout@{movegotosout}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{movegotosout()}{movegotosout()}}
+{\footnotesize\ttfamily static void movegotosout (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{\mbox{\hyperlink{struct_block_cnt}{Block\+Cnt}} $\ast$}]{bl }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 618 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a89f5732cbee45d78cfec9dbd1a207bb7}\label{lparser_8c_a89f5732cbee45d78cfec9dbd1a207bb7}} 
+\index{lparser.c@{lparser.c}!new\_localvar@{new\_localvar}}
+\index{new\_localvar@{new\_localvar}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{new\_localvar()}{new\_localvar()}}
+{\footnotesize\ttfamily static int new\+\_\+localvar (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 193 行定义.
+
+\mbox{\Hypertarget{lparser_8c_afa4884f1fcf6756c7c9ebadef88a629f}\label{lparser_8c_afa4884f1fcf6756c7c9ebadef88a629f}} 
+\index{lparser.c@{lparser.c}!newgotoentry@{newgotoentry}}
+\index{newgotoentry@{newgotoentry}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{newgotoentry()}{newgotoentry()}}
+{\footnotesize\ttfamily static int newgotoentry (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{name,  }\item[{int}]{line,  }\item[{int}]{pc }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 565 行定义.
+
+\mbox{\Hypertarget{lparser_8c_ac8408d50bc1af7533968d363841bcf27}\label{lparser_8c_ac8408d50bc1af7533968d363841bcf27}} 
+\index{lparser.c@{lparser.c}!newlabelentry@{newlabelentry}}
+\index{newlabelentry@{newlabelentry}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{newlabelentry()}{newlabelentry()}}
+{\footnotesize\ttfamily static int newlabelentry (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{struct_labellist}{Labellist}} $\ast$}]{l,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{name,  }\item[{int}]{line,  }\item[{int}]{pc }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 550 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a840fa0de24ef09efda91ce6ebae3876d}\label{lparser_8c_a840fa0de24ef09efda91ce6ebae3876d}} 
+\index{lparser.c@{lparser.c}!newupvalue@{newupvalue}}
+\index{newupvalue@{newupvalue}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{newupvalue()}{newupvalue()}}
+{\footnotesize\ttfamily static int newupvalue (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{name,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 364 行定义.
+
+\mbox{\Hypertarget{lparser_8c_ac89cbbdfd75804eae46bce05f8381915}\label{lparser_8c_ac89cbbdfd75804eae46bce05f8381915}} 
+\index{lparser.c@{lparser.c}!open\_func@{open\_func}}
+\index{open\_func@{open\_func}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{open\_func()}{open\_func()}}
+{\footnotesize\ttfamily static void open\+\_\+func (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{\mbox{\hyperlink{struct_block_cnt}{Block\+Cnt}} $\ast$}]{bl }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 719 行定义.
+
+\mbox{\Hypertarget{lparser_8c_adc6c3bb5079c197371a6ddcdbc574de6}\label{lparser_8c_adc6c3bb5079c197371a6ddcdbc574de6}} 
+\index{lparser.c@{lparser.c}!parlist@{parlist}}
+\index{parlist@{parlist}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{parlist()}{parlist()}}
+{\footnotesize\ttfamily static void parlist (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 949 行定义.
+
+\mbox{\Hypertarget{lparser_8c_abb6d6e594e184f737324863a01201cce}\label{lparser_8c_abb6d6e594e184f737324863a01201cce}} 
+\index{lparser.c@{lparser.c}!primaryexp@{primaryexp}}
+\index{primaryexp@{primaryexp}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{primaryexp()}{primaryexp()}}
+{\footnotesize\ttfamily static void primaryexp (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1070 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a84d7688b0c57f012eaf7f84c0062f29e}\label{lparser_8c_a84d7688b0c57f012eaf7f84c0062f29e}} 
+\index{lparser.c@{lparser.c}!recfield@{recfield}}
+\index{recfield@{recfield}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{recfield()}{recfield()}}
+{\footnotesize\ttfamily static void recfield (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{struct_cons_control}{Cons\+Control}} $\ast$}]{cc }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 837 行定义.
+
+\mbox{\Hypertarget{lparser_8c_ae3420853c676cec8df3bf2c102315f51}\label{lparser_8c_ae3420853c676cec8df3bf2c102315f51}} 
+\index{lparser.c@{lparser.c}!registerlocalvar@{registerlocalvar}}
+\index{registerlocalvar@{registerlocalvar}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{registerlocalvar()}{registerlocalvar()}}
+{\footnotesize\ttfamily static int registerlocalvar (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{varname }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 175 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a12f6d0b70d7dc43b72f45ad2a6293fb7}\label{lparser_8c_a12f6d0b70d7dc43b72f45ad2a6293fb7}} 
+\index{lparser.c@{lparser.c}!removevars@{removevars}}
+\index{removevars@{removevars}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{removevars()}{removevars()}}
+{\footnotesize\ttfamily static void removevars (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{int}]{tolevel }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 328 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a8638807967aa30e7700834f6bd4aaa5d}\label{lparser_8c_a8638807967aa30e7700834f6bd4aaa5d}} 
+\index{lparser.c@{lparser.c}!repeatstat@{repeatstat}}
+\index{repeatstat@{repeatstat}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{repeatstat()}{repeatstat()}}
+{\footnotesize\ttfamily static void repeatstat (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{line }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1477 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a4edcfc19b8a94936c58860eded728be4}\label{lparser_8c_a4edcfc19b8a94936c58860eded728be4}} 
+\index{lparser.c@{lparser.c}!restassign@{restassign}}
+\index{restassign@{restassign}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{restassign()}{restassign()}}
+{\footnotesize\ttfamily static void restassign (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{struct \mbox{\hyperlink{struct_l_h_s__assign}{L\+H\+S\+\_\+assign}} $\ast$}]{lh,  }\item[{int}]{nvars }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1365 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a7998fc603fbe151c85cf0ff9b5517ad6}\label{lparser_8c_a7998fc603fbe151c85cf0ff9b5517ad6}} 
+\index{lparser.c@{lparser.c}!retstat@{retstat}}
+\index{retstat@{retstat}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{retstat()}{retstat()}}
+{\footnotesize\ttfamily static void retstat (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1842 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a4fa16ff6ddba70e699b1b87ca18d30e1}\label{lparser_8c_a4fa16ff6ddba70e699b1b87ca18d30e1}} 
+\index{lparser.c@{lparser.c}!searchupvalue@{searchupvalue}}
+\index{searchupvalue@{searchupvalue}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{searchupvalue()}{searchupvalue()}}
+{\footnotesize\ttfamily static int searchupvalue (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 342 行定义.
+
+\mbox{\Hypertarget{lparser_8c_aa0f0bf6be9c3844c8c9bd05074b53c07}\label{lparser_8c_aa0f0bf6be9c3844c8c9bd05074b53c07}} 
+\index{lparser.c@{lparser.c}!searchvar@{searchvar}}
+\index{searchvar@{searchvar}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{searchvar()}{searchvar()}}
+{\footnotesize\ttfamily static int searchvar (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{n,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{var }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 390 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a71bb47764e4103bbd98a4285ab97ca5d}\label{lparser_8c_a71bb47764e4103bbd98a4285ab97ca5d}} 
+\index{lparser.c@{lparser.c}!setvararg@{setvararg}}
+\index{setvararg@{setvararg}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{setvararg()}{setvararg()}}
+{\footnotesize\ttfamily static void setvararg (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{int}]{nparams }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 943 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a3b0b05af60978b05faf5713968573985}\label{lparser_8c_a3b0b05af60978b05faf5713968573985}} 
+\index{lparser.c@{lparser.c}!simpleexp@{simpleexp}}
+\index{simpleexp@{simpleexp}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{simpleexp()}{simpleexp()}}
+{\footnotesize\ttfamily static void simpleexp (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1130 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a39a46ec796479bdd22eea51ddef11685}\label{lparser_8c_a39a46ec796479bdd22eea51ddef11685}} 
+\index{lparser.c@{lparser.c}!singlevar@{singlevar}}
+\index{singlevar@{singlevar}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{singlevar()}{singlevar()}}
+{\footnotesize\ttfamily static void singlevar (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{var }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 452 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a4e2939a86340a3fe70c3238288c4af8a}\label{lparser_8c_a4e2939a86340a3fe70c3238288c4af8a}} 
+\index{lparser.c@{lparser.c}!singlevaraux@{singlevaraux}}
+\index{singlevaraux@{singlevaraux}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{singlevaraux()}{singlevaraux()}}
+{\footnotesize\ttfamily static void singlevaraux (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{n,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{var,  }\item[{int}]{base }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 424 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a73b1624593cc10a15008229b30eeae81}\label{lparser_8c_a73b1624593cc10a15008229b30eeae81}} 
+\index{lparser.c@{lparser.c}!solvegoto@{solvegoto}}
+\index{solvegoto@{solvegoto}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{solvegoto()}{solvegoto()}}
+{\footnotesize\ttfamily static void solvegoto (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{g,  }\item[{\mbox{\hyperlink{struct_labeldesc}{Labeldesc}} $\ast$}]{label }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 517 行定义.
+
+\mbox{\Hypertarget{lparser_8c_abd72e798cea4c3def7bc6791e5f07a43}\label{lparser_8c_abd72e798cea4c3def7bc6791e5f07a43}} 
+\index{lparser.c@{lparser.c}!solvegotos@{solvegotos}}
+\index{solvegotos@{solvegotos}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{solvegotos()}{solvegotos()}}
+{\footnotesize\ttfamily static int solvegotos (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{struct_labeldesc}{Labeldesc}} $\ast$}]{lb }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 575 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a7f8a29677082a5ef36452294a527d740}\label{lparser_8c_a7f8a29677082a5ef36452294a527d740}} 
+\index{lparser.c@{lparser.c}!stacklevel@{stacklevel}}
+\index{stacklevel@{stacklevel}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{stacklevel()}{stacklevel()}}
+{\footnotesize\ttfamily static int stacklevel (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_func_state}{Func\+State}} $\ast$}]{fs,  }\item[{int}]{nvar }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 230 行定义.
+
+\mbox{\Hypertarget{lparser_8c_ac29df3687aea9407dcfec478092fce4c}\label{lparser_8c_ac29df3687aea9407dcfec478092fce4c}} 
+\index{lparser.c@{lparser.c}!statement@{statement}}
+\index{statement@{statement}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{statement()}{statement()}}
+{\footnotesize\ttfamily static void statement (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1874 行定义.
+
+\mbox{\Hypertarget{lparser_8c_aff3c4f1970c0f3c50f37a8187a2414e3}\label{lparser_8c_aff3c4f1970c0f3c50f37a8187a2414e3}} 
+\index{lparser.c@{lparser.c}!statlist@{statlist}}
+\index{statlist@{statlist}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{statlist()}{statlist()}}
+{\footnotesize\ttfamily static void statlist (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 789 行定义.
+
+\mbox{\Hypertarget{lparser_8c_ac6a77e92851fefeaf3facfdc47e5e39d}\label{lparser_8c_ac6a77e92851fefeaf3facfdc47e5e39d}} 
+\index{lparser.c@{lparser.c}!str\_checkname@{str\_checkname}}
+\index{str\_checkname@{str\_checkname}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{str\_checkname()}{str\_checkname()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{struct_t_string}{T\+String}}$\ast$ str\+\_\+checkname (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 143 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a49946c41497533490f57063b1ca7cb7c}\label{lparser_8c_a49946c41497533490f57063b1ca7cb7c}} 
+\index{lparser.c@{lparser.c}!subexpr@{subexpr}}
+\index{subexpr@{subexpr}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{subexpr()}{subexpr()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{lcode_8h_ae9a305c1104efedfc54af8d08b942c83}{Bin\+Opr}} subexpr (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{v,  }\item[{int}]{limit }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1250 行定义.
+
+\mbox{\Hypertarget{lparser_8c_adecf4ab651d795c1af76b75998a4dd9c}\label{lparser_8c_adecf4ab651d795c1af76b75998a4dd9c}} 
+\index{lparser.c@{lparser.c}!suffixedexp@{suffixedexp}}
+\index{suffixedexp@{suffixedexp}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{suffixedexp()}{suffixedexp()}}
+{\footnotesize\ttfamily static void suffixedexp (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1092 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a51dbd956bff1ce06bb45b3e3d9fde83f}\label{lparser_8c_a51dbd956bff1ce06bb45b3e3d9fde83f}} 
+\index{lparser.c@{lparser.c}!test\_then\_block@{test\_then\_block}}
+\index{test\_then\_block@{test\_then\_block}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{test\_then\_block()}{test\_then\_block()}}
+{\footnotesize\ttfamily static void test\+\_\+then\+\_\+block (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int $\ast$}]{escapelist }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1661 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a73a8be4e1269883a7b1f101bc14902e3}\label{lparser_8c_a73a8be4e1269883a7b1f101bc14902e3}} 
+\index{lparser.c@{lparser.c}!testnext@{testnext}}
+\index{testnext@{testnext}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{testnext()}{testnext()}}
+{\footnotesize\ttfamily static int testnext (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{c }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 95 行定义.
+
+\mbox{\Hypertarget{lparser_8c_a0e6f2c50414357750f14eb41e3d08edc}\label{lparser_8c_a0e6f2c50414357750f14eb41e3d08edc}} 
+\index{lparser.c@{lparser.c}!undefgoto@{undefgoto}}
+\index{undefgoto@{undefgoto}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{undefgoto()}{undefgoto()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{llimits_8h_a9f743fcc9a5278cb9ee10355f09f7302}{l\+\_\+noret}} undefgoto (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{struct_labeldesc}{Labeldesc}} $\ast$}]{gt }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 648 行定义.
+
+\mbox{\Hypertarget{lparser_8c_af24623e7aa293515c8293aaf892de531}\label{lparser_8c_af24623e7aa293515c8293aaf892de531}} 
+\index{lparser.c@{lparser.c}!whilestat@{whilestat}}
+\index{whilestat@{whilestat}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{whilestat()}{whilestat()}}
+{\footnotesize\ttfamily static void whilestat (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{int}]{line }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 1458 行定义.
+
+\mbox{\Hypertarget{lparser_8c_ac3e6a3b89f1a54a2ff4f3570831faf35}\label{lparser_8c_ac3e6a3b89f1a54a2ff4f3570831faf35}} 
+\index{lparser.c@{lparser.c}!yindex@{yindex}}
+\index{yindex@{yindex}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{yindex()}{yindex()}}
+{\footnotesize\ttfamily static void yindex (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_lex_state}{Lex\+State}} $\ast$}]{ls,  }\item[{\mbox{\hyperlink{structexpdesc}{expdesc}} $\ast$}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 lparser.\+c 第 812 行定义.
+
+
+
+\doxysubsection{变量说明}
+\mbox{\Hypertarget{lparser_8c_a3584754acc5e91c03d6fc91359eefd78}\label{lparser_8c_a3584754acc5e91c03d6fc91359eefd78}} 
+\index{lparser.c@{lparser.c}!left@{left}}
+\index{left@{left}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{left}{left}}
+{\footnotesize\ttfamily \mbox{\hyperlink{llimits_8h_ae1fe9ac10d9803bd1d7bdf30b18bad68}{lu\+\_\+byte}} left}
+
+
+
+在文件 lparser.\+c 第 1228 行定义.
+
+\mbox{\Hypertarget{lparser_8c_ac6fd7e992c9eb0344ae1d64618ac5d27}\label{lparser_8c_ac6fd7e992c9eb0344ae1d64618ac5d27}} 
+\index{lparser.c@{lparser.c}!priority@{priority}}
+\index{priority@{priority}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{priority}{priority}}
+{\footnotesize\ttfamily const \{ ... \}  priority\mbox{[}$\,$\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries 初始值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{= \{  }
+\DoxyCodeLine{   \{10, 10\}, \{10, 10\},           }
+\DoxyCodeLine{   \{11, 11\}, \{11, 11\},           }
+\DoxyCodeLine{   \{14, 13\},                  }
+\DoxyCodeLine{   \{11, 11\}, \{11, 11\},           }
+\DoxyCodeLine{   \{6, 6\}, \{4, 4\}, \{5, 5\},   }
+\DoxyCodeLine{   \{7, 7\}, \{7, 7\},           }
+\DoxyCodeLine{   \{9, 8\},                   }
+\DoxyCodeLine{   \{3, 3\}, \{3, 3\}, \{3, 3\},   }
+\DoxyCodeLine{   \{3, 3\}, \{3, 3\}, \{3, 3\},   }
+\DoxyCodeLine{   \{2, 2\}, \{1, 1\}            }
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{lparser_8c_a34b07942956eb7acd9d02c5b75177ae6}\label{lparser_8c_a34b07942956eb7acd9d02c5b75177ae6}} 
+\index{lparser.c@{lparser.c}!right@{right}}
+\index{right@{right}!lparser.c@{lparser.c}}
+\doxysubsubsection{\texorpdfstring{right}{right}}
+{\footnotesize\ttfamily \mbox{\hyperlink{llimits_8h_ae1fe9ac10d9803bd1d7bdf30b18bad68}{lu\+\_\+byte}} right}
+
+
+
+在文件 lparser.\+c 第 1229 行定义.
+

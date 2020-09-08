@@ -1,0 +1,330 @@
+.TH "D:/gitworkspace/lua/src/lbaselib.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lbaselib.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <ctype\&.h>\fP
+.br
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lauxlib\&.h'\fP
+.br
+\fC#include 'lualib\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBlbaselib_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_LIB\fP"
+.br
+.ti -1c
+.RI "#define \fBSPACECHARS\fP   ' \\f\\n\\r\\t\\v'"
+.br
+.ti -1c
+.RI "#define \fBRESERVEDSLOT\fP   5"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static int \fBluaB_print\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBluaB_warn\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static const char * \fBb_str2int\fP (const char *s, int base, \fBlua_Integer\fP *pn)"
+.br
+.ti -1c
+.RI "static int \fBluaB_tonumber\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBluaB_error\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBluaB_getmetatable\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBluaB_setmetatable\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBluaB_rawequal\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBluaB_rawlen\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBluaB_rawget\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBluaB_rawset\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBpushmode\fP (\fBlua_State\fP *L, int oldmode)"
+.br
+.ti -1c
+.RI "static int \fBluaB_collectgarbage\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBluaB_type\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBluaB_next\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBluaB_pairs\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBipairsaux\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBluaB_ipairs\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBload_aux\fP (\fBlua_State\fP *L, int status, int envidx)"
+.br
+.ti -1c
+.RI "static int \fBluaB_loadfile\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static const char * \fBgeneric_reader\fP (\fBlua_State\fP *L, void *ud, size_t *size)"
+.br
+.ti -1c
+.RI "static int \fBluaB_load\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBdofilecont\fP (\fBlua_State\fP *L, int d1, \fBlua_KContext\fP d2)"
+.br
+.ti -1c
+.RI "static int \fBluaB_dofile\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBluaB_assert\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBluaB_select\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBfinishpcall\fP (\fBlua_State\fP *L, int status, \fBlua_KContext\fP extra)"
+.br
+.ti -1c
+.RI "static int \fBluaB_pcall\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBluaB_xpcall\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBluaB_tostring\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAMOD_API\fP int \fBluaopen_base\fP (\fBlua_State\fP *L)"
+.br
+.in -1c
+.SS "变量"
+
+.in +1c
+.ti -1c
+.RI "static const \fBluaL_Reg\fP \fBbase_funcs\fP []"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define lbaselib_c"
+
+.PP
+在文件 lbaselib\&.c 第 7 行定义\&.
+.SS "#define LUA_LIB"
+
+.PP
+在文件 lbaselib\&.c 第 8 行定义\&.
+.SS "#define RESERVEDSLOT   5"
+
+.PP
+在文件 lbaselib\&.c 第 339 行定义\&.
+.SS "#define SPACECHARS   ' \\f\\n\\r\\t\\v'"
+
+.PP
+在文件 lbaselib\&.c 第 58 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static const char* b_str2int (const char * s, int base, \fBlua_Integer\fP * pn)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 60 行定义\&.
+.SS "static int dofilecont (\fBlua_State\fP * L, int d1, \fBlua_KContext\fP d2)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 387 行定义\&.
+.SS "static int finishpcall (\fBlua_State\fP * L, int status, \fBlua_KContext\fP extra)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 439 行定义\&.
+.SS "static const char* generic_reader (\fBlua_State\fP * L, void * ud, size_t * size)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 348 行定义\&.
+.SS "static int ipairsaux (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 281 行定义\&.
+.SS "static int load_aux (\fBlua_State\fP * L, int status, int envidx)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 301 行定义\&.
+.SS "static int luaB_assert (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 403 行定义\&.
+.SS "static int luaB_collectgarbage (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 190 行定义\&.
+.SS "static int luaB_dofile (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 393 行定义\&.
+.SS "static int luaB_error (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 114 行定义\&.
+.SS "static int luaB_getmetatable (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 126 行定义\&.
+.SS "static int luaB_ipairs (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 292 行定义\&.
+.SS "static int luaB_load (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 365 行定义\&.
+.SS "static int luaB_loadfile (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 318 行定义\&.
+.SS "static int luaB_next (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 251 行定义\&.
+.SS "static int luaB_pairs (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 263 行定义\&.
+.SS "static int luaB_pcall (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 450 行定义\&.
+.SS "static int luaB_print (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 24 行定义\&.
+.SS "static int luaB_rawequal (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 149 行定义\&.
+.SS "static int luaB_rawget (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 166 行定义\&.
+.SS "static int luaB_rawlen (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 157 行定义\&.
+.SS "static int luaB_rawset (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 174 行定义\&.
+.SS "static int luaB_select (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 416 行定义\&.
+.SS "static int luaB_setmetatable (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 137 行定义\&.
+.SS "static int luaB_tonumber (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 81 行定义\&.
+.SS "static int luaB_tostring (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 477 行定义\&.
+.SS "static int luaB_type (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 243 行定义\&.
+.SS "static int luaB_warn (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 45 行定义\&.
+.SS "static int luaB_xpcall (\fBlua_State\fP * L)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 465 行定义\&.
+.SS "\fBLUAMOD_API\fP int luaopen_base (\fBlua_State\fP * L)"
+
+.PP
+在文件 lbaselib\&.c 第 515 行定义\&.
+.SS "static int pushmode (\fBlua_State\fP * L, int oldmode)\fC [static]\fP"
+
+.PP
+在文件 lbaselib\&.c 第 184 行定义\&.
+.SH "变量说明"
+.PP 
+.SS "const \fBluaL_Reg\fP base_funcs[]\fC [static]\fP"
+\fB初始值:\fP
+.PP
+.nf
+= {
+  {"assert", luaB_assert},
+  {"collectgarbage", luaB_collectgarbage},
+  {"dofile", luaB_dofile},
+  {"error", luaB_error},
+  {"getmetatable", luaB_getmetatable},
+  {"ipairs", luaB_ipairs},
+  {"loadfile", luaB_loadfile},
+  {"load", luaB_load},
+  {"next", luaB_next},
+  {"pairs", luaB_pairs},
+  {"pcall", luaB_pcall},
+  {"print", luaB_print},
+  {"warn", luaB_warn},
+  {"rawequal", luaB_rawequal},
+  {"rawlen", luaB_rawlen},
+  {"rawget", luaB_rawget},
+  {"rawset", luaB_rawset},
+  {"select", luaB_select},
+  {"setmetatable", luaB_setmetatable},
+  {"tonumber", luaB_tonumber},
+  {"tostring", luaB_tostring},
+  {"type", luaB_type},
+  {"xpcall", luaB_xpcall},
+  
+  {LUA_GNAME, NULL},
+  {"_VERSION", NULL},
+  {NULL, NULL}
+}
+.fi
+.PP
+在文件 lbaselib\&.c 第 484 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

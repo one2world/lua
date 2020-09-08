@@ -1,0 +1,665 @@
+\hypertarget{ltable_8c}{}\doxysection{D\+:/gitworkspace/lua/src/ltable.c 文件参考}
+\label{ltable_8c}\index{D:/gitworkspace/lua/src/ltable.c@{D:/gitworkspace/lua/src/ltable.c}}
+{\ttfamily \#include \char`\"{}lprefix.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$math.\+h$>$}\newline
+{\ttfamily \#include $<$limits.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}lua.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ldebug.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ldo.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lgc.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lmem.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lobject.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lstate.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lstring.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ltable.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lvm.\+h\char`\"{}}\newline
+\doxysubsection*{宏定义}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{ltable_8c_aa114e7aec320ef3b294533e55b5d08d4}{ltable\+\_\+c}}
+\item 
+\#define \mbox{\hyperlink{ltable_8c_abf0b3947b59218777a8e928a10be205b}{L\+U\+A\+\_\+\+C\+O\+RE}}
+\item 
+\#define \mbox{\hyperlink{ltable_8c_a08cdfe3b6bb8e0757344b850f33c4951}{M\+A\+X\+A\+B\+I\+TS}}~\mbox{\hyperlink{llimits_8h_a37a9e2c4b53433d34bad0f12a1500c08}{cast\+\_\+int}}(sizeof(int) $\ast$ C\+H\+A\+R\+\_\+\+B\+IT -\/ 1)
+\item 
+\#define \mbox{\hyperlink{ltable_8c_af53d6898e266c25bcd34c7eeaecd4523}{M\+A\+X\+A\+S\+I\+ZE}}~\mbox{\hyperlink{lmem_8h_a29ccefa76d4743ffb490cdbc291f708a}{lua\+M\+\_\+limitN}}(1u $<$$<$ \mbox{\hyperlink{ltable_8c_a08cdfe3b6bb8e0757344b850f33c4951}{M\+A\+X\+A\+B\+I\+TS}}, \mbox{\hyperlink{struct_t_value}{T\+Value}})
+\item 
+\#define \mbox{\hyperlink{ltable_8c_a601c76074f7c0919e82088041c67f327}{M\+A\+X\+H\+B\+I\+TS}}~(\mbox{\hyperlink{ltable_8c_a08cdfe3b6bb8e0757344b850f33c4951}{M\+A\+X\+A\+B\+I\+TS}} -\/ 1)
+\item 
+\#define \mbox{\hyperlink{ltable_8c_a219bee6ccf323698c1314a13b33149fb}{M\+A\+X\+H\+S\+I\+ZE}}~\mbox{\hyperlink{lmem_8h_a29ccefa76d4743ffb490cdbc291f708a}{lua\+M\+\_\+limitN}}(1u $<$$<$ \mbox{\hyperlink{ltable_8c_a601c76074f7c0919e82088041c67f327}{M\+A\+X\+H\+B\+I\+TS}}, \mbox{\hyperlink{union_node}{Node}})
+\item 
+\#define \mbox{\hyperlink{ltable_8c_a7797860730de6e3edbcc2916a0f7f166}{hashpow2}}(t,  n)~(\mbox{\hyperlink{ltable_8h_a644cfa3b6d4be1782e818a8340b5f78b}{gnode}}(t, \mbox{\hyperlink{lobject_8h_a528d710ddad324002e3cb47992740b6a}{lmod}}((n), \mbox{\hyperlink{lobject_8h_a2fbf715e78eaa889ed0fb9d4514e736a}{sizenode}}(t))))
+\item 
+\#define \mbox{\hyperlink{ltable_8c_a6dc1377ebc2524e79284729ad0e1b838}{hashstr}}(t,  str)~\mbox{\hyperlink{ltable_8c_a7797860730de6e3edbcc2916a0f7f166}{hashpow2}}(t, (str)-\/$>$hash)
+\item 
+\#define \mbox{\hyperlink{ltable_8c_a97178f1176950bb9830839b579d7ac1a}{hashboolean}}(t,  p)~\mbox{\hyperlink{ltable_8c_a7797860730de6e3edbcc2916a0f7f166}{hashpow2}}(t, p)
+\item 
+\#define \mbox{\hyperlink{ltable_8c_a3b8ac3ae3d0f431c9e3efa622be3afa8}{hashint}}(t,  i)~\mbox{\hyperlink{ltable_8c_a7797860730de6e3edbcc2916a0f7f166}{hashpow2}}(t, i)
+\item 
+\#define \mbox{\hyperlink{ltable_8c_a70c9da7c141750e8e7c69bad3c0e4f20}{hashmod}}(t,  n)~(\mbox{\hyperlink{ltable_8h_a644cfa3b6d4be1782e818a8340b5f78b}{gnode}}(t, ((n) \% ((\mbox{\hyperlink{lobject_8h_a2fbf715e78eaa889ed0fb9d4514e736a}{sizenode}}(t)-\/1)$\vert$1))))
+\item 
+\#define \mbox{\hyperlink{ltable_8c_abe268656b5851fdac88c13241391f41c}{hashpointer}}(t,  p)~\mbox{\hyperlink{ltable_8c_a70c9da7c141750e8e7c69bad3c0e4f20}{hashmod}}(t, \mbox{\hyperlink{llimits_8h_ad861f24ac9e8c32f78455aab3d2e7b51}{point2uint}}(p))
+\item 
+\#define \mbox{\hyperlink{ltable_8c_a21431126fe0cf318103085016a832cf5}{dummynode}}~(\&\mbox{\hyperlink{ltable_8c_a98995dd629174f0257a7919ff17bfdba}{dummynode\+\_\+}})
+\item 
+\#define \mbox{\hyperlink{ltable_8c_ac96d62bf47745d24f9a426d5c6656acf}{limitequalsasize}}(t)~(\mbox{\hyperlink{lobject_8h_ab8a9474c584f41823442bb17f1f06970}{isrealasize}}(t) $\vert$$\vert$ \mbox{\hyperlink{llimits_8h_ada65e002d4b7df9ebfa7dde2d12357db}{ispow2}}((t)-\/$>$alimit))
+\item 
+\#define \mbox{\hyperlink{ltable_8c_a1604d4518b18a2e39ad7030ed2495caf}{limitasasize}}(t)~\mbox{\hyperlink{llimits_8h_afac1404af62451f8653440ecb6e773fc}{check\+\_\+exp}}(\mbox{\hyperlink{lobject_8h_ab8a9474c584f41823442bb17f1f06970}{isrealasize}}(t), t-\/$>$alimit)
+\end{DoxyCompactItemize}
+\doxysubsection*{函数}
+\begin{DoxyCompactItemize}
+\item 
+static int \mbox{\hyperlink{ltable_8c_ac726a5642652c5e7d5417c03047fc3d5}{l\+\_\+hashfloat}} (\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}} n)
+\item 
+static \mbox{\hyperlink{union_node}{Node}} $\ast$ \mbox{\hyperlink{ltable_8c_a97b549a3507ec326a9d138a741f39bbc}{mainposition}} (const \mbox{\hyperlink{struct_table}{Table}} $\ast$t, int ktt, const \mbox{\hyperlink{union_value}{Value}} $\ast$kvl)
+\item 
+static \mbox{\hyperlink{union_node}{Node}} $\ast$ \mbox{\hyperlink{ltable_8c_a3f0add4aa38ab8e59a5983ebab80ab42}{mainposition\+TV}} (const \mbox{\hyperlink{struct_table}{Table}} $\ast$t, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$key)
+\item 
+static int \mbox{\hyperlink{ltable_8c_ae1cc7cc2b9a30285deb24f2960ae313c}{equalkey}} (const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$k1, const \mbox{\hyperlink{union_node}{Node}} $\ast$n2)
+\item 
+\mbox{\hyperlink{luaconf_8h_a3f43b35a70c93f2cfde1db42a5a24f1e}{L\+U\+A\+I\+\_\+\+F\+U\+NC}} unsigned int \mbox{\hyperlink{ltable_8c_a8f20a204b7a78780847939086b847781}{lua\+H\+\_\+realasize}} (const \mbox{\hyperlink{struct_table}{Table}} $\ast$t)
+\item 
+static int \mbox{\hyperlink{ltable_8c_a1017564c3ae0d59f332cf186ac118bcc}{ispow2realasize}} (const \mbox{\hyperlink{struct_table}{Table}} $\ast$t)
+\item 
+static unsigned int \mbox{\hyperlink{ltable_8c_a21e72b3bbf05de9a2fa6d3e566d070ad}{setlimittosize}} (\mbox{\hyperlink{struct_table}{Table}} $\ast$t)
+\item 
+static const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$ \mbox{\hyperlink{ltable_8c_a4de8d73b4c27cd4f7cefa861e54caf37}{getgeneric}} (\mbox{\hyperlink{struct_table}{Table}} $\ast$t, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$key)
+\item 
+static unsigned int \mbox{\hyperlink{ltable_8c_a729a1f92fc454693e71df73e6b4eecd1}{arrayindex}} (\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} k)
+\item 
+static unsigned int \mbox{\hyperlink{ltable_8c_a921c25ca2be2003cbcaa9e4c10d6eba8}{findindex}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_table}{Table}} $\ast$t, \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$key, unsigned int asize)
+\item 
+int \mbox{\hyperlink{ltable_8c_a3c4370ade14fcc86ede5ca90271d0f30}{lua\+H\+\_\+next}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_table}{Table}} $\ast$t, \mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}} key)
+\item 
+static void \mbox{\hyperlink{ltable_8c_aa2eece9a18d44f30d4a7b7030816bb63}{freehash}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_table}{Table}} $\ast$t)
+\item 
+static unsigned int \mbox{\hyperlink{ltable_8c_a257cec771edd330f1dbfbd995aff684d}{computesizes}} (unsigned int nums\mbox{[}$\,$\mbox{]}, unsigned int $\ast$pna)
+\item 
+static int \mbox{\hyperlink{ltable_8c_a41b93f1d95df7f27e8dbc15a0e64f60c}{countint}} (\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} key, unsigned int $\ast$nums)
+\item 
+static unsigned int \mbox{\hyperlink{ltable_8c_aa1bb1405b21d33c8b3c41b78ef555d22}{numusearray}} (const \mbox{\hyperlink{struct_table}{Table}} $\ast$t, unsigned int $\ast$nums)
+\item 
+static int \mbox{\hyperlink{ltable_8c_a383b5912900c91c788f78adb36c9d3f9}{numusehash}} (const \mbox{\hyperlink{struct_table}{Table}} $\ast$t, unsigned int $\ast$nums, unsigned int $\ast$pna)
+\item 
+static void \mbox{\hyperlink{ltable_8c_aee50b49395de01da3f8e14608f400108}{setnodevector}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_table}{Table}} $\ast$t, unsigned int size)
+\item 
+static void \mbox{\hyperlink{ltable_8c_acea46f70eb0bd30579a0c50c0804aabc}{reinsert}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_table}{Table}} $\ast$ot, \mbox{\hyperlink{struct_table}{Table}} $\ast$t)
+\item 
+static void \mbox{\hyperlink{ltable_8c_ade9702ba8a7c9b80dfb8301126842acb}{exchangehashpart}} (\mbox{\hyperlink{struct_table}{Table}} $\ast$t1, \mbox{\hyperlink{struct_table}{Table}} $\ast$t2)
+\item 
+void \mbox{\hyperlink{ltable_8c_aad3b771962cc13884bf7b45480e8f4e9}{lua\+H\+\_\+resize}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_table}{Table}} $\ast$t, unsigned int newasize, unsigned int nhsize)
+\item 
+void \mbox{\hyperlink{ltable_8c_aeb5ce72fe8d43709093264d6522a27d4}{lua\+H\+\_\+resizearray}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_table}{Table}} $\ast$t, unsigned int nasize)
+\item 
+static void \mbox{\hyperlink{ltable_8c_ad775daa2a19a375c7385ed30834a3eeb}{rehash}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_table}{Table}} $\ast$t, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$ek)
+\item 
+\mbox{\hyperlink{struct_table}{Table}} $\ast$ \mbox{\hyperlink{ltable_8c_a6c97fb2d6a020b0a6f852562fef93d97}{lua\+H\+\_\+new}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+void \mbox{\hyperlink{ltable_8c_ac6d94de2e83b5b0865b4aca30dec5c8c}{lua\+H\+\_\+free}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_table}{Table}} $\ast$t)
+\item 
+static \mbox{\hyperlink{union_node}{Node}} $\ast$ \mbox{\hyperlink{ltable_8c_aadac41ebb50daf5143d8deb998418a50}{getfreepos}} (\mbox{\hyperlink{struct_table}{Table}} $\ast$t)
+\item 
+\mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$ \mbox{\hyperlink{ltable_8c_acd27c97015f505846bd7052b144f3133}{lua\+H\+\_\+newkey}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_table}{Table}} $\ast$t, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$key)
+\item 
+const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$ \mbox{\hyperlink{ltable_8c_ae142cefd44452389877c3e3187c7973e}{lua\+H\+\_\+getint}} (\mbox{\hyperlink{struct_table}{Table}} $\ast$t, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} key)
+\item 
+const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$ \mbox{\hyperlink{ltable_8c_ae8a52507e1c8966d9cf3f2dd5a0c325f}{lua\+H\+\_\+getshortstr}} (\mbox{\hyperlink{struct_table}{Table}} $\ast$t, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$key)
+\item 
+const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$ \mbox{\hyperlink{ltable_8c_ae273e09d2342a84f5cdfa976c66f28c0}{lua\+H\+\_\+getstr}} (\mbox{\hyperlink{struct_table}{Table}} $\ast$t, \mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$key)
+\item 
+const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$ \mbox{\hyperlink{ltable_8c_a8b4fce00d7db27ee9caac3d49863dea3}{lua\+H\+\_\+get}} (\mbox{\hyperlink{struct_table}{Table}} $\ast$t, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$key)
+\item 
+\mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$ \mbox{\hyperlink{ltable_8c_ab6b8518d8099b17f3ef58df047237fba}{lua\+H\+\_\+set}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_table}{Table}} $\ast$t, const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$key)
+\item 
+void \mbox{\hyperlink{ltable_8c_a9eefa8191c63f55cffb6b7b58217467c}{lua\+H\+\_\+setint}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, \mbox{\hyperlink{struct_table}{Table}} $\ast$t, \mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}} key, \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$value)
+\item 
+static \mbox{\hyperlink{lua_8h_a2357bdcd9af1aaef0a6895a9c3b7eccf}{lua\+\_\+\+Unsigned}} \mbox{\hyperlink{ltable_8c_a26dbf5edabc0c10a514910d82fa0e53c}{hash\+\_\+search}} (\mbox{\hyperlink{struct_table}{Table}} $\ast$t, \mbox{\hyperlink{lua_8h_a2357bdcd9af1aaef0a6895a9c3b7eccf}{lua\+\_\+\+Unsigned}} j)
+\item 
+static unsigned int \mbox{\hyperlink{ltable_8c_adb99d948364402881b0f64e24929c2d9}{binsearch}} (const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$array, unsigned int i, unsigned int j)
+\item 
+\mbox{\hyperlink{lua_8h_a2357bdcd9af1aaef0a6895a9c3b7eccf}{lua\+\_\+\+Unsigned}} \mbox{\hyperlink{ltable_8c_a94d8f30941967078b44e2e21c4dd9a75}{lua\+H\+\_\+getn}} (\mbox{\hyperlink{struct_table}{Table}} $\ast$t)
+\end{DoxyCompactItemize}
+\doxysubsection*{变量}
+\begin{DoxyCompactItemize}
+\item 
+static const \mbox{\hyperlink{union_node}{Node}} \mbox{\hyperlink{ltable_8c_a98995dd629174f0257a7919ff17bfdba}{dummynode\+\_\+}}
+\item 
+static const \mbox{\hyperlink{struct_t_value}{T\+Value}} \mbox{\hyperlink{ltable_8c_a8759a18088176ca1462ec2a69fdfaf49}{absentkey}} = \{\mbox{\hyperlink{lobject_8h_a003630137c8fd4d1378bee8017c4fb92}{A\+B\+S\+T\+K\+E\+Y\+C\+O\+N\+S\+T\+A\+NT}}\}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{宏定义说明}
+\mbox{\Hypertarget{ltable_8c_a21431126fe0cf318103085016a832cf5}\label{ltable_8c_a21431126fe0cf318103085016a832cf5}} 
+\index{ltable.c@{ltable.c}!dummynode@{dummynode}}
+\index{dummynode@{dummynode}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{dummynode}{dummynode}}
+{\footnotesize\ttfamily \#define dummynode~(\&\mbox{\hyperlink{ltable_8c_a98995dd629174f0257a7919ff17bfdba}{dummynode\+\_\+}})}
+
+
+
+在文件 ltable.\+c 第 88 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a97178f1176950bb9830839b579d7ac1a}\label{ltable_8c_a97178f1176950bb9830839b579d7ac1a}} 
+\index{ltable.c@{ltable.c}!hashboolean@{hashboolean}}
+\index{hashboolean@{hashboolean}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{hashboolean}{hashboolean}}
+{\footnotesize\ttfamily \#define hashboolean(\begin{DoxyParamCaption}\item[{}]{t,  }\item[{}]{p }\end{DoxyParamCaption})~\mbox{\hyperlink{ltable_8c_a7797860730de6e3edbcc2916a0f7f166}{hashpow2}}(t, p)}
+
+
+
+在文件 ltable.\+c 第 74 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a3b8ac3ae3d0f431c9e3efa622be3afa8}\label{ltable_8c_a3b8ac3ae3d0f431c9e3efa622be3afa8}} 
+\index{ltable.c@{ltable.c}!hashint@{hashint}}
+\index{hashint@{hashint}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{hashint}{hashint}}
+{\footnotesize\ttfamily \#define hashint(\begin{DoxyParamCaption}\item[{}]{t,  }\item[{}]{i }\end{DoxyParamCaption})~\mbox{\hyperlink{ltable_8c_a7797860730de6e3edbcc2916a0f7f166}{hashpow2}}(t, i)}
+
+
+
+在文件 ltable.\+c 第 75 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a70c9da7c141750e8e7c69bad3c0e4f20}\label{ltable_8c_a70c9da7c141750e8e7c69bad3c0e4f20}} 
+\index{ltable.c@{ltable.c}!hashmod@{hashmod}}
+\index{hashmod@{hashmod}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{hashmod}{hashmod}}
+{\footnotesize\ttfamily \#define hashmod(\begin{DoxyParamCaption}\item[{}]{t,  }\item[{}]{n }\end{DoxyParamCaption})~(\mbox{\hyperlink{ltable_8h_a644cfa3b6d4be1782e818a8340b5f78b}{gnode}}(t, ((n) \% ((\mbox{\hyperlink{lobject_8h_a2fbf715e78eaa889ed0fb9d4514e736a}{sizenode}}(t)-\/1)$\vert$1))))}
+
+
+
+在文件 ltable.\+c 第 82 行定义.
+
+\mbox{\Hypertarget{ltable_8c_abe268656b5851fdac88c13241391f41c}\label{ltable_8c_abe268656b5851fdac88c13241391f41c}} 
+\index{ltable.c@{ltable.c}!hashpointer@{hashpointer}}
+\index{hashpointer@{hashpointer}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{hashpointer}{hashpointer}}
+{\footnotesize\ttfamily \#define hashpointer(\begin{DoxyParamCaption}\item[{}]{t,  }\item[{}]{p }\end{DoxyParamCaption})~\mbox{\hyperlink{ltable_8c_a70c9da7c141750e8e7c69bad3c0e4f20}{hashmod}}(t, \mbox{\hyperlink{llimits_8h_ad861f24ac9e8c32f78455aab3d2e7b51}{point2uint}}(p))}
+
+
+
+在文件 ltable.\+c 第 85 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a7797860730de6e3edbcc2916a0f7f166}\label{ltable_8c_a7797860730de6e3edbcc2916a0f7f166}} 
+\index{ltable.c@{ltable.c}!hashpow2@{hashpow2}}
+\index{hashpow2@{hashpow2}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{hashpow2}{hashpow2}}
+{\footnotesize\ttfamily \#define hashpow2(\begin{DoxyParamCaption}\item[{}]{t,  }\item[{}]{n }\end{DoxyParamCaption})~(\mbox{\hyperlink{ltable_8h_a644cfa3b6d4be1782e818a8340b5f78b}{gnode}}(t, \mbox{\hyperlink{lobject_8h_a528d710ddad324002e3cb47992740b6a}{lmod}}((n), \mbox{\hyperlink{lobject_8h_a2fbf715e78eaa889ed0fb9d4514e736a}{sizenode}}(t))))}
+
+
+
+在文件 ltable.\+c 第 71 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a6dc1377ebc2524e79284729ad0e1b838}\label{ltable_8c_a6dc1377ebc2524e79284729ad0e1b838}} 
+\index{ltable.c@{ltable.c}!hashstr@{hashstr}}
+\index{hashstr@{hashstr}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{hashstr}{hashstr}}
+{\footnotesize\ttfamily \#define hashstr(\begin{DoxyParamCaption}\item[{}]{t,  }\item[{}]{str }\end{DoxyParamCaption})~\mbox{\hyperlink{ltable_8c_a7797860730de6e3edbcc2916a0f7f166}{hashpow2}}(t, (str)-\/$>$hash)}
+
+
+
+在文件 ltable.\+c 第 73 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a1604d4518b18a2e39ad7030ed2495caf}\label{ltable_8c_a1604d4518b18a2e39ad7030ed2495caf}} 
+\index{ltable.c@{ltable.c}!limitasasize@{limitasasize}}
+\index{limitasasize@{limitasasize}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{limitasasize}{limitasasize}}
+{\footnotesize\ttfamily \#define limitasasize(\begin{DoxyParamCaption}\item[{}]{t }\end{DoxyParamCaption})~\mbox{\hyperlink{llimits_8h_afac1404af62451f8653440ecb6e773fc}{check\+\_\+exp}}(\mbox{\hyperlink{lobject_8h_ab8a9474c584f41823442bb17f1f06970}{isrealasize}}(t), t-\/$>$alimit)}
+
+
+
+在文件 ltable.\+c 第 247 行定义.
+
+\mbox{\Hypertarget{ltable_8c_ac96d62bf47745d24f9a426d5c6656acf}\label{ltable_8c_ac96d62bf47745d24f9a426d5c6656acf}} 
+\index{ltable.c@{ltable.c}!limitequalsasize@{limitequalsasize}}
+\index{limitequalsasize@{limitequalsasize}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{limitequalsasize}{limitequalsasize}}
+{\footnotesize\ttfamily \#define limitequalsasize(\begin{DoxyParamCaption}\item[{}]{t }\end{DoxyParamCaption})~(\mbox{\hyperlink{lobject_8h_ab8a9474c584f41823442bb17f1f06970}{isrealasize}}(t) $\vert$$\vert$ \mbox{\hyperlink{llimits_8h_ada65e002d4b7df9ebfa7dde2d12357db}{ispow2}}((t)-\/$>$alimit))}
+
+
+
+在文件 ltable.\+c 第 203 行定义.
+
+\mbox{\Hypertarget{ltable_8c_aa114e7aec320ef3b294533e55b5d08d4}\label{ltable_8c_aa114e7aec320ef3b294533e55b5d08d4}} 
+\index{ltable.c@{ltable.c}!ltable\_c@{ltable\_c}}
+\index{ltable\_c@{ltable\_c}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{ltable\_c}{ltable\_c}}
+{\footnotesize\ttfamily \#define ltable\+\_\+c}
+
+
+
+在文件 ltable.\+c 第 7 行定义.
+
+\mbox{\Hypertarget{ltable_8c_abf0b3947b59218777a8e928a10be205b}\label{ltable_8c_abf0b3947b59218777a8e928a10be205b}} 
+\index{ltable.c@{ltable.c}!LUA\_CORE@{LUA\_CORE}}
+\index{LUA\_CORE@{LUA\_CORE}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{LUA\_CORE}{LUA\_CORE}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+C\+O\+RE}
+
+
+
+在文件 ltable.\+c 第 8 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a08cdfe3b6bb8e0757344b850f33c4951}\label{ltable_8c_a08cdfe3b6bb8e0757344b850f33c4951}} 
+\index{ltable.c@{ltable.c}!MAXABITS@{MAXABITS}}
+\index{MAXABITS@{MAXABITS}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{MAXABITS}{MAXABITS}}
+{\footnotesize\ttfamily \#define M\+A\+X\+A\+B\+I\+TS~\mbox{\hyperlink{llimits_8h_a37a9e2c4b53433d34bad0f12a1500c08}{cast\+\_\+int}}(sizeof(int) $\ast$ C\+H\+A\+R\+\_\+\+B\+IT -\/ 1)}
+
+
+
+在文件 ltable.\+c 第 46 行定义.
+
+\mbox{\Hypertarget{ltable_8c_af53d6898e266c25bcd34c7eeaecd4523}\label{ltable_8c_af53d6898e266c25bcd34c7eeaecd4523}} 
+\index{ltable.c@{ltable.c}!MAXASIZE@{MAXASIZE}}
+\index{MAXASIZE@{MAXASIZE}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{MAXASIZE}{MAXASIZE}}
+{\footnotesize\ttfamily \#define M\+A\+X\+A\+S\+I\+ZE~\mbox{\hyperlink{lmem_8h_a29ccefa76d4743ffb490cdbc291f708a}{lua\+M\+\_\+limitN}}(1u $<$$<$ \mbox{\hyperlink{ltable_8c_a08cdfe3b6bb8e0757344b850f33c4951}{M\+A\+X\+A\+B\+I\+TS}}, \mbox{\hyperlink{struct_t_value}{T\+Value}})}
+
+
+
+在文件 ltable.\+c 第 54 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a601c76074f7c0919e82088041c67f327}\label{ltable_8c_a601c76074f7c0919e82088041c67f327}} 
+\index{ltable.c@{ltable.c}!MAXHBITS@{MAXHBITS}}
+\index{MAXHBITS@{MAXHBITS}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{MAXHBITS}{MAXHBITS}}
+{\footnotesize\ttfamily \#define M\+A\+X\+H\+B\+I\+TS~(\mbox{\hyperlink{ltable_8c_a08cdfe3b6bb8e0757344b850f33c4951}{M\+A\+X\+A\+B\+I\+TS}} -\/ 1)}
+
+
+
+在文件 ltable.\+c 第 60 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a219bee6ccf323698c1314a13b33149fb}\label{ltable_8c_a219bee6ccf323698c1314a13b33149fb}} 
+\index{ltable.c@{ltable.c}!MAXHSIZE@{MAXHSIZE}}
+\index{MAXHSIZE@{MAXHSIZE}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{MAXHSIZE}{MAXHSIZE}}
+{\footnotesize\ttfamily \#define M\+A\+X\+H\+S\+I\+ZE~\mbox{\hyperlink{lmem_8h_a29ccefa76d4743ffb490cdbc291f708a}{lua\+M\+\_\+limitN}}(1u $<$$<$ \mbox{\hyperlink{ltable_8c_a601c76074f7c0919e82088041c67f327}{M\+A\+X\+H\+B\+I\+TS}}, \mbox{\hyperlink{union_node}{Node}})}
+
+
+
+在文件 ltable.\+c 第 68 行定义.
+
+
+
+\doxysubsection{函数说明}
+\mbox{\Hypertarget{ltable_8c_a729a1f92fc454693e71df73e6b4eecd1}\label{ltable_8c_a729a1f92fc454693e71df73e6b4eecd1}} 
+\index{ltable.c@{ltable.c}!arrayindex@{arrayindex}}
+\index{arrayindex@{arrayindex}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{arrayindex()}{arrayindex()}}
+{\footnotesize\ttfamily static unsigned int arrayindex (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{k }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 274 行定义.
+
+\mbox{\Hypertarget{ltable_8c_adb99d948364402881b0f64e24929c2d9}\label{ltable_8c_adb99d948364402881b0f64e24929c2d9}} 
+\index{ltable.c@{ltable.c}!binsearch@{binsearch}}
+\index{binsearch@{binsearch}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{binsearch()}{binsearch()}}
+{\footnotesize\ttfamily static unsigned int binsearch (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{array,  }\item[{unsigned int}]{i,  }\item[{unsigned int}]{j }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 822 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a257cec771edd330f1dbfbd995aff684d}\label{ltable_8c_a257cec771edd330f1dbfbd995aff684d}} 
+\index{ltable.c@{ltable.c}!computesizes@{computesizes}}
+\index{computesizes@{computesizes}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{computesizes()}{computesizes()}}
+{\footnotesize\ttfamily static unsigned int computesizes (\begin{DoxyParamCaption}\item[{unsigned int}]{nums\mbox{[}$\,$\mbox{]},  }\item[{unsigned int $\ast$}]{pna }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 347 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a41b93f1d95df7f27e8dbc15a0e64f60c}\label{ltable_8c_a41b93f1d95df7f27e8dbc15a0e64f60c}} 
+\index{ltable.c@{ltable.c}!countint@{countint}}
+\index{countint@{countint}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{countint()}{countint()}}
+{\footnotesize\ttfamily static int countint (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{key,  }\item[{unsigned int $\ast$}]{nums }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 369 行定义.
+
+\mbox{\Hypertarget{ltable_8c_ae1cc7cc2b9a30285deb24f2960ae313c}\label{ltable_8c_ae1cc7cc2b9a30285deb24f2960ae313c}} 
+\index{ltable.c@{ltable.c}!equalkey@{equalkey}}
+\index{equalkey@{equalkey}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{equalkey()}{equalkey()}}
+{\footnotesize\ttfamily static int equalkey (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{k1,  }\item[{const \mbox{\hyperlink{union_node}{Node}} $\ast$}]{n2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 176 行定义.
+
+\mbox{\Hypertarget{ltable_8c_ade9702ba8a7c9b80dfb8301126842acb}\label{ltable_8c_ade9702ba8a7c9b80dfb8301126842acb}} 
+\index{ltable.c@{ltable.c}!exchangehashpart@{exchangehashpart}}
+\index{exchangehashpart@{exchangehashpart}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{exchangehashpart()}{exchangehashpart()}}
+{\footnotesize\ttfamily static void exchangehashpart (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t1,  }\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t2 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 483 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a921c25ca2be2003cbcaa9e4c10d6eba8}\label{ltable_8c_a921c25ca2be2003cbcaa9e4c10d6eba8}} 
+\index{ltable.c@{ltable.c}!findindex@{findindex}}
+\index{findindex@{findindex}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{findindex()}{findindex()}}
+{\footnotesize\ttfamily static unsigned int findindex (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t,  }\item[{\mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{key,  }\item[{unsigned int}]{asize }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 287 行定义.
+
+\mbox{\Hypertarget{ltable_8c_aa2eece9a18d44f30d4a7b7030816bb63}\label{ltable_8c_aa2eece9a18d44f30d4a7b7030816bb63}} 
+\index{ltable.c@{ltable.c}!freehash@{freehash}}
+\index{freehash@{freehash}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{freehash()}{freehash()}}
+{\footnotesize\ttfamily static void freehash (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 327 行定义.
+
+\mbox{\Hypertarget{ltable_8c_aadac41ebb50daf5143d8deb998418a50}\label{ltable_8c_aadac41ebb50daf5143d8deb998418a50}} 
+\index{ltable.c@{ltable.c}!getfreepos@{getfreepos}}
+\index{getfreepos@{getfreepos}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{getfreepos()}{getfreepos()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{union_node}{Node}}$\ast$ getfreepos (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 601 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a4de8d73b4c27cd4f7cefa861e54caf37}\label{ltable_8c_a4de8d73b4c27cd4f7cefa861e54caf37}} 
+\index{ltable.c@{ltable.c}!getgeneric@{getgeneric}}
+\index{getgeneric@{getgeneric}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{getgeneric()}{getgeneric()}}
+{\footnotesize\ttfamily static const \mbox{\hyperlink{struct_t_value}{T\+Value}}$\ast$ getgeneric (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{key }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 255 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a26dbf5edabc0c10a514910d82fa0e53c}\label{ltable_8c_a26dbf5edabc0c10a514910d82fa0e53c}} 
+\index{ltable.c@{ltable.c}!hash\_search@{hash\_search}}
+\index{hash\_search@{hash\_search}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{hash\_search()}{hash\_search()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{lua_8h_a2357bdcd9af1aaef0a6895a9c3b7eccf}{lua\+\_\+\+Unsigned}} hash\+\_\+search (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t,  }\item[{\mbox{\hyperlink{lua_8h_a2357bdcd9af1aaef0a6895a9c3b7eccf}{lua\+\_\+\+Unsigned}}}]{j }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 797 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a1017564c3ae0d59f332cf186ac118bcc}\label{ltable_8c_a1017564c3ae0d59f332cf186ac118bcc}} 
+\index{ltable.c@{ltable.c}!ispow2realasize@{ispow2realasize}}
+\index{ispow2realasize@{ispow2realasize}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{ispow2realasize()}{ispow2realasize()}}
+{\footnotesize\ttfamily static int ispow2realasize (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 235 行定义.
+
+\mbox{\Hypertarget{ltable_8c_ac726a5642652c5e7d5417c03047fc3d5}\label{ltable_8c_ac726a5642652c5e7d5417c03047fc3d5}} 
+\index{ltable.c@{ltable.c}!l\_hashfloat@{l\_hashfloat}}
+\index{l\_hashfloat@{l\_hashfloat}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{l\_hashfloat()}{l\_hashfloat()}}
+{\footnotesize\ttfamily static int l\+\_\+hashfloat (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{lua_8h_af0a6ed3b852d680769cfc410a0672172}{lua\+\_\+\+Number}}}]{n }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 114 行定义.
+
+\mbox{\Hypertarget{ltable_8c_ac6d94de2e83b5b0865b4aca30dec5c8c}\label{ltable_8c_ac6d94de2e83b5b0865b4aca30dec5c8c}} 
+\index{ltable.c@{ltable.c}!luaH\_free@{luaH\_free}}
+\index{luaH\_free@{luaH\_free}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{luaH\_free()}{luaH\_free()}}
+{\footnotesize\ttfamily void lua\+H\+\_\+free (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t }\end{DoxyParamCaption})}
+
+
+
+在文件 ltable.\+c 第 594 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a8b4fce00d7db27ee9caac3d49863dea3}\label{ltable_8c_a8b4fce00d7db27ee9caac3d49863dea3}} 
+\index{ltable.c@{ltable.c}!luaH\_get@{luaH\_get}}
+\index{luaH\_get@{luaH\_get}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{luaH\_get()}{luaH\_get()}}
+{\footnotesize\ttfamily const \mbox{\hyperlink{struct_t_value}{T\+Value}}$\ast$ lua\+H\+\_\+get (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{key }\end{DoxyParamCaption})}
+
+
+
+在文件 ltable.\+c 第 741 行定义.
+
+\mbox{\Hypertarget{ltable_8c_ae142cefd44452389877c3e3187c7973e}\label{ltable_8c_ae142cefd44452389877c3e3187c7973e}} 
+\index{ltable.c@{ltable.c}!luaH\_getint@{luaH\_getint}}
+\index{luaH\_getint@{luaH\_getint}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{luaH\_getint()}{luaH\_getint()}}
+{\footnotesize\ttfamily const \mbox{\hyperlink{struct_t_value}{T\+Value}}$\ast$ lua\+H\+\_\+getint (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{key }\end{DoxyParamCaption})}
+
+
+
+在文件 ltable.\+c 第 683 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a94d8f30941967078b44e2e21c4dd9a75}\label{ltable_8c_a94d8f30941967078b44e2e21c4dd9a75}} 
+\index{ltable.c@{ltable.c}!luaH\_getn@{luaH\_getn}}
+\index{luaH\_getn@{luaH\_getn}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{luaH\_getn()}{luaH\_getn()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{lua_8h_a2357bdcd9af1aaef0a6895a9c3b7eccf}{lua\+\_\+\+Unsigned}} lua\+H\+\_\+getn (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t }\end{DoxyParamCaption})}
+
+
+
+在文件 ltable.\+c 第 865 行定义.
+
+\mbox{\Hypertarget{ltable_8c_ae8a52507e1c8966d9cf3f2dd5a0c325f}\label{ltable_8c_ae8a52507e1c8966d9cf3f2dd5a0c325f}} 
+\index{ltable.c@{ltable.c}!luaH\_getshortstr@{luaH\_getshortstr}}
+\index{luaH\_getshortstr@{luaH\_getshortstr}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{luaH\_getshortstr()}{luaH\_getshortstr()}}
+{\footnotesize\ttfamily const \mbox{\hyperlink{struct_t_value}{T\+Value}}$\ast$ lua\+H\+\_\+getshortstr (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{key }\end{DoxyParamCaption})}
+
+
+
+在文件 ltable.\+c 第 711 行定义.
+
+\mbox{\Hypertarget{ltable_8c_ae273e09d2342a84f5cdfa976c66f28c0}\label{ltable_8c_ae273e09d2342a84f5cdfa976c66f28c0}} 
+\index{ltable.c@{ltable.c}!luaH\_getstr@{luaH\_getstr}}
+\index{luaH\_getstr@{luaH\_getstr}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{luaH\_getstr()}{luaH\_getstr()}}
+{\footnotesize\ttfamily const \mbox{\hyperlink{struct_t_value}{T\+Value}}$\ast$ lua\+H\+\_\+getstr (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t,  }\item[{\mbox{\hyperlink{struct_t_string}{T\+String}} $\ast$}]{key }\end{DoxyParamCaption})}
+
+
+
+在文件 ltable.\+c 第 727 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a6c97fb2d6a020b0a6f852562fef93d97}\label{ltable_8c_a6c97fb2d6a020b0a6f852562fef93d97}} 
+\index{ltable.c@{ltable.c}!luaH\_new@{luaH\_new}}
+\index{luaH\_new@{luaH\_new}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{luaH\_new()}{luaH\_new()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_table}{Table}}$\ast$ lua\+H\+\_\+new (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})}
+
+
+
+在文件 ltable.\+c 第 582 行定义.
+
+\mbox{\Hypertarget{ltable_8c_acd27c97015f505846bd7052b144f3133}\label{ltable_8c_acd27c97015f505846bd7052b144f3133}} 
+\index{ltable.c@{ltable.c}!luaH\_newkey@{luaH\_newkey}}
+\index{luaH\_newkey@{luaH\_newkey}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{luaH\_newkey()}{luaH\_newkey()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_t_value}{T\+Value}}$\ast$ lua\+H\+\_\+newkey (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{key }\end{DoxyParamCaption})}
+
+
+
+在文件 ltable.\+c 第 621 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a3c4370ade14fcc86ede5ca90271d0f30}\label{ltable_8c_a3c4370ade14fcc86ede5ca90271d0f30}} 
+\index{ltable.c@{ltable.c}!luaH\_next@{luaH\_next}}
+\index{luaH\_next@{luaH\_next}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{luaH\_next()}{luaH\_next()}}
+{\footnotesize\ttfamily int lua\+H\+\_\+next (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t,  }\item[{\mbox{\hyperlink{lobject_8h_a75170ac0f54a6beb06b8a7f9db47d073}{Stk\+Id}}}]{key }\end{DoxyParamCaption})}
+
+
+
+在文件 ltable.\+c 第 305 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a8f20a204b7a78780847939086b847781}\label{ltable_8c_a8f20a204b7a78780847939086b847781}} 
+\index{ltable.c@{ltable.c}!luaH\_realasize@{luaH\_realasize}}
+\index{luaH\_realasize@{luaH\_realasize}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{luaH\_realasize()}{luaH\_realasize()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a3f43b35a70c93f2cfde1db42a5a24f1e}{L\+U\+A\+I\+\_\+\+F\+U\+NC}} unsigned int lua\+H\+\_\+realasize (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t }\end{DoxyParamCaption})}
+
+
+
+在文件 ltable.\+c 第 209 行定义.
+
+\mbox{\Hypertarget{ltable_8c_aad3b771962cc13884bf7b45480e8f4e9}\label{ltable_8c_aad3b771962cc13884bf7b45480e8f4e9}} 
+\index{ltable.c@{ltable.c}!luaH\_resize@{luaH\_resize}}
+\index{luaH\_resize@{luaH\_resize}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{luaH\_resize()}{luaH\_resize()}}
+{\footnotesize\ttfamily void lua\+H\+\_\+resize (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t,  }\item[{unsigned int}]{newasize,  }\item[{unsigned int}]{nhsize }\end{DoxyParamCaption})}
+
+
+
+在文件 ltable.\+c 第 509 行定义.
+
+\mbox{\Hypertarget{ltable_8c_aeb5ce72fe8d43709093264d6522a27d4}\label{ltable_8c_aeb5ce72fe8d43709093264d6522a27d4}} 
+\index{ltable.c@{ltable.c}!luaH\_resizearray@{luaH\_resizearray}}
+\index{luaH\_resizearray@{luaH\_resizearray}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{luaH\_resizearray()}{luaH\_resizearray()}}
+{\footnotesize\ttfamily void lua\+H\+\_\+resizearray (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t,  }\item[{unsigned int}]{nasize }\end{DoxyParamCaption})}
+
+
+
+在文件 ltable.\+c 第 546 行定义.
+
+\mbox{\Hypertarget{ltable_8c_ab6b8518d8099b17f3ef58df047237fba}\label{ltable_8c_ab6b8518d8099b17f3ef58df047237fba}} 
+\index{ltable.c@{ltable.c}!luaH\_set@{luaH\_set}}
+\index{luaH\_set@{luaH\_set}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{luaH\_set()}{luaH\_set()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_t_value}{T\+Value}}$\ast$ lua\+H\+\_\+set (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{key }\end{DoxyParamCaption})}
+
+
+
+在文件 ltable.\+c 第 762 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a9eefa8191c63f55cffb6b7b58217467c}\label{ltable_8c_a9eefa8191c63f55cffb6b7b58217467c}} 
+\index{ltable.c@{ltable.c}!luaH\_setint@{luaH\_setint}}
+\index{luaH\_setint@{luaH\_setint}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{luaH\_setint()}{luaH\_setint()}}
+{\footnotesize\ttfamily void lua\+H\+\_\+setint (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t,  }\item[{\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}]{key,  }\item[{\mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{value }\end{DoxyParamCaption})}
+
+
+
+在文件 ltable.\+c 第 770 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a97b549a3507ec326a9d138a741f39bbc}\label{ltable_8c_a97b549a3507ec326a9d138a741f39bbc}} 
+\index{ltable.c@{ltable.c}!mainposition@{mainposition}}
+\index{mainposition@{mainposition}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{mainposition()}{mainposition()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{union_node}{Node}}$\ast$ mainposition (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t,  }\item[{int}]{ktt,  }\item[{const \mbox{\hyperlink{union_value}{Value}} $\ast$}]{kvl }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 136 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a3f0add4aa38ab8e59a5983ebab80ab42}\label{ltable_8c_a3f0add4aa38ab8e59a5983ebab80ab42}} 
+\index{ltable.c@{ltable.c}!mainpositionTV@{mainpositionTV}}
+\index{mainpositionTV@{mainpositionTV}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{mainpositionTV()}{mainpositionTV()}}
+{\footnotesize\ttfamily static \mbox{\hyperlink{union_node}{Node}}$\ast$ mainposition\+TV (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{key }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 163 行定义.
+
+\mbox{\Hypertarget{ltable_8c_aa1bb1405b21d33c8b3c41b78ef555d22}\label{ltable_8c_aa1bb1405b21d33c8b3c41b78ef555d22}} 
+\index{ltable.c@{ltable.c}!numusearray@{numusearray}}
+\index{numusearray@{numusearray}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{numusearray()}{numusearray()}}
+{\footnotesize\ttfamily static unsigned int numusearray (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t,  }\item[{unsigned int $\ast$}]{nums }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 385 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a383b5912900c91c788f78adb36c9d3f9}\label{ltable_8c_a383b5912900c91c788f78adb36c9d3f9}} 
+\index{ltable.c@{ltable.c}!numusehash@{numusehash}}
+\index{numusehash@{numusehash}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{numusehash()}{numusehash()}}
+{\footnotesize\ttfamily static int numusehash (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t,  }\item[{unsigned int $\ast$}]{nums,  }\item[{unsigned int $\ast$}]{pna }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 412 行定义.
+
+\mbox{\Hypertarget{ltable_8c_ad775daa2a19a375c7385ed30834a3eeb}\label{ltable_8c_ad775daa2a19a375c7385ed30834a3eeb}} 
+\index{ltable.c@{ltable.c}!rehash@{rehash}}
+\index{rehash@{rehash}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{rehash()}{rehash()}}
+{\footnotesize\ttfamily static void rehash (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t,  }\item[{const \mbox{\hyperlink{struct_t_value}{T\+Value}} $\ast$}]{ek }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 554 行定义.
+
+\mbox{\Hypertarget{ltable_8c_acea46f70eb0bd30579a0c50c0804aabc}\label{ltable_8c_acea46f70eb0bd30579a0c50c0804aabc}} 
+\index{ltable.c@{ltable.c}!reinsert@{reinsert}}
+\index{reinsert@{reinsert}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{reinsert()}{reinsert()}}
+{\footnotesize\ttfamily static void reinsert (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{ot,  }\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 464 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a21e72b3bbf05de9a2fa6d3e566d070ad}\label{ltable_8c_a21e72b3bbf05de9a2fa6d3e566d070ad}} 
+\index{ltable.c@{ltable.c}!setlimittosize@{setlimittosize}}
+\index{setlimittosize@{setlimittosize}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{setlimittosize()}{setlimittosize()}}
+{\footnotesize\ttfamily static unsigned int setlimittosize (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 240 行定义.
+
+\mbox{\Hypertarget{ltable_8c_aee50b49395de01da3f8e14608f400108}\label{ltable_8c_aee50b49395de01da3f8e14608f400108}} 
+\index{ltable.c@{ltable.c}!setnodevector@{setnodevector}}
+\index{setnodevector@{setnodevector}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{setnodevector()}{setnodevector()}}
+{\footnotesize\ttfamily static void setnodevector (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{\mbox{\hyperlink{struct_table}{Table}} $\ast$}]{t,  }\item[{unsigned int}]{size }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 436 行定义.
+
+
+
+\doxysubsection{变量说明}
+\mbox{\Hypertarget{ltable_8c_a8759a18088176ca1462ec2a69fdfaf49}\label{ltable_8c_a8759a18088176ca1462ec2a69fdfaf49}} 
+\index{ltable.c@{ltable.c}!absentkey@{absentkey}}
+\index{absentkey@{absentkey}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{absentkey}{absentkey}}
+{\footnotesize\ttfamily const \mbox{\hyperlink{struct_t_value}{T\+Value}} absentkey = \{\mbox{\hyperlink{lobject_8h_a003630137c8fd4d1378bee8017c4fb92}{A\+B\+S\+T\+K\+E\+Y\+C\+O\+N\+S\+T\+A\+NT}}\}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 ltable.\+c 第 96 行定义.
+
+\mbox{\Hypertarget{ltable_8c_a98995dd629174f0257a7919ff17bfdba}\label{ltable_8c_a98995dd629174f0257a7919ff17bfdba}} 
+\index{ltable.c@{ltable.c}!dummynode\_@{dummynode\_}}
+\index{dummynode\_@{dummynode\_}!ltable.c@{ltable.c}}
+\doxysubsubsection{\texorpdfstring{dummynode\_}{dummynode\_}}
+{\footnotesize\ttfamily const \mbox{\hyperlink{union_node}{Node}} dummynode\+\_\+\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries 初始值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{= \{}
+\DoxyCodeLine{  \{\{NULL\}, \mbox{\hyperlink{lobject_8h_abc8b34ab48ffd99b6d7a48e8e4f269e2}{LUA\_VEMPTY}},  }
+\DoxyCodeLine{   \mbox{\hyperlink{lobject_8h_aac7a0aeb62c96ba16c7638e707bfaac0}{LUA\_VNIL}}, 0, \{NULL\}\}  }
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+在文件 ltable.\+c 第 90 行定义.
+

@@ -1,0 +1,735 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lbaselib_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/lbaselib.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lbaselib.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;ctype.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;lauxlib.h&quot;
+#include &quot;lualib.h&quot;
+</programlisting>lbaselib.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lbaselib_8c_1a2f5604e97f34f28d76a1eb287e7784a2">lbaselib_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lbaselib_8c_1a884b19ad6094d6238c4072a8064aeb12">LUA_LIB</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lbaselib_8c_1a65fad87fefeb813e5ff7e217a1c89eef">SPACECHARS</link>   &quot; \f\n\r\t\v&quot;</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lbaselib_8c_1a47cb030f7cbc859ebdfb6101eec2f64f">RESERVEDSLOT</link>   5</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a865eb761a305c588d6940da5272375b7">luaB_print</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a74d1725faf08640e4cebb3bfe42b6e2b">luaB_warn</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lbaselib_8c_1a78f1ffc60cf4b6e7e1cb7089eb11072d">b_str2int</link> (const char *s, int base, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> *pn)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a6224f7b7c4485996e1c22eae32de990d">luaB_tonumber</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a2ecfa987569d0b4c1063f3e204e42dd2">luaB_error</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1addfd66adcbe4c777cf5e10536d27d8b1">luaB_getmetatable</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1af7799a987ba6d158a96a52e80fb5beaf">luaB_setmetatable</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a4dbd4fb89ec70a7b07cad52f7c13e637">luaB_rawequal</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a68b39dfb2717573478ca211e9785dc6a">luaB_rawlen</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a248a6847a33f31c69a43a76b6b8bcb4b">luaB_rawget</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a7b7225051c25127792f30eadd3498cc3">luaB_rawset</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a8c5f8c12154a95906e8d05df770e8472">pushmode</link> (<link linkend="_structlua___state">lua_State</link> *L, int oldmode)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a07f71966c943cc9761ab129f64d4ac80">luaB_collectgarbage</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a7135b660cac1e25a2854acd9849cd4a4">luaB_type</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1ac0b11ecf3ced275821aaf5a03ed33b02">luaB_next</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a36def102f87ba8c40734489231e90109">luaB_pairs</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a9e49fcec5e66e36e817b1951123efc03">ipairsaux</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a5cb8b3b13437afd94c3313f0a4b17d06">luaB_ipairs</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a32e7b00b9c21d72a3e6a56e12c3f0e08">load_aux</link> (<link linkend="_structlua___state">lua_State</link> *L, int status, int envidx)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1aeb4cb83db820979bbdd7710109b52957">luaB_loadfile</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static const char * <link linkend="_lbaselib_8c_1ad467c787e381e8d18e4c7b46b4f1b05d">generic_reader</link> (<link linkend="_structlua___state">lua_State</link> *L, void *ud, size_t *size)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a4a9a3613fcf80fe033e044f7e19bed69">luaB_load</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1aef7e9941ec82371f02ab7617a49e4f2e">dofilecont</link> (<link linkend="_structlua___state">lua_State</link> *L, int d1, <link linkend="_lua_8h_1a0c565e13b66764da08aa2c68fe4365f0">lua_KContext</link> d2)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a86a4e35d9c9ad4661a0dbbac3758c049">luaB_dofile</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a8ba9378d5d46ef34a7429d52c3f3e4c7">luaB_assert</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1ac2909062d4ac2b0396c640407e5b19d8">luaB_select</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a4157e08e6e4e7f4e7ec65b96ca2a22d8">finishpcall</link> (<link linkend="_structlua___state">lua_State</link> *L, int status, <link linkend="_lua_8h_1a0c565e13b66764da08aa2c68fe4365f0">lua_KContext</link> extra)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a1fb2725eed679431d070b2e9e7abc223">luaB_pcall</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a5fbb0094fa1a56f0a4c2547f1ec4c5ab">luaB_xpcall</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lbaselib_8c_1a15bd8ce3f719c87883bcb578c60677e7">luaB_tostring</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link> int <link linkend="_lbaselib_8c_1ae99bbf706d0fcfb0c1c7afbe3c4de382">luaopen_base</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>变量    </title>
+        <itemizedlist>
+            <listitem><para>static const <link linkend="_structlua_l___reg">luaL_Reg</link> <link linkend="_lbaselib_8c_1a0d05e830245692a51489fe27e499c17b">base_funcs</link> []</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lbaselib_8c_1a2f5604e97f34f28d76a1eb287e7784a2"/>    <section>
+    <title>lbaselib_c</title>
+<indexterm><primary>lbaselib_c</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>lbaselib_c</secondary></indexterm>
+<para><computeroutput>#define lbaselib_c</computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_lbaselib_8c_1a884b19ad6094d6238c4072a8064aeb12"/>    <section>
+    <title>LUA_LIB</title>
+<indexterm><primary>LUA_LIB</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>LUA_LIB</secondary></indexterm>
+<para><computeroutput>#define LUA_LIB</computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00008">8</link> 行定义.</para>
+    </section><anchor xml:id="_lbaselib_8c_1a47cb030f7cbc859ebdfb6101eec2f64f"/>    <section>
+    <title>RESERVEDSLOT</title>
+<indexterm><primary>RESERVEDSLOT</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>RESERVEDSLOT</secondary></indexterm>
+<para><computeroutput>#define RESERVEDSLOT   5</computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00339">339</link> 行定义.</para>
+    </section><anchor xml:id="_lbaselib_8c_1a65fad87fefeb813e5ff7e217a1c89eef"/>    <section>
+    <title>SPACECHARS</title>
+<indexterm><primary>SPACECHARS</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>SPACECHARS</secondary></indexterm>
+<para><computeroutput>#define SPACECHARS   &quot; \f\n\r\t\v&quot;</computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00058">58</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lbaselib_8c_1a78f1ffc60cf4b6e7e1cb7089eb11072d"/>    <section>
+    <title>b_str2int()</title>
+<indexterm><primary>b_str2int</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>b_str2int</secondary></indexterm>
+<para><computeroutput>static const char* b_str2int (const char * s, int base, <link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link> * pn)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00060">60</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a78f1ffc60cf4b6e7e1cb7089eb11072d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a78f1ffc60cf4b6e7e1cb7089eb11072d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1aef7e9941ec82371f02ab7617a49e4f2e"/>    <section>
+    <title>dofilecont()</title>
+<indexterm><primary>dofilecont</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>dofilecont</secondary></indexterm>
+<para><computeroutput>static int dofilecont (<link linkend="_structlua___state">lua_State</link> * L, int d1, <link linkend="_lua_8h_1a0c565e13b66764da08aa2c68fe4365f0">lua_KContext</link> d2)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00387">387</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_aef7e9941ec82371f02ab7617a49e4f2e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_aef7e9941ec82371f02ab7617a49e4f2e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a4157e08e6e4e7f4e7ec65b96ca2a22d8"/>    <section>
+    <title>finishpcall()</title>
+<indexterm><primary>finishpcall</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>finishpcall</secondary></indexterm>
+<para><computeroutput>static int finishpcall (<link linkend="_structlua___state">lua_State</link> * L, int status, <link linkend="_lua_8h_1a0c565e13b66764da08aa2c68fe4365f0">lua_KContext</link> extra)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00439">439</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a4157e08e6e4e7f4e7ec65b96ca2a22d8_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a4157e08e6e4e7f4e7ec65b96ca2a22d8_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1ad467c787e381e8d18e4c7b46b4f1b05d"/>    <section>
+    <title>generic_reader()</title>
+<indexterm><primary>generic_reader</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>generic_reader</secondary></indexterm>
+<para><computeroutput>static const char* generic_reader (<link linkend="_structlua___state">lua_State</link> * L, void * ud, size_t * size)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00348">348</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_ad467c787e381e8d18e4c7b46b4f1b05d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_ad467c787e381e8d18e4c7b46b4f1b05d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a9e49fcec5e66e36e817b1951123efc03"/>    <section>
+    <title>ipairsaux()</title>
+<indexterm><primary>ipairsaux</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>ipairsaux</secondary></indexterm>
+<para><computeroutput>static int ipairsaux (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00281">281</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a9e49fcec5e66e36e817b1951123efc03_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a9e49fcec5e66e36e817b1951123efc03_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a32e7b00b9c21d72a3e6a56e12c3f0e08"/>    <section>
+    <title>load_aux()</title>
+<indexterm><primary>load_aux</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>load_aux</secondary></indexterm>
+<para><computeroutput>static int load_aux (<link linkend="_structlua___state">lua_State</link> * L, int status, int envidx)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00301">301</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a32e7b00b9c21d72a3e6a56e12c3f0e08_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a32e7b00b9c21d72a3e6a56e12c3f0e08_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a8ba9378d5d46ef34a7429d52c3f3e4c7"/>    <section>
+    <title>luaB_assert()</title>
+<indexterm><primary>luaB_assert</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_assert</secondary></indexterm>
+<para><computeroutput>static int luaB_assert (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00403">403</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a8ba9378d5d46ef34a7429d52c3f3e4c7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a07f71966c943cc9761ab129f64d4ac80"/>    <section>
+    <title>luaB_collectgarbage()</title>
+<indexterm><primary>luaB_collectgarbage</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_collectgarbage</secondary></indexterm>
+<para><computeroutput>static int luaB_collectgarbage (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00190">190</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a07f71966c943cc9761ab129f64d4ac80_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a86a4e35d9c9ad4661a0dbbac3758c049"/>    <section>
+    <title>luaB_dofile()</title>
+<indexterm><primary>luaB_dofile</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_dofile</secondary></indexterm>
+<para><computeroutput>static int luaB_dofile (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00393">393</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a86a4e35d9c9ad4661a0dbbac3758c049_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a2ecfa987569d0b4c1063f3e204e42dd2"/>    <section>
+    <title>luaB_error()</title>
+<indexterm><primary>luaB_error</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_error</secondary></indexterm>
+<para><computeroutput>static int luaB_error (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00114">114</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a2ecfa987569d0b4c1063f3e204e42dd2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a2ecfa987569d0b4c1063f3e204e42dd2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1addfd66adcbe4c777cf5e10536d27d8b1"/>    <section>
+    <title>luaB_getmetatable()</title>
+<indexterm><primary>luaB_getmetatable</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_getmetatable</secondary></indexterm>
+<para><computeroutput>static int luaB_getmetatable (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00126">126</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_addfd66adcbe4c777cf5e10536d27d8b1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a5cb8b3b13437afd94c3313f0a4b17d06"/>    <section>
+    <title>luaB_ipairs()</title>
+<indexterm><primary>luaB_ipairs</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_ipairs</secondary></indexterm>
+<para><computeroutput>static int luaB_ipairs (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00292">292</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a5cb8b3b13437afd94c3313f0a4b17d06_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a4a9a3613fcf80fe033e044f7e19bed69"/>    <section>
+    <title>luaB_load()</title>
+<indexterm><primary>luaB_load</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_load</secondary></indexterm>
+<para><computeroutput>static int luaB_load (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00365">365</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a4a9a3613fcf80fe033e044f7e19bed69_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1aeb4cb83db820979bbdd7710109b52957"/>    <section>
+    <title>luaB_loadfile()</title>
+<indexterm><primary>luaB_loadfile</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_loadfile</secondary></indexterm>
+<para><computeroutput>static int luaB_loadfile (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00318">318</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_aeb4cb83db820979bbdd7710109b52957_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1ac0b11ecf3ced275821aaf5a03ed33b02"/>    <section>
+    <title>luaB_next()</title>
+<indexterm><primary>luaB_next</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_next</secondary></indexterm>
+<para><computeroutput>static int luaB_next (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00251">251</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_ac0b11ecf3ced275821aaf5a03ed33b02_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_ac0b11ecf3ced275821aaf5a03ed33b02_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a36def102f87ba8c40734489231e90109"/>    <section>
+    <title>luaB_pairs()</title>
+<indexterm><primary>luaB_pairs</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_pairs</secondary></indexterm>
+<para><computeroutput>static int luaB_pairs (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00263">263</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a36def102f87ba8c40734489231e90109_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a1fb2725eed679431d070b2e9e7abc223"/>    <section>
+    <title>luaB_pcall()</title>
+<indexterm><primary>luaB_pcall</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_pcall</secondary></indexterm>
+<para><computeroutput>static int luaB_pcall (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00450">450</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a1fb2725eed679431d070b2e9e7abc223_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a865eb761a305c588d6940da5272375b7"/>    <section>
+    <title>luaB_print()</title>
+<indexterm><primary>luaB_print</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_print</secondary></indexterm>
+<para><computeroutput>static int luaB_print (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00024">24</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a865eb761a305c588d6940da5272375b7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a4dbd4fb89ec70a7b07cad52f7c13e637"/>    <section>
+    <title>luaB_rawequal()</title>
+<indexterm><primary>luaB_rawequal</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_rawequal</secondary></indexterm>
+<para><computeroutput>static int luaB_rawequal (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00149">149</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a4dbd4fb89ec70a7b07cad52f7c13e637_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a248a6847a33f31c69a43a76b6b8bcb4b"/>    <section>
+    <title>luaB_rawget()</title>
+<indexterm><primary>luaB_rawget</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_rawget</secondary></indexterm>
+<para><computeroutput>static int luaB_rawget (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00166">166</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a248a6847a33f31c69a43a76b6b8bcb4b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a68b39dfb2717573478ca211e9785dc6a"/>    <section>
+    <title>luaB_rawlen()</title>
+<indexterm><primary>luaB_rawlen</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_rawlen</secondary></indexterm>
+<para><computeroutput>static int luaB_rawlen (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00157">157</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a68b39dfb2717573478ca211e9785dc6a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a7b7225051c25127792f30eadd3498cc3"/>    <section>
+    <title>luaB_rawset()</title>
+<indexterm><primary>luaB_rawset</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_rawset</secondary></indexterm>
+<para><computeroutput>static int luaB_rawset (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00174">174</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a7b7225051c25127792f30eadd3498cc3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1ac2909062d4ac2b0396c640407e5b19d8"/>    <section>
+    <title>luaB_select()</title>
+<indexterm><primary>luaB_select</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_select</secondary></indexterm>
+<para><computeroutput>static int luaB_select (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00416">416</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_ac2909062d4ac2b0396c640407e5b19d8_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1af7799a987ba6d158a96a52e80fb5beaf"/>    <section>
+    <title>luaB_setmetatable()</title>
+<indexterm><primary>luaB_setmetatable</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_setmetatable</secondary></indexterm>
+<para><computeroutput>static int luaB_setmetatable (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00137">137</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_af7799a987ba6d158a96a52e80fb5beaf_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a6224f7b7c4485996e1c22eae32de990d"/>    <section>
+    <title>luaB_tonumber()</title>
+<indexterm><primary>luaB_tonumber</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_tonumber</secondary></indexterm>
+<para><computeroutput>static int luaB_tonumber (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00081">81</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a6224f7b7c4485996e1c22eae32de990d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a15bd8ce3f719c87883bcb578c60677e7"/>    <section>
+    <title>luaB_tostring()</title>
+<indexterm><primary>luaB_tostring</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_tostring</secondary></indexterm>
+<para><computeroutput>static int luaB_tostring (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00477">477</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a15bd8ce3f719c87883bcb578c60677e7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a7135b660cac1e25a2854acd9849cd4a4"/>    <section>
+    <title>luaB_type()</title>
+<indexterm><primary>luaB_type</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_type</secondary></indexterm>
+<para><computeroutput>static int luaB_type (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00243">243</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a7135b660cac1e25a2854acd9849cd4a4_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a74d1725faf08640e4cebb3bfe42b6e2b"/>    <section>
+    <title>luaB_warn()</title>
+<indexterm><primary>luaB_warn</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_warn</secondary></indexterm>
+<para><computeroutput>static int luaB_warn (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00045">45</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a74d1725faf08640e4cebb3bfe42b6e2b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a5fbb0094fa1a56f0a4c2547f1ec4c5ab"/>    <section>
+    <title>luaB_xpcall()</title>
+<indexterm><primary>luaB_xpcall</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaB_xpcall</secondary></indexterm>
+<para><computeroutput>static int luaB_xpcall (<link linkend="_structlua___state">lua_State</link> * L)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00465">465</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a5fbb0094fa1a56f0a4c2547f1ec4c5ab_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1ae99bbf706d0fcfb0c1c7afbe3c4de382"/>    <section>
+    <title>luaopen_base()</title>
+<indexterm><primary>luaopen_base</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>luaopen_base</secondary></indexterm>
+<para><computeroutput><link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link> int luaopen_base (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00515">515</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_ae99bbf706d0fcfb0c1c7afbe3c4de382_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lbaselib_8c_1a8c5f8c12154a95906e8d05df770e8472"/>    <section>
+    <title>pushmode()</title>
+<indexterm><primary>pushmode</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>pushmode</secondary></indexterm>
+<para><computeroutput>static int pushmode (<link linkend="_structlua___state">lua_State</link> * L, int oldmode)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00184">184</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a8c5f8c12154a95906e8d05df770e8472_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lbaselib_8c_a8c5f8c12154a95906e8d05df770e8472_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+<section>
+<title>变量说明</title>
+<anchor xml:id="_lbaselib_8c_1a0d05e830245692a51489fe27e499c17b"/>    <section>
+    <title>base_funcs</title>
+<indexterm><primary>base_funcs</primary><secondary>lbaselib.c</secondary></indexterm>
+<indexterm><primary>lbaselib.c</primary><secondary>base_funcs</secondary></indexterm>
+<para><computeroutput>const <link linkend="_structlua_l___reg">luaL_Reg</link> base_funcs[]<computeroutput>[static]</computeroutput></computeroutput></para><emphasis role="strong">初始值:</emphasis><programlisting>=&#32;{
+&#32;&#32;{<emphasis role="stringliteral">&quot;assert&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1a8ba9378d5d46ef34a7429d52c3f3e4c7">luaB_assert</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;collectgarbage&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1a07f71966c943cc9761ab129f64d4ac80">luaB_collectgarbage</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;dofile&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1a86a4e35d9c9ad4661a0dbbac3758c049">luaB_dofile</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;error&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1a2ecfa987569d0b4c1063f3e204e42dd2">luaB_error</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;getmetatable&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1addfd66adcbe4c777cf5e10536d27d8b1">luaB_getmetatable</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;ipairs&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1a5cb8b3b13437afd94c3313f0a4b17d06">luaB_ipairs</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;loadfile&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1aeb4cb83db820979bbdd7710109b52957">luaB_loadfile</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;load&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1a4a9a3613fcf80fe033e044f7e19bed69">luaB_load</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;next&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1ac0b11ecf3ced275821aaf5a03ed33b02">luaB_next</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;pairs&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1a36def102f87ba8c40734489231e90109">luaB_pairs</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;pcall&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1a1fb2725eed679431d070b2e9e7abc223">luaB_pcall</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;print&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1a865eb761a305c588d6940da5272375b7">luaB_print</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;warn&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1a74d1725faf08640e4cebb3bfe42b6e2b">luaB_warn</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;rawequal&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1a4dbd4fb89ec70a7b07cad52f7c13e637">luaB_rawequal</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;rawlen&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1a68b39dfb2717573478ca211e9785dc6a">luaB_rawlen</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;rawget&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1a248a6847a33f31c69a43a76b6b8bcb4b">luaB_rawget</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;rawset&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1a7b7225051c25127792f30eadd3498cc3">luaB_rawset</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;select&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1ac2909062d4ac2b0396c640407e5b19d8">luaB_select</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;setmetatable&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1af7799a987ba6d158a96a52e80fb5beaf">luaB_setmetatable</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;tonumber&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1a6224f7b7c4485996e1c22eae32de990d">luaB_tonumber</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;tostring&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1a15bd8ce3f719c87883bcb578c60677e7">luaB_tostring</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;type&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1a7135b660cac1e25a2854acd9849cd4a4">luaB_type</link>},
+&#32;&#32;{<emphasis role="stringliteral">&quot;xpcall&quot;</emphasis>,&#32;<link linkend="_lbaselib_8c_1a5fbb0094fa1a56f0a4c2547f1ec4c5ab">luaB_xpcall</link>},
+&#32;&#32;
+&#32;&#32;{<link linkend="_lauxlib_8h_1a074d53b3afd2b899d4b986c9643fb41a">LUA_GNAME</link>,&#32;NULL},
+&#32;&#32;{<emphasis role="stringliteral">&quot;_VERSION&quot;</emphasis>,&#32;NULL},
+&#32;&#32;{NULL,&#32;NULL}
+}
+</programlisting><para>
+在文件 <link linkend="_lbaselib_8c_source">lbaselib.c</link> 第 <link linkend="_lbaselib_8c_source_1l00484">484</link> 行定义.</para>
+</section>
+</section>
+</section>

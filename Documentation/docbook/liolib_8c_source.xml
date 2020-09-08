@@ -1,0 +1,825 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_liolib_8c_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/liolib.c</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;liolib.c&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Standard&#32;I/O&#32;(and&#32;system)&#32;library</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+<anchor xml:id="_liolib_8c_source_1l00007"/><link linkend="_liolib_8c_1a4fa96ecbbecfabf0003fa4163c5029e0">00007</link> <emphasis role="preprocessor">#define&#32;liolib_c</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00008"/><link linkend="_liolib_8c_1a884b19ad6094d6238c4072a8064aeb12">00008</link> <emphasis role="preprocessor">#define&#32;LUA_LIB</emphasis>
+00009 
+00010 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lprefix_8h">lprefix.h</link>&quot;</emphasis>
+00011 
+00012 
+00013 <emphasis role="preprocessor">#include&#32;&lt;ctype.h&gt;</emphasis>
+00014 <emphasis role="preprocessor">#include&#32;&lt;errno.h&gt;</emphasis>
+00015 <emphasis role="preprocessor">#include&#32;&lt;locale.h&gt;</emphasis>
+00016 <emphasis role="preprocessor">#include&#32;&lt;stdio.h&gt;</emphasis>
+00017 <emphasis role="preprocessor">#include&#32;&lt;stdlib.h&gt;</emphasis>
+00018 <emphasis role="preprocessor">#include&#32;&lt;string.h&gt;</emphasis>
+00019 
+00020 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lua_8h">lua.h</link>&quot;</emphasis>
+00021 
+00022 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lauxlib_8h">lauxlib.h</link>&quot;</emphasis>
+00023 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lualib_8h">lualib.h</link>&quot;</emphasis>
+00024 
+00025 
+00026 
+00027 
+00028 <emphasis role="comment">/*</emphasis>
+00029 <emphasis role="comment">**&#32;Change&#32;this&#32;macro&#32;to&#32;accept&#32;other&#32;modes&#32;for&#32;&apos;fopen&apos;&#32;besides</emphasis>
+00030 <emphasis role="comment">**&#32;the&#32;standard&#32;ones.</emphasis>
+00031 <emphasis role="comment">*/</emphasis>
+00032 <emphasis role="preprocessor">#if&#32;!defined(l_checkmode)</emphasis>
+00033 
+00034 <emphasis role="comment">/*&#32;accepted&#32;extensions&#32;to&#32;&apos;mode&apos;&#32;in&#32;&apos;fopen&apos;&#32;*/</emphasis>
+00035 <emphasis role="preprocessor">#if&#32;!defined(L_MODEEXT)</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00036"/><link linkend="_liolib_8c_1a56a6e062eb06243c32928d1cfefba4f5">00036</link> <emphasis role="preprocessor">#define&#32;L_MODEEXT&#32;&#32;&#32;&quot;b&quot;</emphasis>
+00037 <emphasis role="preprocessor">#endif</emphasis>
+00038 
+00039 <emphasis role="comment">/*&#32;Check&#32;whether&#32;&apos;mode&apos;&#32;matches&#32;&apos;[rwa]%+?[L_MODEEXT]*&apos;&#32;*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00040"/><link linkend="_liolib_8c_1ab187d8eb3cf2b49793e4020547525905">00040</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1ab187d8eb3cf2b49793e4020547525905">l_checkmode</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*mode)&#32;{
+00041 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;(*mode&#32;!=&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>&#32;&amp;&amp;&#32;strchr(<emphasis role="stringliteral">&quot;rwa&quot;</emphasis>,&#32;*(mode++))&#32;!=&#32;NULL&#32;&amp;&amp;
+00042 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(*mode&#32;!=&#32;<emphasis role="charliteral">&apos;+&apos;</emphasis>&#32;||&#32;((<emphasis role="keywordtype">void</emphasis>)(++mode),&#32;1))&#32;&amp;&amp;&#32;&#32;<emphasis role="comment">/*&#32;skip&#32;if&#32;char&#32;is&#32;&apos;+&apos;&#32;*/</emphasis>
+00043 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(strspn(mode,&#32;<link linkend="_liolib_8c_1a56a6e062eb06243c32928d1cfefba4f5">L_MODEEXT</link>)&#32;==&#32;strlen(mode)));&#32;&#32;<emphasis role="comment">/*&#32;check&#32;extensions&#32;*/</emphasis>
+00044 }
+00045 
+00046 <emphasis role="preprocessor">#endif</emphasis>
+00047 
+00048 <emphasis role="comment">/*</emphasis>
+00049 <emphasis role="comment">**&#32;{======================================================</emphasis>
+00050 <emphasis role="comment">**&#32;l_popen&#32;spawns&#32;a&#32;new&#32;process&#32;connected&#32;to&#32;the&#32;current</emphasis>
+00051 <emphasis role="comment">**&#32;one&#32;through&#32;the&#32;file&#32;streams.</emphasis>
+00052 <emphasis role="comment">**&#32;=======================================================</emphasis>
+00053 <emphasis role="comment">*/</emphasis>
+00054 
+00055 <emphasis role="preprocessor">#if&#32;!defined(l_checkmodep)</emphasis>
+00056 <emphasis role="comment">/*&#32;By&#32;default,&#32;Lua&#32;accepts&#32;only&#32;&quot;r&quot;&#32;or&#32;&quot;w&quot;&#32;as&#32;mode&#32;*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00057"/><link linkend="_liolib_8c_1aa3d5752e1676a0c9559b617972d90360">00057</link> <emphasis role="preprocessor">#define&#32;l_checkmodep(m)&#32;((m[0]&#32;==&#32;&apos;r&apos;&#32;||&#32;m[0]&#32;==&#32;&apos;w&apos;)&#32;&amp;&amp;&#32;m[1]&#32;==&#32;&apos;\0&apos;)</emphasis>
+00058 <emphasis role="preprocessor">#endif</emphasis>
+00059 
+00060 
+00061 <emphasis role="preprocessor">#if&#32;!defined(l_popen)&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00062 
+00063 <emphasis role="preprocessor">#if&#32;defined(LUA_USE_POSIX)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00064 
+00065 <emphasis role="preprocessor">#define&#32;l_popen(L,c,m)&#32;&#32;&#32;&#32;&#32;&#32;(fflush(NULL),&#32;popen(c,m))</emphasis>
+00066 <emphasis role="preprocessor">#define&#32;l_pclose(L,file)&#32;&#32;&#32;&#32;(pclose(file))</emphasis>
+00067 
+00068 <emphasis role="preprocessor">#elif&#32;defined(LUA_USE_WINDOWS)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00069 
+00070 <emphasis role="preprocessor">#define&#32;l_popen(L,c,m)&#32;&#32;&#32;&#32;&#32;&#32;(_popen(c,m))</emphasis>
+00071 <emphasis role="preprocessor">#define&#32;l_pclose(L,file)&#32;&#32;&#32;&#32;(_pclose(file))</emphasis>
+00072 
+00073 <emphasis role="preprocessor">#else&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00074 
+00075 <emphasis role="comment">/*&#32;ISO&#32;C&#32;definitions&#32;*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00076"/><link linkend="_liolib_8c_1abb5b1c7bfa0e31613ed25ca2bb648381">00076</link> <emphasis role="preprocessor">#define&#32;l_popen(L,c,m)&#32;&#32;\</emphasis>
+00077 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;((void)c,&#32;(void)m,&#32;\</emphasis>
+00078 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;luaL_error(L,&#32;&quot;&apos;popen&apos;&#32;not&#32;supported&quot;),&#32;\</emphasis>
+00079 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;(FILE*)0)</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00080"/><link linkend="_liolib_8c_1a2ab03e50e416477fb612dc808c6e2951">00080</link> <emphasis role="preprocessor">#define&#32;l_pclose(L,file)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;((void)L,&#32;(void)file,&#32;-1)</emphasis>
+00081 
+00082 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00083 
+00084 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00085 
+00086 <emphasis role="comment">/*&#32;}======================================================&#32;*/</emphasis>
+00087 
+00088 
+00089 <emphasis role="preprocessor">#if&#32;!defined(l_getc)&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00090 
+00091 <emphasis role="preprocessor">#if&#32;defined(LUA_USE_POSIX)</emphasis>
+00092 <emphasis role="preprocessor">#define&#32;l_getc(f)&#32;&#32;&#32;&#32;&#32;&#32;&#32;getc_unlocked(f)</emphasis>
+00093 <emphasis role="preprocessor">#define&#32;l_lockfile(f)&#32;&#32;&#32;&#32;&#32;&#32;&#32;flockfile(f)</emphasis>
+00094 <emphasis role="preprocessor">#define&#32;l_unlockfile(f)&#32;&#32;&#32;&#32;&#32;funlockfile(f)</emphasis>
+00095 <emphasis role="preprocessor">#else</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00096"/><link linkend="_liolib_8c_1a039d3e5509ea3a88809269f400f58ba5">00096</link> <emphasis role="preprocessor">#define&#32;l_getc(f)&#32;&#32;&#32;&#32;&#32;&#32;&#32;getc(f)</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00097"/><link linkend="_liolib_8c_1ac0ab419b6e0666a091b66d7948fd4e2d">00097</link> <emphasis role="preprocessor">#define&#32;l_lockfile(f)&#32;&#32;&#32;&#32;&#32;&#32;&#32;((void)0)</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00098"/><link linkend="_liolib_8c_1a4fb31ed5e0fc117ce51bc6e5391bb789">00098</link> <emphasis role="preprocessor">#define&#32;l_unlockfile(f)&#32;&#32;&#32;&#32;&#32;((void)0)</emphasis>
+00099 <emphasis role="preprocessor">#endif</emphasis>
+00100 
+00101 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00102 
+00103 
+00104 <emphasis role="comment">/*</emphasis>
+00105 <emphasis role="comment">**&#32;{======================================================</emphasis>
+00106 <emphasis role="comment">**&#32;l_fseek:&#32;configuration&#32;for&#32;longer&#32;offsets</emphasis>
+00107 <emphasis role="comment">**&#32;=======================================================</emphasis>
+00108 <emphasis role="comment">*/</emphasis>
+00109 
+00110 <emphasis role="preprocessor">#if&#32;!defined(l_fseek)&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00111 
+00112 <emphasis role="preprocessor">#if&#32;defined(LUA_USE_POSIX)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00113 
+00114 <emphasis role="preprocessor">#include&#32;&lt;sys/types.h&gt;</emphasis>
+00115 
+00116 <emphasis role="preprocessor">#define&#32;l_fseek(f,o,w)&#32;&#32;&#32;&#32;&#32;&#32;fseeko(f,o,w)</emphasis>
+00117 <emphasis role="preprocessor">#define&#32;l_ftell(f)&#32;&#32;&#32;&#32;&#32;&#32;ftello(f)</emphasis>
+00118 <emphasis role="preprocessor">#define&#32;l_seeknum&#32;&#32;&#32;&#32;&#32;&#32;&#32;off_t</emphasis>
+00119 
+00120 <emphasis role="preprocessor">#elif&#32;defined(LUA_USE_WINDOWS)&#32;&amp;&amp;&#32;!defined(_CRTIMP_TYPEINFO)&#32;\</emphasis>
+00121 <emphasis role="preprocessor">&#32;&#32;&#32;&amp;&amp;&#32;defined(_MSC_VER)&#32;&amp;&amp;&#32;(_MSC_VER&#32;&gt;=&#32;1400)&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00122 
+00123 <emphasis role="comment">/*&#32;Windows&#32;(but&#32;not&#32;DDK)&#32;and&#32;Visual&#32;C++&#32;2005&#32;or&#32;higher&#32;*/</emphasis>
+00124 <emphasis role="preprocessor">#define&#32;l_fseek(f,o,w)&#32;&#32;&#32;&#32;&#32;&#32;_fseeki64(f,o,w)</emphasis>
+00125 <emphasis role="preprocessor">#define&#32;l_ftell(f)&#32;&#32;&#32;&#32;&#32;&#32;_ftelli64(f)</emphasis>
+00126 <emphasis role="preprocessor">#define&#32;l_seeknum&#32;&#32;&#32;&#32;&#32;&#32;&#32;__int64</emphasis>
+00127 
+00128 <emphasis role="preprocessor">#else&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00129 
+00130 <emphasis role="comment">/*&#32;ISO&#32;C&#32;definitions&#32;*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00131"/><link linkend="_liolib_8c_1a62de3640998d6fbb4148ee251244bf85">00131</link> <emphasis role="preprocessor">#define&#32;l_fseek(f,o,w)&#32;&#32;&#32;&#32;&#32;&#32;fseek(f,o,w)</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00132"/><link linkend="_liolib_8c_1afa9a1643bfb6b1928c256f818d8ee8d4">00132</link> <emphasis role="preprocessor">#define&#32;l_ftell(f)&#32;&#32;&#32;&#32;&#32;&#32;ftell(f)</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00133"/><link linkend="_liolib_8c_1a0cbd6f87dda88adaa6e189c8490319a3">00133</link> <emphasis role="preprocessor">#define&#32;l_seeknum&#32;&#32;&#32;&#32;&#32;&#32;&#32;long</emphasis>
+00134 
+00135 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00136 
+00137 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00138 
+00139 <emphasis role="comment">/*&#32;}======================================================&#32;*/</emphasis>
+00140 
+00141 
+00142 
+<anchor xml:id="_liolib_8c_source_1l00143"/><link linkend="_liolib_8c_1a181a699d5111b8d79a423a9bbcaf6830">00143</link> <emphasis role="preprocessor">#define&#32;IO_PREFIX&#32;&#32;&#32;&quot;_IO_&quot;</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00144"/><link linkend="_liolib_8c_1ac6ca58c960165047c3bf20e9546951b3">00144</link> <emphasis role="preprocessor">#define&#32;IOPREF_LEN&#32;&#32;(sizeof(IO_PREFIX)/sizeof(char)&#32;-&#32;1)</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00145"/><link linkend="_liolib_8c_1a3c1a27aacf1dd33edffa2422da638d0f">00145</link> <emphasis role="preprocessor">#define&#32;IO_INPUT&#32;&#32;&#32;&#32;(IO_PREFIX&#32;&quot;input&quot;)</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00146"/><link linkend="_liolib_8c_1aae48313230e7f773bf495ada1171c506">00146</link> <emphasis role="preprocessor">#define&#32;IO_OUTPUT&#32;&#32;&#32;(IO_PREFIX&#32;&quot;output&quot;)</emphasis>
+00147 
+00148 
+<anchor xml:id="_liolib_8c_source_1l00149"/><link linkend="_liolib_8c_1afdee2306a2ebaf7fd48d13fa65714054">00149</link> <emphasis role="keyword">typedef</emphasis>&#32;<link linkend="_structlua_l___stream">luaL_Stream</link>&#32;<link linkend="_liolib_8c_1afdee2306a2ebaf7fd48d13fa65714054">LStream</link>;
+00150 
+00151 
+<anchor xml:id="_liolib_8c_source_1l00152"/><link linkend="_liolib_8c_1aa4a3ca333e58733b833a0395c5742fc2">00152</link> <emphasis role="preprocessor">#define&#32;tolstream(L)&#32;&#32;&#32;&#32;((LStream&#32;*)luaL_checkudata(L,&#32;1,&#32;LUA_FILEHANDLE))</emphasis>
+00153 
+<anchor xml:id="_liolib_8c_source_1l00154"/><link linkend="_liolib_8c_1a933df16f547e59062271f306675f599c">00154</link> <emphasis role="preprocessor">#define&#32;isclosed(p)&#32;((p)-&gt;closef&#32;==&#32;NULL)</emphasis>
+00155 
+00156 
+<anchor xml:id="_liolib_8c_source_1l00157"/><link linkend="_liolib_8c_1a2bd80ae170dce6c29d385b71398fd7c2">00157</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a2bd80ae170dce6c29d385b71398fd7c2">io_type</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00158 &#32;&#32;<link linkend="_structlua_l___stream">LStream</link>&#32;*p;
+00159 &#32;&#32;<link linkend="_lauxlib_8c_1a8ebfe706b773eaaf50283e6583d4642e">luaL_checkany</link>(L,&#32;1);
+00160 &#32;&#32;p&#32;=&#32;(<link linkend="_structlua_l___stream">LStream</link>&#32;*)<link linkend="_lauxlib_8c_1af2ad56ae788ac3a59b4e0e29852ab460">luaL_testudata</link>(L,&#32;1,&#32;<link linkend="_lauxlib_8h_1a36f3babeb54bee1ebba63fe4fa94189a">LUA_FILEHANDLE</link>);
+00161 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(p&#32;==&#32;NULL)
+00162 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a8666135f7a1412f5eaa14857aec279f0">luaL_pushfail</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;not&#32;a&#32;file&#32;*/</emphasis>
+00163 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_liolib_8c_1a933df16f547e59062271f306675f599c">isclosed</link>(p))
+00164 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a47854189a679002ed743ebbcb30b1b26">lua_pushliteral</link>(L,&#32;<emphasis role="stringliteral">&quot;closed&#32;file&quot;</emphasis>);
+00165 &#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00166 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a47854189a679002ed743ebbcb30b1b26">lua_pushliteral</link>(L,&#32;<emphasis role="stringliteral">&quot;file&quot;</emphasis>);
+00167 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00168 }
+00169 
+00170 
+<anchor xml:id="_liolib_8c_source_1l00171"/><link linkend="_liolib_8c_1afaec8b8506a424b1b5f342037ae6350a">00171</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1afaec8b8506a424b1b5f342037ae6350a">f_tostring</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00172 &#32;&#32;<link linkend="_structlua_l___stream">LStream</link>&#32;*p&#32;=&#32;<link linkend="_liolib_8c_1aa4a3ca333e58733b833a0395c5742fc2">tolstream</link>(L);
+00173 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_liolib_8c_1a933df16f547e59062271f306675f599c">isclosed</link>(p))
+00174 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a47854189a679002ed743ebbcb30b1b26">lua_pushliteral</link>(L,&#32;<emphasis role="stringliteral">&quot;file&#32;(closed)&quot;</emphasis>);
+00175 &#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00176 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1ab190c226d38b289e6ca57683a9d4e0f0">lua_pushfstring</link>(L,&#32;<emphasis role="stringliteral">&quot;file&#32;(%p)&quot;</emphasis>,&#32;p-&gt;<link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>);
+00177 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00178 }
+00179 
+00180 
+<anchor xml:id="_liolib_8c_source_1l00181"/><link linkend="_liolib_8c_1a3a596f9304846a90435b75c75c55acda">00181</link> <emphasis role="keyword">static</emphasis>&#32;FILE&#32;*<link linkend="_liolib_8c_1a3a596f9304846a90435b75c75c55acda">tofile</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00182 &#32;&#32;<link linkend="_structlua_l___stream">LStream</link>&#32;*p&#32;=&#32;<link linkend="_liolib_8c_1aa4a3ca333e58733b833a0395c5742fc2">tolstream</link>(L);
+00183 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_liolib_8c_1a933df16f547e59062271f306675f599c">isclosed</link>(p))
+00184 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;attempt&#32;to&#32;use&#32;a&#32;closed&#32;file&quot;</emphasis>);
+00185 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(p-&gt;<link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>);
+00186 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;p-&gt;<link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>;
+00187 }
+00188 
+00189 
+00190 <emphasis role="comment">/*</emphasis>
+00191 <emphasis role="comment">**&#32;When&#32;creating&#32;file&#32;handles,&#32;always&#32;creates&#32;a&#32;&apos;closed&apos;&#32;file&#32;handle</emphasis>
+00192 <emphasis role="comment">**&#32;before&#32;opening&#32;the&#32;actual&#32;file;&#32;so,&#32;if&#32;there&#32;is&#32;a&#32;memory&#32;error,&#32;the</emphasis>
+00193 <emphasis role="comment">**&#32;handle&#32;is&#32;in&#32;a&#32;consistent&#32;state.</emphasis>
+00194 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00195"/><link linkend="_liolib_8c_1ab456fc51383d039a5a24c702060aba8e">00195</link> <emphasis role="keyword">static</emphasis>&#32;<link linkend="_structlua_l___stream">LStream</link>&#32;*<link linkend="_liolib_8c_1ab456fc51383d039a5a24c702060aba8e">newprefile</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00196 &#32;&#32;<link linkend="_structlua_l___stream">LStream</link>&#32;*p&#32;=&#32;(<link linkend="_structlua_l___stream">LStream</link>&#32;*)<link linkend="_lapi_8c_1a9c09a58b86c71e997d7ccabb67f18c12">lua_newuserdatauv</link>(L,&#32;<emphasis role="keyword">sizeof</emphasis>(<link linkend="_structlua_l___stream">LStream</link>),&#32;0);
+00197 &#32;&#32;p-&gt;<link linkend="_structlua_l___stream_1a421c7b3efc694e922fefb29e3263d17c">closef</link>&#32;=&#32;NULL;&#32;&#32;<emphasis role="comment">/*&#32;mark&#32;file&#32;handle&#32;as&#32;&apos;closed&apos;&#32;*/</emphasis>
+00198 &#32;&#32;<link linkend="_lauxlib_8c_1ae3907fc11c3e2af69f00ab4a37872cae">luaL_setmetatable</link>(L,&#32;<link linkend="_lauxlib_8h_1a36f3babeb54bee1ebba63fe4fa94189a">LUA_FILEHANDLE</link>);
+00199 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;p;
+00200 }
+00201 
+00202 
+00203 <emphasis role="comment">/*</emphasis>
+00204 <emphasis role="comment">**&#32;Calls&#32;the&#32;&apos;close&apos;&#32;function&#32;from&#32;a&#32;file&#32;handle.&#32;The&#32;&apos;volatile&apos;&#32;avoids</emphasis>
+00205 <emphasis role="comment">**&#32;a&#32;bug&#32;in&#32;some&#32;versions&#32;of&#32;the&#32;Clang&#32;compiler&#32;(e.g.,&#32;clang&#32;3.0&#32;for</emphasis>
+00206 <emphasis role="comment">**&#32;32&#32;bits).</emphasis>
+00207 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00208"/><link linkend="_liolib_8c_1a17cd174f91e6d1fdf0de674448dc84f2">00208</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a17cd174f91e6d1fdf0de674448dc84f2">aux_close</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00209 &#32;&#32;<link linkend="_structlua_l___stream">LStream</link>&#32;*p&#32;=&#32;<link linkend="_liolib_8c_1aa4a3ca333e58733b833a0395c5742fc2">tolstream</link>(L);
+00210 &#32;&#32;<emphasis role="keyword">volatile</emphasis>&#32;<link linkend="_lua_8h_1a878b7e392e78661a374cf1c3073029b9">lua_CFunction</link>&#32;cf&#32;=&#32;p-&gt;<link linkend="_structlua_l___stream_1a421c7b3efc694e922fefb29e3263d17c">closef</link>;
+00211 &#32;&#32;p-&gt;<link linkend="_structlua_l___stream_1a421c7b3efc694e922fefb29e3263d17c">closef</link>&#32;=&#32;NULL;&#32;&#32;<emphasis role="comment">/*&#32;mark&#32;stream&#32;as&#32;closed&#32;*/</emphasis>
+00212 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;(*cf)(L);&#32;&#32;<emphasis role="comment">/*&#32;close&#32;it&#32;*/</emphasis>
+00213 }
+00214 
+00215 
+<anchor xml:id="_liolib_8c_source_1l00216"/><link linkend="_liolib_8c_1a2b331358ffb75b150c9490c2cc78aea2">00216</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a2b331358ffb75b150c9490c2cc78aea2">f_close</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00217 &#32;&#32;<link linkend="_liolib_8c_1a3a596f9304846a90435b75c75c55acda">tofile</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;make&#32;sure&#32;argument&#32;is&#32;an&#32;open&#32;stream&#32;*/</emphasis>
+00218 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_liolib_8c_1a17cd174f91e6d1fdf0de674448dc84f2">aux_close</link>(L);
+00219 }
+00220 
+00221 
+<anchor xml:id="_liolib_8c_source_1l00222"/><link linkend="_liolib_8c_1a1c6f8e04184b0f7939e45e24d2d7ef8a">00222</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a1c6f8e04184b0f7939e45e24d2d7ef8a">io_close</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00223 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lua_8h_1ad054300429f1094d3692313abc733ddf">lua_isnone</link>(L,&#32;1))&#32;&#32;<emphasis role="comment">/*&#32;no&#32;argument?&#32;*/</emphasis>
+00224 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link>(L,&#32;<link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>,&#32;<link linkend="_liolib_8c_1aae48313230e7f773bf495ada1171c506">IO_OUTPUT</link>);&#32;&#32;<emphasis role="comment">/*&#32;use&#32;default&#32;output&#32;*/</emphasis>
+00225 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_liolib_8c_1a2b331358ffb75b150c9490c2cc78aea2">f_close</link>(L);
+00226 }
+00227 
+00228 
+<anchor xml:id="_liolib_8c_source_1l00229"/><link linkend="_liolib_8c_1a54d23ecdc47341b1ab23dd572a011efb">00229</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a54d23ecdc47341b1ab23dd572a011efb">f_gc</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00230 &#32;&#32;<link linkend="_structlua_l___stream">LStream</link>&#32;*p&#32;=&#32;<link linkend="_liolib_8c_1aa4a3ca333e58733b833a0395c5742fc2">tolstream</link>(L);
+00231 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_liolib_8c_1a933df16f547e59062271f306675f599c">isclosed</link>(p)&#32;&amp;&amp;&#32;p-&gt;<link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>&#32;!=&#32;NULL)
+00232 &#32;&#32;&#32;&#32;<link linkend="_liolib_8c_1a17cd174f91e6d1fdf0de674448dc84f2">aux_close</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;ignore&#32;closed&#32;and&#32;incompletely&#32;open&#32;files&#32;*/</emphasis>
+00233 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;
+00234 }
+00235 
+00236 
+00237 <emphasis role="comment">/*</emphasis>
+00238 <emphasis role="comment">**&#32;function&#32;to&#32;close&#32;regular&#32;files</emphasis>
+00239 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00240"/><link linkend="_liolib_8c_1a693d26c59aa9f6a298ac288cb1a5c38d">00240</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a693d26c59aa9f6a298ac288cb1a5c38d">io_fclose</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00241 &#32;&#32;<link linkend="_structlua_l___stream">LStream</link>&#32;*p&#32;=&#32;<link linkend="_liolib_8c_1aa4a3ca333e58733b833a0395c5742fc2">tolstream</link>(L);
+00242 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;res&#32;=&#32;fclose(p-&gt;<link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>);
+00243 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a86309080a5d45b232bcc240b45d06942">luaL_fileresult</link>(L,&#32;(res&#32;==&#32;0),&#32;NULL);
+00244 }
+00245 
+00246 
+<anchor xml:id="_liolib_8c_source_1l00247"/><link linkend="_liolib_8c_1a57c6c258a611b738f0ef34584ca6e7ab">00247</link> <emphasis role="keyword">static</emphasis>&#32;<link linkend="_structlua_l___stream">LStream</link>&#32;*<link linkend="_liolib_8c_1a57c6c258a611b738f0ef34584ca6e7ab">newfile</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00248 &#32;&#32;<link linkend="_structlua_l___stream">LStream</link>&#32;*p&#32;=&#32;<link linkend="_liolib_8c_1ab456fc51383d039a5a24c702060aba8e">newprefile</link>(L);
+00249 &#32;&#32;p-&gt;<link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>&#32;=&#32;NULL;
+00250 &#32;&#32;p-&gt;<link linkend="_structlua_l___stream_1a421c7b3efc694e922fefb29e3263d17c">closef</link>&#32;=&#32;&amp;<link linkend="_liolib_8c_1a693d26c59aa9f6a298ac288cb1a5c38d">io_fclose</link>;
+00251 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;p;
+00252 }
+00253 
+00254 
+<anchor xml:id="_liolib_8c_source_1l00255"/><link linkend="_liolib_8c_1a91ec9c6fa0ef33085f29a15532ac80a7">00255</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_liolib_8c_1a91ec9c6fa0ef33085f29a15532ac80a7">opencheck</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*fname,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*mode)&#32;{
+00256 &#32;&#32;<link linkend="_structlua_l___stream">LStream</link>&#32;*p&#32;=&#32;<link linkend="_liolib_8c_1a57c6c258a611b738f0ef34584ca6e7ab">newfile</link>(L);
+00257 &#32;&#32;p-&gt;<link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>&#32;=&#32;fopen(fname,&#32;mode);
+00258 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(p-&gt;<link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>&#32;==&#32;NULL)
+00259 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;cannot&#32;open&#32;file&#32;&apos;%s&apos;&#32;(%s)&quot;</emphasis>,&#32;fname,&#32;strerror(errno));
+00260 }
+00261 
+00262 
+<anchor xml:id="_liolib_8c_source_1l00263"/><link linkend="_liolib_8c_1ab4a969d43dbe0f89e98307e5b421f8a7">00263</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1ab4a969d43dbe0f89e98307e5b421f8a7">io_open</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00264 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*filename&#32;=&#32;<link linkend="_lauxlib_8h_1ad9917d22c79651fdd73d42c146b5056f">luaL_checkstring</link>(L,&#32;1);
+00265 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*mode&#32;=&#32;<link linkend="_lauxlib_8h_1a732bc5882c4a5da46b236649ab6db47b">luaL_optstring</link>(L,&#32;2,&#32;<emphasis role="stringliteral">&quot;r&quot;</emphasis>);
+00266 &#32;&#32;<link linkend="_structlua_l___stream">LStream</link>&#32;*p&#32;=&#32;<link linkend="_liolib_8c_1a57c6c258a611b738f0ef34584ca6e7ab">newfile</link>(L);
+00267 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*md&#32;=&#32;mode;&#32;&#32;<emphasis role="comment">/*&#32;to&#32;traverse/check&#32;mode&#32;*/</emphasis>
+00268 &#32;&#32;<link linkend="_lauxlib_8h_1a48ce6cd86a7448e97f258097a7abc44d">luaL_argcheck</link>(L,&#32;<link linkend="_liolib_8c_1ab187d8eb3cf2b49793e4020547525905">l_checkmode</link>(md),&#32;2,&#32;<emphasis role="stringliteral">&quot;invalid&#32;mode&quot;</emphasis>);
+00269 &#32;&#32;p-&gt;<link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>&#32;=&#32;fopen(filename,&#32;mode);
+00270 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;(p-&gt;<link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>&#32;==&#32;NULL)&#32;?&#32;<link linkend="_lauxlib_8c_1a86309080a5d45b232bcc240b45d06942">luaL_fileresult</link>(L,&#32;0,&#32;filename)&#32;:&#32;1;
+00271 }
+00272 
+00273 
+00274 <emphasis role="comment">/*</emphasis>
+00275 <emphasis role="comment">**&#32;function&#32;to&#32;close&#32;&apos;popen&apos;&#32;files</emphasis>
+00276 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00277"/><link linkend="_liolib_8c_1ac885ae15fd14fc88058b0b8c1cf2b1d9">00277</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1ac885ae15fd14fc88058b0b8c1cf2b1d9">io_pclose</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00278 &#32;&#32;<link linkend="_structlua_l___stream">LStream</link>&#32;*p&#32;=&#32;<link linkend="_liolib_8c_1aa4a3ca333e58733b833a0395c5742fc2">tolstream</link>(L);
+00279 &#32;&#32;errno&#32;=&#32;0;
+00280 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a3db3f3a0c7de522b5e494c3ad06186d8">luaL_execresult</link>(L,&#32;<link linkend="_liolib_8c_1a2ab03e50e416477fb612dc808c6e2951">l_pclose</link>(L,&#32;p-&gt;<link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>));
+00281 }
+00282 
+00283 
+<anchor xml:id="_liolib_8c_source_1l00284"/><link linkend="_liolib_8c_1a8cc0b2b08409fb97e5cc80a0caf9b5fd">00284</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a8cc0b2b08409fb97e5cc80a0caf9b5fd">io_popen</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00285 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*filename&#32;=&#32;<link linkend="_lauxlib_8h_1ad9917d22c79651fdd73d42c146b5056f">luaL_checkstring</link>(L,&#32;1);
+00286 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*mode&#32;=&#32;<link linkend="_lauxlib_8h_1a732bc5882c4a5da46b236649ab6db47b">luaL_optstring</link>(L,&#32;2,&#32;<emphasis role="stringliteral">&quot;r&quot;</emphasis>);
+00287 &#32;&#32;<link linkend="_structlua_l___stream">LStream</link>&#32;*p&#32;=&#32;<link linkend="_liolib_8c_1ab456fc51383d039a5a24c702060aba8e">newprefile</link>(L);
+00288 &#32;&#32;<link linkend="_lauxlib_8h_1a48ce6cd86a7448e97f258097a7abc44d">luaL_argcheck</link>(L,&#32;<link linkend="_liolib_8c_1aa3d5752e1676a0c9559b617972d90360">l_checkmodep</link>(mode),&#32;2,&#32;<emphasis role="stringliteral">&quot;invalid&#32;mode&quot;</emphasis>);
+00289 &#32;&#32;p-&gt;<link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>&#32;=&#32;<link linkend="_liolib_8c_1abb5b1c7bfa0e31613ed25ca2bb648381">l_popen</link>(L,&#32;filename,&#32;mode);
+00290 &#32;&#32;p-&gt;<link linkend="_structlua_l___stream_1a421c7b3efc694e922fefb29e3263d17c">closef</link>&#32;=&#32;&amp;<link linkend="_liolib_8c_1ac885ae15fd14fc88058b0b8c1cf2b1d9">io_pclose</link>;
+00291 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;(p-&gt;<link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>&#32;==&#32;NULL)&#32;?&#32;<link linkend="_lauxlib_8c_1a86309080a5d45b232bcc240b45d06942">luaL_fileresult</link>(L,&#32;0,&#32;filename)&#32;:&#32;1;
+00292 }
+00293 
+00294 
+<anchor xml:id="_liolib_8c_source_1l00295"/><link linkend="_liolib_8c_1a0347de9dda8be02044075c96482eddb3">00295</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a0347de9dda8be02044075c96482eddb3">io_tmpfile</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00296 &#32;&#32;<link linkend="_structlua_l___stream">LStream</link>&#32;*p&#32;=&#32;<link linkend="_liolib_8c_1a57c6c258a611b738f0ef34584ca6e7ab">newfile</link>(L);
+00297 &#32;&#32;p-&gt;<link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>&#32;=&#32;tmpfile();
+00298 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;(p-&gt;<link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>&#32;==&#32;NULL)&#32;?&#32;<link linkend="_lauxlib_8c_1a86309080a5d45b232bcc240b45d06942">luaL_fileresult</link>(L,&#32;0,&#32;NULL)&#32;:&#32;1;
+00299 }
+00300 
+00301 
+<anchor xml:id="_liolib_8c_source_1l00302"/><link linkend="_liolib_8c_1a3bccbdacdc9f21f22a603525be1f3699">00302</link> <emphasis role="keyword">static</emphasis>&#32;FILE&#32;*<link linkend="_liolib_8c_1a3bccbdacdc9f21f22a603525be1f3699">getiofile</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*findex)&#32;{
+00303 &#32;&#32;<link linkend="_structlua_l___stream">LStream</link>&#32;*p;
+00304 &#32;&#32;<link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link>(L,&#32;<link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>,&#32;findex);
+00305 &#32;&#32;p&#32;=&#32;(<link linkend="_structlua_l___stream">LStream</link>&#32;*)<link linkend="_lapi_8c_1a0444ddf13e5618bca969e4b3b47bc0cc">lua_touserdata</link>(L,&#32;-1);
+00306 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_liolib_8c_1a933df16f547e59062271f306675f599c">isclosed</link>(p))
+00307 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;default&#32;%s&#32;file&#32;is&#32;closed&quot;</emphasis>,&#32;findex&#32;+&#32;<link linkend="_liolib_8c_1ac6ca58c960165047c3bf20e9546951b3">IOPREF_LEN</link>);
+00308 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;p-&gt;<link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>;
+00309 }
+00310 
+00311 
+<anchor xml:id="_liolib_8c_source_1l00312"/><link linkend="_liolib_8c_1aae942558ff528b4e1a483297c64e6886">00312</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1aae942558ff528b4e1a483297c64e6886">g_iofile</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*f,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*mode)&#32;{
+00313 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_lua_8h_1af51702bb75a31bb4a279953ee386d533">lua_isnoneornil</link>(L,&#32;1))&#32;{
+00314 &#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*filename&#32;=&#32;<link linkend="_lua_8h_1ac813fc3bc1886ba17c363d5b4c6e7ef1">lua_tostring</link>(L,&#32;1);
+00315 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(filename)
+00316 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_liolib_8c_1a91ec9c6fa0ef33085f29a15532ac80a7">opencheck</link>(L,&#32;filename,&#32;mode);
+00317 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00318 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_liolib_8c_1a3a596f9304846a90435b75c75c55acda">tofile</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;check&#32;that&#32;it&apos;s&#32;a&#32;valid&#32;file&#32;handle&#32;*/</emphasis>
+00319 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;1);
+00320 &#32;&#32;&#32;&#32;}
+00321 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;<link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>,&#32;f);
+00322 &#32;&#32;}
+00323 &#32;&#32;<emphasis role="comment">/*&#32;return&#32;current&#32;value&#32;*/</emphasis>
+00324 &#32;&#32;<link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link>(L,&#32;<link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>,&#32;f);
+00325 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00326 }
+00327 
+00328 
+<anchor xml:id="_liolib_8c_source_1l00329"/><link linkend="_liolib_8c_1a827044fde6f2c21ab965ba3d729f6a0f">00329</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a827044fde6f2c21ab965ba3d729f6a0f">io_input</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00330 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_liolib_8c_1aae942558ff528b4e1a483297c64e6886">g_iofile</link>(L,&#32;<link linkend="_liolib_8c_1a3c1a27aacf1dd33edffa2422da638d0f">IO_INPUT</link>,&#32;<emphasis role="stringliteral">&quot;r&quot;</emphasis>);
+00331 }
+00332 
+00333 
+<anchor xml:id="_liolib_8c_source_1l00334"/><link linkend="_liolib_8c_1a4464f89f0151ad432557b0a51258582c">00334</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a4464f89f0151ad432557b0a51258582c">io_output</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00335 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_liolib_8c_1aae942558ff528b4e1a483297c64e6886">g_iofile</link>(L,&#32;<link linkend="_liolib_8c_1aae48313230e7f773bf495ada1171c506">IO_OUTPUT</link>,&#32;<emphasis role="stringliteral">&quot;w&quot;</emphasis>);
+00336 }
+00337 
+00338 
+00339 <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1ac37d80ee2cc364b4adafcb6f7c20f28b">io_readline</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L);
+00340 
+00341 
+00342 <emphasis role="comment">/*</emphasis>
+00343 <emphasis role="comment">**&#32;maximum&#32;number&#32;of&#32;arguments&#32;to&#32;&apos;f:lines&apos;/&apos;io.lines&apos;&#32;(it&#32;+&#32;3&#32;must&#32;fit</emphasis>
+00344 <emphasis role="comment">**&#32;in&#32;the&#32;limit&#32;for&#32;upvalues&#32;of&#32;a&#32;closure)</emphasis>
+00345 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00346"/><link linkend="_liolib_8c_1a71cbd8e6a0b23499a1aef7e03eedf400">00346</link> <emphasis role="preprocessor">#define&#32;MAXARGLINE&#32;&#32;250</emphasis>
+00347 
+00348 <emphasis role="comment">/*</emphasis>
+00349 <emphasis role="comment">**&#32;Auxiliary&#32;function&#32;to&#32;create&#32;the&#32;iteration&#32;function&#32;for&#32;&apos;lines&apos;.</emphasis>
+00350 <emphasis role="comment">**&#32;The&#32;iteration&#32;function&#32;is&#32;a&#32;closure&#32;over&#32;&apos;io_readline&apos;,&#32;with</emphasis>
+00351 <emphasis role="comment">**&#32;the&#32;following&#32;upvalues:</emphasis>
+00352 <emphasis role="comment">**&#32;1)&#32;The&#32;file&#32;being&#32;read&#32;(first&#32;value&#32;in&#32;the&#32;stack)</emphasis>
+00353 <emphasis role="comment">**&#32;2)&#32;the&#32;number&#32;of&#32;arguments&#32;to&#32;read</emphasis>
+00354 <emphasis role="comment">**&#32;3)&#32;a&#32;boolean,&#32;true&#32;iff&#32;file&#32;has&#32;to&#32;be&#32;closed&#32;when&#32;finished&#32;(&apos;toclose&apos;)</emphasis>
+00355 <emphasis role="comment">**&#32;*)&#32;a&#32;variable&#32;number&#32;of&#32;format&#32;arguments&#32;(rest&#32;of&#32;the&#32;stack)</emphasis>
+00356 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00357"/><link linkend="_liolib_8c_1a66325940a0248cee288153edb061c0c4">00357</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_liolib_8c_1a66325940a0248cee288153edb061c0c4">aux_lines</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;toclose)&#32;{
+00358 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;n&#32;=&#32;<link linkend="_lapi_8c_1afbb08ecb69421875494105d4de68e5bf">lua_gettop</link>(L)&#32;-&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;number&#32;of&#32;arguments&#32;to&#32;read&#32;*/</emphasis>
+00359 &#32;&#32;<link linkend="_lauxlib_8h_1a48ce6cd86a7448e97f258097a7abc44d">luaL_argcheck</link>(L,&#32;n&#32;&lt;=&#32;<link linkend="_liolib_8c_1a71cbd8e6a0b23499a1aef7e03eedf400">MAXARGLINE</link>,&#32;<link linkend="_liolib_8c_1a71cbd8e6a0b23499a1aef7e03eedf400">MAXARGLINE</link>&#32;+&#32;2,&#32;<emphasis role="stringliteral">&quot;too&#32;many&#32;arguments&quot;</emphasis>);
+00360 &#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;file&#32;*/</emphasis>
+00361 &#32;&#32;<link linkend="_lapi_8c_1adcec46ff05dfee9a3c4c05828b40c213">lua_pushinteger</link>(L,&#32;n);&#32;&#32;<emphasis role="comment">/*&#32;number&#32;of&#32;arguments&#32;to&#32;read&#32;*/</emphasis>
+00362 &#32;&#32;<link linkend="_lapi_8c_1a56bbb7479265e38da2e2596e6ec25faa">lua_pushboolean</link>(L,&#32;toclose);&#32;&#32;<emphasis role="comment">/*&#32;close/not&#32;close&#32;file&#32;when&#32;finished&#32;*/</emphasis>
+00363 &#32;&#32;<link linkend="_lapi_8c_1af680e24129c0e021b4fbb7700cf185dc">lua_rotate</link>(L,&#32;2,&#32;3);&#32;&#32;<emphasis role="comment">/*&#32;move&#32;the&#32;three&#32;values&#32;to&#32;their&#32;positions&#32;*/</emphasis>
+00364 &#32;&#32;<link linkend="_lapi_8c_1a142802b91cdd22516b54599f51e101e4">lua_pushcclosure</link>(L,&#32;<link linkend="_liolib_8c_1ac37d80ee2cc364b4adafcb6f7c20f28b">io_readline</link>,&#32;3&#32;+&#32;n);
+00365 }
+00366 
+00367 
+<anchor xml:id="_liolib_8c_source_1l00368"/><link linkend="_liolib_8c_1a6a36f72d8b3966c1ebafab8a4791cb6c">00368</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a6a36f72d8b3966c1ebafab8a4791cb6c">f_lines</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00369 &#32;&#32;<link linkend="_liolib_8c_1a3a596f9304846a90435b75c75c55acda">tofile</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;check&#32;that&#32;it&apos;s&#32;a&#32;valid&#32;file&#32;handle&#32;*/</emphasis>
+00370 &#32;&#32;<link linkend="_liolib_8c_1a66325940a0248cee288153edb061c0c4">aux_lines</link>(L,&#32;0);
+00371 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00372 }
+00373 
+00374 
+00375 <emphasis role="comment">/*</emphasis>
+00376 <emphasis role="comment">**&#32;Return&#32;an&#32;iteration&#32;function&#32;for&#32;&apos;io.lines&apos;.&#32;If&#32;file&#32;has&#32;to&#32;be</emphasis>
+00377 <emphasis role="comment">**&#32;closed,&#32;also&#32;returns&#32;the&#32;file&#32;itself&#32;as&#32;a&#32;second&#32;result&#32;(to&#32;be</emphasis>
+00378 <emphasis role="comment">**&#32;closed&#32;as&#32;the&#32;state&#32;at&#32;the&#32;exit&#32;of&#32;a&#32;generic&#32;for).</emphasis>
+00379 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00380"/><link linkend="_liolib_8c_1ab08031b51605d4ef676ec33a3b96a286">00380</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1ab08031b51605d4ef676ec33a3b96a286">io_lines</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00381 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;toclose;
+00382 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lua_8h_1ad054300429f1094d3692313abc733ddf">lua_isnone</link>(L,&#32;1))&#32;<link linkend="_lapi_8c_1a1b4cd0d80f51e5545a97ca6c28c03c50">lua_pushnil</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;at&#32;least&#32;one&#32;argument&#32;*/</emphasis>
+00383 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lua_8h_1a86d737d7002e7e94023765397c6eef20">lua_isnil</link>(L,&#32;1))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;no&#32;file&#32;name?&#32;*/</emphasis>
+00384 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a8b47f1b5685c3f8018ba926abb99af24">lua_getfield</link>(L,&#32;<link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>,&#32;<link linkend="_liolib_8c_1a3c1a27aacf1dd33edffa2422da638d0f">IO_INPUT</link>);&#32;&#32;<emphasis role="comment">/*&#32;get&#32;default&#32;input&#32;*/</emphasis>
+00385 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a09daca42852c6356e4b415c46eba5955">lua_replace</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;put&#32;it&#32;at&#32;index&#32;1&#32;*/</emphasis>
+00386 &#32;&#32;&#32;&#32;<link linkend="_liolib_8c_1a3a596f9304846a90435b75c75c55acda">tofile</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;check&#32;that&#32;it&apos;s&#32;a&#32;valid&#32;file&#32;handle&#32;*/</emphasis>
+00387 &#32;&#32;&#32;&#32;toclose&#32;=&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;do&#32;not&#32;close&#32;it&#32;after&#32;iteration&#32;*/</emphasis>
+00388 &#32;&#32;}
+00389 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;open&#32;a&#32;new&#32;file&#32;*/</emphasis>
+00390 &#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*filename&#32;=&#32;<link linkend="_lauxlib_8h_1ad9917d22c79651fdd73d42c146b5056f">luaL_checkstring</link>(L,&#32;1);
+00391 &#32;&#32;&#32;&#32;<link linkend="_liolib_8c_1a91ec9c6fa0ef33085f29a15532ac80a7">opencheck</link>(L,&#32;filename,&#32;<emphasis role="stringliteral">&quot;r&quot;</emphasis>);
+00392 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a09daca42852c6356e4b415c46eba5955">lua_replace</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;put&#32;file&#32;at&#32;index&#32;1&#32;*/</emphasis>
+00393 &#32;&#32;&#32;&#32;toclose&#32;=&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;close&#32;it&#32;after&#32;iteration&#32;*/</emphasis>
+00394 &#32;&#32;}
+00395 &#32;&#32;<link linkend="_liolib_8c_1a66325940a0248cee288153edb061c0c4">aux_lines</link>(L,&#32;toclose);&#32;&#32;<emphasis role="comment">/*&#32;push&#32;iteration&#32;function&#32;*/</emphasis>
+00396 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(toclose)&#32;{
+00397 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a1b4cd0d80f51e5545a97ca6c28c03c50">lua_pushnil</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;state&#32;*/</emphasis>
+00398 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a1b4cd0d80f51e5545a97ca6c28c03c50">lua_pushnil</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;control&#32;*/</emphasis>
+00399 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;file&#32;is&#32;the&#32;to-be-closed&#32;variable&#32;(4th&#32;result)&#32;*/</emphasis>
+00400 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;4;
+00401 &#32;&#32;}
+00402 &#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00403 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00404 }
+00405 
+00406 
+00407 <emphasis role="comment">/*</emphasis>
+00408 <emphasis role="comment">**&#32;{======================================================</emphasis>
+00409 <emphasis role="comment">**&#32;READ</emphasis>
+00410 <emphasis role="comment">**&#32;=======================================================</emphasis>
+00411 <emphasis role="comment">*/</emphasis>
+00412 
+00413 
+00414 <emphasis role="comment">/*&#32;maximum&#32;length&#32;of&#32;a&#32;numeral&#32;*/</emphasis>
+00415 <emphasis role="preprocessor">#if&#32;!defined&#32;(L_MAXLENNUM)</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00416"/><link linkend="_liolib_8c_1a98d71ac135df4047b2f051fcc7a1f40f">00416</link> <emphasis role="preprocessor">#define&#32;L_MAXLENNUM&#32;&#32;&#32;&#32;&#32;200</emphasis>
+00417 <emphasis role="preprocessor">#endif</emphasis>
+00418 
+00419 
+00420 <emphasis role="comment">/*&#32;auxiliary&#32;structure&#32;used&#32;by&#32;&apos;read_number&apos;&#32;*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00421"/><link linkend="_struct_r_n">00421</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis>{
+<anchor xml:id="_liolib_8c_source_1l00422"/><link linkend="_struct_r_n_1a3efb0e1a16208deecbd84c15401f7cf8">00422</link> &#32;&#32;FILE&#32;*<link linkend="_struct_r_n_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>;&#32;&#32;<emphasis role="comment">/*&#32;file&#32;being&#32;read&#32;*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00423"/><link linkend="_struct_r_n_1a4e1e0e72dd773439e333c84dd762a9c3">00423</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_r_n_1a4e1e0e72dd773439e333c84dd762a9c3">c</link>;&#32;&#32;<emphasis role="comment">/*&#32;current&#32;character&#32;(look&#32;ahead)&#32;*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00424"/><link linkend="_struct_r_n_1a76f11d9a0a47b94f72c2d0e77fb32240">00424</link> &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_struct_r_n_1a76f11d9a0a47b94f72c2d0e77fb32240">n</link>;&#32;&#32;<emphasis role="comment">/*&#32;number&#32;of&#32;elements&#32;in&#32;buffer&#32;&apos;buff&apos;&#32;*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00425"/><link linkend="_struct_r_n_1a22532844b1d1340f073bb6949340f491">00425</link> &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;buff[<link linkend="_liolib_8c_1a98d71ac135df4047b2f051fcc7a1f40f">L_MAXLENNUM</link>&#32;+&#32;1];&#32;&#32;<emphasis role="comment">/*&#32;+1&#32;for&#32;ending&#32;&apos;\0&apos;&#32;*/</emphasis>
+00426 }&#32;<link linkend="_struct_r_n">RN</link>;
+00427 
+00428 
+00429 <emphasis role="comment">/*</emphasis>
+00430 <emphasis role="comment">**&#32;Add&#32;current&#32;char&#32;to&#32;buffer&#32;(if&#32;not&#32;out&#32;of&#32;space)&#32;and&#32;read&#32;next&#32;one</emphasis>
+00431 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00432"/><link linkend="_liolib_8c_1ab75f5f85c38ee22fc9884f0bd7ef836d">00432</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1ab75f5f85c38ee22fc9884f0bd7ef836d">nextc</link>&#32;(<link linkend="_struct_r_n">RN</link>&#32;*rn)&#32;{
+00433 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(rn-&gt;<link linkend="_struct_r_n_1a76f11d9a0a47b94f72c2d0e77fb32240">n</link>&#32;&gt;=&#32;<link linkend="_liolib_8c_1a98d71ac135df4047b2f051fcc7a1f40f">L_MAXLENNUM</link>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;buffer&#32;overflow?&#32;*/</emphasis>
+00434 &#32;&#32;&#32;&#32;rn-&gt;<link linkend="_struct_r_n_1a22532844b1d1340f073bb6949340f491">buff</link>[0]&#32;=&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;invalidate&#32;result&#32;*/</emphasis>
+00435 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;fail&#32;*/</emphasis>
+00436 &#32;&#32;}
+00437 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00438 &#32;&#32;&#32;&#32;rn-&gt;<link linkend="_struct_r_n_1a22532844b1d1340f073bb6949340f491">buff</link>[rn-&gt;<link linkend="_struct_r_n_1a76f11d9a0a47b94f72c2d0e77fb32240">n</link>++]&#32;=&#32;rn-&gt;<link linkend="_struct_r_n_1a4e1e0e72dd773439e333c84dd762a9c3">c</link>;&#32;&#32;<emphasis role="comment">/*&#32;save&#32;current&#32;char&#32;*/</emphasis>
+00439 &#32;&#32;&#32;&#32;rn-&gt;<link linkend="_struct_r_n_1a4e1e0e72dd773439e333c84dd762a9c3">c</link>&#32;=&#32;<link linkend="_liolib_8c_1a039d3e5509ea3a88809269f400f58ba5">l_getc</link>(rn-&gt;<link linkend="_struct_r_n_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>);&#32;&#32;<emphasis role="comment">/*&#32;read&#32;next&#32;one&#32;*/</emphasis>
+00440 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00441 &#32;&#32;}
+00442 }
+00443 
+00444 
+00445 <emphasis role="comment">/*</emphasis>
+00446 <emphasis role="comment">**&#32;Accept&#32;current&#32;char&#32;if&#32;it&#32;is&#32;in&#32;&apos;set&apos;&#32;(of&#32;size&#32;2)</emphasis>
+00447 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00448"/><link linkend="_liolib_8c_1a5c7dc3feb7edf50432b742767d4748f4">00448</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a5c7dc3feb7edf50432b742767d4748f4">test2</link>&#32;(<link linkend="_struct_r_n">RN</link>&#32;*rn,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*set)&#32;{
+00449 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(rn-&gt;<link linkend="_struct_r_n_1a4e1e0e72dd773439e333c84dd762a9c3">c</link>&#32;==&#32;set[0]&#32;||&#32;rn-&gt;<link linkend="_struct_r_n_1a4e1e0e72dd773439e333c84dd762a9c3">c</link>&#32;==&#32;set[1])
+00450 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_liolib_8c_1ab75f5f85c38ee22fc9884f0bd7ef836d">nextc</link>(rn);
+00451 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;
+00452 }
+00453 
+00454 
+00455 <emphasis role="comment">/*</emphasis>
+00456 <emphasis role="comment">**&#32;Read&#32;a&#32;sequence&#32;of&#32;(hex)digits</emphasis>
+00457 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00458"/><link linkend="_liolib_8c_1a7ab70833e31129b3a9d2b49869c72978">00458</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a7ab70833e31129b3a9d2b49869c72978">readdigits</link>&#32;(<link linkend="_struct_r_n">RN</link>&#32;*rn,&#32;<emphasis role="keywordtype">int</emphasis>&#32;hex)&#32;{
+00459 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;count&#32;=&#32;0;
+00460 &#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;((hex&#32;?&#32;isxdigit(rn-&gt;<link linkend="_struct_r_n_1a4e1e0e72dd773439e333c84dd762a9c3">c</link>)&#32;:&#32;isdigit(rn-&gt;<link linkend="_struct_r_n_1a4e1e0e72dd773439e333c84dd762a9c3">c</link>))&#32;&amp;&amp;&#32;<link linkend="_liolib_8c_1ab75f5f85c38ee22fc9884f0bd7ef836d">nextc</link>(rn))
+00461 &#32;&#32;&#32;&#32;count++;
+00462 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;count;
+00463 }
+00464 
+00465 
+00466 <emphasis role="comment">/*</emphasis>
+00467 <emphasis role="comment">**&#32;Read&#32;a&#32;number:&#32;first&#32;reads&#32;a&#32;valid&#32;prefix&#32;of&#32;a&#32;numeral&#32;into&#32;a&#32;buffer.</emphasis>
+00468 <emphasis role="comment">**&#32;Then&#32;it&#32;calls&#32;&apos;lua_stringtonumber&apos;&#32;to&#32;check&#32;whether&#32;the&#32;format&#32;is</emphasis>
+00469 <emphasis role="comment">**&#32;correct&#32;and&#32;to&#32;convert&#32;it&#32;to&#32;a&#32;Lua&#32;number.</emphasis>
+00470 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00471"/><link linkend="_liolib_8c_1a5345908bf60e4bd37d768b052ac26ec7">00471</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a5345908bf60e4bd37d768b052ac26ec7">read_number</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;FILE&#32;*f)&#32;{
+00472 &#32;&#32;<link linkend="_struct_r_n">RN</link>&#32;rn;
+00473 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;count&#32;=&#32;0;
+00474 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;hex&#32;=&#32;0;
+00475 &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;decp[2];
+00476 &#32;&#32;rn.<link linkend="_struct_r_n_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>&#32;=&#32;f;&#32;rn.<link linkend="_struct_r_n_1a76f11d9a0a47b94f72c2d0e77fb32240">n</link>&#32;=&#32;0;
+00477 &#32;&#32;decp[0]&#32;=&#32;<link linkend="_luaconf_8h_1a20bcdecbc9221570e70455f767061698">lua_getlocaledecpoint</link>();&#32;&#32;<emphasis role="comment">/*&#32;get&#32;decimal&#32;point&#32;from&#32;locale&#32;*/</emphasis>
+00478 &#32;&#32;decp[1]&#32;=&#32;<emphasis role="charliteral">&apos;.&apos;</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;always&#32;accept&#32;a&#32;dot&#32;*/</emphasis>
+00479 &#32;&#32;<link linkend="_liolib_8c_1ac0ab419b6e0666a091b66d7948fd4e2d">l_lockfile</link>(rn.<link linkend="_struct_r_n_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>);
+00480 &#32;&#32;<emphasis role="keywordflow">do</emphasis>&#32;{&#32;rn.<link linkend="_struct_r_n_1a4e1e0e72dd773439e333c84dd762a9c3">c</link>&#32;=&#32;<link linkend="_liolib_8c_1a039d3e5509ea3a88809269f400f58ba5">l_getc</link>(rn.<link linkend="_struct_r_n_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>);&#32;}&#32;<emphasis role="keywordflow">while</emphasis>&#32;(isspace(rn.<link linkend="_struct_r_n_1a4e1e0e72dd773439e333c84dd762a9c3">c</link>));&#32;&#32;<emphasis role="comment">/*&#32;skip&#32;spaces&#32;*/</emphasis>
+00481 &#32;&#32;<link linkend="_liolib_8c_1a5c7dc3feb7edf50432b742767d4748f4">test2</link>(&amp;rn,&#32;<emphasis role="stringliteral">&quot;-+&quot;</emphasis>);&#32;&#32;<emphasis role="comment">/*&#32;optional&#32;sign&#32;*/</emphasis>
+00482 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_liolib_8c_1a5c7dc3feb7edf50432b742767d4748f4">test2</link>(&amp;rn,&#32;<emphasis role="stringliteral">&quot;00&quot;</emphasis>))&#32;{
+00483 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_liolib_8c_1a5c7dc3feb7edf50432b742767d4748f4">test2</link>(&amp;rn,&#32;<emphasis role="stringliteral">&quot;xX&quot;</emphasis>))&#32;hex&#32;=&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;numeral&#32;is&#32;hexadecimal&#32;*/</emphasis>
+00484 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;count&#32;=&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;count&#32;initial&#32;&apos;0&apos;&#32;as&#32;a&#32;valid&#32;digit&#32;*/</emphasis>
+00485 &#32;&#32;}
+00486 &#32;&#32;count&#32;+=&#32;<link linkend="_liolib_8c_1a7ab70833e31129b3a9d2b49869c72978">readdigits</link>(&amp;rn,&#32;hex);&#32;&#32;<emphasis role="comment">/*&#32;integral&#32;part&#32;*/</emphasis>
+00487 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_liolib_8c_1a5c7dc3feb7edf50432b742767d4748f4">test2</link>(&amp;rn,&#32;decp))&#32;&#32;<emphasis role="comment">/*&#32;decimal&#32;point?&#32;*/</emphasis>
+00488 &#32;&#32;&#32;&#32;count&#32;+=&#32;<link linkend="_liolib_8c_1a7ab70833e31129b3a9d2b49869c72978">readdigits</link>(&amp;rn,&#32;hex);&#32;&#32;<emphasis role="comment">/*&#32;fractional&#32;part&#32;*/</emphasis>
+00489 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(count&#32;&gt;&#32;0&#32;&amp;&amp;&#32;<link linkend="_liolib_8c_1a5c7dc3feb7edf50432b742767d4748f4">test2</link>(&amp;rn,&#32;(hex&#32;?&#32;<emphasis role="stringliteral">&quot;pP&quot;</emphasis>&#32;:&#32;<emphasis role="stringliteral">&quot;eE&quot;</emphasis>)))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;exponent&#32;mark?&#32;*/</emphasis>
+00490 &#32;&#32;&#32;&#32;<link linkend="_liolib_8c_1a5c7dc3feb7edf50432b742767d4748f4">test2</link>(&amp;rn,&#32;<emphasis role="stringliteral">&quot;-+&quot;</emphasis>);&#32;&#32;<emphasis role="comment">/*&#32;exponent&#32;sign&#32;*/</emphasis>
+00491 &#32;&#32;&#32;&#32;<link linkend="_liolib_8c_1a7ab70833e31129b3a9d2b49869c72978">readdigits</link>(&amp;rn,&#32;0);&#32;&#32;<emphasis role="comment">/*&#32;exponent&#32;digits&#32;*/</emphasis>
+00492 &#32;&#32;}
+00493 &#32;&#32;ungetc(rn.<link linkend="_struct_r_n_1a4e1e0e72dd773439e333c84dd762a9c3">c</link>,&#32;rn.<link linkend="_struct_r_n_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>);&#32;&#32;<emphasis role="comment">/*&#32;unread&#32;look-ahead&#32;char&#32;*/</emphasis>
+00494 &#32;&#32;<link linkend="_liolib_8c_1a4fb31ed5e0fc117ce51bc6e5391bb789">l_unlockfile</link>(rn.<link linkend="_struct_r_n_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>);
+00495 &#32;&#32;rn.<link linkend="_struct_r_n_1a22532844b1d1340f073bb6949340f491">buff</link>[rn.<link linkend="_struct_r_n_1a76f11d9a0a47b94f72c2d0e77fb32240">n</link>]&#32;=&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;finish&#32;string&#32;*/</emphasis>
+00496 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lapi_8c_1ab9c2fb9e2b2c7dad7474dd4b6f1bbcd0">lua_stringtonumber</link>(L,&#32;rn.<link linkend="_struct_r_n_1a22532844b1d1340f073bb6949340f491">buff</link>))&#32;&#32;<emphasis role="comment">/*&#32;is&#32;this&#32;a&#32;valid&#32;number?&#32;*/</emphasis>
+00497 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;ok&#32;*/</emphasis>
+00498 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;invalid&#32;format&#32;*/</emphasis>
+00499 &#32;&#32;&#32;<link linkend="_lapi_8c_1a1b4cd0d80f51e5545a97ca6c28c03c50">lua_pushnil</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;&quot;result&quot;&#32;to&#32;be&#32;removed&#32;*/</emphasis>
+00500 &#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;read&#32;fails&#32;*/</emphasis>
+00501 &#32;&#32;}
+00502 }
+00503 
+00504 
+<anchor xml:id="_liolib_8c_source_1l00505"/><link linkend="_liolib_8c_1ace61fce0bdea311d6d7c2206881165c7">00505</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1ace61fce0bdea311d6d7c2206881165c7">test_eof</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;FILE&#32;*f)&#32;{
+00506 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;c&#32;=&#32;getc(f);
+00507 &#32;&#32;ungetc(c,&#32;f);&#32;&#32;<emphasis role="comment">/*&#32;no-op&#32;when&#32;c&#32;==&#32;EOF&#32;*/</emphasis>
+00508 &#32;&#32;<link linkend="_lua_8h_1a47854189a679002ed743ebbcb30b1b26">lua_pushliteral</link>(L,&#32;<emphasis role="stringliteral">&quot;&quot;</emphasis>);
+00509 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;(c&#32;!=&#32;EOF);
+00510 }
+00511 
+00512 
+<anchor xml:id="_liolib_8c_source_1l00513"/><link linkend="_liolib_8c_1ae697e23c2b1ea23d8935f579aa21200c">00513</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1ae697e23c2b1ea23d8935f579aa21200c">read_line</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;FILE&#32;*f,&#32;<emphasis role="keywordtype">int</emphasis>&#32;chop)&#32;{
+00514 &#32;&#32;<link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;b;
+00515 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;c;
+00516 &#32;&#32;<link linkend="_lauxlib_8c_1a0830ef75e335f6d7590b0e058f82a5eb">luaL_buffinit</link>(L,&#32;&amp;b);
+00517 &#32;&#32;<emphasis role="keywordflow">do</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;may&#32;need&#32;to&#32;read&#32;several&#32;chunks&#32;to&#32;get&#32;whole&#32;line&#32;*/</emphasis>
+00518 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;*buff&#32;=&#32;<link linkend="_lauxlib_8h_1acc49fd35fabb25016f7de3256eb9bc6c">luaL_prepbuffer</link>(&amp;b);&#32;&#32;<emphasis role="comment">/*&#32;preallocate&#32;buffer&#32;space&#32;*/</emphasis>
+00519 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i&#32;=&#32;0;
+00520 &#32;&#32;&#32;&#32;<link linkend="_liolib_8c_1ac0ab419b6e0666a091b66d7948fd4e2d">l_lockfile</link>(f);&#32;&#32;<emphasis role="comment">/*&#32;no&#32;memory&#32;errors&#32;can&#32;happen&#32;inside&#32;the&#32;lock&#32;*/</emphasis>
+00521 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;(i&#32;&lt;&#32;<link linkend="_ltests_8h_1af360ad37a770dfdc29291a99c398f42d">LUAL_BUFFERSIZE</link>&#32;&amp;&amp;&#32;(c&#32;=&#32;<link linkend="_liolib_8c_1a039d3e5509ea3a88809269f400f58ba5">l_getc</link>(f))&#32;!=&#32;EOF&#32;&amp;&amp;&#32;c&#32;!=&#32;<emphasis role="charliteral">&apos;\n&apos;</emphasis>)
+00522 &#32;&#32;&#32;&#32;&#32;&#32;buff[i++]&#32;=&#32;c;&#32;&#32;<emphasis role="comment">/*&#32;read&#32;up&#32;to&#32;end&#32;of&#32;line&#32;or&#32;buffer&#32;limit&#32;*/</emphasis>
+00523 &#32;&#32;&#32;&#32;<link linkend="_liolib_8c_1a4fb31ed5e0fc117ce51bc6e5391bb789">l_unlockfile</link>(f);
+00524 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a7c0adb7401e0be1a843946cee0556684">luaL_addsize</link>(&amp;b,&#32;i);
+00525 &#32;&#32;}&#32;<emphasis role="keywordflow">while</emphasis>&#32;(c&#32;!=&#32;EOF&#32;&amp;&amp;&#32;c&#32;!=&#32;<emphasis role="charliteral">&apos;\n&apos;</emphasis>);&#32;&#32;<emphasis role="comment">/*&#32;repeat&#32;until&#32;end&#32;of&#32;line&#32;*/</emphasis>
+00526 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!chop&#32;&amp;&amp;&#32;c&#32;==&#32;<emphasis role="charliteral">&apos;\n&apos;</emphasis>)&#32;&#32;<emphasis role="comment">/*&#32;want&#32;a&#32;newline&#32;and&#32;have&#32;one?&#32;*/</emphasis>
+00527 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a63935c5b4cf5d45930c875f6cc5e1432">luaL_addchar</link>(&amp;b,&#32;c);&#32;&#32;<emphasis role="comment">/*&#32;add&#32;ending&#32;newline&#32;to&#32;result&#32;*/</emphasis>
+00528 &#32;&#32;<link linkend="_lauxlib_8c_1a3a1f80033814e2057583a7d24cee23b4">luaL_pushresult</link>(&amp;b);&#32;&#32;<emphasis role="comment">/*&#32;close&#32;buffer&#32;*/</emphasis>
+00529 &#32;&#32;<emphasis role="comment">/*&#32;return&#32;ok&#32;if&#32;read&#32;something&#32;(either&#32;a&#32;newline&#32;or&#32;something&#32;else)&#32;*/</emphasis>
+00530 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;(c&#32;==&#32;<emphasis role="charliteral">&apos;\n&apos;</emphasis>&#32;||&#32;<link linkend="_lapi_8c_1a161e2baf3d7a6a84499f6a9010cf12c8">lua_rawlen</link>(L,&#32;-1)&#32;&gt;&#32;0);
+00531 }
+00532 
+00533 
+<anchor xml:id="_liolib_8c_source_1l00534"/><link linkend="_liolib_8c_1a48a16089fed2e802a76635a3f8bfe8e3">00534</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_liolib_8c_1a48a16089fed2e802a76635a3f8bfe8e3">read_all</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;FILE&#32;*f)&#32;{
+00535 &#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;nr;
+00536 &#32;&#32;<link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;b;
+00537 &#32;&#32;<link linkend="_lauxlib_8c_1a0830ef75e335f6d7590b0e058f82a5eb">luaL_buffinit</link>(L,&#32;&amp;b);
+00538 &#32;&#32;<emphasis role="keywordflow">do</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;read&#32;file&#32;in&#32;chunks&#32;of&#32;LUAL_BUFFERSIZE&#32;bytes&#32;*/</emphasis>
+00539 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;*p&#32;=&#32;<link linkend="_lauxlib_8h_1acc49fd35fabb25016f7de3256eb9bc6c">luaL_prepbuffer</link>(&amp;b);
+00540 &#32;&#32;&#32;&#32;nr&#32;=&#32;fread(p,&#32;<emphasis role="keyword">sizeof</emphasis>(<emphasis role="keywordtype">char</emphasis>),&#32;<link linkend="_ltests_8h_1af360ad37a770dfdc29291a99c398f42d">LUAL_BUFFERSIZE</link>,&#32;f);
+00541 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a7c0adb7401e0be1a843946cee0556684">luaL_addsize</link>(&amp;b,&#32;nr);
+00542 &#32;&#32;}&#32;<emphasis role="keywordflow">while</emphasis>&#32;(nr&#32;==&#32;<link linkend="_ltests_8h_1af360ad37a770dfdc29291a99c398f42d">LUAL_BUFFERSIZE</link>);
+00543 &#32;&#32;<link linkend="_lauxlib_8c_1a3a1f80033814e2057583a7d24cee23b4">luaL_pushresult</link>(&amp;b);&#32;&#32;<emphasis role="comment">/*&#32;close&#32;buffer&#32;*/</emphasis>
+00544 }
+00545 
+00546 
+<anchor xml:id="_liolib_8c_source_1l00547"/><link linkend="_liolib_8c_1a6735c0513432f83bfa1b88b056ab379b">00547</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a6735c0513432f83bfa1b88b056ab379b">read_chars</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;FILE&#32;*f,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;n)&#32;{
+00548 &#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;nr;&#32;&#32;<emphasis role="comment">/*&#32;number&#32;of&#32;chars&#32;actually&#32;read&#32;*/</emphasis>
+00549 &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;*p;
+00550 &#32;&#32;<link linkend="_structlua_l___buffer">luaL_Buffer</link>&#32;b;
+00551 &#32;&#32;<link linkend="_lauxlib_8c_1a0830ef75e335f6d7590b0e058f82a5eb">luaL_buffinit</link>(L,&#32;&amp;b);
+00552 &#32;&#32;p&#32;=&#32;<link linkend="_lauxlib_8c_1ae695ed340bec54979c499b70d7d29318">luaL_prepbuffsize</link>(&amp;b,&#32;n);&#32;&#32;<emphasis role="comment">/*&#32;prepare&#32;buffer&#32;to&#32;read&#32;whole&#32;block&#32;*/</emphasis>
+00553 &#32;&#32;nr&#32;=&#32;fread(p,&#32;<emphasis role="keyword">sizeof</emphasis>(<emphasis role="keywordtype">char</emphasis>),&#32;n,&#32;f);&#32;&#32;<emphasis role="comment">/*&#32;try&#32;to&#32;read&#32;&apos;n&apos;&#32;chars&#32;*/</emphasis>
+00554 &#32;&#32;<link linkend="_lauxlib_8h_1a7c0adb7401e0be1a843946cee0556684">luaL_addsize</link>(&amp;b,&#32;nr);
+00555 &#32;&#32;<link linkend="_lauxlib_8c_1a3a1f80033814e2057583a7d24cee23b4">luaL_pushresult</link>(&amp;b);&#32;&#32;<emphasis role="comment">/*&#32;close&#32;buffer&#32;*/</emphasis>
+00556 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;(nr&#32;&gt;&#32;0);&#32;&#32;<emphasis role="comment">/*&#32;true&#32;iff&#32;read&#32;something&#32;*/</emphasis>
+00557 }
+00558 
+00559 
+<anchor xml:id="_liolib_8c_source_1l00560"/><link linkend="_liolib_8c_1addece2406777a40f0f591e3518293932">00560</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1addece2406777a40f0f591e3518293932">g_read</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;FILE&#32;*f,&#32;<emphasis role="keywordtype">int</emphasis>&#32;first)&#32;{
+00561 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;nargs&#32;=&#32;<link linkend="_lapi_8c_1afbb08ecb69421875494105d4de68e5bf">lua_gettop</link>(L)&#32;-&#32;1;
+00562 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;n,&#32;success;
+00563 &#32;&#32;clearerr(f);
+00564 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(nargs&#32;==&#32;0)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;no&#32;arguments?&#32;*/</emphasis>
+00565 &#32;&#32;&#32;&#32;success&#32;=&#32;<link linkend="_liolib_8c_1ae697e23c2b1ea23d8935f579aa21200c">read_line</link>(L,&#32;f,&#32;1);
+00566 &#32;&#32;&#32;&#32;n&#32;=&#32;first&#32;+&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;to&#32;return&#32;1&#32;result&#32;*/</emphasis>
+00567 &#32;&#32;}
+00568 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00569 &#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;ensure&#32;stack&#32;space&#32;for&#32;all&#32;results&#32;and&#32;for&#32;auxlib&apos;s&#32;buffer&#32;*/</emphasis>
+00570 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a7c46517055e0e8cb25e61b959709083a">luaL_checkstack</link>(L,&#32;nargs+<link linkend="_lua_8h_1ad0180b89de8a4425cb2a1a3e3f793aa5">LUA_MINSTACK</link>,&#32;<emphasis role="stringliteral">&quot;too&#32;many&#32;arguments&quot;</emphasis>);
+00571 &#32;&#32;&#32;&#32;success&#32;=&#32;1;
+00572 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(n&#32;=&#32;first;&#32;nargs--&#32;&amp;&amp;&#32;success;&#32;n++)&#32;{
+00573 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lapi_8c_1a652b273947f0656686f998d8e90cd3ea">lua_type</link>(L,&#32;n)&#32;==&#32;<link linkend="_lua_8h_1a7f62ecb240cb38da9c8a53b41fe21ed9">LUA_TNUMBER</link>)&#32;{
+00574 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;l&#32;=&#32;(size_t)<link linkend="_lauxlib_8c_1aa15bea412c49bfdee1f3dbff096ce7d2">luaL_checkinteger</link>(L,&#32;n);
+00575 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;success&#32;=&#32;(l&#32;==&#32;0)&#32;?&#32;<link linkend="_liolib_8c_1ace61fce0bdea311d6d7c2206881165c7">test_eof</link>(L,&#32;f)&#32;:&#32;<link linkend="_liolib_8c_1a6735c0513432f83bfa1b88b056ab379b">read_chars</link>(L,&#32;f,&#32;l);
+00576 &#32;&#32;&#32;&#32;&#32;&#32;}
+00577 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00578 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*p&#32;=&#32;<link linkend="_lauxlib_8h_1ad9917d22c79651fdd73d42c146b5056f">luaL_checkstring</link>(L,&#32;n);
+00579 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(*p&#32;==&#32;<emphasis role="charliteral">&apos;*&apos;</emphasis>)&#32;p++;&#32;&#32;<emphasis role="comment">/*&#32;skip&#32;optional&#32;&apos;*&apos;&#32;(for&#32;compatibility)&#32;*/</emphasis>
+00580 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">switch</emphasis>&#32;(*p)&#32;{
+00581 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;n&apos;</emphasis>:&#32;&#32;<emphasis role="comment">/*&#32;number&#32;*/</emphasis>
+00582 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;success&#32;=&#32;<link linkend="_liolib_8c_1a5345908bf60e4bd37d768b052ac26ec7">read_number</link>(L,&#32;f);
+00583 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00584 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;l&apos;</emphasis>:&#32;&#32;<emphasis role="comment">/*&#32;line&#32;*/</emphasis>
+00585 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;success&#32;=&#32;<link linkend="_liolib_8c_1ae697e23c2b1ea23d8935f579aa21200c">read_line</link>(L,&#32;f,&#32;1);
+00586 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00587 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;L&apos;</emphasis>:&#32;&#32;<emphasis role="comment">/*&#32;line&#32;with&#32;end-of-line&#32;*/</emphasis>
+00588 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;success&#32;=&#32;<link linkend="_liolib_8c_1ae697e23c2b1ea23d8935f579aa21200c">read_line</link>(L,&#32;f,&#32;0);
+00589 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00590 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;a&apos;</emphasis>:&#32;&#32;<emphasis role="comment">/*&#32;file&#32;*/</emphasis>
+00591 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_liolib_8c_1a48a16089fed2e802a76635a3f8bfe8e3">read_all</link>(L,&#32;f);&#32;&#32;<emphasis role="comment">/*&#32;read&#32;entire&#32;file&#32;*/</emphasis>
+00592 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;success&#32;=&#32;1;&#32;<emphasis role="comment">/*&#32;always&#32;success&#32;*/</emphasis>
+00593 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00594 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">default</emphasis>:
+00595 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1ac607576dd107a3120cd51948989f1ed2">luaL_argerror</link>(L,&#32;n,&#32;<emphasis role="stringliteral">&quot;invalid&#32;format&quot;</emphasis>);
+00596 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+00597 &#32;&#32;&#32;&#32;&#32;&#32;}
+00598 &#32;&#32;&#32;&#32;}
+00599 &#32;&#32;}
+00600 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ferror(f))
+00601 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a86309080a5d45b232bcc240b45d06942">luaL_fileresult</link>(L,&#32;0,&#32;NULL);
+00602 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!success)&#32;{
+00603 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;last&#32;result&#32;*/</emphasis>
+00604 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a8666135f7a1412f5eaa14857aec279f0">luaL_pushfail</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;push&#32;nil&#32;instead&#32;*/</emphasis>
+00605 &#32;&#32;}
+00606 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;n&#32;-&#32;first;
+00607 }
+00608 
+00609 
+<anchor xml:id="_liolib_8c_source_1l00610"/><link linkend="_liolib_8c_1a45307aa59a628966c6ea270e9b476d9a">00610</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a45307aa59a628966c6ea270e9b476d9a">io_read</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00611 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_liolib_8c_1addece2406777a40f0f591e3518293932">g_read</link>(L,&#32;<link linkend="_liolib_8c_1a3bccbdacdc9f21f22a603525be1f3699">getiofile</link>(L,&#32;<link linkend="_liolib_8c_1a3c1a27aacf1dd33edffa2422da638d0f">IO_INPUT</link>),&#32;1);
+00612 }
+00613 
+00614 
+<anchor xml:id="_liolib_8c_source_1l00615"/><link linkend="_liolib_8c_1add5250a74576076467531e4eb8f5f68e">00615</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1add5250a74576076467531e4eb8f5f68e">f_read</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00616 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_liolib_8c_1addece2406777a40f0f591e3518293932">g_read</link>(L,&#32;<link linkend="_liolib_8c_1a3a596f9304846a90435b75c75c55acda">tofile</link>(L),&#32;2);
+00617 }
+00618 
+00619 
+00620 <emphasis role="comment">/*</emphasis>
+00621 <emphasis role="comment">**&#32;Iteration&#32;function&#32;for&#32;&apos;lines&apos;.</emphasis>
+00622 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00623"/><link linkend="_liolib_8c_1ac37d80ee2cc364b4adafcb6f7c20f28b">00623</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1ac37d80ee2cc364b4adafcb6f7c20f28b">io_readline</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00624 &#32;&#32;<link linkend="_structlua_l___stream">LStream</link>&#32;*p&#32;=&#32;(<link linkend="_structlua_l___stream">LStream</link>&#32;*)<link linkend="_lapi_8c_1a0444ddf13e5618bca969e4b3b47bc0cc">lua_touserdata</link>(L,&#32;<link linkend="_lua_8h_1ac3aa6665c25070f282c9827ec919fe6a">lua_upvalueindex</link>(1));
+00625 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i;
+00626 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;n&#32;=&#32;(int)<link linkend="_lua_8h_1a1365e48377a3b567e9d88423b2a6345c">lua_tointeger</link>(L,&#32;<link linkend="_lua_8h_1ac3aa6665c25070f282c9827ec919fe6a">lua_upvalueindex</link>(2));
+00627 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_liolib_8c_1a933df16f547e59062271f306675f599c">isclosed</link>(p))&#32;&#32;<emphasis role="comment">/*&#32;file&#32;is&#32;already&#32;closed?&#32;*/</emphasis>
+00628 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;file&#32;is&#32;already&#32;closed&quot;</emphasis>);
+00629 &#32;&#32;<link linkend="_lapi_8c_1adaa30f0d34786144c94644039d1d1b6e">lua_settop</link>(L&#32;,&#32;1);
+00630 &#32;&#32;<link linkend="_lauxlib_8c_1a7c46517055e0e8cb25e61b959709083a">luaL_checkstack</link>(L,&#32;n,&#32;<emphasis role="stringliteral">&quot;too&#32;many&#32;arguments&quot;</emphasis>);
+00631 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;1;&#32;i&#32;&lt;=&#32;n;&#32;i++)&#32;&#32;<emphasis role="comment">/*&#32;push&#32;arguments&#32;to&#32;&apos;g_read&apos;&#32;*/</emphasis>
+00632 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;<link linkend="_lua_8h_1ac3aa6665c25070f282c9827ec919fe6a">lua_upvalueindex</link>(3&#32;+&#32;i));
+00633 &#32;&#32;n&#32;=&#32;<link linkend="_liolib_8c_1addece2406777a40f0f591e3518293932">g_read</link>(L,&#32;p-&gt;<link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>,&#32;2);&#32;&#32;<emphasis role="comment">/*&#32;&apos;n&apos;&#32;is&#32;number&#32;of&#32;results&#32;*/</emphasis>
+00634 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(n&#32;&gt;&#32;0);&#32;&#32;<emphasis role="comment">/*&#32;should&#32;return&#32;at&#32;least&#32;a&#32;nil&#32;*/</emphasis>
+00635 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lapi_8c_1a444aee9aa56b0b06175ee3c7bcf7927c">lua_toboolean</link>(L,&#32;-n))&#32;&#32;<emphasis role="comment">/*&#32;read&#32;at&#32;least&#32;one&#32;value?&#32;*/</emphasis>
+00636 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;n;&#32;&#32;<emphasis role="comment">/*&#32;return&#32;them&#32;*/</emphasis>
+00637 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;first&#32;result&#32;is&#32;false:&#32;EOF&#32;or&#32;error&#32;*/</emphasis>
+00638 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(n&#32;&gt;&#32;1)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;is&#32;there&#32;error&#32;information?&#32;*/</emphasis>
+00639 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;2nd&#32;result&#32;is&#32;error&#32;message&#32;*/</emphasis>
+00640 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;%s&quot;</emphasis>,&#32;<link linkend="_lua_8h_1ac813fc3bc1886ba17c363d5b4c6e7ef1">lua_tostring</link>(L,&#32;-n&#32;+&#32;1));
+00641 &#32;&#32;&#32;&#32;}
+00642 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lapi_8c_1a444aee9aa56b0b06175ee3c7bcf7927c">lua_toboolean</link>(L,&#32;<link linkend="_lua_8h_1ac3aa6665c25070f282c9827ec919fe6a">lua_upvalueindex</link>(3)))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;generator&#32;created&#32;file?&#32;*/</emphasis>
+00643 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1adaa30f0d34786144c94644039d1d1b6e">lua_settop</link>(L,&#32;0);&#32;&#32;<emphasis role="comment">/*&#32;clear&#32;stack&#32;*/</emphasis>
+00644 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;<link linkend="_lua_8h_1ac3aa6665c25070f282c9827ec919fe6a">lua_upvalueindex</link>(1));&#32;&#32;<emphasis role="comment">/*&#32;push&#32;file&#32;at&#32;index&#32;1&#32;*/</emphasis>
+00645 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_liolib_8c_1a17cd174f91e6d1fdf0de674448dc84f2">aux_close</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;close&#32;it&#32;*/</emphasis>
+00646 &#32;&#32;&#32;&#32;}
+00647 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;
+00648 &#32;&#32;}
+00649 }
+00650 
+00651 <emphasis role="comment">/*&#32;}======================================================&#32;*/</emphasis>
+00652 
+00653 
+<anchor xml:id="_liolib_8c_source_1l00654"/><link linkend="_liolib_8c_1a88c73a30c7d135dfb4958b7bfaa90cc7">00654</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a88c73a30c7d135dfb4958b7bfaa90cc7">g_write</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;FILE&#32;*f,&#32;<emphasis role="keywordtype">int</emphasis>&#32;arg)&#32;{
+00655 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;nargs&#32;=&#32;<link linkend="_lapi_8c_1afbb08ecb69421875494105d4de68e5bf">lua_gettop</link>(L)&#32;-&#32;arg;
+00656 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;status&#32;=&#32;1;
+00657 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(;&#32;nargs--;&#32;arg++)&#32;{
+00658 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lapi_8c_1a652b273947f0656686f998d8e90cd3ea">lua_type</link>(L,&#32;arg)&#32;==&#32;<link linkend="_lua_8h_1a7f62ecb240cb38da9c8a53b41fe21ed9">LUA_TNUMBER</link>)&#32;{
+00659 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;optimization:&#32;could&#32;be&#32;done&#32;exactly&#32;as&#32;for&#32;strings&#32;*/</emphasis>
+00660 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;len&#32;=&#32;<link linkend="_lapi_8c_1aba53e83eb1fff94b5ed96203bb52d8ae">lua_isinteger</link>(L,&#32;arg)
+00661 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;?&#32;fprintf(f,&#32;<link linkend="_luaconf_8h_1a0147f0a7d04c83b70f691a7549c1e3ed">LUA_INTEGER_FMT</link>,
+00662 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(<link linkend="_luaconf_8h_1a7a9d650ef5ea12d81160db595fe9f177">LUAI_UACINT</link>)<link linkend="_lua_8h_1a1365e48377a3b567e9d88423b2a6345c">lua_tointeger</link>(L,&#32;arg))
+00663 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;:&#32;fprintf(f,&#32;<link linkend="_luaconf_8h_1a8d91a1bf1619825be5a0275c36f20216">LUA_NUMBER_FMT</link>,
+00664 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;(<link linkend="_luaconf_8h_1ae3594e990592ab0bf7243dad64c76d2a">LUAI_UACNUMBER</link>)<link linkend="_lua_8h_1a3237a0507d51d772dadd4c560a75af17">lua_tonumber</link>(L,&#32;arg));
+00665 &#32;&#32;&#32;&#32;&#32;&#32;status&#32;=&#32;status&#32;&amp;&amp;&#32;(len&#32;&gt;&#32;0);
+00666 &#32;&#32;&#32;&#32;}
+00667 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00668 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;l;
+00669 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*s&#32;=&#32;<link linkend="_lauxlib_8c_1a79405166c5a94624ebe0427e6b0c07e0">luaL_checklstring</link>(L,&#32;arg,&#32;&amp;l);
+00670 &#32;&#32;&#32;&#32;&#32;&#32;status&#32;=&#32;status&#32;&amp;&amp;&#32;(fwrite(s,&#32;<emphasis role="keyword">sizeof</emphasis>(<emphasis role="keywordtype">char</emphasis>),&#32;l,&#32;f)&#32;==&#32;l);
+00671 &#32;&#32;&#32;&#32;}
+00672 &#32;&#32;}
+00673 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(status)&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;file&#32;handle&#32;already&#32;on&#32;stack&#32;top&#32;*/</emphasis>
+00674 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a86309080a5d45b232bcc240b45d06942">luaL_fileresult</link>(L,&#32;status,&#32;NULL);
+00675 }
+00676 
+00677 
+<anchor xml:id="_liolib_8c_source_1l00678"/><link linkend="_liolib_8c_1ada35daf906cc262cc6944cad92b93ac3">00678</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1ada35daf906cc262cc6944cad92b93ac3">io_write</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00679 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_liolib_8c_1a88c73a30c7d135dfb4958b7bfaa90cc7">g_write</link>(L,&#32;<link linkend="_liolib_8c_1a3bccbdacdc9f21f22a603525be1f3699">getiofile</link>(L,&#32;<link linkend="_liolib_8c_1aae48313230e7f773bf495ada1171c506">IO_OUTPUT</link>),&#32;1);
+00680 }
+00681 
+00682 
+<anchor xml:id="_liolib_8c_source_1l00683"/><link linkend="_liolib_8c_1adba67ef94aaa532d9224ca04f8126ac2">00683</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1adba67ef94aaa532d9224ca04f8126ac2">f_write</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00684 &#32;&#32;FILE&#32;*f&#32;=&#32;<link linkend="_liolib_8c_1a3a596f9304846a90435b75c75c55acda">tofile</link>(L);
+00685 &#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;push&#32;file&#32;at&#32;the&#32;stack&#32;top&#32;(to&#32;be&#32;returned)&#32;*/</emphasis>
+00686 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_liolib_8c_1a88c73a30c7d135dfb4958b7bfaa90cc7">g_write</link>(L,&#32;f,&#32;2);
+00687 }
+00688 
+00689 
+<anchor xml:id="_liolib_8c_source_1l00690"/><link linkend="_liolib_8c_1ace5e1a23cc9e2ffe7ae6cc523e54de73">00690</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1ace5e1a23cc9e2ffe7ae6cc523e54de73">f_seek</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00691 &#32;&#32;<emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;mode[]&#32;=&#32;{SEEK_SET,&#32;SEEK_CUR,&#32;SEEK_END};
+00692 &#32;&#32;<emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<emphasis role="keyword">const</emphasis>&#32;modenames[]&#32;=&#32;{<emphasis role="stringliteral">&quot;set&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;cur&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;end&quot;</emphasis>,&#32;NULL};
+00693 &#32;&#32;FILE&#32;*f&#32;=&#32;<link linkend="_liolib_8c_1a3a596f9304846a90435b75c75c55acda">tofile</link>(L);
+00694 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;op&#32;=&#32;<link linkend="_lauxlib_8c_1a7a3959469b5643d9ea2313eb11a3946f">luaL_checkoption</link>(L,&#32;2,&#32;<emphasis role="stringliteral">&quot;cur&quot;</emphasis>,&#32;modenames);
+00695 &#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;p3&#32;=&#32;<link linkend="_lauxlib_8c_1ab10ff110a5ba19b4385947de7834ee3c">luaL_optinteger</link>(L,&#32;3,&#32;0);
+00696 &#32;&#32;<link linkend="_liolib_8c_1a0cbd6f87dda88adaa6e189c8490319a3">l_seeknum</link>&#32;offset&#32;=&#32;(<link linkend="_liolib_8c_1a0cbd6f87dda88adaa6e189c8490319a3">l_seeknum</link>)p3;
+00697 &#32;&#32;<link linkend="_lauxlib_8h_1a48ce6cd86a7448e97f258097a7abc44d">luaL_argcheck</link>(L,&#32;(<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>)offset&#32;==&#32;p3,&#32;3,
+00698 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="stringliteral">&quot;not&#32;an&#32;integer&#32;in&#32;proper&#32;range&quot;</emphasis>);
+00699 &#32;&#32;op&#32;=&#32;<link linkend="_liolib_8c_1a62de3640998d6fbb4148ee251244bf85">l_fseek</link>(f,&#32;offset,&#32;mode[op]);
+00700 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(op)
+00701 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a86309080a5d45b232bcc240b45d06942">luaL_fileresult</link>(L,&#32;0,&#32;NULL);&#32;&#32;<emphasis role="comment">/*&#32;error&#32;*/</emphasis>
+00702 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00703 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1adcec46ff05dfee9a3c4c05828b40c213">lua_pushinteger</link>(L,&#32;(<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>)<link linkend="_liolib_8c_1afa9a1643bfb6b1928c256f818d8ee8d4">l_ftell</link>(f));
+00704 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00705 &#32;&#32;}
+00706 }
+00707 
+00708 
+<anchor xml:id="_liolib_8c_source_1l00709"/><link linkend="_liolib_8c_1aa7d559e7d43a6133ec495d6b4e5d68f2">00709</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1aa7d559e7d43a6133ec495d6b4e5d68f2">f_setvbuf</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00710 &#32;&#32;<emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;mode[]&#32;=&#32;{_IONBF,&#32;_IOFBF,&#32;_IOLBF};
+00711 &#32;&#32;<emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<emphasis role="keyword">const</emphasis>&#32;modenames[]&#32;=&#32;{<emphasis role="stringliteral">&quot;no&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;full&quot;</emphasis>,&#32;<emphasis role="stringliteral">&quot;line&quot;</emphasis>,&#32;NULL};
+00712 &#32;&#32;FILE&#32;*f&#32;=&#32;<link linkend="_liolib_8c_1a3a596f9304846a90435b75c75c55acda">tofile</link>(L);
+00713 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;op&#32;=&#32;<link linkend="_lauxlib_8c_1a7a3959469b5643d9ea2313eb11a3946f">luaL_checkoption</link>(L,&#32;2,&#32;NULL,&#32;modenames);
+00714 &#32;&#32;<link linkend="_lua_8h_1a362144baa0cfb14dc38fd21438053d73">lua_Integer</link>&#32;sz&#32;=&#32;<link linkend="_lauxlib_8c_1ab10ff110a5ba19b4385947de7834ee3c">luaL_optinteger</link>(L,&#32;3,&#32;<link linkend="_ltests_8h_1af360ad37a770dfdc29291a99c398f42d">LUAL_BUFFERSIZE</link>);
+00715 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;res&#32;=&#32;setvbuf(f,&#32;NULL,&#32;mode[op],&#32;(<emphasis role="keywordtype">size_t</emphasis>)sz);
+00716 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a86309080a5d45b232bcc240b45d06942">luaL_fileresult</link>(L,&#32;res&#32;==&#32;0,&#32;NULL);
+00717 }
+00718 
+00719 
+00720 
+<anchor xml:id="_liolib_8c_source_1l00721"/><link linkend="_liolib_8c_1a2f93672e01db50e1e5361f5f01c71bd6">00721</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a2f93672e01db50e1e5361f5f01c71bd6">io_flush</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00722 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a86309080a5d45b232bcc240b45d06942">luaL_fileresult</link>(L,&#32;fflush(<link linkend="_liolib_8c_1a3bccbdacdc9f21f22a603525be1f3699">getiofile</link>(L,&#32;<link linkend="_liolib_8c_1aae48313230e7f773bf495ada1171c506">IO_OUTPUT</link>))&#32;==&#32;0,&#32;NULL);
+00723 }
+00724 
+00725 
+<anchor xml:id="_liolib_8c_source_1l00726"/><link linkend="_liolib_8c_1ad45f522bd561c05889799a66d9ffdb33">00726</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1ad45f522bd561c05889799a66d9ffdb33">f_flush</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00727 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lauxlib_8c_1a86309080a5d45b232bcc240b45d06942">luaL_fileresult</link>(L,&#32;fflush(<link linkend="_liolib_8c_1a3a596f9304846a90435b75c75c55acda">tofile</link>(L))&#32;==&#32;0,&#32;NULL);
+00728 }
+00729 
+00730 
+00731 <emphasis role="comment">/*</emphasis>
+00732 <emphasis role="comment">**&#32;functions&#32;for&#32;&apos;io&apos;&#32;library</emphasis>
+00733 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00734"/><link linkend="_liolib_8c_1a8fe96dd62a007daad3a18e43dd136a29">00734</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_structlua_l___reg">luaL_Reg</link>&#32;<link linkend="_liolib_8c_1a8fe96dd62a007daad3a18e43dd136a29">iolib</link>[]&#32;=&#32;{
+00735 &#32;&#32;{<emphasis role="stringliteral">&quot;close&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a1c6f8e04184b0f7939e45e24d2d7ef8a">io_close</link>},
+00736 &#32;&#32;{<emphasis role="stringliteral">&quot;flush&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a2f93672e01db50e1e5361f5f01c71bd6">io_flush</link>},
+00737 &#32;&#32;{<emphasis role="stringliteral">&quot;input&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a827044fde6f2c21ab965ba3d729f6a0f">io_input</link>},
+00738 &#32;&#32;{<emphasis role="stringliteral">&quot;lines&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1ab08031b51605d4ef676ec33a3b96a286">io_lines</link>},
+00739 &#32;&#32;{<emphasis role="stringliteral">&quot;open&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1ab4a969d43dbe0f89e98307e5b421f8a7">io_open</link>},
+00740 &#32;&#32;{<emphasis role="stringliteral">&quot;output&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a4464f89f0151ad432557b0a51258582c">io_output</link>},
+00741 &#32;&#32;{<emphasis role="stringliteral">&quot;popen&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a8cc0b2b08409fb97e5cc80a0caf9b5fd">io_popen</link>},
+00742 &#32;&#32;{<emphasis role="stringliteral">&quot;read&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a45307aa59a628966c6ea270e9b476d9a">io_read</link>},
+00743 &#32;&#32;{<emphasis role="stringliteral">&quot;tmpfile&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a0347de9dda8be02044075c96482eddb3">io_tmpfile</link>},
+00744 &#32;&#32;{<emphasis role="stringliteral">&quot;type&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a2bd80ae170dce6c29d385b71398fd7c2">io_type</link>},
+00745 &#32;&#32;{<emphasis role="stringliteral">&quot;write&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1ada35daf906cc262cc6944cad92b93ac3">io_write</link>},
+00746 &#32;&#32;{NULL,&#32;NULL}
+00747 };
+00748 
+00749 
+00750 <emphasis role="comment">/*</emphasis>
+00751 <emphasis role="comment">**&#32;methods&#32;for&#32;file&#32;handles</emphasis>
+00752 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00753"/><link linkend="_liolib_8c_1a130a4b6b5500c2a2d53c8e4b82db6bac">00753</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_structlua_l___reg">luaL_Reg</link>&#32;<link linkend="_liolib_8c_1a130a4b6b5500c2a2d53c8e4b82db6bac">meth</link>[]&#32;=&#32;{
+00754 &#32;&#32;{<emphasis role="stringliteral">&quot;read&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1add5250a74576076467531e4eb8f5f68e">f_read</link>},
+00755 &#32;&#32;{<emphasis role="stringliteral">&quot;write&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1adba67ef94aaa532d9224ca04f8126ac2">f_write</link>},
+00756 &#32;&#32;{<emphasis role="stringliteral">&quot;lines&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a6a36f72d8b3966c1ebafab8a4791cb6c">f_lines</link>},
+00757 &#32;&#32;{<emphasis role="stringliteral">&quot;flush&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1ad45f522bd561c05889799a66d9ffdb33">f_flush</link>},
+00758 &#32;&#32;{<emphasis role="stringliteral">&quot;seek&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1ace5e1a23cc9e2ffe7ae6cc523e54de73">f_seek</link>},
+00759 &#32;&#32;{<emphasis role="stringliteral">&quot;close&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a2b331358ffb75b150c9490c2cc78aea2">f_close</link>},
+00760 &#32;&#32;{<emphasis role="stringliteral">&quot;setvbuf&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1aa7d559e7d43a6133ec495d6b4e5d68f2">f_setvbuf</link>},
+00761 &#32;&#32;{NULL,&#32;NULL}
+00762 };
+00763 
+00764 
+00765 <emphasis role="comment">/*</emphasis>
+00766 <emphasis role="comment">**&#32;metamethods&#32;for&#32;file&#32;handles</emphasis>
+00767 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00768"/><link linkend="_liolib_8c_1af35236400576d70739e09cc6a150b7c8">00768</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<link linkend="_structlua_l___reg">luaL_Reg</link>&#32;<link linkend="_liolib_8c_1af35236400576d70739e09cc6a150b7c8">metameth</link>[]&#32;=&#32;{
+00769 &#32;&#32;{<emphasis role="stringliteral">&quot;__index&quot;</emphasis>,&#32;NULL},&#32;&#32;<emphasis role="comment">/*&#32;place&#32;holder&#32;*/</emphasis>
+00770 &#32;&#32;{<emphasis role="stringliteral">&quot;__gc&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a54d23ecdc47341b1ab23dd572a011efb">f_gc</link>},
+00771 &#32;&#32;{<emphasis role="stringliteral">&quot;__close&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1a54d23ecdc47341b1ab23dd572a011efb">f_gc</link>},
+00772 &#32;&#32;{<emphasis role="stringliteral">&quot;__tostring&quot;</emphasis>,&#32;<link linkend="_liolib_8c_1afaec8b8506a424b1b5f342037ae6350a">f_tostring</link>},
+00773 &#32;&#32;{NULL,&#32;NULL}
+00774 };
+00775 
+00776 
+<anchor xml:id="_liolib_8c_source_1l00777"/><link linkend="_liolib_8c_1a2edb7e84ca2f51dafb5d77b9c81a804c">00777</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_liolib_8c_1a2edb7e84ca2f51dafb5d77b9c81a804c">createmeta</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00778 &#32;&#32;<link linkend="_lauxlib_8c_1a2664eb7bcc85bbf6eeded2a81cf09b01">luaL_newmetatable</link>(L,&#32;<link linkend="_lauxlib_8h_1a36f3babeb54bee1ebba63fe4fa94189a">LUA_FILEHANDLE</link>);&#32;&#32;<emphasis role="comment">/*&#32;metatable&#32;for&#32;file&#32;handles&#32;*/</emphasis>
+00779 &#32;&#32;<link linkend="_lauxlib_8c_1a4cab22d0cb403fa6b94f2542f4303096">luaL_setfuncs</link>(L,&#32;<link linkend="_liolib_8c_1af35236400576d70739e09cc6a150b7c8">metameth</link>,&#32;0);&#32;&#32;<emphasis role="comment">/*&#32;add&#32;metamethods&#32;to&#32;new&#32;metatable&#32;*/</emphasis>
+00780 &#32;&#32;<link linkend="_lauxlib_8h_1ad575a4fd1f53fa454b5d9745fedecdc4">luaL_newlibtable</link>(L,&#32;<link linkend="_liolib_8c_1a130a4b6b5500c2a2d53c8e4b82db6bac">meth</link>);&#32;&#32;<emphasis role="comment">/*&#32;create&#32;method&#32;table&#32;*/</emphasis>
+00781 &#32;&#32;<link linkend="_lauxlib_8c_1a4cab22d0cb403fa6b94f2542f4303096">luaL_setfuncs</link>(L,&#32;<link linkend="_liolib_8c_1a130a4b6b5500c2a2d53c8e4b82db6bac">meth</link>,&#32;0);&#32;&#32;<emphasis role="comment">/*&#32;add&#32;file&#32;methods&#32;to&#32;method&#32;table&#32;*/</emphasis>
+00782 &#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;-2,&#32;<emphasis role="stringliteral">&quot;__index&quot;</emphasis>);&#32;&#32;<emphasis role="comment">/*&#32;metatable.__index&#32;=&#32;method&#32;table&#32;*/</emphasis>
+00783 &#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;pop&#32;metatable&#32;*/</emphasis>
+00784 }
+00785 
+00786 
+00787 <emphasis role="comment">/*</emphasis>
+00788 <emphasis role="comment">**&#32;function&#32;to&#32;(not)&#32;close&#32;the&#32;standard&#32;files&#32;stdin,&#32;stdout,&#32;and&#32;stderr</emphasis>
+00789 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_liolib_8c_source_1l00790"/><link linkend="_liolib_8c_1a7b8451d8d8fcbbe8f259375da540d12f">00790</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a7b8451d8d8fcbbe8f259375da540d12f">io_noclose</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00791 &#32;&#32;<link linkend="_structlua_l___stream">LStream</link>&#32;*p&#32;=&#32;<link linkend="_liolib_8c_1aa4a3ca333e58733b833a0395c5742fc2">tolstream</link>(L);
+00792 &#32;&#32;p-&gt;<link linkend="_structlua_l___stream_1a421c7b3efc694e922fefb29e3263d17c">closef</link>&#32;=&#32;&amp;<link linkend="_liolib_8c_1a7b8451d8d8fcbbe8f259375da540d12f">io_noclose</link>;&#32;&#32;<emphasis role="comment">/*&#32;keep&#32;file&#32;opened&#32;*/</emphasis>
+00793 &#32;&#32;<link linkend="_lauxlib_8h_1a8666135f7a1412f5eaa14857aec279f0">luaL_pushfail</link>(L);
+00794 &#32;&#32;<link linkend="_lua_8h_1a47854189a679002ed743ebbcb30b1b26">lua_pushliteral</link>(L,&#32;<emphasis role="stringliteral">&quot;cannot&#32;close&#32;standard&#32;file&quot;</emphasis>);
+00795 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;2;
+00796 }
+00797 
+00798 
+<anchor xml:id="_liolib_8c_source_1l00799"/><link linkend="_liolib_8c_1a0a80ad2f9dbb3b7238efae7738bb7569">00799</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_liolib_8c_1a0a80ad2f9dbb3b7238efae7738bb7569">createstdfile</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;FILE&#32;*f,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*k,
+00800 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*fname)&#32;{
+00801 &#32;&#32;<link linkend="_structlua_l___stream">LStream</link>&#32;*p&#32;=&#32;<link linkend="_liolib_8c_1ab456fc51383d039a5a24c702060aba8e">newprefile</link>(L);
+00802 &#32;&#32;p-&gt;<link linkend="_structlua_l___stream_1a3efb0e1a16208deecbd84c15401f7cf8">f</link>&#32;=&#32;f;
+00803 &#32;&#32;p-&gt;<link linkend="_structlua_l___stream_1a421c7b3efc694e922fefb29e3263d17c">closef</link>&#32;=&#32;&amp;<link linkend="_liolib_8c_1a7b8451d8d8fcbbe8f259375da540d12f">io_noclose</link>;
+00804 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(k&#32;!=&#32;NULL)&#32;{
+00805 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a602f61a9b583d69dc1c72c8970bd65e8">lua_pushvalue</link>(L,&#32;-1);
+00806 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;<link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>,&#32;k);&#32;&#32;<emphasis role="comment">/*&#32;add&#32;file&#32;to&#32;registry&#32;*/</emphasis>
+00807 &#32;&#32;}
+00808 &#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;-2,&#32;fname);&#32;&#32;<emphasis role="comment">/*&#32;add&#32;file&#32;to&#32;module&#32;*/</emphasis>
+00809 }
+00810 
+00811 
+<anchor xml:id="_liolib_8c_source_1l00812"/><link linkend="_lualib_8h_1a686b841d953f3113ddc7538d69debce7">00812</link> <link linkend="_luaconf_8h_1a8e877216dd2f0cf9a68255b494f82f50">LUAMOD_API</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_liolib_8c_1a2d3f245e532f3d582a4ff62bbd567149">luaopen_io</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00813 &#32;&#32;<link linkend="_lauxlib_8h_1a5088ff720ec66200d83eb78467b77239">luaL_newlib</link>(L,&#32;<link linkend="_liolib_8c_1a8fe96dd62a007daad3a18e43dd136a29">iolib</link>);&#32;&#32;<emphasis role="comment">/*&#32;new&#32;module&#32;*/</emphasis>
+00814 &#32;&#32;<link linkend="_liolib_8c_1a2edb7e84ca2f51dafb5d77b9c81a804c">createmeta</link>(L);
+00815 &#32;&#32;<emphasis role="comment">/*&#32;create&#32;(and&#32;set)&#32;default&#32;files&#32;*/</emphasis>
+00816 &#32;&#32;<link linkend="_liolib_8c_1a0a80ad2f9dbb3b7238efae7738bb7569">createstdfile</link>(L,&#32;stdin,&#32;<link linkend="_liolib_8c_1a3c1a27aacf1dd33edffa2422da638d0f">IO_INPUT</link>,&#32;<emphasis role="stringliteral">&quot;stdin&quot;</emphasis>);
+00817 &#32;&#32;<link linkend="_liolib_8c_1a0a80ad2f9dbb3b7238efae7738bb7569">createstdfile</link>(L,&#32;stdout,&#32;<link linkend="_liolib_8c_1aae48313230e7f773bf495ada1171c506">IO_OUTPUT</link>,&#32;<emphasis role="stringliteral">&quot;stdout&quot;</emphasis>);
+00818 &#32;&#32;<link linkend="_liolib_8c_1a0a80ad2f9dbb3b7238efae7738bb7569">createstdfile</link>(L,&#32;stderr,&#32;NULL,&#32;<emphasis role="stringliteral">&quot;stderr&quot;</emphasis>);
+00819 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00820 }
+00821 
+</programlisting></section>

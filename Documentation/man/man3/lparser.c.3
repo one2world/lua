@@ -1,0 +1,881 @@
+.TH "D:/gitworkspace/lua/src/lparser.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lparser.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <limits\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lcode\&.h'\fP
+.br
+\fC#include 'ldebug\&.h'\fP
+.br
+\fC#include 'ldo\&.h'\fP
+.br
+\fC#include 'lfunc\&.h'\fP
+.br
+\fC#include 'llex\&.h'\fP
+.br
+\fC#include 'lmem\&.h'\fP
+.br
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'lopcodes\&.h'\fP
+.br
+\fC#include 'lparser\&.h'\fP
+.br
+\fC#include 'lstate\&.h'\fP
+.br
+\fC#include 'lstring\&.h'\fP
+.br
+\fC#include 'ltable\&.h'\fP
+.br
+
+.SS "结构体"
+
+.in +1c
+.ti -1c
+.RI "struct \fBBlockCnt\fP"
+.br
+.ti -1c
+.RI "struct \fBConsControl\fP"
+.br
+.ti -1c
+.RI "struct \fBLHS_assign\fP"
+.br
+.in -1c
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBlparser_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_CORE\fP"
+.br
+.ti -1c
+.RI "#define \fBMAXVARS\fP   200"
+.br
+.ti -1c
+.RI "#define \fBhasmultret\fP(k)   ((k) == \fBVCALL\fP || (k) == \fBVVARARG\fP)"
+.br
+.ti -1c
+.RI "#define \fBeqstr\fP(a,  b)   ((a) == (b))"
+.br
+.ti -1c
+.RI "#define \fBcheck_condition\fP(ls,  c,  msg)   { if (!(c)) \fBluaX_syntaxerror\fP(ls, msg); }"
+.br
+.ti -1c
+.RI "#define \fBnew_localvarliteral\fP(ls,  v)"
+.br
+.ti -1c
+.RI "#define \fBenterlevel\fP(ls)   \fBluaE_enterCcall\fP((ls)\->L)"
+.br
+.ti -1c
+.RI "#define \fBleavelevel\fP(ls)   \fBluaE_exitCcall\fP((ls)\->L)"
+.br
+.ti -1c
+.RI "#define \fBUNARY_PRIORITY\fP   12  /* \fBpriority\fP for unary operators */"
+.br
+.in -1c
+.SS "类型定义"
+
+.in +1c
+.ti -1c
+.RI "typedef struct \fBBlockCnt\fP \fBBlockCnt\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBConsControl\fP \fBConsControl\fP"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static void \fBstatement\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static void \fBexpr\fP (\fBLexState\fP *ls, \fBexpdesc\fP *v)"
+.br
+.ti -1c
+.RI "static \fBl_noret\fP \fBerror_expected\fP (\fBLexState\fP *ls, int token)"
+.br
+.ti -1c
+.RI "static \fBl_noret\fP \fBerrorlimit\fP (\fBFuncState\fP *fs, int limit, const char *what)"
+.br
+.ti -1c
+.RI "static void \fBchecklimit\fP (\fBFuncState\fP *fs, int v, int l, const char *what)"
+.br
+.ti -1c
+.RI "static int \fBtestnext\fP (\fBLexState\fP *ls, int c)"
+.br
+.ti -1c
+.RI "static void \fBcheck\fP (\fBLexState\fP *ls, int c)"
+.br
+.ti -1c
+.RI "static void \fBchecknext\fP (\fBLexState\fP *ls, int c)"
+.br
+.ti -1c
+.RI "static void \fBcheck_match\fP (\fBLexState\fP *ls, int what, int who, int where)"
+.br
+.ti -1c
+.RI "static \fBTString\fP * \fBstr_checkname\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static void \fBinit_exp\fP (\fBexpdesc\fP *e, \fBexpkind\fP k, int i)"
+.br
+.ti -1c
+.RI "static void \fBcodestring\fP (\fBexpdesc\fP *e, \fBTString\fP *s)"
+.br
+.ti -1c
+.RI "static void \fBcodename\fP (\fBLexState\fP *ls, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "static int \fBregisterlocalvar\fP (\fBLexState\fP *ls, \fBFuncState\fP *fs, \fBTString\fP *varname)"
+.br
+.ti -1c
+.RI "static int \fBnew_localvar\fP (\fBLexState\fP *ls, \fBTString\fP *name)"
+.br
+.ti -1c
+.RI "static \fBVardesc\fP * \fBgetlocalvardesc\fP (\fBFuncState\fP *fs, int vidx)"
+.br
+.ti -1c
+.RI "static int \fBstacklevel\fP (\fBFuncState\fP *fs, int nvar)"
+.br
+.ti -1c
+.RI "int \fBluaY_nvarstack\fP (\fBFuncState\fP *fs)"
+.br
+.ti -1c
+.RI "static \fBLocVar\fP * \fBlocaldebuginfo\fP (\fBFuncState\fP *fs, int vidx)"
+.br
+.ti -1c
+.RI "static void \fBinit_var\fP (\fBFuncState\fP *fs, \fBexpdesc\fP *e, int vidx)"
+.br
+.ti -1c
+.RI "static void \fBcheck_readonly\fP (\fBLexState\fP *ls, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "static void \fBadjustlocalvars\fP (\fBLexState\fP *ls, int nvars)"
+.br
+.ti -1c
+.RI "static void \fBremovevars\fP (\fBFuncState\fP *fs, int tolevel)"
+.br
+.ti -1c
+.RI "static int \fBsearchupvalue\fP (\fBFuncState\fP *fs, \fBTString\fP *name)"
+.br
+.ti -1c
+.RI "static \fBUpvaldesc\fP * \fBallocupvalue\fP (\fBFuncState\fP *fs)"
+.br
+.ti -1c
+.RI "static int \fBnewupvalue\fP (\fBFuncState\fP *fs, \fBTString\fP *name, \fBexpdesc\fP *v)"
+.br
+.ti -1c
+.RI "static int \fBsearchvar\fP (\fBFuncState\fP *fs, \fBTString\fP *n, \fBexpdesc\fP *var)"
+.br
+.ti -1c
+.RI "static void \fBmarkupval\fP (\fBFuncState\fP *fs, int level)"
+.br
+.ti -1c
+.RI "static void \fBsinglevaraux\fP (\fBFuncState\fP *fs, \fBTString\fP *n, \fBexpdesc\fP *var, int base)"
+.br
+.ti -1c
+.RI "static void \fBsinglevar\fP (\fBLexState\fP *ls, \fBexpdesc\fP *var)"
+.br
+.ti -1c
+.RI "static void \fBadjust_assign\fP (\fBLexState\fP *ls, int nvars, int nexps, \fBexpdesc\fP *e)"
+.br
+.ti -1c
+.RI "static \fBl_noret\fP \fBjumpscopeerror\fP (\fBLexState\fP *ls, \fBLabeldesc\fP *gt)"
+.br
+.ti -1c
+.RI "static void \fBsolvegoto\fP (\fBLexState\fP *ls, int g, \fBLabeldesc\fP *label)"
+.br
+.ti -1c
+.RI "static \fBLabeldesc\fP * \fBfindlabel\fP (\fBLexState\fP *ls, \fBTString\fP *name)"
+.br
+.ti -1c
+.RI "static int \fBnewlabelentry\fP (\fBLexState\fP *ls, \fBLabellist\fP *l, \fBTString\fP *name, int line, int pc)"
+.br
+.ti -1c
+.RI "static int \fBnewgotoentry\fP (\fBLexState\fP *ls, \fBTString\fP *name, int line, int pc)"
+.br
+.ti -1c
+.RI "static int \fBsolvegotos\fP (\fBLexState\fP *ls, \fBLabeldesc\fP *lb)"
+.br
+.ti -1c
+.RI "static int \fBcreatelabel\fP (\fBLexState\fP *ls, \fBTString\fP *name, int line, int last)"
+.br
+.ti -1c
+.RI "static void \fBmovegotosout\fP (\fBFuncState\fP *fs, \fBBlockCnt\fP *bl)"
+.br
+.ti -1c
+.RI "static void \fBenterblock\fP (\fBFuncState\fP *fs, \fBBlockCnt\fP *bl, \fBlu_byte\fP isloop)"
+.br
+.ti -1c
+.RI "static \fBl_noret\fP \fBundefgoto\fP (\fBLexState\fP *ls, \fBLabeldesc\fP *gt)"
+.br
+.ti -1c
+.RI "static void \fBleaveblock\fP (\fBFuncState\fP *fs)"
+.br
+.ti -1c
+.RI "static \fBProto\fP * \fBaddprototype\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static void \fBcodeclosure\fP (\fBLexState\fP *ls, \fBexpdesc\fP *v)"
+.br
+.ti -1c
+.RI "static void \fBopen_func\fP (\fBLexState\fP *ls, \fBFuncState\fP *fs, \fBBlockCnt\fP *bl)"
+.br
+.ti -1c
+.RI "static void \fBclose_func\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static int \fBblock_follow\fP (\fBLexState\fP *ls, int withuntil)"
+.br
+.ti -1c
+.RI "static void \fBstatlist\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static void \fBfieldsel\fP (\fBLexState\fP *ls, \fBexpdesc\fP *v)"
+.br
+.ti -1c
+.RI "static void \fByindex\fP (\fBLexState\fP *ls, \fBexpdesc\fP *v)"
+.br
+.ti -1c
+.RI "static void \fBrecfield\fP (\fBLexState\fP *ls, \fBConsControl\fP *cc)"
+.br
+.ti -1c
+.RI "static void \fBcloselistfield\fP (\fBFuncState\fP *fs, \fBConsControl\fP *cc)"
+.br
+.ti -1c
+.RI "static void \fBlastlistfield\fP (\fBFuncState\fP *fs, \fBConsControl\fP *cc)"
+.br
+.ti -1c
+.RI "static void \fBlistfield\fP (\fBLexState\fP *ls, \fBConsControl\fP *cc)"
+.br
+.ti -1c
+.RI "static void \fBfield\fP (\fBLexState\fP *ls, \fBConsControl\fP *cc)"
+.br
+.ti -1c
+.RI "static void \fBconstructor\fP (\fBLexState\fP *ls, \fBexpdesc\fP *t)"
+.br
+.ti -1c
+.RI "static void \fBsetvararg\fP (\fBFuncState\fP *fs, int nparams)"
+.br
+.ti -1c
+.RI "static void \fBparlist\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static void \fBbody\fP (\fBLexState\fP *ls, \fBexpdesc\fP *e, int ismethod, int line)"
+.br
+.ti -1c
+.RI "static int \fBexplist\fP (\fBLexState\fP *ls, \fBexpdesc\fP *v)"
+.br
+.ti -1c
+.RI "static void \fBfuncargs\fP (\fBLexState\fP *ls, \fBexpdesc\fP *f, int line)"
+.br
+.ti -1c
+.RI "static void \fBprimaryexp\fP (\fBLexState\fP *ls, \fBexpdesc\fP *v)"
+.br
+.ti -1c
+.RI "static void \fBsuffixedexp\fP (\fBLexState\fP *ls, \fBexpdesc\fP *v)"
+.br
+.ti -1c
+.RI "static void \fBsimpleexp\fP (\fBLexState\fP *ls, \fBexpdesc\fP *v)"
+.br
+.ti -1c
+.RI "static \fBUnOpr\fP \fBgetunopr\fP (int op)"
+.br
+.ti -1c
+.RI "static \fBBinOpr\fP \fBgetbinopr\fP (int op)"
+.br
+.ti -1c
+.RI "static \fBBinOpr\fP \fBsubexpr\fP (\fBLexState\fP *ls, \fBexpdesc\fP *v, int limit)"
+.br
+.ti -1c
+.RI "static void \fBblock\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static void \fBcheck_conflict\fP (\fBLexState\fP *ls, struct \fBLHS_assign\fP *lh, \fBexpdesc\fP *v)"
+.br
+.ti -1c
+.RI "static void \fBrestassign\fP (\fBLexState\fP *ls, struct \fBLHS_assign\fP *lh, int nvars)"
+.br
+.ti -1c
+.RI "static int \fBcond\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static void \fBgotostat\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static void \fBbreakstat\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static void \fBcheckrepeated\fP (\fBLexState\fP *ls, \fBTString\fP *name)"
+.br
+.ti -1c
+.RI "static void \fBlabelstat\fP (\fBLexState\fP *ls, \fBTString\fP *name, int line)"
+.br
+.ti -1c
+.RI "static void \fBwhilestat\fP (\fBLexState\fP *ls, int line)"
+.br
+.ti -1c
+.RI "static void \fBrepeatstat\fP (\fBLexState\fP *ls, int line)"
+.br
+.ti -1c
+.RI "static void \fBexp1\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static void \fBfixforjump\fP (\fBFuncState\fP *fs, int pc, int dest, int back)"
+.br
+.ti -1c
+.RI "static void \fBforbody\fP (\fBLexState\fP *ls, int base, int line, int nvars, int isgen)"
+.br
+.ti -1c
+.RI "static void \fBfornum\fP (\fBLexState\fP *ls, \fBTString\fP *varname, int line)"
+.br
+.ti -1c
+.RI "static void \fBforlist\fP (\fBLexState\fP *ls, \fBTString\fP *indexname)"
+.br
+.ti -1c
+.RI "static void \fBforstat\fP (\fBLexState\fP *ls, int line)"
+.br
+.ti -1c
+.RI "static int \fBissinglejump\fP (\fBLexState\fP *ls, \fBTString\fP **label, int *target)"
+.br
+.ti -1c
+.RI "static void \fBtest_then_block\fP (\fBLexState\fP *ls, int *escapelist)"
+.br
+.ti -1c
+.RI "static void \fBifstat\fP (\fBLexState\fP *ls, int line)"
+.br
+.ti -1c
+.RI "static void \fBlocalfunc\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static int \fBgetlocalattribute\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static void \fBchecktoclose\fP (\fBLexState\fP *ls, int level)"
+.br
+.ti -1c
+.RI "static void \fBlocalstat\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static int \fBfuncname\fP (\fBLexState\fP *ls, \fBexpdesc\fP *v)"
+.br
+.ti -1c
+.RI "static void \fBfuncstat\fP (\fBLexState\fP *ls, int line)"
+.br
+.ti -1c
+.RI "static void \fBexprstat\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static void \fBretstat\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "static void \fBmainfunc\fP (\fBLexState\fP *ls, \fBFuncState\fP *fs)"
+.br
+.ti -1c
+.RI "\fBLClosure\fP * \fBluaY_parser\fP (\fBlua_State\fP *L, \fBZIO\fP *z, \fBMbuffer\fP *buff, \fBDyndata\fP *dyd, const char *name, int firstchar)"
+.br
+.in -1c
+.SS "变量"
+
+.in +1c
+.ti -1c
+.RI "union {"
+.br
+.ti -1c
+.RI "   \fBlu_byte\fP \fBleft\fP"
+.br
+.ti -1c
+.RI "   \fBlu_byte\fP \fBright\fP"
+.br
+.ti -1c
+.RI "   int \fBdummy\fP"
+.br
+.ti -1c
+.RI "   char \fBlittle\fP"
+.br
+.ti -1c
+.RI "} \fBpriority\fP []"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define check_condition(ls, c, msg)   { if (!(c)) \fBluaX_syntaxerror\fP(ls, msg); }"
+
+.PP
+在文件 lparser\&.c 第 122 行定义\&.
+.SS "#define enterlevel(ls)   \fBluaE_enterCcall\fP((ls)\->L)"
+
+.PP
+在文件 lparser\&.c 第 495 行定义\&.
+.SS "#define eqstr(a, b)   ((a) == (b))"
+
+.PP
+在文件 lparser\&.c 第 43 行定义\&.
+.SS "#define hasmultret(k)   ((k) == \fBVCALL\fP || (k) == \fBVVARARG\fP)"
+
+.PP
+在文件 lparser\&.c 第 38 行定义\&.
+.SS "#define leavelevel(ls)   \fBluaE_exitCcall\fP((ls)\->L)"
+
+.PP
+在文件 lparser\&.c 第 497 行定义\&.
+.SS "#define lparser_c"
+
+.PP
+在文件 lparser\&.c 第 7 行定义\&.
+.SS "#define LUA_CORE"
+
+.PP
+在文件 lparser\&.c 第 8 行定义\&.
+.SS "#define MAXVARS   200"
+
+.PP
+在文件 lparser\&.c 第 35 行定义\&.
+.SS "#define new_localvarliteral(ls, v)"
+\fB值:\fP
+.PP
+.nf
+    new_localvar(ls,  \
+      luaX_newstring(ls, "" v, (sizeof(v)/sizeof(char)) - 1));
+.fi
+.PP
+在文件 lparser\&.c 第 208 行定义\&.
+.SS "#define UNARY_PRIORITY   12  /* \fBpriority\fP for unary operators */"
+
+.PP
+在文件 lparser\&.c 第 1243 行定义\&.
+.SH "类型定义说明"
+.PP 
+.SS "typedef struct \fBBlockCnt\fP \fBBlockCnt\fP"
+
+.SS "typedef struct \fBConsControl\fP \fBConsControl\fP"
+
+.SH "函数说明"
+.PP 
+.SS "static \fBProto\fP* addprototype (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 688 行定义\&.
+.SS "static void adjust_assign (\fBLexState\fP * ls, int nvars, int nexps, \fBexpdesc\fP * e)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 470 行定义\&.
+.SS "static void adjustlocalvars (\fBLexState\fP * ls, int nvars)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 311 行定义\&.
+.SS "static \fBUpvaldesc\fP* allocupvalue (\fBFuncState\fP * fs)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 352 行定义\&.
+.SS "static void block (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1295 行定义\&.
+.SS "static int block_follow (\fBLexState\fP * ls, int withuntil)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 778 行定义\&.
+.SS "static void body (\fBLexState\fP * ls, \fBexpdesc\fP * e, int ismethod, int line)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 980 行定义\&.
+.SS "static void breakstat (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1428 行定义\&.
+.SS "static void check (\fBLexState\fP * ls, int c)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 107 行定义\&.
+.SS "static void check_conflict (\fBLexState\fP * ls, struct \fBLHS_assign\fP * lh, \fBexpdesc\fP * v)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1321 行定义\&.
+.SS "static void check_match (\fBLexState\fP * ls, int what, int who, int where)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 130 行定义\&.
+.SS "static void check_readonly (\fBLexState\fP * ls, \fBexpdesc\fP * e)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 277 行定义\&.
+.SS "static void checklimit (\fBFuncState\fP * fs, int v, int l, const char * what)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 87 行定义\&.
+.SS "static void checknext (\fBLexState\fP * ls, int c)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 116 行定义\&.
+.SS "static void checkrepeated (\fBLexState\fP * ls, \fBTString\fP * name)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1438 行定义\&.
+.SS "static void checktoclose (\fBLexState\fP * ls, int level)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1746 行定义\&.
+.SS "static void close_func (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 746 行定义\&.
+.SS "static void closelistfield (\fBFuncState\fP * fs, \fBConsControl\fP * cc)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 858 行定义\&.
+.SS "static void codeclosure (\fBLexState\fP * ls, \fBexpdesc\fP * v)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 712 行定义\&.
+.SS "static void codename (\fBLexState\fP * ls, \fBexpdesc\fP * e)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 166 行定义\&.
+.SS "static void codestring (\fBexpdesc\fP * e, \fBTString\fP * s)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 159 行定义\&.
+.SS "static int cond (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1396 行定义\&.
+.SS "static void constructor (\fBLexState\fP * ls, \fBexpdesc\fP * t)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 915 行定义\&.
+.SS "static int createlabel (\fBLexState\fP * ls, \fBTString\fP * name, int line, int last)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 598 行定义\&.
+.SS "static void enterblock (\fBFuncState\fP * fs, \fBBlockCnt\fP * bl, \fBlu_byte\fP isloop)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 632 行定义\&.
+.SS "static \fBl_noret\fP error_expected (\fBLexState\fP * ls, int token)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 68 行定义\&.
+.SS "static \fBl_noret\fP errorlimit (\fBFuncState\fP * fs, int limit, const char * what)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 74 行定义\&.
+.SS "static void exp1 (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1507 行定义\&.
+.SS "static int explist (\fBLexState\fP * ls, \fBexpdesc\fP * v)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1002 行定义\&.
+.SS "static void expr (\fBLexState\fP * ls, \fBexpdesc\fP * v)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1280 行定义\&.
+.SS "static void exprstat (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1824 行定义\&.
+.SS "static void field (\fBLexState\fP * ls, \fBConsControl\fP * cc)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 893 行定义\&.
+.SS "static void fieldsel (\fBLexState\fP * ls, \fBexpdesc\fP * v)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 801 行定义\&.
+.SS "static \fBLabeldesc\fP* findlabel (\fBLexState\fP * ls, \fBTString\fP * name)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 534 行定义\&.
+.SS "static void fixforjump (\fBFuncState\fP * fs, int pc, int dest, int back)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1520 行定义\&.
+.SS "static void forbody (\fBLexState\fP * ls, int base, int line, int nvars, int isgen)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1534 行定义\&.
+.SS "static void forlist (\fBLexState\fP * ls, \fBTString\fP * indexname)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1582 行定义\&.
+.SS "static void fornum (\fBLexState\fP * ls, \fBTString\fP * varname, int line)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1559 行定义\&.
+.SS "static void forstat (\fBLexState\fP * ls, int line)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1610 行定义\&.
+.SS "static void funcargs (\fBLexState\fP * ls, \fBexpdesc\fP * f, int line)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1015 行定义\&.
+.SS "static int funcname (\fBLexState\fP * ls, \fBexpdesc\fP * v)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1798 行定义\&.
+.SS "static void funcstat (\fBLexState\fP * ls, int line)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1812 行定义\&.
+.SS "static \fBBinOpr\fP getbinopr (int op)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1196 行定义\&.
+.SS "static int getlocalattribute (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1729 行定义\&.
+.SS "static \fBVardesc\fP* getlocalvardesc (\fBFuncState\fP * fs, int vidx)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 219 行定义\&.
+.SS "static \fBUnOpr\fP getunopr (int op)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1185 行定义\&.
+.SS "static void gotostat (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1406 行定义\&.
+.SS "static void ifstat (\fBLexState\fP * ls, int line)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1703 行定义\&.
+.SS "static void init_exp (\fBexpdesc\fP * e, \fBexpkind\fP k, int i)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 152 行定义\&.
+.SS "static void init_var (\fBFuncState\fP * fs, \fBexpdesc\fP * e, int vidx)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 266 行定义\&.
+.SS "static int issinglejump (\fBLexState\fP * ls, \fBTString\fP ** label, int * target)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1636 行定义\&.
+.SS "static \fBl_noret\fP jumpscopeerror (\fBLexState\fP * ls, \fBLabeldesc\fP * gt)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 504 行定义\&.
+.SS "static void labelstat (\fBLexState\fP * ls, \fBTString\fP * name, int line)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1448 行定义\&.
+.SS "static void lastlistfield (\fBFuncState\fP * fs, \fBConsControl\fP * cc)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 870 行定义\&.
+.SS "static void leaveblock (\fBFuncState\fP * fs)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 662 行定义\&.
+.SS "static void listfield (\fBLexState\fP * ls, \fBConsControl\fP * cc)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 886 行定义\&.
+.SS "static \fBLocVar\fP* localdebuginfo (\fBFuncState\fP * fs, int vidx)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 251 行定义\&.
+.SS "static void localfunc (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1717 行定义\&.
+.SS "static void localstat (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1756 行定义\&.
+.SS "int luaY_nvarstack (\fBFuncState\fP * fs)"
+
+.PP
+在文件 lparser\&.c 第 243 行定义\&.
+.SS "\fBLClosure\fP* luaY_parser (\fBlua_State\fP * L, \fBZIO\fP * z, \fBMbuffer\fP * buff, \fBDyndata\fP * dyd, const char * name, int firstchar)"
+
+.PP
+在文件 lparser\&.c 第 1971 行定义\&.
+.SS "static void mainfunc (\fBLexState\fP * ls, \fBFuncState\fP * fs)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1953 行定义\&.
+.SS "static void markupval (\fBFuncState\fP * fs, int level)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 410 行定义\&.
+.SS "static void movegotosout (\fBFuncState\fP * fs, \fBBlockCnt\fP * bl)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 618 行定义\&.
+.SS "static int new_localvar (\fBLexState\fP * ls, \fBTString\fP * name)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 193 行定义\&.
+.SS "static int newgotoentry (\fBLexState\fP * ls, \fBTString\fP * name, int line, int pc)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 565 行定义\&.
+.SS "static int newlabelentry (\fBLexState\fP * ls, \fBLabellist\fP * l, \fBTString\fP * name, int line, int pc)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 550 行定义\&.
+.SS "static int newupvalue (\fBFuncState\fP * fs, \fBTString\fP * name, \fBexpdesc\fP * v)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 364 行定义\&.
+.SS "static void open_func (\fBLexState\fP * ls, \fBFuncState\fP * fs, \fBBlockCnt\fP * bl)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 719 行定义\&.
+.SS "static void parlist (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 949 行定义\&.
+.SS "static void primaryexp (\fBLexState\fP * ls, \fBexpdesc\fP * v)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1070 行定义\&.
+.SS "static void recfield (\fBLexState\fP * ls, \fBConsControl\fP * cc)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 837 行定义\&.
+.SS "static int registerlocalvar (\fBLexState\fP * ls, \fBFuncState\fP * fs, \fBTString\fP * varname)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 175 行定义\&.
+.SS "static void removevars (\fBFuncState\fP * fs, int tolevel)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 328 行定义\&.
+.SS "static void repeatstat (\fBLexState\fP * ls, int line)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1477 行定义\&.
+.SS "static void restassign (\fBLexState\fP * ls, struct \fBLHS_assign\fP * lh, int nvars)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1365 行定义\&.
+.SS "static void retstat (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1842 行定义\&.
+.SS "static int searchupvalue (\fBFuncState\fP * fs, \fBTString\fP * name)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 342 行定义\&.
+.SS "static int searchvar (\fBFuncState\fP * fs, \fBTString\fP * n, \fBexpdesc\fP * var)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 390 行定义\&.
+.SS "static void setvararg (\fBFuncState\fP * fs, int nparams)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 943 行定义\&.
+.SS "static void simpleexp (\fBLexState\fP * ls, \fBexpdesc\fP * v)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1130 行定义\&.
+.SS "static void singlevar (\fBLexState\fP * ls, \fBexpdesc\fP * var)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 452 行定义\&.
+.SS "static void singlevaraux (\fBFuncState\fP * fs, \fBTString\fP * n, \fBexpdesc\fP * var, int base)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 424 行定义\&.
+.SS "static void solvegoto (\fBLexState\fP * ls, int g, \fBLabeldesc\fP * label)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 517 行定义\&.
+.SS "static int solvegotos (\fBLexState\fP * ls, \fBLabeldesc\fP * lb)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 575 行定义\&.
+.SS "static int stacklevel (\fBFuncState\fP * fs, int nvar)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 230 行定义\&.
+.SS "static void statement (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1874 行定义\&.
+.SS "static void statlist (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 789 行定义\&.
+.SS "static \fBTString\fP* str_checkname (\fBLexState\fP * ls)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 143 行定义\&.
+.SS "static \fBBinOpr\fP subexpr (\fBLexState\fP * ls, \fBexpdesc\fP * v, int limit)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1250 行定义\&.
+.SS "static void suffixedexp (\fBLexState\fP * ls, \fBexpdesc\fP * v)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1092 行定义\&.
+.SS "static void test_then_block (\fBLexState\fP * ls, int * escapelist)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1661 行定义\&.
+.SS "static int testnext (\fBLexState\fP * ls, int c)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 95 行定义\&.
+.SS "static \fBl_noret\fP undefgoto (\fBLexState\fP * ls, \fBLabeldesc\fP * gt)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 648 行定义\&.
+.SS "static void whilestat (\fBLexState\fP * ls, int line)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 1458 行定义\&.
+.SS "static void yindex (\fBLexState\fP * ls, \fBexpdesc\fP * v)\fC [static]\fP"
+
+.PP
+在文件 lparser\&.c 第 812 行定义\&.
+.SH "变量说明"
+.PP 
+.SS "\fBlu_byte\fP left"
+
+.PP
+在文件 lparser\&.c 第 1228 行定义\&.
+.SS "const { \&.\&.\&. }  priority[]\fC [static]\fP"
+\fB初始值:\fP
+.PP
+.nf
+= {  
+   {10, 10}, {10, 10},           
+   {11, 11}, {11, 11},           
+   {14, 13},                  
+   {11, 11}, {11, 11},           
+   {6, 6}, {4, 4}, {5, 5},   
+   {7, 7}, {7, 7},           
+   {9, 8},                   
+   {3, 3}, {3, 3}, {3, 3},   
+   {3, 3}, {3, 3}, {3, 3},   
+   {2, 2}, {1, 1}            
+}
+.fi
+.SS "\fBlu_byte\fP right"
+
+.PP
+在文件 lparser\&.c 第 1229 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

@@ -1,0 +1,752 @@
+.TH "D:/gitworkspace/lua/src/lopcodes.h" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lopcodes.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'llimits\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBSIZE_C\fP   8"
+.br
+.ti -1c
+.RI "#define \fBSIZE_B\fP   8"
+.br
+.ti -1c
+.RI "#define \fBSIZE_Bx\fP   (\fBSIZE_C\fP + \fBSIZE_B\fP + 1)"
+.br
+.ti -1c
+.RI "#define \fBSIZE_A\fP   8"
+.br
+.ti -1c
+.RI "#define \fBSIZE_Ax\fP   (\fBSIZE_Bx\fP + \fBSIZE_A\fP)"
+.br
+.ti -1c
+.RI "#define \fBSIZE_sJ\fP   (\fBSIZE_Bx\fP + \fBSIZE_A\fP)"
+.br
+.ti -1c
+.RI "#define \fBSIZE_OP\fP   7"
+.br
+.ti -1c
+.RI "#define \fBPOS_OP\fP   0"
+.br
+.ti -1c
+.RI "#define \fBPOS_A\fP   (\fBPOS_OP\fP + \fBSIZE_OP\fP)"
+.br
+.ti -1c
+.RI "#define \fBPOS_k\fP   (\fBPOS_A\fP + \fBSIZE_A\fP)"
+.br
+.ti -1c
+.RI "#define \fBPOS_B\fP   (\fBPOS_k\fP + 1)"
+.br
+.ti -1c
+.RI "#define \fBPOS_C\fP   (\fBPOS_B\fP + \fBSIZE_B\fP)"
+.br
+.ti -1c
+.RI "#define \fBPOS_Bx\fP   \fBPOS_k\fP"
+.br
+.ti -1c
+.RI "#define \fBPOS_Ax\fP   \fBPOS_A\fP"
+.br
+.ti -1c
+.RI "#define \fBPOS_sJ\fP   \fBPOS_A\fP"
+.br
+.ti -1c
+.RI "#define \fBL_INTHASBITS\fP(b)   ((UINT_MAX >> ((b) \- 1)) >= 1)"
+.br
+.ti -1c
+.RI "#define \fBMAXARG_Bx\fP   \fBMAX_INT\fP"
+.br
+.ti -1c
+.RI "#define \fBOFFSET_sBx\fP   (\fBMAXARG_Bx\fP>>1)         /* 'sBx' is signed */"
+.br
+.ti -1c
+.RI "#define \fBMAXARG_Ax\fP   \fBMAX_INT\fP"
+.br
+.ti -1c
+.RI "#define \fBMAXARG_sJ\fP   \fBMAX_INT\fP"
+.br
+.ti -1c
+.RI "#define \fBOFFSET_sJ\fP   (\fBMAXARG_sJ\fP >> 1)"
+.br
+.ti -1c
+.RI "#define \fBMAXARG_A\fP   ((1<<\fBSIZE_A\fP)\-1)"
+.br
+.ti -1c
+.RI "#define \fBMAXARG_B\fP   ((1<<\fBSIZE_B\fP)\-1)"
+.br
+.ti -1c
+.RI "#define \fBMAXARG_C\fP   ((1<<\fBSIZE_C\fP)\-1)"
+.br
+.ti -1c
+.RI "#define \fBOFFSET_sC\fP   (\fBMAXARG_C\fP >> 1)"
+.br
+.ti -1c
+.RI "#define \fBint2sC\fP(i)   ((i) + \fBOFFSET_sC\fP)"
+.br
+.ti -1c
+.RI "#define \fBsC2int\fP(i)   ((i) \- \fBOFFSET_sC\fP)"
+.br
+.ti -1c
+.RI "#define \fBMASK1\fP(n,  p)   ((~((~(\fBInstruction\fP)0)<<(n)))<<(p))"
+.br
+.ti -1c
+.RI "#define \fBMASK0\fP(n,  p)   (~\fBMASK1\fP(n,p))"
+.br
+.ti -1c
+.RI "#define \fBGET_OPCODE\fP(i)   (\fBcast\fP(\fBOpCode\fP, ((i)>>\fBPOS_OP\fP) & \fBMASK1\fP(\fBSIZE_OP\fP,0)))"
+.br
+.ti -1c
+.RI "#define \fBSET_OPCODE\fP(i,  o)"
+.br
+.ti -1c
+.RI "#define \fBcheckopm\fP(i,  m)   (\fBgetOpMode\fP(\fBGET_OPCODE\fP(i)) == m)"
+.br
+.ti -1c
+.RI "#define \fBgetarg\fP(i,  pos,  size)   (\fBcast_int\fP(((i)>>(pos)) & \fBMASK1\fP(size,0)))"
+.br
+.ti -1c
+.RI "#define \fBsetarg\fP(i,  v,  pos,  size)"
+.br
+.ti -1c
+.RI "#define \fBGETARG_A\fP(i)   \fBgetarg\fP(i, \fBPOS_A\fP, \fBSIZE_A\fP)"
+.br
+.ti -1c
+.RI "#define \fBSETARG_A\fP(i,  v)   \fBsetarg\fP(i, v, \fBPOS_A\fP, \fBSIZE_A\fP)"
+.br
+.ti -1c
+.RI "#define \fBGETARG_B\fP(i)   \fBcheck_exp\fP(\fBcheckopm\fP(i, \fBiABC\fP), \fBgetarg\fP(i, \fBPOS_B\fP, \fBSIZE_B\fP))"
+.br
+.ti -1c
+.RI "#define \fBGETARG_sB\fP(i)   \fBsC2int\fP(\fBGETARG_B\fP(i))"
+.br
+.ti -1c
+.RI "#define \fBSETARG_B\fP(i,  v)   \fBsetarg\fP(i, v, \fBPOS_B\fP, \fBSIZE_B\fP)"
+.br
+.ti -1c
+.RI "#define \fBGETARG_C\fP(i)   \fBcheck_exp\fP(\fBcheckopm\fP(i, \fBiABC\fP), \fBgetarg\fP(i, \fBPOS_C\fP, \fBSIZE_C\fP))"
+.br
+.ti -1c
+.RI "#define \fBGETARG_sC\fP(i)   \fBsC2int\fP(\fBGETARG_C\fP(i))"
+.br
+.ti -1c
+.RI "#define \fBSETARG_C\fP(i,  v)   \fBsetarg\fP(i, v, \fBPOS_C\fP, \fBSIZE_C\fP)"
+.br
+.ti -1c
+.RI "#define \fBTESTARG_k\fP(i)   \fBcheck_exp\fP(\fBcheckopm\fP(i, \fBiABC\fP), (\fBcast_int\fP(((i) & (1u << \fBPOS_k\fP)))))"
+.br
+.ti -1c
+.RI "#define \fBGETARG_k\fP(i)   \fBcheck_exp\fP(\fBcheckopm\fP(i, \fBiABC\fP), \fBgetarg\fP(i, \fBPOS_k\fP, 1))"
+.br
+.ti -1c
+.RI "#define \fBSETARG_k\fP(i,  v)   \fBsetarg\fP(i, v, \fBPOS_k\fP, 1)"
+.br
+.ti -1c
+.RI "#define \fBGETARG_Bx\fP(i)   \fBcheck_exp\fP(\fBcheckopm\fP(i, \fBiABx\fP), \fBgetarg\fP(i, \fBPOS_Bx\fP, \fBSIZE_Bx\fP))"
+.br
+.ti -1c
+.RI "#define \fBSETARG_Bx\fP(i,  v)   \fBsetarg\fP(i, v, \fBPOS_Bx\fP, \fBSIZE_Bx\fP)"
+.br
+.ti -1c
+.RI "#define \fBGETARG_Ax\fP(i)   \fBcheck_exp\fP(\fBcheckopm\fP(i, \fBiAx\fP), \fBgetarg\fP(i, \fBPOS_Ax\fP, \fBSIZE_Ax\fP))"
+.br
+.ti -1c
+.RI "#define \fBSETARG_Ax\fP(i,  v)   \fBsetarg\fP(i, v, \fBPOS_Ax\fP, \fBSIZE_Ax\fP)"
+.br
+.ti -1c
+.RI "#define \fBGETARG_sBx\fP(i)   	\fBcheck_exp\fP(\fBcheckopm\fP(i, \fBiAsBx\fP), \fBgetarg\fP(i, \fBPOS_Bx\fP, \fBSIZE_Bx\fP) \- \fBOFFSET_sBx\fP)"
+.br
+.ti -1c
+.RI "#define \fBSETARG_sBx\fP(i,  b)   \fBSETARG_Bx\fP((i),\fBcast_uint\fP((b)+\fBOFFSET_sBx\fP))"
+.br
+.ti -1c
+.RI "#define \fBGETARG_sJ\fP(i)   	\fBcheck_exp\fP(\fBcheckopm\fP(i, \fBisJ\fP), \fBgetarg\fP(i, \fBPOS_sJ\fP, \fBSIZE_sJ\fP) \- \fBOFFSET_sJ\fP)"
+.br
+.ti -1c
+.RI "#define \fBSETARG_sJ\fP(i,  j)   	\fBsetarg\fP(i, \fBcast_uint\fP((j)+\fBOFFSET_sJ\fP), \fBPOS_sJ\fP, \fBSIZE_sJ\fP)"
+.br
+.ti -1c
+.RI "#define \fBCREATE_ABCk\fP(o,  a,  b,  c,  k)"
+.br
+.ti -1c
+.RI "#define \fBCREATE_ABx\fP(o,  a,  bc)"
+.br
+.ti -1c
+.RI "#define \fBCREATE_Ax\fP(o,  a)"
+.br
+.ti -1c
+.RI "#define \fBCREATE_sJ\fP(o,  j,  k)"
+.br
+.ti -1c
+.RI "#define \fBMAXINDEXRK\fP   \fBMAXARG_B\fP"
+.br
+.ti -1c
+.RI "#define \fBNO_REG\fP   \fBMAXARG_A\fP"
+.br
+.ti -1c
+.RI "#define \fBNUM_OPCODES\fP   ((int)(\fBOP_EXTRAARG\fP) + 1)"
+.br
+.ti -1c
+.RI "#define \fBgetOpMode\fP(m)   (\fBcast\fP(enum \fBOpMode\fP, \fBluaP_opmodes\fP[m] & 7))"
+.br
+.ti -1c
+.RI "#define \fBtestAMode\fP(m)   (\fBluaP_opmodes\fP[m] & (1 << 3))"
+.br
+.ti -1c
+.RI "#define \fBtestTMode\fP(m)   (\fBluaP_opmodes\fP[m] & (1 << 4))"
+.br
+.ti -1c
+.RI "#define \fBtestITMode\fP(m)   (\fBluaP_opmodes\fP[m] & (1 << 5))"
+.br
+.ti -1c
+.RI "#define \fBtestOTMode\fP(m)   (\fBluaP_opmodes\fP[m] & (1 << 6))"
+.br
+.ti -1c
+.RI "#define \fBtestMMMode\fP(m)   (\fBluaP_opmodes\fP[m] & (1 << 7))"
+.br
+.ti -1c
+.RI "#define \fBisOT\fP(i)"
+.br
+.ti -1c
+.RI "#define \fBisIT\fP(i)   (\fBtestITMode\fP(\fBGET_OPCODE\fP(i)) && \fBGETARG_B\fP(i) == 0)"
+.br
+.ti -1c
+.RI "#define \fBopmode\fP(mm,  ot,  it,  t,  a,  m)       (((mm) << 7) | ((ot) << 6) | ((it) << 5) | ((t) << 4) | ((a) << 3) | (m))"
+.br
+.ti -1c
+.RI "#define \fBLFIELDS_PER_FLUSH\fP   50"
+.br
+.in -1c
+.SS "枚举"
+
+.in +1c
+.ti -1c
+.RI "enum \fBOpMode\fP { \fBiABC\fP, \fBiABx\fP, \fBiAsBx\fP, \fBiAx\fP, \fBisJ\fP }"
+.br
+.ti -1c
+.RI "enum \fBOpCode\fP { \fBOP_MOVE\fP, \fBOP_LOADI\fP, \fBOP_LOADF\fP, \fBOP_LOADK\fP, \fBOP_LOADKX\fP, \fBOP_LOADFALSE\fP, \fBOP_LFALSESKIP\fP, \fBOP_LOADTRUE\fP, \fBOP_LOADNIL\fP, \fBOP_GETUPVAL\fP, \fBOP_SETUPVAL\fP, \fBOP_GETTABUP\fP, \fBOP_GETTABLE\fP, \fBOP_GETI\fP, \fBOP_GETFIELD\fP, \fBOP_SETTABUP\fP, \fBOP_SETTABLE\fP, \fBOP_SETI\fP, \fBOP_SETFIELD\fP, \fBOP_NEWTABLE\fP, \fBOP_SELF\fP, \fBOP_ADDI\fP, \fBOP_ADDK\fP, \fBOP_SUBK\fP, \fBOP_MULK\fP, \fBOP_MODK\fP, \fBOP_POWK\fP, \fBOP_DIVK\fP, \fBOP_IDIVK\fP, \fBOP_BANDK\fP, \fBOP_BORK\fP, \fBOP_BXORK\fP, \fBOP_SHRI\fP, \fBOP_SHLI\fP, \fBOP_ADD\fP, \fBOP_SUB\fP, \fBOP_MUL\fP, \fBOP_MOD\fP, \fBOP_POW\fP, \fBOP_DIV\fP, \fBOP_IDIV\fP, \fBOP_BAND\fP, \fBOP_BOR\fP, \fBOP_BXOR\fP, \fBOP_SHL\fP, \fBOP_SHR\fP, \fBOP_MMBIN\fP, \fBOP_MMBINI\fP, \fBOP_MMBINK\fP, \fBOP_UNM\fP, \fBOP_BNOT\fP, \fBOP_NOT\fP, \fBOP_LEN\fP, \fBOP_CONCAT\fP, \fBOP_CLOSE\fP, \fBOP_TBC\fP, \fBOP_JMP\fP, \fBOP_EQ\fP, \fBOP_LT\fP, \fBOP_LE\fP, \fBOP_EQK\fP, \fBOP_EQI\fP, \fBOP_LTI\fP, \fBOP_LEI\fP, \fBOP_GTI\fP, \fBOP_GEI\fP, \fBOP_TEST\fP, \fBOP_TESTSET\fP, \fBOP_CALL\fP, \fBOP_TAILCALL\fP, \fBOP_RETURN\fP, \fBOP_RETURN0\fP, \fBOP_RETURN1\fP, \fBOP_FORLOOP\fP, \fBOP_FORPREP\fP, \fBOP_TFORPREP\fP, \fBOP_TFORCALL\fP, \fBOP_TFORLOOP\fP, \fBOP_SETLIST\fP, \fBOP_CLOSURE\fP, \fBOP_VARARG\fP, \fBOP_VARARGPREP\fP, \fBOP_EXTRAARG\fP }"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define checkopm(i, m)   (\fBgetOpMode\fP(\fBGET_OPCODE\fP(i)) == m)"
+
+.PP
+在文件 lopcodes\&.h 第 118 行定义\&.
+.SS "#define CREATE_ABCk(o, a, b, c, k)"
+\fB值:\fP
+.PP
+.nf
+         ((cast(Instruction, o)<<POS_OP) \
+            | (cast(Instruction, a)<<POS_A) \
+            | (cast(Instruction, b)<<POS_B) \
+            | (cast(Instruction, c)<<POS_C) \
+            | (cast(Instruction, k)<<POS_k))
+.fi
+.PP
+在文件 lopcodes\&.h 第 156 行定义\&.
+.SS "#define CREATE_ABx(o, a, bc)"
+\fB值:\fP
+.PP
+.nf
+            ((cast(Instruction, o)<<POS_OP) \
+            | (cast(Instruction, a)<<POS_A) \
+            | (cast(Instruction, bc)<<POS_Bx))
+.fi
+.PP
+在文件 lopcodes\&.h 第 162 行定义\&.
+.SS "#define CREATE_Ax(o, a)"
+\fB值:\fP
+.PP
+.nf
+         ((cast(Instruction, o)<<POS_OP) \
+            | (cast(Instruction, a)<<POS_Ax))
+.fi
+.PP
+在文件 lopcodes\&.h 第 166 行定义\&.
+.SS "#define CREATE_sJ(o, j, k)"
+\fB值:\fP
+.PP
+.nf
+          ((cast(Instruction, o) << POS_OP) \
+            | (cast(Instruction, j) << POS_sJ) \
+            | (cast(Instruction, k) << POS_k))
+.fi
+.PP
+在文件 lopcodes\&.h 第 169 行定义\&.
+.SS "#define GET_OPCODE(i)   (\fBcast\fP(\fBOpCode\fP, ((i)>>\fBPOS_OP\fP) & \fBMASK1\fP(\fBSIZE_OP\fP,0)))"
+
+.PP
+在文件 lopcodes\&.h 第 114 行定义\&.
+.SS "#define getarg(i, pos, size)   (\fBcast_int\fP(((i)>>(pos)) & \fBMASK1\fP(size,0)))"
+
+.PP
+在文件 lopcodes\&.h 第 121 行定义\&.
+.SS "#define GETARG_A(i)   \fBgetarg\fP(i, \fBPOS_A\fP, \fBSIZE_A\fP)"
+
+.PP
+在文件 lopcodes\&.h 第 125 行定义\&.
+.SS "#define GETARG_Ax(i)   \fBcheck_exp\fP(\fBcheckopm\fP(i, \fBiAx\fP), \fBgetarg\fP(i, \fBPOS_Ax\fP, \fBSIZE_Ax\fP))"
+
+.PP
+在文件 lopcodes\&.h 第 143 行定义\&.
+.SS "#define GETARG_B(i)   \fBcheck_exp\fP(\fBcheckopm\fP(i, \fBiABC\fP), \fBgetarg\fP(i, \fBPOS_B\fP, \fBSIZE_B\fP))"
+
+.PP
+在文件 lopcodes\&.h 第 128 行定义\&.
+.SS "#define GETARG_Bx(i)   \fBcheck_exp\fP(\fBcheckopm\fP(i, \fBiABx\fP), \fBgetarg\fP(i, \fBPOS_Bx\fP, \fBSIZE_Bx\fP))"
+
+.PP
+在文件 lopcodes\&.h 第 140 行定义\&.
+.SS "#define GETARG_C(i)   \fBcheck_exp\fP(\fBcheckopm\fP(i, \fBiABC\fP), \fBgetarg\fP(i, \fBPOS_C\fP, \fBSIZE_C\fP))"
+
+.PP
+在文件 lopcodes\&.h 第 132 行定义\&.
+.SS "#define GETARG_k(i)   \fBcheck_exp\fP(\fBcheckopm\fP(i, \fBiABC\fP), \fBgetarg\fP(i, \fBPOS_k\fP, 1))"
+
+.PP
+在文件 lopcodes\&.h 第 137 行定义\&.
+.SS "#define GETARG_sB(i)   \fBsC2int\fP(\fBGETARG_B\fP(i))"
+
+.PP
+在文件 lopcodes\&.h 第 129 行定义\&.
+.SS "#define GETARG_sBx(i)   	\fBcheck_exp\fP(\fBcheckopm\fP(i, \fBiAsBx\fP), \fBgetarg\fP(i, \fBPOS_Bx\fP, \fBSIZE_Bx\fP) \- \fBOFFSET_sBx\fP)"
+
+.PP
+在文件 lopcodes\&.h 第 146 行定义\&.
+.SS "#define GETARG_sC(i)   \fBsC2int\fP(\fBGETARG_C\fP(i))"
+
+.PP
+在文件 lopcodes\&.h 第 133 行定义\&.
+.SS "#define GETARG_sJ(i)   	\fBcheck_exp\fP(\fBcheckopm\fP(i, \fBisJ\fP), \fBgetarg\fP(i, \fBPOS_sJ\fP, \fBSIZE_sJ\fP) \- \fBOFFSET_sJ\fP)"
+
+.PP
+在文件 lopcodes\&.h 第 150 行定义\&.
+.SS "#define getOpMode(m)   (\fBcast\fP(enum \fBOpMode\fP, \fBluaP_opmodes\fP[m] & 7))"
+
+.PP
+在文件 lopcodes\&.h 第 370 行定义\&.
+.SS "#define int2sC(i)   ((i) + \fBOFFSET_sC\fP)"
+
+.PP
+在文件 lopcodes\&.h 第 100 行定义\&.
+.SS "#define isIT(i)   (\fBtestITMode\fP(\fBGET_OPCODE\fP(i)) && \fBGETARG_B\fP(i) == 0)"
+
+.PP
+在文件 lopcodes\&.h 第 383 行定义\&.
+.SS "#define isOT(i)"
+\fB值:\fP
+.PP
+.nf
+    ((testOTMode(GET_OPCODE(i)) && GETARG_C(i) == 0) || \
+          GET_OPCODE(i) == OP_TAILCALL)
+.fi
+.PP
+在文件 lopcodes\&.h 第 378 行定义\&.
+.SS "#define L_INTHASBITS(b)   ((UINT_MAX >> ((b) \- 1)) >= 1)"
+
+.PP
+在文件 lopcodes\&.h 第 68 行定义\&.
+.SS "#define LFIELDS_PER_FLUSH   50"
+
+.PP
+在文件 lopcodes\&.h 第 390 行定义\&.
+.SS "#define MASK0(n, p)   (~\fBMASK1\fP(n,p))"
+
+.PP
+在文件 lopcodes\&.h 第 108 行定义\&.
+.SS "#define MASK1(n, p)   ((~((~(\fBInstruction\fP)0)<<(n)))<<(p))"
+
+.PP
+在文件 lopcodes\&.h 第 105 行定义\&.
+.SS "#define MAXARG_A   ((1<<\fBSIZE_A\fP)\-1)"
+
+.PP
+在文件 lopcodes\&.h 第 95 行定义\&.
+.SS "#define MAXARG_Ax   \fBMAX_INT\fP"
+
+.PP
+在文件 lopcodes\&.h 第 83 行定义\&.
+.SS "#define MAXARG_B   ((1<<\fBSIZE_B\fP)\-1)"
+
+.PP
+在文件 lopcodes\&.h 第 96 行定义\&.
+.SS "#define MAXARG_Bx   \fBMAX_INT\fP"
+
+.PP
+在文件 lopcodes\&.h 第 74 行定义\&.
+.SS "#define MAXARG_C   ((1<<\fBSIZE_C\fP)\-1)"
+
+.PP
+在文件 lopcodes\&.h 第 97 行定义\&.
+.SS "#define MAXARG_sJ   \fBMAX_INT\fP"
+
+.PP
+在文件 lopcodes\&.h 第 89 行定义\&.
+.SS "#define MAXINDEXRK   \fBMAXARG_B\fP"
+
+.PP
+在文件 lopcodes\&.h 第 175 行定义\&.
+.SS "#define NO_REG   \fBMAXARG_A\fP"
+
+.PP
+在文件 lopcodes\&.h 第 182 行定义\&.
+.SS "#define NUM_OPCODES   ((int)(\fBOP_EXTRAARG\fP) + 1)"
+
+.PP
+在文件 lopcodes\&.h 第 312 行定义\&.
+.SS "#define OFFSET_sBx   (\fBMAXARG_Bx\fP>>1)         /* 'sBx' is signed */"
+
+.PP
+在文件 lopcodes\&.h 第 77 行定义\&.
+.SS "#define OFFSET_sC   (\fBMAXARG_C\fP >> 1)"
+
+.PP
+在文件 lopcodes\&.h 第 98 行定义\&.
+.SS "#define OFFSET_sJ   (\fBMAXARG_sJ\fP >> 1)"
+
+.PP
+在文件 lopcodes\&.h 第 92 行定义\&.
+.SS "#define opmode(mm, ot, it, t, a, m)       (((mm) << 7) | ((ot) << 6) | ((it) << 5) | ((t) << 4) | ((a) << 3) | (m))"
+
+.PP
+在文件 lopcodes\&.h 第 385 行定义\&.
+.SS "#define POS_A   (\fBPOS_OP\fP + \fBSIZE_OP\fP)"
+
+.PP
+在文件 lopcodes\&.h 第 49 行定义\&.
+.SS "#define POS_Ax   \fBPOS_A\fP"
+
+.PP
+在文件 lopcodes\&.h 第 56 行定义\&.
+.SS "#define POS_B   (\fBPOS_k\fP + 1)"
+
+.PP
+在文件 lopcodes\&.h 第 51 行定义\&.
+.SS "#define POS_Bx   \fBPOS_k\fP"
+
+.PP
+在文件 lopcodes\&.h 第 54 行定义\&.
+.SS "#define POS_C   (\fBPOS_B\fP + \fBSIZE_B\fP)"
+
+.PP
+在文件 lopcodes\&.h 第 52 行定义\&.
+.SS "#define POS_k   (\fBPOS_A\fP + \fBSIZE_A\fP)"
+
+.PP
+在文件 lopcodes\&.h 第 50 行定义\&.
+.SS "#define POS_OP   0"
+
+.PP
+在文件 lopcodes\&.h 第 47 行定义\&.
+.SS "#define POS_sJ   \fBPOS_A\fP"
+
+.PP
+在文件 lopcodes\&.h 第 58 行定义\&.
+.SS "#define sC2int(i)   ((i) \- \fBOFFSET_sC\fP)"
+
+.PP
+在文件 lopcodes\&.h 第 101 行定义\&.
+.SS "#define SET_OPCODE(i, o)"
+\fB值:\fP
+.PP
+.nf
+        ((i) = (((i)&MASK0(SIZE_OP,POS_OP)) | \
+        ((cast(Instruction, o)<<POS_OP)&MASK1(SIZE_OP,POS_OP))))
+.fi
+.PP
+在文件 lopcodes\&.h 第 115 行定义\&.
+.SS "#define setarg(i, v, pos, size)"
+\fB值:\fP
+.PP
+.nf
+                ((i) = (((i)&MASK0(size,pos)) | \
+                ((cast(Instruction, v)<<pos)&MASK1(size,pos))))
+.fi
+.PP
+在文件 lopcodes\&.h 第 122 行定义\&.
+.SS "#define SETARG_A(i, v)   \fBsetarg\fP(i, v, \fBPOS_A\fP, \fBSIZE_A\fP)"
+
+.PP
+在文件 lopcodes\&.h 第 126 行定义\&.
+.SS "#define SETARG_Ax(i, v)   \fBsetarg\fP(i, v, \fBPOS_Ax\fP, \fBSIZE_Ax\fP)"
+
+.PP
+在文件 lopcodes\&.h 第 144 行定义\&.
+.SS "#define SETARG_B(i, v)   \fBsetarg\fP(i, v, \fBPOS_B\fP, \fBSIZE_B\fP)"
+
+.PP
+在文件 lopcodes\&.h 第 130 行定义\&.
+.SS "#define SETARG_Bx(i, v)   \fBsetarg\fP(i, v, \fBPOS_Bx\fP, \fBSIZE_Bx\fP)"
+
+.PP
+在文件 lopcodes\&.h 第 141 行定义\&.
+.SS "#define SETARG_C(i, v)   \fBsetarg\fP(i, v, \fBPOS_C\fP, \fBSIZE_C\fP)"
+
+.PP
+在文件 lopcodes\&.h 第 134 行定义\&.
+.SS "#define SETARG_k(i, v)   \fBsetarg\fP(i, v, \fBPOS_k\fP, 1)"
+
+.PP
+在文件 lopcodes\&.h 第 138 行定义\&.
+.SS "#define SETARG_sBx(i, b)   \fBSETARG_Bx\fP((i),\fBcast_uint\fP((b)+\fBOFFSET_sBx\fP))"
+
+.PP
+在文件 lopcodes\&.h 第 148 行定义\&.
+.SS "#define SETARG_sJ(i, j)   	\fBsetarg\fP(i, \fBcast_uint\fP((j)+\fBOFFSET_sJ\fP), \fBPOS_sJ\fP, \fBSIZE_sJ\fP)"
+
+.PP
+在文件 lopcodes\&.h 第 152 行定义\&.
+.SS "#define SIZE_A   8"
+
+.PP
+在文件 lopcodes\&.h 第 41 行定义\&.
+.SS "#define SIZE_Ax   (\fBSIZE_Bx\fP + \fBSIZE_A\fP)"
+
+.PP
+在文件 lopcodes\&.h 第 42 行定义\&.
+.SS "#define SIZE_B   8"
+
+.PP
+在文件 lopcodes\&.h 第 39 行定义\&.
+.SS "#define SIZE_Bx   (\fBSIZE_C\fP + \fBSIZE_B\fP + 1)"
+
+.PP
+在文件 lopcodes\&.h 第 40 行定义\&.
+.SS "#define SIZE_C   8"
+
+.PP
+在文件 lopcodes\&.h 第 38 行定义\&.
+.SS "#define SIZE_OP   7"
+
+.PP
+在文件 lopcodes\&.h 第 45 行定义\&.
+.SS "#define SIZE_sJ   (\fBSIZE_Bx\fP + \fBSIZE_A\fP)"
+
+.PP
+在文件 lopcodes\&.h 第 43 行定义\&.
+.SS "#define testAMode(m)   (\fBluaP_opmodes\fP[m] & (1 << 3))"
+
+.PP
+在文件 lopcodes\&.h 第 371 行定义\&.
+.SS "#define TESTARG_k(i)   \fBcheck_exp\fP(\fBcheckopm\fP(i, \fBiABC\fP), (\fBcast_int\fP(((i) & (1u << \fBPOS_k\fP)))))"
+
+.PP
+在文件 lopcodes\&.h 第 136 行定义\&.
+.SS "#define testITMode(m)   (\fBluaP_opmodes\fP[m] & (1 << 5))"
+
+.PP
+在文件 lopcodes\&.h 第 373 行定义\&.
+.SS "#define testMMMode(m)   (\fBluaP_opmodes\fP[m] & (1 << 7))"
+
+.PP
+在文件 lopcodes\&.h 第 375 行定义\&.
+.SS "#define testOTMode(m)   (\fBluaP_opmodes\fP[m] & (1 << 6))"
+
+.PP
+在文件 lopcodes\&.h 第 374 行定义\&.
+.SS "#define testTMode(m)   (\fBluaP_opmodes\fP[m] & (1 << 4))"
+
+.PP
+在文件 lopcodes\&.h 第 372 行定义\&.
+.SH "枚举类型说明"
+.PP 
+.SS "enum \fBOpCode\fP"
+
+.PP
+\fB枚举值\fP
+.in +1c
+.TP
+\fB\fIOP_MOVE \fP\fP
+.TP
+\fB\fIOP_LOADI \fP\fP
+.TP
+\fB\fIOP_LOADF \fP\fP
+.TP
+\fB\fIOP_LOADK \fP\fP
+.TP
+\fB\fIOP_LOADKX \fP\fP
+.TP
+\fB\fIOP_LOADFALSE \fP\fP
+.TP
+\fB\fIOP_LFALSESKIP \fP\fP
+.TP
+\fB\fIOP_LOADTRUE \fP\fP
+.TP
+\fB\fIOP_LOADNIL \fP\fP
+.TP
+\fB\fIOP_GETUPVAL \fP\fP
+.TP
+\fB\fIOP_SETUPVAL \fP\fP
+.TP
+\fB\fIOP_GETTABUP \fP\fP
+.TP
+\fB\fIOP_GETTABLE \fP\fP
+.TP
+\fB\fIOP_GETI \fP\fP
+.TP
+\fB\fIOP_GETFIELD \fP\fP
+.TP
+\fB\fIOP_SETTABUP \fP\fP
+.TP
+\fB\fIOP_SETTABLE \fP\fP
+.TP
+\fB\fIOP_SETI \fP\fP
+.TP
+\fB\fIOP_SETFIELD \fP\fP
+.TP
+\fB\fIOP_NEWTABLE \fP\fP
+.TP
+\fB\fIOP_SELF \fP\fP
+.TP
+\fB\fIOP_ADDI \fP\fP
+.TP
+\fB\fIOP_ADDK \fP\fP
+.TP
+\fB\fIOP_SUBK \fP\fP
+.TP
+\fB\fIOP_MULK \fP\fP
+.TP
+\fB\fIOP_MODK \fP\fP
+.TP
+\fB\fIOP_POWK \fP\fP
+.TP
+\fB\fIOP_DIVK \fP\fP
+.TP
+\fB\fIOP_IDIVK \fP\fP
+.TP
+\fB\fIOP_BANDK \fP\fP
+.TP
+\fB\fIOP_BORK \fP\fP
+.TP
+\fB\fIOP_BXORK \fP\fP
+.TP
+\fB\fIOP_SHRI \fP\fP
+.TP
+\fB\fIOP_SHLI \fP\fP
+.TP
+\fB\fIOP_ADD \fP\fP
+.TP
+\fB\fIOP_SUB \fP\fP
+.TP
+\fB\fIOP_MUL \fP\fP
+.TP
+\fB\fIOP_MOD \fP\fP
+.TP
+\fB\fIOP_POW \fP\fP
+.TP
+\fB\fIOP_DIV \fP\fP
+.TP
+\fB\fIOP_IDIV \fP\fP
+.TP
+\fB\fIOP_BAND \fP\fP
+.TP
+\fB\fIOP_BOR \fP\fP
+.TP
+\fB\fIOP_BXOR \fP\fP
+.TP
+\fB\fIOP_SHL \fP\fP
+.TP
+\fB\fIOP_SHR \fP\fP
+.TP
+\fB\fIOP_MMBIN \fP\fP
+.TP
+\fB\fIOP_MMBINI \fP\fP
+.TP
+\fB\fIOP_MMBINK \fP\fP
+.TP
+\fB\fIOP_UNM \fP\fP
+.TP
+\fB\fIOP_BNOT \fP\fP
+.TP
+\fB\fIOP_NOT \fP\fP
+.TP
+\fB\fIOP_LEN \fP\fP
+.TP
+\fB\fIOP_CONCAT \fP\fP
+.TP
+\fB\fIOP_CLOSE \fP\fP
+.TP
+\fB\fIOP_TBC \fP\fP
+.TP
+\fB\fIOP_JMP \fP\fP
+.TP
+\fB\fIOP_EQ \fP\fP
+.TP
+\fB\fIOP_LT \fP\fP
+.TP
+\fB\fIOP_LE \fP\fP
+.TP
+\fB\fIOP_EQK \fP\fP
+.TP
+\fB\fIOP_EQI \fP\fP
+.TP
+\fB\fIOP_LTI \fP\fP
+.TP
+\fB\fIOP_LEI \fP\fP
+.TP
+\fB\fIOP_GTI \fP\fP
+.TP
+\fB\fIOP_GEI \fP\fP
+.TP
+\fB\fIOP_TEST \fP\fP
+.TP
+\fB\fIOP_TESTSET \fP\fP
+.TP
+\fB\fIOP_CALL \fP\fP
+.TP
+\fB\fIOP_TAILCALL \fP\fP
+.TP
+\fB\fIOP_RETURN \fP\fP
+.TP
+\fB\fIOP_RETURN0 \fP\fP
+.TP
+\fB\fIOP_RETURN1 \fP\fP
+.TP
+\fB\fIOP_FORLOOP \fP\fP
+.TP
+\fB\fIOP_FORPREP \fP\fP
+.TP
+\fB\fIOP_TFORPREP \fP\fP
+.TP
+\fB\fIOP_TFORCALL \fP\fP
+.TP
+\fB\fIOP_TFORLOOP \fP\fP
+.TP
+\fB\fIOP_SETLIST \fP\fP
+.TP
+\fB\fIOP_CLOSURE \fP\fP
+.TP
+\fB\fIOP_VARARG \fP\fP
+.TP
+\fB\fIOP_VARARGPREP \fP\fP
+.TP
+\fB\fIOP_EXTRAARG \fP\fP
+.PP
+在文件 lopcodes\&.h 第 196 行定义\&.
+.SS "enum \fBOpMode\fP"
+
+.PP
+\fB枚举值\fP
+.in +1c
+.TP
+\fB\fIiABC \fP\fP
+.TP
+\fB\fIiABx \fP\fP
+.TP
+\fB\fIiAsBx \fP\fP
+.TP
+\fB\fIiAx \fP\fP
+.TP
+\fB\fIisJ \fP\fP
+.PP
+在文件 lopcodes\&.h 第 32 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

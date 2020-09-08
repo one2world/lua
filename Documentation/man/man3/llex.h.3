@@ -1,0 +1,217 @@
+.TH "D:/gitworkspace/lua/src/llex.h" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/llex.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'lzio\&.h'\fP
+.br
+
+.SS "结构体"
+
+.in +1c
+.ti -1c
+.RI "union \fBSemInfo\fP"
+.br
+.ti -1c
+.RI "struct \fBToken\fP"
+.br
+.ti -1c
+.RI "struct \fBLexState\fP"
+.br
+.in -1c
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBFIRST_RESERVED\fP   257"
+.br
+.ti -1c
+.RI "#define \fBLUA_ENV\fP   '_ENV'"
+.br
+.ti -1c
+.RI "#define \fBNUM_RESERVED\fP   (\fBcast_int\fP(\fBTK_WHILE\fP\-\fBFIRST_RESERVED\fP + 1))"
+.br
+.in -1c
+.SS "类型定义"
+
+.in +1c
+.ti -1c
+.RI "typedef struct \fBToken\fP \fBToken\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBLexState\fP \fBLexState\fP"
+.br
+.in -1c
+.SS "枚举"
+
+.in +1c
+.ti -1c
+.RI "enum \fBRESERVED\fP { \fBTK_AND\fP = FIRST_RESERVED, \fBTK_BREAK\fP, \fBTK_DO\fP, \fBTK_ELSE\fP, \fBTK_ELSEIF\fP, \fBTK_END\fP, \fBTK_FALSE\fP, \fBTK_FOR\fP, \fBTK_FUNCTION\fP, \fBTK_GOTO\fP, \fBTK_IF\fP, \fBTK_IN\fP, \fBTK_LOCAL\fP, \fBTK_NIL\fP, \fBTK_NOT\fP, \fBTK_OR\fP, \fBTK_REPEAT\fP, \fBTK_RETURN\fP, \fBTK_THEN\fP, \fBTK_TRUE\fP, \fBTK_UNTIL\fP, \fBTK_WHILE\fP, \fBTK_IDIV\fP, \fBTK_CONCAT\fP, \fBTK_DOTS\fP, \fBTK_EQ\fP, \fBTK_GE\fP, \fBTK_LE\fP, \fBTK_NE\fP, \fBTK_SHL\fP, \fBTK_SHR\fP, \fBTK_DBCOLON\fP, \fBTK_EOS\fP, \fBTK_FLT\fP, \fBTK_INT\fP, \fBTK_NAME\fP, \fBTK_STRING\fP }"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaX_init\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaX_setinput\fP (\fBlua_State\fP *L, \fBLexState\fP *ls, \fBZIO\fP *z, \fBTString\fP *source, int firstchar)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP \fBTString\fP * \fBluaX_newstring\fP (\fBLexState\fP *ls, const char *str, size_t l)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaX_next\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBluaX_lookahead\fP (\fBLexState\fP *ls)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP \fBl_noret\fP \fBluaX_syntaxerror\fP (\fBLexState\fP *ls, const char *s)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP const char * \fBluaX_token2str\fP (\fBLexState\fP *ls, int token)"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define FIRST_RESERVED   257"
+
+.PP
+在文件 llex\&.h 第 14 行定义\&.
+.SS "#define LUA_ENV   '_ENV'"
+
+.PP
+在文件 llex\&.h 第 18 行定义\&.
+.SS "#define NUM_RESERVED   (\fBcast_int\fP(\fBTK_WHILE\fP\-\fBFIRST_RESERVED\fP + 1))"
+
+.PP
+在文件 llex\&.h 第 40 行定义\&.
+.SH "类型定义说明"
+.PP 
+.SS "typedef struct \fBLexState\fP \fBLexState\fP"
+
+.SS "typedef struct \fBToken\fP \fBToken\fP"
+
+.SH "枚举类型说明"
+.PP 
+.SS "enum \fBRESERVED\fP"
+
+.PP
+\fB枚举值\fP
+.in +1c
+.TP
+\fB\fITK_AND \fP\fP
+.TP
+\fB\fITK_BREAK \fP\fP
+.TP
+\fB\fITK_DO \fP\fP
+.TP
+\fB\fITK_ELSE \fP\fP
+.TP
+\fB\fITK_ELSEIF \fP\fP
+.TP
+\fB\fITK_END \fP\fP
+.TP
+\fB\fITK_FALSE \fP\fP
+.TP
+\fB\fITK_FOR \fP\fP
+.TP
+\fB\fITK_FUNCTION \fP\fP
+.TP
+\fB\fITK_GOTO \fP\fP
+.TP
+\fB\fITK_IF \fP\fP
+.TP
+\fB\fITK_IN \fP\fP
+.TP
+\fB\fITK_LOCAL \fP\fP
+.TP
+\fB\fITK_NIL \fP\fP
+.TP
+\fB\fITK_NOT \fP\fP
+.TP
+\fB\fITK_OR \fP\fP
+.TP
+\fB\fITK_REPEAT \fP\fP
+.TP
+\fB\fITK_RETURN \fP\fP
+.TP
+\fB\fITK_THEN \fP\fP
+.TP
+\fB\fITK_TRUE \fP\fP
+.TP
+\fB\fITK_UNTIL \fP\fP
+.TP
+\fB\fITK_WHILE \fP\fP
+.TP
+\fB\fITK_IDIV \fP\fP
+.TP
+\fB\fITK_CONCAT \fP\fP
+.TP
+\fB\fITK_DOTS \fP\fP
+.TP
+\fB\fITK_EQ \fP\fP
+.TP
+\fB\fITK_GE \fP\fP
+.TP
+\fB\fITK_LE \fP\fP
+.TP
+\fB\fITK_NE \fP\fP
+.TP
+\fB\fITK_SHL \fP\fP
+.TP
+\fB\fITK_SHR \fP\fP
+.TP
+\fB\fITK_DBCOLON \fP\fP
+.TP
+\fB\fITK_EOS \fP\fP
+.TP
+\fB\fITK_FLT \fP\fP
+.TP
+\fB\fITK_INT \fP\fP
+.TP
+\fB\fITK_NAME \fP\fP
+.TP
+\fB\fITK_STRING \fP\fP
+.PP
+在文件 llex\&.h 第 26 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "\fBLUAI_FUNC\fP void luaX_init (\fBlua_State\fP * L)"
+
+.PP
+在文件 llex\&.c 第 70 行定义\&.
+.SS "\fBLUAI_FUNC\fP int luaX_lookahead (\fBLexState\fP * ls)"
+
+.PP
+在文件 llex\&.c 第 573 行定义\&.
+.SS "\fBLUAI_FUNC\fP \fBTString\fP* luaX_newstring (\fBLexState\fP * ls, const char * str, size_t l)"
+
+.PP
+在文件 llex\&.c 第 130 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaX_next (\fBLexState\fP * ls)"
+
+.PP
+在文件 llex\&.c 第 562 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaX_setinput (\fBlua_State\fP * L, \fBLexState\fP * ls, \fBZIO\fP * z, \fBTString\fP * source, int firstchar)"
+
+.PP
+在文件 llex\&.c 第 165 行定义\&.
+.SS "\fBLUAI_FUNC\fP \fBl_noret\fP luaX_syntaxerror (\fBLexState\fP * ls, const char * s)"
+
+.PP
+在文件 llex\&.c 第 120 行定义\&.
+.SS "\fBLUAI_FUNC\fP const char* luaX_token2str (\fBLexState\fP * ls, int token)"
+
+.PP
+在文件 llex\&.c 第 82 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

@@ -1,0 +1,639 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lua_8c_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/lua.c</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;lua.c&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Lua&#32;stand-alone&#32;interpreter</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+<anchor xml:id="_lua_8c_source_1l00007"/><link linkend="_lua_8c_1a09f0a4e06f4ea52525adbd7eb990ec1b">00007</link> <emphasis role="preprocessor">#define&#32;lua_c</emphasis>
+00008 
+00009 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lprefix_8h">lprefix.h</link>&quot;</emphasis>
+00010 
+00011 
+00012 <emphasis role="preprocessor">#include&#32;&lt;stdio.h&gt;</emphasis>
+00013 <emphasis role="preprocessor">#include&#32;&lt;stdlib.h&gt;</emphasis>
+00014 <emphasis role="preprocessor">#include&#32;&lt;string.h&gt;</emphasis>
+00015 
+00016 <emphasis role="preprocessor">#include&#32;&lt;signal.h&gt;</emphasis>
+00017 
+00018 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lua_8h">lua.h</link>&quot;</emphasis>
+00019 
+00020 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lauxlib_8h">lauxlib.h</link>&quot;</emphasis>
+00021 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lualib_8h">lualib.h</link>&quot;</emphasis>
+00022 
+00023 
+00024 <emphasis role="preprocessor">#if&#32;!defined(LUA_PROGNAME)</emphasis>
+<anchor xml:id="_lua_8c_source_1l00025"/><link linkend="_lua_8c_1af34f43dfd47b8179ae1eb1a03e4abc60">00025</link> <emphasis role="preprocessor">#define&#32;LUA_PROGNAME&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&quot;lua&quot;</emphasis>
+00026 <emphasis role="preprocessor">#endif</emphasis>
+00027 
+00028 <emphasis role="preprocessor">#if&#32;!defined(LUA_INIT_VAR)</emphasis>
+<anchor xml:id="_lua_8c_source_1l00029"/><link linkend="_lua_8c_1aa26556c39a8c231bc647902b495de4a6">00029</link> <emphasis role="preprocessor">#define&#32;LUA_INIT_VAR&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&quot;LUA_INIT&quot;</emphasis>
+00030 <emphasis role="preprocessor">#endif</emphasis>
+00031 
+<anchor xml:id="_lua_8c_source_1l00032"/><link linkend="_lua_8c_1a23a4ddde7b8770311b5f5cfe0e7b6b9c">00032</link> <emphasis role="preprocessor">#define&#32;LUA_INITVARVERSION&#32;&#32;LUA_INIT_VAR&#32;LUA_VERSUFFIX</emphasis>
+00033 
+00034 
+<anchor xml:id="_lua_8c_source_1l00035"/><link linkend="_lua_8c_1af2f256e94f7ca1748abb736e9b311cc4">00035</link> <emphasis role="keyword">static</emphasis>&#32;<link linkend="_structlua___state">lua_State</link>&#32;*<link linkend="_lua_8c_1af2f256e94f7ca1748abb736e9b311cc4">globalL</link>&#32;=&#32;NULL;
+00036 
+<anchor xml:id="_lua_8c_source_1l00037"/><link linkend="_lua_8c_1ad785d8a8f8ff378aa21eb1fa7a6085df">00037</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_lua_8c_1ad785d8a8f8ff378aa21eb1fa7a6085df">progname</link>&#32;=&#32;<link linkend="_lua_8c_1af34f43dfd47b8179ae1eb1a03e4abc60">LUA_PROGNAME</link>;
+00038 
+00039 
+00040 <emphasis role="comment">/*</emphasis>
+00041 <emphasis role="comment">**&#32;Hook&#32;set&#32;by&#32;signal&#32;function&#32;to&#32;stop&#32;the&#32;interpreter.</emphasis>
+00042 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00043"/><link linkend="_lua_8c_1a6da2ce581018529235ae1da1e32c7919">00043</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lua_8c_1a6da2ce581018529235ae1da1e32c7919">lstop</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_structlua___debug">lua_Debug</link>&#32;*ar)&#32;{
+00044 &#32;&#32;(void)ar;&#32;&#32;<emphasis role="comment">/*&#32;unused&#32;arg.&#32;*/</emphasis>
+00045 &#32;&#32;<link linkend="_ldebug_8c_1ac9d3d168561f5c1a747a3ab198f0f092">lua_sethook</link>(L,&#32;NULL,&#32;0,&#32;0);&#32;&#32;<emphasis role="comment">/*&#32;reset&#32;hook&#32;*/</emphasis>
+00046 &#32;&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;interrupted!&quot;</emphasis>);
+00047 }
+00048 
+00049 
+00050 <emphasis role="comment">/*</emphasis>
+00051 <emphasis role="comment">**&#32;Function&#32;to&#32;be&#32;called&#32;at&#32;a&#32;C&#32;signal.&#32;Because&#32;a&#32;C&#32;signal&#32;cannot</emphasis>
+00052 <emphasis role="comment">**&#32;just&#32;change&#32;a&#32;Lua&#32;state&#32;(as&#32;there&#32;is&#32;no&#32;proper&#32;synchronization),</emphasis>
+00053 <emphasis role="comment">**&#32;this&#32;function&#32;only&#32;sets&#32;a&#32;hook&#32;that,&#32;when&#32;called,&#32;will&#32;stop&#32;the</emphasis>
+00054 <emphasis role="comment">**&#32;interpreter.</emphasis>
+00055 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00056"/><link linkend="_lua_8c_1acbccdc65e78da44329f7ee6be03cf0bd">00056</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lua_8c_1acbccdc65e78da44329f7ee6be03cf0bd">laction</link>&#32;(<emphasis role="keywordtype">int</emphasis>&#32;i)&#32;{
+00057 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;flag&#32;=&#32;<link linkend="_lua_8h_1a3b3ff95f914cf6ff4d46c87e8a648489">LUA_MASKCALL</link>&#32;|&#32;<link linkend="_lua_8h_1af0345e20a0268525a82cd71ab3ecb5da">LUA_MASKRET</link>&#32;|&#32;<link linkend="_lua_8h_1a671bc8ae0eddd679411c7f2401a594cf">LUA_MASKLINE</link>&#32;|&#32;<link linkend="_lua_8h_1a29927bc26e642df4f842e0235d290c56">LUA_MASKCOUNT</link>;
+00058 &#32;&#32;signal(i,&#32;SIG_DFL);&#32;<emphasis role="comment">/*&#32;if&#32;another&#32;SIGINT&#32;happens,&#32;terminate&#32;process&#32;*/</emphasis>
+00059 &#32;&#32;<link linkend="_ldebug_8c_1ac9d3d168561f5c1a747a3ab198f0f092">lua_sethook</link>(<link linkend="_lua_8c_1af2f256e94f7ca1748abb736e9b311cc4">globalL</link>,&#32;<link linkend="_lua_8c_1a6da2ce581018529235ae1da1e32c7919">lstop</link>,&#32;flag,&#32;1);
+00060 }
+00061 
+00062 
+<anchor xml:id="_lua_8c_source_1l00063"/><link linkend="_lua_8c_1a91632fe91cad1a0dd44a149ba105f5fc">00063</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lua_8c_1a91632fe91cad1a0dd44a149ba105f5fc">print_usage</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*badoption)&#32;{
+00064 &#32;&#32;<link linkend="_lauxlib_8h_1a0706f68a79575584d365d033d613707b">lua_writestringerror</link>(<emphasis role="stringliteral">&quot;%s:&#32;&quot;</emphasis>,&#32;<link linkend="_lua_8c_1ad785d8a8f8ff378aa21eb1fa7a6085df">progname</link>);
+00065 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(badoption[1]&#32;==&#32;<emphasis role="charliteral">&apos;e&apos;</emphasis>&#32;||&#32;badoption[1]&#32;==&#32;<emphasis role="charliteral">&apos;l&apos;</emphasis>)
+00066 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a0706f68a79575584d365d033d613707b">lua_writestringerror</link>(<emphasis role="stringliteral">&quot;&apos;%s&apos;&#32;needs&#32;argument\n&quot;</emphasis>,&#32;badoption);
+00067 &#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00068 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a0706f68a79575584d365d033d613707b">lua_writestringerror</link>(<emphasis role="stringliteral">&quot;unrecognized&#32;option&#32;&apos;%s&apos;\n&quot;</emphasis>,&#32;badoption);
+00069 &#32;&#32;<link linkend="_lauxlib_8h_1a0706f68a79575584d365d033d613707b">lua_writestringerror</link>(
+00070 &#32;&#32;<emphasis role="stringliteral">&quot;usage:&#32;%s&#32;[options]&#32;[script&#32;[args]]\n&quot;</emphasis>
+00071 &#32;&#32;<emphasis role="stringliteral">&quot;Available&#32;options&#32;are:\n&quot;</emphasis>
+00072 &#32;&#32;<emphasis role="stringliteral">&quot;&#32;&#32;-e&#32;stat&#32;&#32;execute&#32;string&#32;&apos;stat&apos;\n&quot;</emphasis>
+00073 &#32;&#32;<emphasis role="stringliteral">&quot;&#32;&#32;-i&#32;&#32;&#32;&#32;&#32;&#32;&#32;enter&#32;interactive&#32;mode&#32;after&#32;executing&#32;&apos;script&apos;\n&quot;</emphasis>
+00074 &#32;&#32;<emphasis role="stringliteral">&quot;&#32;&#32;-l&#32;name&#32;&#32;require&#32;library&#32;&apos;name&apos;&#32;into&#32;global&#32;&apos;name&apos;\n&quot;</emphasis>
+00075 &#32;&#32;<emphasis role="stringliteral">&quot;&#32;&#32;-v&#32;&#32;&#32;&#32;&#32;&#32;&#32;show&#32;version&#32;information\n&quot;</emphasis>
+00076 &#32;&#32;<emphasis role="stringliteral">&quot;&#32;&#32;-E&#32;&#32;&#32;&#32;&#32;&#32;&#32;ignore&#32;environment&#32;variables\n&quot;</emphasis>
+00077 &#32;&#32;<emphasis role="stringliteral">&quot;&#32;&#32;-W&#32;&#32;&#32;&#32;&#32;&#32;&#32;turn&#32;warnings&#32;on\n&quot;</emphasis>
+00078 &#32;&#32;<emphasis role="stringliteral">&quot;&#32;&#32;--&#32;&#32;&#32;&#32;&#32;&#32;&#32;stop&#32;handling&#32;options\n&quot;</emphasis>
+00079 &#32;&#32;<emphasis role="stringliteral">&quot;&#32;&#32;-&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;stop&#32;handling&#32;options&#32;and&#32;execute&#32;stdin\n&quot;</emphasis>
+00080 &#32;&#32;,
+00081 &#32;&#32;<link linkend="_lua_8c_1ad785d8a8f8ff378aa21eb1fa7a6085df">progname</link>);
+00082 }
+00083 
+00084 
+00085 <emphasis role="comment">/*</emphasis>
+00086 <emphasis role="comment">**&#32;Prints&#32;an&#32;error&#32;message,&#32;adding&#32;the&#32;program&#32;name&#32;in&#32;front&#32;of&#32;it</emphasis>
+00087 <emphasis role="comment">**&#32;(if&#32;present)</emphasis>
+00088 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00089"/><link linkend="_lua_8c_1ad0f0975de65acf5a5edf0953299b3747">00089</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lua_8c_1ad0f0975de65acf5a5edf0953299b3747">l_message</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*pname,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg)&#32;{
+00090 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(pname)&#32;<link linkend="_lauxlib_8h_1a0706f68a79575584d365d033d613707b">lua_writestringerror</link>(<emphasis role="stringliteral">&quot;%s:&#32;&quot;</emphasis>,&#32;pname);
+00091 &#32;&#32;<link linkend="_lauxlib_8h_1a0706f68a79575584d365d033d613707b">lua_writestringerror</link>(<emphasis role="stringliteral">&quot;%s\n&quot;</emphasis>,&#32;msg);
+00092 }
+00093 
+00094 
+00095 <emphasis role="comment">/*</emphasis>
+00096 <emphasis role="comment">**&#32;Check&#32;whether&#32;&apos;status&apos;&#32;is&#32;not&#32;OK&#32;and,&#32;if&#32;so,&#32;prints&#32;the&#32;error</emphasis>
+00097 <emphasis role="comment">**&#32;message&#32;on&#32;the&#32;top&#32;of&#32;the&#32;stack.&#32;It&#32;assumes&#32;that&#32;the&#32;error&#32;object</emphasis>
+00098 <emphasis role="comment">**&#32;is&#32;a&#32;string,&#32;as&#32;it&#32;was&#32;either&#32;generated&#32;by&#32;Lua&#32;or&#32;by&#32;&apos;msghandler&apos;.</emphasis>
+00099 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00100"/><link linkend="_lua_8c_1a037f0feafa76682f422cd7e2fb387f44">00100</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lua_8c_1a037f0feafa76682f422cd7e2fb387f44">report</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;status)&#32;{
+00101 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(status&#32;!=&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>)&#32;{
+00102 &#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg&#32;=&#32;<link linkend="_lua_8h_1ac813fc3bc1886ba17c363d5b4c6e7ef1">lua_tostring</link>(L,&#32;-1);
+00103 &#32;&#32;&#32;&#32;<link linkend="_lua_8c_1ad0f0975de65acf5a5edf0953299b3747">l_message</link>(<link linkend="_lua_8c_1ad785d8a8f8ff378aa21eb1fa7a6085df">progname</link>,&#32;msg);
+00104 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;message&#32;*/</emphasis>
+00105 &#32;&#32;}
+00106 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;status;
+00107 }
+00108 
+00109 
+00110 <emphasis role="comment">/*</emphasis>
+00111 <emphasis role="comment">**&#32;Message&#32;handler&#32;used&#32;to&#32;run&#32;all&#32;chunks</emphasis>
+00112 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00113"/><link linkend="_lua_8c_1aaf236b6f4e03469c893b4a32e9a02ab2">00113</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lua_8c_1aaf236b6f4e03469c893b4a32e9a02ab2">msghandler</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00114 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg&#32;=&#32;<link linkend="_lua_8h_1ac813fc3bc1886ba17c363d5b4c6e7ef1">lua_tostring</link>(L,&#32;1);
+00115 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(msg&#32;==&#32;NULL)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;is&#32;error&#32;object&#32;not&#32;a&#32;string?&#32;*/</emphasis>
+00116 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lauxlib_8c_1abfb23747df76e74d28ac48dabda0c3e1">luaL_callmeta</link>(L,&#32;1,&#32;<emphasis role="stringliteral">&quot;__tostring&quot;</emphasis>)&#32;&amp;&amp;&#32;&#32;<emphasis role="comment">/*&#32;does&#32;it&#32;have&#32;a&#32;metamethod&#32;*/</emphasis>
+00117 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a652b273947f0656686f998d8e90cd3ea">lua_type</link>(L,&#32;-1)&#32;==&#32;<link linkend="_lua_8h_1a57de20d87bb5131a3159f2bd52e3fab6">LUA_TSTRING</link>)&#32;&#32;<emphasis role="comment">/*&#32;that&#32;produces&#32;a&#32;string?&#32;*/</emphasis>
+00118 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;that&#32;is&#32;the&#32;message&#32;*/</emphasis>
+00119 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00120 &#32;&#32;&#32;&#32;&#32;&#32;msg&#32;=&#32;<link linkend="_lapi_8c_1ab190c226d38b289e6ca57683a9d4e0f0">lua_pushfstring</link>(L,&#32;<emphasis role="stringliteral">&quot;(error&#32;object&#32;is&#32;a&#32;%s&#32;value)&quot;</emphasis>,
+00121 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lauxlib_8h_1a2bee94954917c5bccb05d6578f3c675b">luaL_typename</link>(L,&#32;1));
+00122 &#32;&#32;}
+00123 &#32;&#32;<link linkend="_lauxlib_8c_1a67bf3728d34d2c9badb2bd2f57c75233">luaL_traceback</link>(L,&#32;L,&#32;msg,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;append&#32;a&#32;standard&#32;traceback&#32;*/</emphasis>
+00124 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;return&#32;the&#32;traceback&#32;*/</emphasis>
+00125 }
+00126 
+00127 
+00128 <emphasis role="comment">/*</emphasis>
+00129 <emphasis role="comment">**&#32;Interface&#32;to&#32;&apos;lua_pcall&apos;,&#32;which&#32;sets&#32;appropriate&#32;message&#32;function</emphasis>
+00130 <emphasis role="comment">**&#32;and&#32;C-signal&#32;handler.&#32;Used&#32;to&#32;run&#32;all&#32;chunks.</emphasis>
+00131 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00132"/><link linkend="_lua_8c_1a49e04420c2846b52e378ef6272bbf75b">00132</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lua_8c_1a49e04420c2846b52e378ef6272bbf75b">docall</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;narg,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nres)&#32;{
+00133 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;status;
+00134 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;base&#32;=&#32;<link linkend="_lapi_8c_1afbb08ecb69421875494105d4de68e5bf">lua_gettop</link>(L)&#32;-&#32;narg;&#32;&#32;<emphasis role="comment">/*&#32;function&#32;index&#32;*/</emphasis>
+00135 &#32;&#32;<link linkend="_lua_8h_1a2e4fbbe97182bf90004379202202f2b9">lua_pushcfunction</link>(L,&#32;<link linkend="_lua_8c_1aaf236b6f4e03469c893b4a32e9a02ab2">msghandler</link>);&#32;&#32;<emphasis role="comment">/*&#32;push&#32;message&#32;handler&#32;*/</emphasis>
+00136 &#32;&#32;<link linkend="_lua_8h_1a1ba55afa0e7f756a4599e86cf46d92e0">lua_insert</link>(L,&#32;base);&#32;&#32;<emphasis role="comment">/*&#32;put&#32;it&#32;under&#32;function&#32;and&#32;args&#32;*/</emphasis>
+00137 &#32;&#32;<link linkend="_lua_8c_1af2f256e94f7ca1748abb736e9b311cc4">globalL</link>&#32;=&#32;L;&#32;&#32;<emphasis role="comment">/*&#32;to&#32;be&#32;available&#32;to&#32;&apos;laction&apos;&#32;*/</emphasis>
+00138 &#32;&#32;signal(SIGINT,&#32;<link linkend="_lua_8c_1acbccdc65e78da44329f7ee6be03cf0bd">laction</link>);&#32;&#32;<emphasis role="comment">/*&#32;set&#32;C-signal&#32;handler&#32;*/</emphasis>
+00139 &#32;&#32;status&#32;=&#32;<link linkend="_lua_8h_1a589d7e3fd4c388d64056c88bf4672431">lua_pcall</link>(L,&#32;narg,&#32;nres,&#32;base);
+00140 &#32;&#32;signal(SIGINT,&#32;SIG_DFL);&#32;<emphasis role="comment">/*&#32;reset&#32;C-signal&#32;handler&#32;*/</emphasis>
+00141 &#32;&#32;<link linkend="_lua_8h_1a7664dec8f7220c706b7e71ad3227cc78">lua_remove</link>(L,&#32;base);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;message&#32;handler&#32;from&#32;the&#32;stack&#32;*/</emphasis>
+00142 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;status;
+00143 }
+00144 
+00145 
+<anchor xml:id="_lua_8c_source_1l00146"/><link linkend="_lua_8c_1a2e0d36c06cdd7fbacb264c67367d3b01">00146</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lua_8c_1a2e0d36c06cdd7fbacb264c67367d3b01">print_version</link>&#32;(<emphasis role="keywordtype">void</emphasis>)&#32;{
+00147 &#32;&#32;<link linkend="_lauxlib_8h_1a575f50815c13a7a99b8ed1ac03fe714a">lua_writestring</link>(<link linkend="_lua_8h_1a5126fa04dbeee0b9118c769beadcd62d">LUA_COPYRIGHT</link>,&#32;strlen(<link linkend="_lua_8h_1a5126fa04dbeee0b9118c769beadcd62d">LUA_COPYRIGHT</link>));
+00148 &#32;&#32;<link linkend="_lauxlib_8h_1aa4791d9826315ea2d1c716f852026246">lua_writeline</link>();
+00149 }
+00150 
+00151 
+00152 <emphasis role="comment">/*</emphasis>
+00153 <emphasis role="comment">**&#32;Create&#32;the&#32;&apos;arg&apos;&#32;table,&#32;which&#32;stores&#32;all&#32;arguments&#32;from&#32;the</emphasis>
+00154 <emphasis role="comment">**&#32;command&#32;line&#32;(&apos;argv&apos;).&#32;It&#32;should&#32;be&#32;aligned&#32;so&#32;that,&#32;at&#32;index&#32;0,</emphasis>
+00155 <emphasis role="comment">**&#32;it&#32;has&#32;&apos;argv[script]&apos;,&#32;which&#32;is&#32;the&#32;script&#32;name.&#32;The&#32;arguments</emphasis>
+00156 <emphasis role="comment">**&#32;to&#32;the&#32;script&#32;(everything&#32;after&#32;&apos;script&apos;)&#32;go&#32;to&#32;positive&#32;indices;</emphasis>
+00157 <emphasis role="comment">**&#32;other&#32;arguments&#32;(before&#32;the&#32;script&#32;name)&#32;go&#32;to&#32;negative&#32;indices.</emphasis>
+00158 <emphasis role="comment">**&#32;If&#32;there&#32;is&#32;no&#32;script&#32;name,&#32;assume&#32;interpreter&apos;s&#32;name&#32;as&#32;base.</emphasis>
+00159 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00160"/><link linkend="_lua_8c_1ae97a68ae8a927b55520b65d0a56a59d2">00160</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lua_8c_1ae97a68ae8a927b55520b65d0a56a59d2">createargtable</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">char</emphasis>&#32;**argv,&#32;<emphasis role="keywordtype">int</emphasis>&#32;argc,&#32;<emphasis role="keywordtype">int</emphasis>&#32;script)&#32;{
+00161 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i,&#32;narg;
+00162 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(script&#32;==&#32;argc)&#32;script&#32;=&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;script&#32;name?&#32;*/</emphasis>
+00163 &#32;&#32;narg&#32;=&#32;argc&#32;-&#32;(script&#32;+&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;number&#32;of&#32;positive&#32;indices&#32;*/</emphasis>
+00164 &#32;&#32;<link linkend="_lapi_8c_1a7f93e3baf3101cad59ec61b7744a55d8">lua_createtable</link>(L,&#32;narg,&#32;script&#32;+&#32;1);
+00165 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;0;&#32;i&#32;&lt;&#32;argc;&#32;i++)&#32;{
+00166 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;argv[i]);
+00167 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a757fd16e7e09280e2d4e4f9f77ba1099">lua_rawseti</link>(L,&#32;-2,&#32;i&#32;-&#32;script);
+00168 &#32;&#32;}
+00169 &#32;&#32;<link linkend="_lapi_8c_1aecf388efaede9d97581335998dfa243b">lua_setglobal</link>(L,&#32;<emphasis role="stringliteral">&quot;arg&quot;</emphasis>);
+00170 }
+00171 
+00172 
+<anchor xml:id="_lua_8c_source_1l00173"/><link linkend="_lua_8c_1a84103428a06a64ccca2c23a8045f3291">00173</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lua_8c_1a84103428a06a64ccca2c23a8045f3291">dochunk</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;status)&#32;{
+00174 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(status&#32;==&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>)&#32;status&#32;=&#32;<link linkend="_lua_8c_1a49e04420c2846b52e378ef6272bbf75b">docall</link>(L,&#32;0,&#32;0);
+00175 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lua_8c_1a037f0feafa76682f422cd7e2fb387f44">report</link>(L,&#32;status);
+00176 }
+00177 
+00178 
+<anchor xml:id="_lua_8c_source_1l00179"/><link linkend="_lua_8c_1a9708ea7bd36bee3c2d952cdd787246cc">00179</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lua_8c_1a9708ea7bd36bee3c2d952cdd787246cc">dofile</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name)&#32;{
+00180 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lua_8c_1a84103428a06a64ccca2c23a8045f3291">dochunk</link>(L,&#32;<link linkend="_lauxlib_8h_1a023c745560d0ed613efb6eada57a3c13">luaL_loadfile</link>(L,&#32;name));
+00181 }
+00182 
+00183 
+<anchor xml:id="_lua_8c_source_1l00184"/><link linkend="_lua_8c_1ae8312476ab6a3db74a9a5b1a981d023f">00184</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lua_8c_1ae8312476ab6a3db74a9a5b1a981d023f">dostring</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*s,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name)&#32;{
+00185 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lua_8c_1a84103428a06a64ccca2c23a8045f3291">dochunk</link>(L,&#32;<link linkend="_lauxlib_8h_1ae210c8b2a9a27ee62b2e846e93ae876f">luaL_loadbuffer</link>(L,&#32;s,&#32;strlen(s),&#32;name));
+00186 }
+00187 
+00188 
+00189 <emphasis role="comment">/*</emphasis>
+00190 <emphasis role="comment">**&#32;Calls&#32;&apos;require(name)&apos;&#32;and&#32;stores&#32;the&#32;result&#32;in&#32;a&#32;global&#32;variable</emphasis>
+00191 <emphasis role="comment">**&#32;with&#32;the&#32;given&#32;name.</emphasis>
+00192 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00193"/><link linkend="_lua_8c_1ad256d556c3f941b29351d92606e67753">00193</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lua_8c_1ad256d556c3f941b29351d92606e67753">dolibrary</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name)&#32;{
+00194 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;status;
+00195 &#32;&#32;<link linkend="_lapi_8c_1a8185a9c46d5930205f95beee4991e9f0">lua_getglobal</link>(L,&#32;<emphasis role="stringliteral">&quot;require&quot;</emphasis>);
+00196 &#32;&#32;<link linkend="_lapi_8c_1a771d300f2e64b2197d1df9bf31660ebf">lua_pushstring</link>(L,&#32;name);
+00197 &#32;&#32;status&#32;=&#32;<link linkend="_lua_8c_1a49e04420c2846b52e378ef6272bbf75b">docall</link>(L,&#32;1,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;call&#32;&apos;require(name)&apos;&#32;*/</emphasis>
+00198 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(status&#32;==&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>)
+00199 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1aecf388efaede9d97581335998dfa243b">lua_setglobal</link>(L,&#32;name);&#32;&#32;<emphasis role="comment">/*&#32;global[name]&#32;=&#32;require&#32;return&#32;*/</emphasis>
+00200 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lua_8c_1a037f0feafa76682f422cd7e2fb387f44">report</link>(L,&#32;status);
+00201 }
+00202 
+00203 
+00204 <emphasis role="comment">/*</emphasis>
+00205 <emphasis role="comment">**&#32;Push&#32;on&#32;the&#32;stack&#32;the&#32;contents&#32;of&#32;table&#32;&apos;arg&apos;&#32;from&#32;1&#32;to&#32;#arg</emphasis>
+00206 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00207"/><link linkend="_lua_8c_1a1e73bab660617a11ddcbb7d647980d40">00207</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lua_8c_1a1e73bab660617a11ddcbb7d647980d40">pushargs</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00208 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i,&#32;n;
+00209 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lapi_8c_1a8185a9c46d5930205f95beee4991e9f0">lua_getglobal</link>(L,&#32;<emphasis role="stringliteral">&quot;arg&quot;</emphasis>)&#32;!=&#32;<link linkend="_lua_8h_1a31620fd8da5b655b7879e16a116ec31a">LUA_TTABLE</link>)
+00210 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a6c51d83d29244779392551388913e08a">luaL_error</link>(L,&#32;<emphasis role="stringliteral">&quot;&apos;arg&apos;&#32;is&#32;not&#32;a&#32;table&quot;</emphasis>);
+00211 &#32;&#32;n&#32;=&#32;(int)<link linkend="_lauxlib_8c_1aa525c1b6aa90c90d684ef64cf2215e21">luaL_len</link>(L,&#32;-1);
+00212 &#32;&#32;<link linkend="_lauxlib_8c_1a7c46517055e0e8cb25e61b959709083a">luaL_checkstack</link>(L,&#32;n&#32;+&#32;3,&#32;<emphasis role="stringliteral">&quot;too&#32;many&#32;arguments&#32;to&#32;script&quot;</emphasis>);
+00213 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;1;&#32;i&#32;&lt;=&#32;n;&#32;i++)
+00214 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1af8e4dc545cc83927d901d2f242489320">lua_rawgeti</link>(L,&#32;-i,&#32;i);
+00215 &#32;&#32;<link linkend="_lua_8h_1a7664dec8f7220c706b7e71ad3227cc78">lua_remove</link>(L,&#32;-i);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;table&#32;from&#32;the&#32;stack&#32;*/</emphasis>
+00216 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;n;
+00217 }
+00218 
+00219 
+<anchor xml:id="_lua_8c_source_1l00220"/><link linkend="_lua_8c_1a5a944babaacde1035f1aa8b4156cc06a">00220</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lua_8c_1a5a944babaacde1035f1aa8b4156cc06a">handle_script</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">char</emphasis>&#32;**argv)&#32;{
+00221 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;status;
+00222 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*fname&#32;=&#32;argv[0];
+00223 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(strcmp(fname,&#32;<emphasis role="stringliteral">&quot;-&quot;</emphasis>)&#32;==&#32;0&#32;&amp;&amp;&#32;strcmp(argv[-1],&#32;<emphasis role="stringliteral">&quot;--&quot;</emphasis>)&#32;!=&#32;0)
+00224 &#32;&#32;&#32;&#32;fname&#32;=&#32;NULL;&#32;&#32;<emphasis role="comment">/*&#32;stdin&#32;*/</emphasis>
+00225 &#32;&#32;status&#32;=&#32;<link linkend="_lauxlib_8h_1a023c745560d0ed613efb6eada57a3c13">luaL_loadfile</link>(L,&#32;fname);
+00226 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(status&#32;==&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>)&#32;{
+00227 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;n&#32;=&#32;<link linkend="_lua_8c_1a1e73bab660617a11ddcbb7d647980d40">pushargs</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;push&#32;arguments&#32;to&#32;script&#32;*/</emphasis>
+00228 &#32;&#32;&#32;&#32;status&#32;=&#32;<link linkend="_lua_8c_1a49e04420c2846b52e378ef6272bbf75b">docall</link>(L,&#32;n,&#32;<link linkend="_lua_8h_1ace3545adc11664c2f2b152fbe8b6283c">LUA_MULTRET</link>);
+00229 &#32;&#32;}
+00230 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lua_8c_1a037f0feafa76682f422cd7e2fb387f44">report</link>(L,&#32;status);
+00231 }
+00232 
+00233 
+00234 <emphasis role="comment">/*&#32;bits&#32;of&#32;various&#32;argument&#32;indicators&#32;in&#32;&apos;args&apos;&#32;*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00235"/><link linkend="_lua_8c_1a7aa07cb625a50d1de019e68b223629dd">00235</link> <emphasis role="preprocessor">#define&#32;has_error&#32;&#32;&#32;1&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;bad&#32;option&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lua_8c_source_1l00236"/><link linkend="_lua_8c_1abe04c677e6b350ca13b68c28a2a12f04">00236</link> <emphasis role="preprocessor">#define&#32;has_i&#32;&#32;&#32;&#32;&#32;&#32;&#32;2&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;-i&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lua_8c_source_1l00237"/><link linkend="_lua_8c_1a7136ee26052850280aaffb4e04db8f0d">00237</link> <emphasis role="preprocessor">#define&#32;has_v&#32;&#32;&#32;&#32;&#32;&#32;&#32;4&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;-v&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lua_8c_source_1l00238"/><link linkend="_lua_8c_1a062f4556e993b5521901729db1abb78b">00238</link> <emphasis role="preprocessor">#define&#32;has_e&#32;&#32;&#32;&#32;&#32;&#32;&#32;8&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;-e&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lua_8c_source_1l00239"/><link linkend="_lua_8c_1a8c7799a931aadcdf663a40d5973e9457">00239</link> <emphasis role="preprocessor">#define&#32;has_E&#32;&#32;&#32;&#32;&#32;&#32;&#32;16&#32;&#32;</emphasis><emphasis role="comment">/*&#32;-E&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00240 
+00241 
+00242 <emphasis role="comment">/*</emphasis>
+00243 <emphasis role="comment">**&#32;Traverses&#32;all&#32;arguments&#32;from&#32;&apos;argv&apos;,&#32;returning&#32;a&#32;mask&#32;with&#32;those</emphasis>
+00244 <emphasis role="comment">**&#32;needed&#32;before&#32;running&#32;any&#32;Lua&#32;code&#32;(or&#32;an&#32;error&#32;code&#32;if&#32;it&#32;finds</emphasis>
+00245 <emphasis role="comment">**&#32;any&#32;invalid&#32;argument).&#32;&apos;first&apos;&#32;returns&#32;the&#32;first&#32;not-handled&#32;argument</emphasis>
+00246 <emphasis role="comment">**&#32;(either&#32;the&#32;script&#32;name&#32;or&#32;a&#32;bad&#32;argument&#32;in&#32;case&#32;of&#32;error).</emphasis>
+00247 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00248"/><link linkend="_lua_8c_1a1eb8e1daaf00e7189276077c370ee20c">00248</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lua_8c_1a1eb8e1daaf00e7189276077c370ee20c">collectargs</link>&#32;(<emphasis role="keywordtype">char</emphasis>&#32;**argv,&#32;<emphasis role="keywordtype">int</emphasis>&#32;*first)&#32;{
+00249 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;args&#32;=&#32;0;
+00250 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i;
+00251 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;1;&#32;argv[i]&#32;!=&#32;NULL;&#32;i++)&#32;{
+00252 &#32;&#32;&#32;&#32;*first&#32;=&#32;i;
+00253 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(argv[i][0]&#32;!=&#32;<emphasis role="charliteral">&apos;-&apos;</emphasis>)&#32;&#32;<emphasis role="comment">/*&#32;not&#32;an&#32;option?&#32;*/</emphasis>
+00254 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;args;&#32;&#32;<emphasis role="comment">/*&#32;stop&#32;handling&#32;options&#32;*/</emphasis>
+00255 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">switch</emphasis>&#32;(argv[i][1])&#32;{&#32;&#32;<emphasis role="comment">/*&#32;else&#32;check&#32;option&#32;*/</emphasis>
+00256 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;-&apos;</emphasis>:&#32;&#32;<emphasis role="comment">/*&#32;&apos;--&apos;&#32;*/</emphasis>
+00257 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(argv[i][2]&#32;!=&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>)&#32;&#32;<emphasis role="comment">/*&#32;extra&#32;characters&#32;after&#32;&apos;--&apos;?&#32;*/</emphasis>
+00258 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lua_8c_1a7aa07cb625a50d1de019e68b223629dd">has_error</link>;&#32;&#32;<emphasis role="comment">/*&#32;invalid&#32;option&#32;*/</emphasis>
+00259 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;*first&#32;=&#32;i&#32;+&#32;1;
+00260 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;args;
+00261 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>:&#32;&#32;<emphasis role="comment">/*&#32;&apos;-&apos;&#32;*/</emphasis>
+00262 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;args;&#32;&#32;<emphasis role="comment">/*&#32;script&#32;&quot;name&quot;&#32;is&#32;&apos;-&apos;&#32;*/</emphasis>
+00263 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;E&apos;</emphasis>:
+00264 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(argv[i][2]&#32;!=&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>)&#32;&#32;<emphasis role="comment">/*&#32;extra&#32;characters?&#32;*/</emphasis>
+00265 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lua_8c_1a7aa07cb625a50d1de019e68b223629dd">has_error</link>;&#32;&#32;<emphasis role="comment">/*&#32;invalid&#32;option&#32;*/</emphasis>
+00266 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;args&#32;|=&#32;<link linkend="_lua_8c_1a8c7799a931aadcdf663a40d5973e9457">has_E</link>;
+00267 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00268 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;W&apos;</emphasis>:
+00269 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(argv[i][2]&#32;!=&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>)&#32;&#32;<emphasis role="comment">/*&#32;extra&#32;characters?&#32;*/</emphasis>
+00270 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lua_8c_1a7aa07cb625a50d1de019e68b223629dd">has_error</link>;&#32;&#32;<emphasis role="comment">/*&#32;invalid&#32;option&#32;*/</emphasis>
+00271 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00272 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;i&apos;</emphasis>:
+00273 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;args&#32;|=&#32;<link linkend="_lua_8c_1abe04c677e6b350ca13b68c28a2a12f04">has_i</link>;&#32;&#32;<emphasis role="comment">/*&#32;(-i&#32;implies&#32;-v)&#32;*/</emphasis><emphasis role="comment">/*&#32;FALLTHROUGH&#32;*/</emphasis>
+00274 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;v&apos;</emphasis>:
+00275 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(argv[i][2]&#32;!=&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>)&#32;&#32;<emphasis role="comment">/*&#32;extra&#32;characters?&#32;*/</emphasis>
+00276 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lua_8c_1a7aa07cb625a50d1de019e68b223629dd">has_error</link>;&#32;&#32;<emphasis role="comment">/*&#32;invalid&#32;option&#32;*/</emphasis>
+00277 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;args&#32;|=&#32;<link linkend="_lua_8c_1a7136ee26052850280aaffb4e04db8f0d">has_v</link>;
+00278 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00279 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;e&apos;</emphasis>:
+00280 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;args&#32;|=&#32;<link linkend="_lua_8c_1a062f4556e993b5521901729db1abb78b">has_e</link>;&#32;&#32;<emphasis role="comment">/*&#32;FALLTHROUGH&#32;*/</emphasis>
+00281 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;l&apos;</emphasis>:&#32;&#32;<emphasis role="comment">/*&#32;both&#32;options&#32;need&#32;an&#32;argument&#32;*/</emphasis>
+00282 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(argv[i][2]&#32;==&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;no&#32;concatenated&#32;argument?&#32;*/</emphasis>
+00283 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;i++;&#32;&#32;<emphasis role="comment">/*&#32;try&#32;next&#32;&apos;argv&apos;&#32;*/</emphasis>
+00284 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(argv[i]&#32;==&#32;NULL&#32;||&#32;argv[i][0]&#32;==&#32;<emphasis role="charliteral">&apos;-&apos;</emphasis>)
+00285 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lua_8c_1a7aa07cb625a50d1de019e68b223629dd">has_error</link>;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;next&#32;argument&#32;or&#32;it&#32;is&#32;another&#32;option&#32;*/</emphasis>
+00286 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+00287 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00288 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">default</emphasis>:&#32;&#32;<emphasis role="comment">/*&#32;invalid&#32;option&#32;*/</emphasis>
+00289 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lua_8c_1a7aa07cb625a50d1de019e68b223629dd">has_error</link>;
+00290 &#32;&#32;&#32;&#32;}
+00291 &#32;&#32;}
+00292 &#32;&#32;*first&#32;=&#32;i;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;script&#32;name&#32;*/</emphasis>
+00293 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;args;
+00294 }
+00295 
+00296 
+00297 <emphasis role="comment">/*</emphasis>
+00298 <emphasis role="comment">**&#32;Processes&#32;options&#32;&apos;e&apos;&#32;and&#32;&apos;l&apos;,&#32;which&#32;involve&#32;running&#32;Lua&#32;code,&#32;and</emphasis>
+00299 <emphasis role="comment">**&#32;&apos;W&apos;,&#32;which&#32;also&#32;affects&#32;the&#32;state.</emphasis>
+00300 <emphasis role="comment">**&#32;Returns&#32;0&#32;if&#32;some&#32;code&#32;raises&#32;an&#32;error.</emphasis>
+00301 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00302"/><link linkend="_lua_8c_1a95a376c847572def6b3f78d33a7bc881">00302</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lua_8c_1a95a376c847572def6b3f78d33a7bc881">runargs</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">char</emphasis>&#32;**argv,&#32;<emphasis role="keywordtype">int</emphasis>&#32;n)&#32;{
+00303 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i;
+00304 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;1;&#32;i&#32;&lt;&#32;n;&#32;i++)&#32;{
+00305 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;option&#32;=&#32;argv[i][1];
+00306 &#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(argv[i][0]&#32;==&#32;<emphasis role="charliteral">&apos;-&apos;</emphasis>);&#32;&#32;<emphasis role="comment">/*&#32;already&#32;checked&#32;*/</emphasis>
+00307 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">switch</emphasis>&#32;(option)&#32;{
+00308 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;e&apos;</emphasis>:&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;l&apos;</emphasis>:&#32;{
+00309 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;status;
+00310 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*extra&#32;=&#32;argv[i]&#32;+&#32;2;&#32;&#32;<emphasis role="comment">/*&#32;both&#32;options&#32;need&#32;an&#32;argument&#32;*/</emphasis>
+00311 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(*extra&#32;==&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>)&#32;extra&#32;=&#32;argv[++i];
+00312 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(extra&#32;!=&#32;NULL);
+00313 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;status&#32;=&#32;(option&#32;==&#32;<emphasis role="charliteral">&apos;e&apos;</emphasis>)
+00314 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;?&#32;<link linkend="_lua_8c_1ae8312476ab6a3db74a9a5b1a981d023f">dostring</link>(L,&#32;extra,&#32;<emphasis role="stringliteral">&quot;=(command&#32;line)&quot;</emphasis>)
+00315 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;:&#32;<link linkend="_lua_8c_1ad256d556c3f941b29351d92606e67753">dolibrary</link>(L,&#32;extra);
+00316 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(status&#32;!=&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>)&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;
+00317 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00318 &#32;&#32;&#32;&#32;&#32;&#32;}
+00319 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">case</emphasis>&#32;<emphasis role="charliteral">&apos;W&apos;</emphasis>:
+00320 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a383441029934d459d9b7cd89d3c851e8">lua_warning</link>(L,&#32;<emphasis role="stringliteral">&quot;@on&quot;</emphasis>,&#32;0);&#32;&#32;<emphasis role="comment">/*&#32;warnings&#32;on&#32;*/</emphasis>
+00321 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;
+00322 &#32;&#32;&#32;&#32;}
+00323 &#32;&#32;}
+00324 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00325 }
+00326 
+00327 
+<anchor xml:id="_lua_8c_source_1l00328"/><link linkend="_lua_8c_1a5d9d02779b2853fbef2aa54e2f8e017e">00328</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lua_8c_1a5d9d02779b2853fbef2aa54e2f8e017e">handle_luainit</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00329 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*name&#32;=&#32;<emphasis role="stringliteral">&quot;=&quot;</emphasis>&#32;<link linkend="_lua_8c_1a23a4ddde7b8770311b5f5cfe0e7b6b9c">LUA_INITVARVERSION</link>;
+00330 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*init&#32;=&#32;getenv(name&#32;+&#32;1);
+00331 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(init&#32;==&#32;NULL)&#32;{
+00332 &#32;&#32;&#32;&#32;name&#32;=&#32;<emphasis role="stringliteral">&quot;=&quot;</emphasis>&#32;<link linkend="_lua_8c_1aa26556c39a8c231bc647902b495de4a6">LUA_INIT_VAR</link>;
+00333 &#32;&#32;&#32;&#32;init&#32;=&#32;getenv(name&#32;+&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;try&#32;alternative&#32;name&#32;*/</emphasis>
+00334 &#32;&#32;}
+00335 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(init&#32;==&#32;NULL)&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>;
+00336 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(init[0]&#32;==&#32;<emphasis role="charliteral">&apos;@&apos;</emphasis>)
+00337 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lua_8c_1a9708ea7bd36bee3c2d952cdd787246cc">dofile</link>(L,&#32;init+1);
+00338 &#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00339 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lua_8c_1ae8312476ab6a3db74a9a5b1a981d023f">dostring</link>(L,&#32;init,&#32;name);
+00340 }
+00341 
+00342 
+00343 <emphasis role="comment">/*</emphasis>
+00344 <emphasis role="comment">**&#32;{==================================================================</emphasis>
+00345 <emphasis role="comment">**&#32;Read-Eval-Print&#32;Loop&#32;(REPL)</emphasis>
+00346 <emphasis role="comment">**&#32;===================================================================</emphasis>
+00347 <emphasis role="comment">*/</emphasis>
+00348 
+00349 <emphasis role="preprocessor">#if&#32;!defined(LUA_PROMPT)</emphasis>
+<anchor xml:id="_lua_8c_source_1l00350"/><link linkend="_lua_8c_1aa23cea14795d309b45458e284c03feb4">00350</link> <emphasis role="preprocessor">#define&#32;LUA_PROMPT&#32;&#32;&#32;&#32;&#32;&#32;&quot;&gt;&#32;&quot;</emphasis>
+<anchor xml:id="_lua_8c_source_1l00351"/><link linkend="_lua_8c_1ac2d8f72be488d4fcc8483eda1f19e10d">00351</link> <emphasis role="preprocessor">#define&#32;LUA_PROMPT2&#32;&#32;&#32;&#32;&#32;&quot;&gt;&gt;&#32;&quot;</emphasis>
+00352 <emphasis role="preprocessor">#endif</emphasis>
+00353 
+00354 <emphasis role="preprocessor">#if&#32;!defined(LUA_MAXINPUT)</emphasis>
+<anchor xml:id="_lua_8c_source_1l00355"/><link linkend="_lua_8c_1a05ae1f2d6224a7ed765d937f3e29b273">00355</link> <emphasis role="preprocessor">#define&#32;LUA_MAXINPUT&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;512</emphasis>
+00356 <emphasis role="preprocessor">#endif</emphasis>
+00357 
+00358 
+00359 <emphasis role="comment">/*</emphasis>
+00360 <emphasis role="comment">**&#32;lua_stdin_is_tty&#32;detects&#32;whether&#32;the&#32;standard&#32;input&#32;is&#32;a&#32;&apos;tty&apos;&#32;(that</emphasis>
+00361 <emphasis role="comment">**&#32;is,&#32;whether&#32;we&apos;re&#32;running&#32;lua&#32;interactively).</emphasis>
+00362 <emphasis role="comment">*/</emphasis>
+00363 <emphasis role="preprocessor">#if&#32;!defined(lua_stdin_is_tty)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00364 
+00365 <emphasis role="preprocessor">#if&#32;defined(LUA_USE_POSIX)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00366 
+00367 <emphasis role="preprocessor">#include&#32;&lt;unistd.h&gt;</emphasis>
+00368 <emphasis role="preprocessor">#define&#32;lua_stdin_is_tty()&#32;&#32;isatty(0)</emphasis>
+00369 
+00370 <emphasis role="preprocessor">#elif&#32;defined(LUA_USE_WINDOWS)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00371 
+00372 <emphasis role="preprocessor">#include&#32;&lt;io.h&gt;</emphasis>
+00373 <emphasis role="preprocessor">#include&#32;&lt;windows.h&gt;</emphasis>
+00374 
+00375 <emphasis role="preprocessor">#define&#32;lua_stdin_is_tty()&#32;&#32;_isatty(_fileno(stdin))</emphasis>
+00376 
+00377 <emphasis role="preprocessor">#else&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00378 
+00379 <emphasis role="comment">/*&#32;ISO&#32;C&#32;definition&#32;*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00380"/><link linkend="_lua_8c_1ac64250ed95450c29366bf34f4b1f0cbf">00380</link> <emphasis role="preprocessor">#define&#32;lua_stdin_is_tty()&#32;&#32;1&#32;&#32;</emphasis><emphasis role="comment">/*&#32;assume&#32;stdin&#32;is&#32;a&#32;tty&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00381 
+00382 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00383 
+00384 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00385 
+00386 
+00387 <emphasis role="comment">/*</emphasis>
+00388 <emphasis role="comment">**&#32;lua_readline&#32;defines&#32;how&#32;to&#32;show&#32;a&#32;prompt&#32;and&#32;then&#32;read&#32;a&#32;line&#32;from</emphasis>
+00389 <emphasis role="comment">**&#32;the&#32;standard&#32;input.</emphasis>
+00390 <emphasis role="comment">**&#32;lua_saveline&#32;defines&#32;how&#32;to&#32;&quot;save&quot;&#32;a&#32;read&#32;line&#32;in&#32;a&#32;&quot;history&quot;.</emphasis>
+00391 <emphasis role="comment">**&#32;lua_freeline&#32;defines&#32;how&#32;to&#32;free&#32;a&#32;line&#32;read&#32;by&#32;lua_readline.</emphasis>
+00392 <emphasis role="comment">*/</emphasis>
+00393 <emphasis role="preprocessor">#if&#32;!defined(lua_readline)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00394 
+00395 <emphasis role="preprocessor">#if&#32;defined(LUA_USE_READLINE)&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00396 
+00397 <emphasis role="preprocessor">#include&#32;&lt;readline/readline.h&gt;</emphasis>
+00398 <emphasis role="preprocessor">#include&#32;&lt;readline/history.h&gt;</emphasis>
+00399 <emphasis role="preprocessor">#define&#32;lua_initreadline(L)&#32;((void)L,&#32;rl_readline_name=&quot;lua&quot;)</emphasis>
+00400 <emphasis role="preprocessor">#define&#32;lua_readline(L,b,p)&#32;((void)L,&#32;((b)=readline(p))&#32;!=&#32;NULL)</emphasis>
+00401 <emphasis role="preprocessor">#define&#32;lua_saveline(L,line)&#32;&#32;&#32;&#32;((void)L,&#32;add_history(line))</emphasis>
+00402 <emphasis role="preprocessor">#define&#32;lua_freeline(L,b)&#32;&#32;&#32;((void)L,&#32;free(b))</emphasis>
+00403 
+00404 <emphasis role="preprocessor">#else&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00405 
+<anchor xml:id="_lua_8c_source_1l00406"/><link linkend="_lua_8c_1a1be3c5b4b1cc3a2b27aef6eebecdd482">00406</link> <emphasis role="preprocessor">#define&#32;lua_initreadline(L)&#32;&#32;((void)L)</emphasis>
+<anchor xml:id="_lua_8c_source_1l00407"/><link linkend="_lua_8c_1afe1d78b44717d692becd41251c1edeea">00407</link> <emphasis role="preprocessor">#define&#32;lua_readline(L,b,p)&#32;\</emphasis>
+00408 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;((void)L,&#32;fputs(p,&#32;stdout),&#32;fflush(stdout),&#32;&#32;</emphasis><emphasis role="comment">/*&#32;show&#32;prompt&#32;*/</emphasis><emphasis role="preprocessor">&#32;\</emphasis>
+00409 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fgets(b,&#32;LUA_MAXINPUT,&#32;stdin)&#32;!=&#32;NULL)&#32;&#32;</emphasis><emphasis role="comment">/*&#32;get&#32;line&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+<anchor xml:id="_lua_8c_source_1l00410"/><link linkend="_lua_8c_1ab02d1e224c8aabccb5e313584493c32b">00410</link> <emphasis role="preprocessor">#define&#32;lua_saveline(L,line)&#32;&#32;&#32;&#32;{&#32;(void)L;&#32;(void)line;&#32;}</emphasis>
+<anchor xml:id="_lua_8c_source_1l00411"/><link linkend="_lua_8c_1a57d068e6351de5511a9837517ed34282">00411</link> <emphasis role="preprocessor">#define&#32;lua_freeline(L,b)&#32;&#32;&#32;{&#32;(void)L;&#32;(void)b;&#32;}</emphasis>
+00412 
+00413 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00414 
+00415 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00416 
+00417 
+00418 <emphasis role="comment">/*</emphasis>
+00419 <emphasis role="comment">**&#32;Returns&#32;the&#32;string&#32;to&#32;be&#32;used&#32;as&#32;a&#32;prompt&#32;by&#32;the&#32;interpreter.</emphasis>
+00420 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00421"/><link linkend="_lua_8c_1af30330b1ce029ad490faaeab255cf52d">00421</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*<link linkend="_lua_8c_1af30330b1ce029ad490faaeab255cf52d">get_prompt</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;firstline)&#32;{
+00422 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*p;
+00423 &#32;&#32;<link linkend="_lapi_8c_1a8185a9c46d5930205f95beee4991e9f0">lua_getglobal</link>(L,&#32;firstline&#32;?&#32;<emphasis role="stringliteral">&quot;_PROMPT&quot;</emphasis>&#32;:&#32;<emphasis role="stringliteral">&quot;_PROMPT2&quot;</emphasis>);
+00424 &#32;&#32;p&#32;=&#32;<link linkend="_lua_8h_1ac813fc3bc1886ba17c363d5b4c6e7ef1">lua_tostring</link>(L,&#32;-1);
+00425 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(p&#32;==&#32;NULL)&#32;p&#32;=&#32;(firstline&#32;?&#32;<link linkend="_lua_8c_1aa23cea14795d309b45458e284c03feb4">LUA_PROMPT</link>&#32;:&#32;<link linkend="_lua_8c_1ac2d8f72be488d4fcc8483eda1f19e10d">LUA_PROMPT2</link>);
+00426 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;p;
+00427 }
+00428 
+00429 <emphasis role="comment">/*&#32;mark&#32;in&#32;error&#32;messages&#32;for&#32;incomplete&#32;statements&#32;*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00430"/><link linkend="_lua_8c_1a0972b8ff1b2e2d2abdd184890b79ad90">00430</link> <emphasis role="preprocessor">#define&#32;EOFMARK&#32;&#32;&#32;&#32;&#32;&quot;&lt;eof&gt;&quot;</emphasis>
+<anchor xml:id="_lua_8c_source_1l00431"/><link linkend="_lua_8c_1af4095ba5ce624b3061385b49e5863c90">00431</link> <emphasis role="preprocessor">#define&#32;marklen&#32;&#32;&#32;&#32;&#32;(sizeof(EOFMARK)/sizeof(char)&#32;-&#32;1)</emphasis>
+00432 
+00433 
+00434 <emphasis role="comment">/*</emphasis>
+00435 <emphasis role="comment">**&#32;Check&#32;whether&#32;&apos;status&apos;&#32;signals&#32;a&#32;syntax&#32;error&#32;and&#32;the&#32;error</emphasis>
+00436 <emphasis role="comment">**&#32;message&#32;at&#32;the&#32;top&#32;of&#32;the&#32;stack&#32;ends&#32;with&#32;the&#32;above&#32;mark&#32;for</emphasis>
+00437 <emphasis role="comment">**&#32;incomplete&#32;statements.</emphasis>
+00438 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00439"/><link linkend="_lua_8c_1afcb03dd7d7d29972ed50628d7bfdac14">00439</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lua_8c_1afcb03dd7d7d29972ed50628d7bfdac14">incomplete</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;status)&#32;{
+00440 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(status&#32;==&#32;<link linkend="_lua_8h_1a779d4c0fc1c9da41b7d983646267e11f">LUA_ERRSYNTAX</link>)&#32;{
+00441 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;lmsg;
+00442 &#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg&#32;=&#32;<link linkend="_lapi_8c_1a3fc7dbcac3f2610f3d687ec15343bd3f">lua_tolstring</link>(L,&#32;-1,&#32;&amp;lmsg);
+00443 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(lmsg&#32;&gt;=&#32;<link linkend="_lua_8c_1af4095ba5ce624b3061385b49e5863c90">marklen</link>&#32;&amp;&amp;&#32;strcmp(msg&#32;+&#32;lmsg&#32;-&#32;<link linkend="_lua_8c_1af4095ba5ce624b3061385b49e5863c90">marklen</link>,&#32;<link linkend="_lua_8c_1a0972b8ff1b2e2d2abdd184890b79ad90">EOFMARK</link>)&#32;==&#32;0)&#32;{
+00444 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);
+00445 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00446 &#32;&#32;&#32;&#32;}
+00447 &#32;&#32;}
+00448 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;else...&#32;*/</emphasis>
+00449 }
+00450 
+00451 
+00452 <emphasis role="comment">/*</emphasis>
+00453 <emphasis role="comment">**&#32;Prompt&#32;the&#32;user,&#32;read&#32;a&#32;line,&#32;and&#32;push&#32;it&#32;into&#32;the&#32;Lua&#32;stack.</emphasis>
+00454 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00455"/><link linkend="_lua_8c_1a83a7cb21b34095ca93f2a2a863f58fda">00455</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lua_8c_1a83a7cb21b34095ca93f2a2a863f58fda">pushline</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;firstline)&#32;{
+00456 &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;buffer[<link linkend="_lua_8c_1a05ae1f2d6224a7ed765d937f3e29b273">LUA_MAXINPUT</link>];
+00457 &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;*b&#32;=&#32;buffer;
+00458 &#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;l;
+00459 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*prmt&#32;=&#32;<link linkend="_lua_8c_1af30330b1ce029ad490faaeab255cf52d">get_prompt</link>(L,&#32;firstline);
+00460 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;readstatus&#32;=&#32;<link linkend="_lua_8c_1afe1d78b44717d692becd41251c1edeea">lua_readline</link>(L,&#32;b,&#32;prmt);
+00461 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(readstatus&#32;==&#32;0)
+00462 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;input&#32;(prompt&#32;will&#32;be&#32;popped&#32;by&#32;caller)&#32;*/</emphasis>
+00463 &#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;prompt&#32;*/</emphasis>
+00464 &#32;&#32;l&#32;=&#32;strlen(b);
+00465 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(l&#32;&gt;&#32;0&#32;&amp;&amp;&#32;b[l-1]&#32;==&#32;<emphasis role="charliteral">&apos;\n&apos;</emphasis>)&#32;&#32;<emphasis role="comment">/*&#32;line&#32;ends&#32;with&#32;newline?&#32;*/</emphasis>
+00466 &#32;&#32;&#32;&#32;b[--l]&#32;=&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;it&#32;*/</emphasis>
+00467 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(firstline&#32;&amp;&amp;&#32;b[0]&#32;==&#32;<emphasis role="charliteral">&apos;=&apos;</emphasis>)&#32;&#32;<emphasis role="comment">/*&#32;for&#32;compatibility&#32;with&#32;5.2,&#32;...&#32;*/</emphasis>
+00468 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1ab190c226d38b289e6ca57683a9d4e0f0">lua_pushfstring</link>(L,&#32;<emphasis role="stringliteral">&quot;return&#32;%s&quot;</emphasis>,&#32;b&#32;+&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;change&#32;&apos;=&apos;&#32;to&#32;&apos;return&apos;&#32;*/</emphasis>
+00469 &#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00470 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a2c325311534c23450cdf11931a8db0ae">lua_pushlstring</link>(L,&#32;b,&#32;l);
+00471 &#32;&#32;<link linkend="_lua_8c_1a57d068e6351de5511a9837517ed34282">lua_freeline</link>(L,&#32;b);
+00472 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00473 }
+00474 
+00475 
+00476 <emphasis role="comment">/*</emphasis>
+00477 <emphasis role="comment">**&#32;Try&#32;to&#32;compile&#32;line&#32;on&#32;the&#32;stack&#32;as&#32;&apos;return&#32;&lt;line&gt;;&apos;;&#32;on&#32;return,&#32;stack</emphasis>
+00478 <emphasis role="comment">**&#32;has&#32;either&#32;compiled&#32;chunk&#32;or&#32;original&#32;line&#32;(if&#32;compilation&#32;failed).</emphasis>
+00479 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00480"/><link linkend="_lua_8c_1abe2d2b9101fdac08fba2d071fde373f7">00480</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lua_8c_1abe2d2b9101fdac08fba2d071fde373f7">addreturn</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00481 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*line&#32;=&#32;<link linkend="_lua_8h_1ac813fc3bc1886ba17c363d5b4c6e7ef1">lua_tostring</link>(L,&#32;-1);&#32;&#32;<emphasis role="comment">/*&#32;original&#32;line&#32;*/</emphasis>
+00482 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*retline&#32;=&#32;<link linkend="_lapi_8c_1ab190c226d38b289e6ca57683a9d4e0f0">lua_pushfstring</link>(L,&#32;<emphasis role="stringliteral">&quot;return&#32;%s;&quot;</emphasis>,&#32;line);
+00483 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;status&#32;=&#32;<link linkend="_lauxlib_8h_1ae210c8b2a9a27ee62b2e846e93ae876f">luaL_loadbuffer</link>(L,&#32;retline,&#32;strlen(retline),&#32;<emphasis role="stringliteral">&quot;=stdin&quot;</emphasis>);
+00484 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(status&#32;==&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>)&#32;{
+00485 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a7664dec8f7220c706b7e71ad3227cc78">lua_remove</link>(L,&#32;-2);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;modified&#32;line&#32;*/</emphasis>
+00486 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(line[0]&#32;!=&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>)&#32;&#32;<emphasis role="comment">/*&#32;non&#32;empty?&#32;*/</emphasis>
+00487 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8c_1ab02d1e224c8aabccb5e313584493c32b">lua_saveline</link>(L,&#32;line);&#32;&#32;<emphasis role="comment">/*&#32;keep&#32;history&#32;*/</emphasis>
+00488 &#32;&#32;}
+00489 &#32;&#32;<emphasis role="keywordflow">else</emphasis>
+00490 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1abb8eae2164badeafdb037bc1e03cc822">lua_pop</link>(L,&#32;2);&#32;&#32;<emphasis role="comment">/*&#32;pop&#32;result&#32;from&#32;&apos;luaL_loadbuffer&apos;&#32;and&#32;modified&#32;line&#32;*/</emphasis>
+00491 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;status;
+00492 }
+00493 
+00494 
+00495 <emphasis role="comment">/*</emphasis>
+00496 <emphasis role="comment">**&#32;Read&#32;multiple&#32;lines&#32;until&#32;a&#32;complete&#32;Lua&#32;statement</emphasis>
+00497 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00498"/><link linkend="_lua_8c_1affef5a04b31963c2c3f5028518777e12">00498</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lua_8c_1affef5a04b31963c2c3f5028518777e12">multiline</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00499 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(;;)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;repeat&#32;until&#32;gets&#32;a&#32;complete&#32;statement&#32;*/</emphasis>
+00500 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;len;
+00501 &#32;&#32;&#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*line&#32;=&#32;<link linkend="_lapi_8c_1a3fc7dbcac3f2610f3d687ec15343bd3f">lua_tolstring</link>(L,&#32;1,&#32;&amp;len);&#32;&#32;<emphasis role="comment">/*&#32;get&#32;what&#32;it&#32;has&#32;*/</emphasis>
+00502 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;status&#32;=&#32;<link linkend="_lauxlib_8h_1ae210c8b2a9a27ee62b2e846e93ae876f">luaL_loadbuffer</link>(L,&#32;line,&#32;len,&#32;<emphasis role="stringliteral">&quot;=stdin&quot;</emphasis>);&#32;&#32;<emphasis role="comment">/*&#32;try&#32;it&#32;*/</emphasis>
+00503 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_lua_8c_1afcb03dd7d7d29972ed50628d7bfdac14">incomplete</link>(L,&#32;status)&#32;||&#32;!<link linkend="_lua_8c_1a83a7cb21b34095ca93f2a2a863f58fda">pushline</link>(L,&#32;0))&#32;{
+00504 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8c_1ab02d1e224c8aabccb5e313584493c32b">lua_saveline</link>(L,&#32;line);&#32;&#32;<emphasis role="comment">/*&#32;keep&#32;history&#32;*/</emphasis>
+00505 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;status;&#32;&#32;<emphasis role="comment">/*&#32;cannot&#32;or&#32;should&#32;not&#32;try&#32;to&#32;add&#32;continuation&#32;line&#32;*/</emphasis>
+00506 &#32;&#32;&#32;&#32;}
+00507 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a47854189a679002ed743ebbcb30b1b26">lua_pushliteral</link>(L,&#32;<emphasis role="stringliteral">&quot;\n&quot;</emphasis>);&#32;&#32;<emphasis role="comment">/*&#32;add&#32;newline...&#32;*/</emphasis>
+00508 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a1ba55afa0e7f756a4599e86cf46d92e0">lua_insert</link>(L,&#32;-2);&#32;&#32;<emphasis role="comment">/*&#32;...between&#32;the&#32;two&#32;lines&#32;*/</emphasis>
+00509 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a1de3afee1daece63d455f23818c883d9">lua_concat</link>(L,&#32;3);&#32;&#32;<emphasis role="comment">/*&#32;join&#32;them&#32;*/</emphasis>
+00510 &#32;&#32;}
+00511 }
+00512 
+00513 
+00514 <emphasis role="comment">/*</emphasis>
+00515 <emphasis role="comment">**&#32;Read&#32;a&#32;line&#32;and&#32;try&#32;to&#32;load&#32;(compile)&#32;it&#32;first&#32;as&#32;an&#32;expression&#32;(by</emphasis>
+00516 <emphasis role="comment">**&#32;adding&#32;&quot;return&#32;&quot;&#32;in&#32;front&#32;of&#32;it)&#32;and&#32;second&#32;as&#32;a&#32;statement.&#32;Return</emphasis>
+00517 <emphasis role="comment">**&#32;the&#32;final&#32;status&#32;of&#32;load/call&#32;with&#32;the&#32;resulting&#32;function&#32;(if&#32;any)</emphasis>
+00518 <emphasis role="comment">**&#32;in&#32;the&#32;top&#32;of&#32;the&#32;stack.</emphasis>
+00519 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00520"/><link linkend="_lua_8c_1ad7e840f79b193c164616ed9748e68ec6">00520</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lua_8c_1ad7e840f79b193c164616ed9748e68ec6">loadline</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00521 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;status;
+00522 &#32;&#32;<link linkend="_lapi_8c_1adaa30f0d34786144c94644039d1d1b6e">lua_settop</link>(L,&#32;0);
+00523 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_lua_8c_1a83a7cb21b34095ca93f2a2a863f58fda">pushline</link>(L,&#32;1))
+00524 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;-1;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;input&#32;*/</emphasis>
+00525 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;((status&#32;=&#32;<link linkend="_lua_8c_1abe2d2b9101fdac08fba2d071fde373f7">addreturn</link>(L))&#32;!=&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>)&#32;&#32;<emphasis role="comment">/*&#32;&apos;return&#32;...&apos;&#32;did&#32;not&#32;work?&#32;*/</emphasis>
+00526 &#32;&#32;&#32;&#32;status&#32;=&#32;<link linkend="_lua_8c_1affef5a04b31963c2c3f5028518777e12">multiline</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;try&#32;as&#32;command,&#32;maybe&#32;with&#32;continuation&#32;lines&#32;*/</emphasis>
+00527 &#32;&#32;<link linkend="_lua_8h_1a7664dec8f7220c706b7e71ad3227cc78">lua_remove</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;line&#32;from&#32;the&#32;stack&#32;*/</emphasis>
+00528 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(<link linkend="_lapi_8c_1afbb08ecb69421875494105d4de68e5bf">lua_gettop</link>(L)&#32;==&#32;1);
+00529 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;status;
+00530 }
+00531 
+00532 
+00533 <emphasis role="comment">/*</emphasis>
+00534 <emphasis role="comment">**&#32;Prints&#32;(calling&#32;the&#32;Lua&#32;&apos;print&apos;&#32;function)&#32;any&#32;values&#32;on&#32;the&#32;stack</emphasis>
+00535 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00536"/><link linkend="_lua_8c_1aa6faba0570416a2dfe7783da2dcbf6df">00536</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lua_8c_1aa6faba0570416a2dfe7783da2dcbf6df">l_print</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00537 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;n&#32;=&#32;<link linkend="_lapi_8c_1afbb08ecb69421875494105d4de68e5bf">lua_gettop</link>(L);
+00538 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(n&#32;&gt;&#32;0)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;any&#32;result&#32;to&#32;be&#32;printed?&#32;*/</emphasis>
+00539 &#32;&#32;&#32;&#32;<link linkend="_lauxlib_8c_1a7c46517055e0e8cb25e61b959709083a">luaL_checkstack</link>(L,&#32;<link linkend="_lua_8h_1ad0180b89de8a4425cb2a1a3e3f793aa5">LUA_MINSTACK</link>,&#32;<emphasis role="stringliteral">&quot;too&#32;many&#32;results&#32;to&#32;print&quot;</emphasis>);
+00540 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a8185a9c46d5930205f95beee4991e9f0">lua_getglobal</link>(L,&#32;<emphasis role="stringliteral">&quot;print&quot;</emphasis>);
+00541 &#32;&#32;&#32;&#32;<link linkend="_lua_8h_1a1ba55afa0e7f756a4599e86cf46d92e0">lua_insert</link>(L,&#32;1);
+00542 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lua_8h_1a589d7e3fd4c388d64056c88bf4672431">lua_pcall</link>(L,&#32;n,&#32;0,&#32;0)&#32;!=&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>)
+00543 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8c_1ad0f0975de65acf5a5edf0953299b3747">l_message</link>(<link linkend="_lua_8c_1ad785d8a8f8ff378aa21eb1fa7a6085df">progname</link>,&#32;<link linkend="_lapi_8c_1ab190c226d38b289e6ca57683a9d4e0f0">lua_pushfstring</link>(L,&#32;<emphasis role="stringliteral">&quot;error&#32;calling&#32;&apos;print&apos;&#32;(%s)&quot;</emphasis>,
+00544 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8h_1ac813fc3bc1886ba17c363d5b4c6e7ef1">lua_tostring</link>(L,&#32;-1)));
+00545 &#32;&#32;}
+00546 }
+00547 
+00548 
+00549 <emphasis role="comment">/*</emphasis>
+00550 <emphasis role="comment">**&#32;Do&#32;the&#32;REPL:&#32;repeatedly&#32;read&#32;(load)&#32;a&#32;line,&#32;evaluate&#32;(call)&#32;it,&#32;and</emphasis>
+00551 <emphasis role="comment">**&#32;print&#32;any&#32;results.</emphasis>
+00552 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00553"/><link linkend="_lua_8c_1a946f2675cba972bd3580d9046abf2b6b">00553</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lua_8c_1a946f2675cba972bd3580d9046abf2b6b">doREPL</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00554 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;status;
+00555 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*oldprogname&#32;=&#32;<link linkend="_lua_8c_1ad785d8a8f8ff378aa21eb1fa7a6085df">progname</link>;
+00556 &#32;&#32;<link linkend="_lua_8c_1ad785d8a8f8ff378aa21eb1fa7a6085df">progname</link>&#32;=&#32;NULL;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;&apos;progname&apos;&#32;on&#32;errors&#32;in&#32;interactive&#32;mode&#32;*/</emphasis>
+00557 &#32;&#32;<link linkend="_lua_8c_1a1be3c5b4b1cc3a2b27aef6eebecdd482">lua_initreadline</link>(L);
+00558 &#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;((status&#32;=&#32;<link linkend="_lua_8c_1ad7e840f79b193c164616ed9748e68ec6">loadline</link>(L))&#32;!=&#32;-1)&#32;{
+00559 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(status&#32;==&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>)
+00560 &#32;&#32;&#32;&#32;&#32;&#32;status&#32;=&#32;<link linkend="_lua_8c_1a49e04420c2846b52e378ef6272bbf75b">docall</link>(L,&#32;0,&#32;<link linkend="_lua_8h_1ace3545adc11664c2f2b152fbe8b6283c">LUA_MULTRET</link>);
+00561 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(status&#32;==&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>)&#32;<link linkend="_lua_8c_1aa6faba0570416a2dfe7783da2dcbf6df">l_print</link>(L);
+00562 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<link linkend="_lua_8c_1a037f0feafa76682f422cd7e2fb387f44">report</link>(L,&#32;status);
+00563 &#32;&#32;}
+00564 &#32;&#32;<link linkend="_lapi_8c_1adaa30f0d34786144c94644039d1d1b6e">lua_settop</link>(L,&#32;0);&#32;&#32;<emphasis role="comment">/*&#32;clear&#32;stack&#32;*/</emphasis>
+00565 &#32;&#32;<link linkend="_lauxlib_8h_1aa4791d9826315ea2d1c716f852026246">lua_writeline</link>();
+00566 &#32;&#32;<link linkend="_lua_8c_1ad785d8a8f8ff378aa21eb1fa7a6085df">progname</link>&#32;=&#32;oldprogname;
+00567 }
+00568 
+00569 <emphasis role="comment">/*&#32;}==================================================================&#32;*/</emphasis>
+00570 
+00571 
+00572 <emphasis role="comment">/*</emphasis>
+00573 <emphasis role="comment">**&#32;Main&#32;body&#32;of&#32;stand-alone&#32;interpreter&#32;(to&#32;be&#32;called&#32;in&#32;protected&#32;mode).</emphasis>
+00574 <emphasis role="comment">**&#32;Reads&#32;the&#32;options&#32;and&#32;handles&#32;them&#32;all.</emphasis>
+00575 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lua_8c_source_1l00576"/><link linkend="_lua_8c_1aa0f8bc082ef913cb0a4df437bf5f5019">00576</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lua_8c_1aa0f8bc082ef913cb0a4df437bf5f5019">pmain</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00577 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;argc&#32;=&#32;(int)<link linkend="_lua_8h_1a1365e48377a3b567e9d88423b2a6345c">lua_tointeger</link>(L,&#32;1);
+00578 &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;**argv&#32;=&#32;(<emphasis role="keywordtype">char</emphasis>&#32;**)<link linkend="_lapi_8c_1a0444ddf13e5618bca969e4b3b47bc0cc">lua_touserdata</link>(L,&#32;2);
+00579 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;script;
+00580 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;args&#32;=&#32;<link linkend="_lua_8c_1a1eb8e1daaf00e7189276077c370ee20c">collectargs</link>(argv,&#32;&amp;script);
+00581 &#32;&#32;<link linkend="_lauxlib_8h_1aa538485cd28f143fabea2325b9ecd477">luaL_checkversion</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;check&#32;that&#32;interpreter&#32;has&#32;correct&#32;version&#32;*/</emphasis>
+00582 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(argv[0]&#32;&amp;&amp;&#32;argv[0][0])&#32;<link linkend="_lua_8c_1ad785d8a8f8ff378aa21eb1fa7a6085df">progname</link>&#32;=&#32;argv[0];
+00583 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(args&#32;==&#32;<link linkend="_lua_8c_1a7aa07cb625a50d1de019e68b223629dd">has_error</link>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;bad&#32;arg?&#32;*/</emphasis>
+00584 &#32;&#32;&#32;&#32;<link linkend="_lua_8c_1a91632fe91cad1a0dd44a149ba105f5fc">print_usage</link>(argv[script]);&#32;&#32;<emphasis role="comment">/*&#32;&apos;script&apos;&#32;has&#32;index&#32;of&#32;bad&#32;arg.&#32;*/</emphasis>
+00585 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;
+00586 &#32;&#32;}
+00587 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(args&#32;&amp;&#32;<link linkend="_lua_8c_1a7136ee26052850280aaffb4e04db8f0d">has_v</link>)&#32;&#32;<emphasis role="comment">/*&#32;option&#32;&apos;-v&apos;?&#32;*/</emphasis>
+00588 &#32;&#32;&#32;&#32;<link linkend="_lua_8c_1a2e0d36c06cdd7fbacb264c67367d3b01">print_version</link>();
+00589 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(args&#32;&amp;&#32;<link linkend="_lua_8c_1a8c7799a931aadcdf663a40d5973e9457">has_E</link>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;option&#32;&apos;-E&apos;?&#32;*/</emphasis>
+00590 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a56bbb7479265e38da2e2596e6ec25faa">lua_pushboolean</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;signal&#32;for&#32;libraries&#32;to&#32;ignore&#32;env.&#32;vars.&#32;*/</emphasis>
+00591 &#32;&#32;&#32;&#32;<link linkend="_lapi_8c_1a3f2f542ee6728d82e51b1c302f9606df">lua_setfield</link>(L,&#32;<link linkend="_lua_8h_1a3524c2bbc8fcf847dc083246b62945dd">LUA_REGISTRYINDEX</link>,&#32;<emphasis role="stringliteral">&quot;LUA_NOENV&quot;</emphasis>);
+00592 &#32;&#32;}
+00593 &#32;&#32;<link linkend="_linit_8c_1a975e179a76941267d2fa773a703d6199">luaL_openlibs</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;open&#32;standard&#32;libraries&#32;*/</emphasis>
+00594 &#32;&#32;<link linkend="_lua_8c_1ae97a68ae8a927b55520b65d0a56a59d2">createargtable</link>(L,&#32;argv,&#32;argc,&#32;script);&#32;&#32;<emphasis role="comment">/*&#32;create&#32;table&#32;&apos;arg&apos;&#32;*/</emphasis>
+00595 &#32;&#32;<link linkend="_lapi_8c_1aa93573057f708d826613186a9d40c87d">lua_gc</link>(L,&#32;<link linkend="_lua_8h_1a1d84f39f245a70f10e74bb5b9026fefd">LUA_GCGEN</link>,&#32;0,&#32;0);&#32;&#32;<emphasis role="comment">/*&#32;GC&#32;in&#32;generational&#32;mode&#32;*/</emphasis>
+00596 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!(args&#32;&amp;&#32;<link linkend="_lua_8c_1a8c7799a931aadcdf663a40d5973e9457">has_E</link>))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;no&#32;option&#32;&apos;-E&apos;?&#32;*/</emphasis>
+00597 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lua_8c_1a5d9d02779b2853fbef2aa54e2f8e017e">handle_luainit</link>(L)&#32;!=&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>)&#32;&#32;<emphasis role="comment">/*&#32;run&#32;LUA_INIT&#32;*/</emphasis>
+00598 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;error&#32;running&#32;LUA_INIT&#32;*/</emphasis>
+00599 &#32;&#32;}
+00600 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(!<link linkend="_lua_8c_1a95a376c847572def6b3f78d33a7bc881">runargs</link>(L,&#32;argv,&#32;script))&#32;&#32;<emphasis role="comment">/*&#32;execute&#32;arguments&#32;-e&#32;and&#32;-l&#32;*/</emphasis>
+00601 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;something&#32;failed&#32;*/</emphasis>
+00602 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(script&#32;&lt;&#32;argc&#32;&amp;&amp;&#32;&#32;<emphasis role="comment">/*&#32;execute&#32;main&#32;script&#32;(if&#32;there&#32;is&#32;one)&#32;*/</emphasis>
+00603 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8c_1a5a944babaacde1035f1aa8b4156cc06a">handle_script</link>(L,&#32;argv&#32;+&#32;script)&#32;!=&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>)
+00604 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;
+00605 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(args&#32;&amp;&#32;<link linkend="_lua_8c_1abe04c677e6b350ca13b68c28a2a12f04">has_i</link>)&#32;&#32;<emphasis role="comment">/*&#32;-i&#32;option?&#32;*/</emphasis>
+00606 &#32;&#32;&#32;&#32;<link linkend="_lua_8c_1a946f2675cba972bd3580d9046abf2b6b">doREPL</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;do&#32;read-eval-print&#32;loop&#32;*/</emphasis>
+00607 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(script&#32;==&#32;argc&#32;&amp;&amp;&#32;!(args&#32;&amp;&#32;(<link linkend="_lua_8c_1a062f4556e993b5521901729db1abb78b">has_e</link>&#32;|&#32;<link linkend="_lua_8c_1a7136ee26052850280aaffb4e04db8f0d">has_v</link>)))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;no&#32;arguments?&#32;*/</emphasis>
+00608 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lua_8c_1ac64250ed95450c29366bf34f4b1f0cbf">lua_stdin_is_tty</link>())&#32;{&#32;&#32;<emphasis role="comment">/*&#32;running&#32;in&#32;interactive&#32;mode?&#32;*/</emphasis>
+00609 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8c_1a2e0d36c06cdd7fbacb264c67367d3b01">print_version</link>();
+00610 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lua_8c_1a946f2675cba972bd3580d9046abf2b6b">doREPL</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;do&#32;read-eval-print&#32;loop&#32;*/</emphasis>
+00611 &#32;&#32;&#32;&#32;}
+00612 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<link linkend="_lua_8c_1a9708ea7bd36bee3c2d952cdd787246cc">dofile</link>(L,&#32;NULL);&#32;&#32;<emphasis role="comment">/*&#32;executes&#32;stdin&#32;as&#32;a&#32;file&#32;*/</emphasis>
+00613 &#32;&#32;}
+00614 &#32;&#32;<link linkend="_lapi_8c_1a56bbb7479265e38da2e2596e6ec25faa">lua_pushboolean</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;signal&#32;no&#32;errors&#32;*/</emphasis>
+00615 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;1;
+00616 }
+00617 
+00618 
+<anchor xml:id="_lua_8c_source_1l00619"/><link linkend="_lua_8c_1a3c04138a5bfe5d72780bb7e82a18e627">00619</link> <emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lua_8c_1a3c04138a5bfe5d72780bb7e82a18e627">main</link>&#32;(<emphasis role="keywordtype">int</emphasis>&#32;argc,&#32;<emphasis role="keywordtype">char</emphasis>&#32;**argv)&#32;{
+00620 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;status,&#32;result;
+00621 &#32;&#32;<link linkend="_structlua___state">lua_State</link>&#32;*L&#32;=&#32;<link linkend="_lauxlib_8c_1aac01e11c3aeeec5ca26b28f285eadb9e">luaL_newstate</link>();&#32;&#32;<emphasis role="comment">/*&#32;create&#32;state&#32;*/</emphasis>
+00622 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(L&#32;==&#32;NULL)&#32;{
+00623 &#32;&#32;&#32;&#32;<link linkend="_lua_8c_1ad0f0975de65acf5a5edf0953299b3747">l_message</link>(argv[0],&#32;<emphasis role="stringliteral">&quot;cannot&#32;create&#32;state:&#32;not&#32;enough&#32;memory&quot;</emphasis>);
+00624 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;EXIT_FAILURE;
+00625 &#32;&#32;}
+00626 &#32;&#32;<link linkend="_lua_8h_1a2e4fbbe97182bf90004379202202f2b9">lua_pushcfunction</link>(L,&#32;&amp;<link linkend="_lua_8c_1aa0f8bc082ef913cb0a4df437bf5f5019">pmain</link>);&#32;&#32;<emphasis role="comment">/*&#32;to&#32;call&#32;&apos;pmain&apos;&#32;in&#32;protected&#32;mode&#32;*/</emphasis>
+00627 &#32;&#32;<link linkend="_lapi_8c_1adcec46ff05dfee9a3c4c05828b40c213">lua_pushinteger</link>(L,&#32;argc);&#32;&#32;<emphasis role="comment">/*&#32;1st&#32;argument&#32;*/</emphasis>
+00628 &#32;&#32;<link linkend="_lapi_8c_1a85e3e3d32b068aef62426828a104b561">lua_pushlightuserdata</link>(L,&#32;argv);&#32;<emphasis role="comment">/*&#32;2nd&#32;argument&#32;*/</emphasis>
+00629 &#32;&#32;status&#32;=&#32;<link linkend="_lua_8h_1a589d7e3fd4c388d64056c88bf4672431">lua_pcall</link>(L,&#32;2,&#32;1,&#32;0);&#32;&#32;<emphasis role="comment">/*&#32;do&#32;the&#32;call&#32;*/</emphasis>
+00630 &#32;&#32;result&#32;=&#32;<link linkend="_lapi_8c_1a444aee9aa56b0b06175ee3c7bcf7927c">lua_toboolean</link>(L,&#32;-1);&#32;&#32;<emphasis role="comment">/*&#32;get&#32;result&#32;*/</emphasis>
+00631 &#32;&#32;<link linkend="_lua_8c_1a037f0feafa76682f422cd7e2fb387f44">report</link>(L,&#32;status);
+00632 &#32;&#32;<link linkend="_lstate_8c_1a5d903983f1497b2fc58fba9df09e354d">lua_close</link>(L);
+00633 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;(result&#32;&amp;&amp;&#32;status&#32;==&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>)&#32;?&#32;EXIT_SUCCESS&#32;:&#32;EXIT_FAILURE;
+00634 }
+00635 
+</programlisting></section>

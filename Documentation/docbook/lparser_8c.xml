@@ -1,0 +1,2610 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lparser_8c" xml:lang="zh">
+<title>D:/gitworkspace/lua/lparser.c 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lparser.c</primary></indexterm>
+<programlisting>#include &quot;lprefix.h&quot;
+#include &lt;limits.h&gt;
+#include &lt;string.h&gt;
+#include &quot;lua.h&quot;
+#include &quot;lcode.h&quot;
+#include &quot;ldebug.h&quot;
+#include &quot;ldo.h&quot;
+#include &quot;lfunc.h&quot;
+#include &quot;llex.h&quot;
+#include &quot;lmem.h&quot;
+#include &quot;lobject.h&quot;
+#include &quot;lopcodes.h&quot;
+#include &quot;lparser.h&quot;
+#include &quot;lstate.h&quot;
+#include &quot;lstring.h&quot;
+#include &quot;ltable.h&quot;
+</programlisting>lparser.c 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>结构体    </title>
+        <itemizedlist>
+            <listitem><para>struct <link linkend="_struct_block_cnt">BlockCnt</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_cons_control">ConsControl</link></para>
+</listitem>
+            <listitem><para>struct <link linkend="_struct_l_h_s__assign">LHS_assign</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lparser_8c_1a7b083c8164f99ddd60e711ca706869d0">lparser_c</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lparser_8c_1abf0b3947b59218777a8e928a10be205b">LUA_CORE</link></para>
+</listitem>
+            <listitem><para>#define <link linkend="_lparser_8c_1a0879a0e632584a9a8bee5ebffab571ca">MAXVARS</link>   200</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lparser_8c_1a38d6bad3bcde3d124ca880d6a9d82ba6">hasmultret</link>(k)   ((k) == <link linkend="_lparser_8h_1aecced501a9387ab3e6e50a9834615d4eae61a8c04cfeabd756694cd13774e47b7">VCALL</link> || (k) == <link linkend="_lparser_8h_1aecced501a9387ab3e6e50a9834615d4ea3f5f58de0fa9e69449d4e2362ddbfaa1">VVARARG</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lparser_8c_1a5ea0ac9ed10a85ea4b0db7ca78050824">eqstr</link>(a,  b)   ((a) == (b))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lparser_8c_1aece9aca90eb75d99df8490bdb813bdd4">check_condition</link>(ls,  c,  msg)   { if (!(c)) <link linkend="_llex_8h_1a189ff2bb7bd23c89531fdad321fccd02">luaX_syntaxerror</link>(ls, msg); }</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lparser_8c_1a031fd03dec54eb67a3cfac513b8575bb">new_localvarliteral</link>(ls,  v)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lparser_8c_1ab61308992bd6c2013519fdebd0d52704">enterlevel</link>(ls)   <link linkend="_lstate_8h_1a0a0b9a376c81e1247ae41d3cfeb1921c">luaE_enterCcall</link>((ls)-&gt;L)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lparser_8c_1a147b3ba4d2004b4b4ee7260661ec31e1">leavelevel</link>(ls)   <link linkend="_lstate_8h_1ab08fafa9debffb694b3a1aec123347da">luaE_exitCcall</link>((ls)-&gt;L)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lparser_8c_1a521d60e3611f1afe98634adda1a0a050">UNARY_PRIORITY</link>   12  /* <link linkend="_lparser_8c_1ac6fd7e992c9eb0344ae1d64618ac5d27">priority</link> for unary operators */</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>类型定义    </title>
+        <itemizedlist>
+            <listitem><para>typedef struct <link linkend="_struct_block_cnt">BlockCnt</link> <link linkend="_lparser_8c_1a672971a1a6f6fb76c404bac87274225f">BlockCnt</link></para>
+</listitem>
+            <listitem><para>typedef struct <link linkend="_struct_cons_control">ConsControl</link> <link linkend="_lparser_8c_1aac0d82e2c5c45771c53cd25cb8b48972">ConsControl</link></para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para>static void <link linkend="_lparser_8c_1ac29df3687aea9407dcfec478092fce4c">statement</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1af2c543df6cbb49247cd0a71956786d92">expr</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_structexpdesc">expdesc</link> *v)</para>
+</listitem>
+            <listitem><para>static <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> <link linkend="_lparser_8c_1a285759c10955d85bbf00c0041125e7bc">error_expected</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int token)</para>
+</listitem>
+            <listitem><para>static <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> <link linkend="_lparser_8c_1ad02c6061a90a3461a24d2eede35cbf1f">errorlimit</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int limit, const char *what)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1adcc7a63edd0b578c2e7980371ff7f686">checklimit</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int v, int l, const char *what)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lparser_8c_1a73a8be4e1269883a7b1f101bc14902e3">testnext</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int c)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a2c856a5873c90f45525cf0d9abebbfde">check</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int c)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a00410145409eca75b14b1f1c4f553ca0">checknext</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int c)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1abbe267f2acab7a24f25b89b7782b21a6">check_match</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int what, int who, int where)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_t_string">TString</link> * <link linkend="_lparser_8c_1ac6a77e92851fefeaf3facfdc47e5e39d">str_checkname</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1aaa0cc4c3d9d11b020ff13b23262b8b17">init_exp</link> (<link linkend="_structexpdesc">expdesc</link> *e, <link linkend="_lparser_8h_1aecced501a9387ab3e6e50a9834615d4e">expkind</link> k, int i)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a08fd72f32434a2bab9cd08298085e9f9">codestring</link> (<link linkend="_structexpdesc">expdesc</link> *e, <link linkend="_struct_t_string">TString</link> *s)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a7da9556e730c9865b3de6c6440640266">codename</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lparser_8c_1ae3420853c676cec8df3bf2c102315f51">registerlocalvar</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_struct_t_string">TString</link> *varname)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lparser_8c_1a89f5732cbee45d78cfec9dbd1a207bb7">new_localvar</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_struct_t_string">TString</link> *name)</para>
+</listitem>
+            <listitem><para>static <link linkend="_union_vardesc">Vardesc</link> * <link linkend="_lparser_8c_1ae54e8d8f199763735b5175342fbce5ca">getlocalvardesc</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int vidx)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lparser_8c_1a7f8a29677082a5ef36452294a527d740">stacklevel</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int nvar)</para>
+</listitem>
+            <listitem><para>int <link linkend="_lparser_8c_1a03d8535460edd67f5c2d495c2a08bdd2">luaY_nvarstack</link> (<link linkend="_struct_func_state">FuncState</link> *fs)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_loc_var">LocVar</link> * <link linkend="_lparser_8c_1af4e2a81c94d2b795fd0a4c4a2cd9d22f">localdebuginfo</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int vidx)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a234a1dfbb418ebb04cc831ee29dac2b3">init_var</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_structexpdesc">expdesc</link> *e, int vidx)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a68563b28ef658576afc360b4979f3ed6">check_readonly</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a4f84287f74dc67840aae694b6ace6998">adjustlocalvars</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int nvars)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a12f6d0b70d7dc43b72f45ad2a6293fb7">removevars</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int tolevel)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lparser_8c_1a4fa16ff6ddba70e699b1b87ca18d30e1">searchupvalue</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_struct_t_string">TString</link> *name)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_upvaldesc">Upvaldesc</link> * <link linkend="_lparser_8c_1a355e8b6a68c23cc5a65e40cd276c38b1">allocupvalue</link> (<link linkend="_struct_func_state">FuncState</link> *fs)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lparser_8c_1a840fa0de24ef09efda91ce6ebae3876d">newupvalue</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_struct_t_string">TString</link> *name, <link linkend="_structexpdesc">expdesc</link> *v)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lparser_8c_1aa0f0bf6be9c3844c8c9bd05074b53c07">searchvar</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_struct_t_string">TString</link> *n, <link linkend="_structexpdesc">expdesc</link> *var)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1ab92f39b4f46a9844ecab9d585d636bd4">markupval</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int level)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a4e2939a86340a3fe70c3238288c4af8a">singlevaraux</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_struct_t_string">TString</link> *n, <link linkend="_structexpdesc">expdesc</link> *var, int base)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a39a46ec796479bdd22eea51ddef11685">singlevar</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_structexpdesc">expdesc</link> *var)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a7dafcad9b819fe82292276b63a632e80">adjust_assign</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int nvars, int nexps, <link linkend="_structexpdesc">expdesc</link> *e)</para>
+</listitem>
+            <listitem><para>static <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> <link linkend="_lparser_8c_1a6095ffe4a3669369b48424a59063fb71">jumpscopeerror</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_struct_labeldesc">Labeldesc</link> *gt)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a73b1624593cc10a15008229b30eeae81">solvegoto</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int g, <link linkend="_struct_labeldesc">Labeldesc</link> *label)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_labeldesc">Labeldesc</link> * <link linkend="_lparser_8c_1a599b5cc6bd2b4abfe73b21b01e09af33">findlabel</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_struct_t_string">TString</link> *name)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lparser_8c_1ac8408d50bc1af7533968d363841bcf27">newlabelentry</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_struct_labellist">Labellist</link> *l, <link linkend="_struct_t_string">TString</link> *name, int line, int pc)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lparser_8c_1afa4884f1fcf6756c7c9ebadef88a629f">newgotoentry</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_struct_t_string">TString</link> *name, int line, int pc)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lparser_8c_1abd72e798cea4c3def7bc6791e5f07a43">solvegotos</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_struct_labeldesc">Labeldesc</link> *lb)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lparser_8c_1abfc0a485f2b04026699cafcdaa1bfb04">createlabel</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_struct_t_string">TString</link> *name, int line, int last)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a59499d1fac1f098f62ea922753ff88bb">movegotosout</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_struct_block_cnt">BlockCnt</link> *bl)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1aeed63e1438983826777df4cadc063aee">enterblock</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_struct_block_cnt">BlockCnt</link> *bl, <link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> isloop)</para>
+</listitem>
+            <listitem><para>static <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> <link linkend="_lparser_8c_1a0e6f2c50414357750f14eb41e3d08edc">undefgoto</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_struct_labeldesc">Labeldesc</link> *gt)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a9f9c2ed0786c3b036f177f2b33f4f79d">leaveblock</link> (<link linkend="_struct_func_state">FuncState</link> *fs)</para>
+</listitem>
+            <listitem><para>static <link linkend="_struct_proto">Proto</link> * <link linkend="_lparser_8c_1a57dad991ad72ca00978d43967277d9db">addprototype</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a3f0a5b9e975f44a4e7291445786434d8">codeclosure</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_structexpdesc">expdesc</link> *v)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1ac89cbbdfd75804eae46bce05f8381915">open_func</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_struct_block_cnt">BlockCnt</link> *bl)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a46bd6da1ec8052eeaf6fd524199ca72a">close_func</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lparser_8c_1a5be23689d7ea5fd2561c345df03fbf7c">block_follow</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int withuntil)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1aff3c4f1970c0f3c50f37a8187a2414e3">statlist</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a749eb16d6a8c1bb6e94d4c0392e57374">fieldsel</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_structexpdesc">expdesc</link> *v)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1ac3e6a3b89f1a54a2ff4f3570831faf35">yindex</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_structexpdesc">expdesc</link> *v)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a84d7688b0c57f012eaf7f84c0062f29e">recfield</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_struct_cons_control">ConsControl</link> *cc)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1ab2704183a18ae12a124af76b08b2dccf">closelistfield</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_struct_cons_control">ConsControl</link> *cc)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1aa4a987d1a5d0a2f3e72a02570322e923">lastlistfield</link> (<link linkend="_struct_func_state">FuncState</link> *fs, <link linkend="_struct_cons_control">ConsControl</link> *cc)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a4ad1cddd376a59ba97755723bdcce8de">listfield</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_struct_cons_control">ConsControl</link> *cc)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a3a1a4b5a661e480a87ce14027a01f177">field</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_struct_cons_control">ConsControl</link> *cc)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1afd4901e9e6b1ba046efc1a5932cd664c">constructor</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_structexpdesc">expdesc</link> *t)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a71bb47764e4103bbd98a4285ab97ca5d">setvararg</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int nparams)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1adc6c3bb5079c197371a6ddcdbc574de6">parlist</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1aa6a712055fa7e1b41488c71be4f55303">body</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_structexpdesc">expdesc</link> *e, int ismethod, int line)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lparser_8c_1a25966bcc2d6cf47dbb9e0251fb26d661">explist</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_structexpdesc">expdesc</link> *v)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a5050696e535c2da862810fc9910b6afc">funcargs</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_structexpdesc">expdesc</link> *f, int line)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1abb6d6e594e184f737324863a01201cce">primaryexp</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_structexpdesc">expdesc</link> *v)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1adecf4ab651d795c1af76b75998a4dd9c">suffixedexp</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_structexpdesc">expdesc</link> *v)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a3b0b05af60978b05faf5713968573985">simpleexp</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_structexpdesc">expdesc</link> *v)</para>
+</listitem>
+            <listitem><para>static <link linkend="_lcode_8h_1a36fd1054d39d6fc3373303522a7ef534">UnOpr</link> <link linkend="_lparser_8c_1afb550c9d0656dfe2f49f1b87cb91b648">getunopr</link> (int op)</para>
+</listitem>
+            <listitem><para>static <link linkend="_lcode_8h_1ae9a305c1104efedfc54af8d08b942c83">BinOpr</link> <link linkend="_lparser_8c_1a762cacc5df371cedf267a03fa2191385">getbinopr</link> (int op)</para>
+</listitem>
+            <listitem><para>static <link linkend="_lcode_8h_1ae9a305c1104efedfc54af8d08b942c83">BinOpr</link> <link linkend="_lparser_8c_1a49946c41497533490f57063b1ca7cb7c">subexpr</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_structexpdesc">expdesc</link> *v, int limit)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a235428bed4c6be6cb6d2760cd0fa9d34">block</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a7d3af7471b2da7a36d18b73683181456">check_conflict</link> (<link linkend="_struct_lex_state">LexState</link> *ls, struct <link linkend="_struct_l_h_s__assign">LHS_assign</link> *lh, <link linkend="_structexpdesc">expdesc</link> *v)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a4edcfc19b8a94936c58860eded728be4">restassign</link> (<link linkend="_struct_lex_state">LexState</link> *ls, struct <link linkend="_struct_l_h_s__assign">LHS_assign</link> *lh, int nvars)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lparser_8c_1a24002c50a108445d916457eb3c21d5e1">cond</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a55bae7d03576b713ff5460644f102dfd">gotostat</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1ae0650c2b4b5d311a24bd0ddb7b267db3">breakstat</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1aae46e95438b3cd72afa0838f362d9423">checkrepeated</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_struct_t_string">TString</link> *name)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a20b1ca0b6642f6a79d5cc5abeb5dae63">labelstat</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_struct_t_string">TString</link> *name, int line)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1af24623e7aa293515c8293aaf892de531">whilestat</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int line)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a8638807967aa30e7700834f6bd4aaa5d">repeatstat</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int line)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1ad7daced5a038385200486346caea6d96">exp1</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a672ee0543c0616f70608b4ab0c99c646">fixforjump</link> (<link linkend="_struct_func_state">FuncState</link> *fs, int pc, int dest, int back)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a253feeb1a37a9ffb5814070a44893b7f">forbody</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int base, int line, int nvars, int isgen)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a18532c1a3a900cb8f3399b470c00daf0">fornum</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_struct_t_string">TString</link> *varname, int line)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a5f15a71e248c4e1e9c867ccac8a450c2">forlist</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_struct_t_string">TString</link> *indexname)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1af783542828ac360981e0ce0f55abc630">forstat</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int line)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lparser_8c_1ac39115fb9e5fd58006bbe36a28eddc7a">issinglejump</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_struct_t_string">TString</link> **label, int *target)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a51dbd956bff1ce06bb45b3e3d9fde83f">test_then_block</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int *escapelist)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1ae59a0e4b7bd8d539f377ee6f82eac19b">ifstat</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int line)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a906778e7e7ae16a38c8c6b38bdc34f13">localfunc</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lparser_8c_1aacf507e8cbb1eb7a3b49474c510043a8">getlocalattribute</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a2940067b35656914fe3c7be633096a9b">checktoclose</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int level)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1aedb81864a38588cc65a205ff4c07abfa">localstat</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static int <link linkend="_lparser_8c_1a9c06dde377cf16bda138da1cba949c82">funcname</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_structexpdesc">expdesc</link> *v)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a7ab22c159a4bdcda2bd652f01229111b">funcstat</link> (<link linkend="_struct_lex_state">LexState</link> *ls, int line)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a2bafac5e65f8e5de6e00d717bf90f091">exprstat</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a7998fc603fbe151c85cf0ff9b5517ad6">retstat</link> (<link linkend="_struct_lex_state">LexState</link> *ls)</para>
+</listitem>
+            <listitem><para>static void <link linkend="_lparser_8c_1a011959c631cc7cfc75646a0fddc1a149">mainfunc</link> (<link linkend="_struct_lex_state">LexState</link> *ls, <link linkend="_struct_func_state">FuncState</link> *fs)</para>
+</listitem>
+            <listitem><para><link linkend="_struct_l_closure">LClosure</link> * <link linkend="_lparser_8c_1ab1aebed32ae816b2979db5b8dd2d1554">luaY_parser</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17">ZIO</link> *z, <link linkend="_struct_mbuffer">Mbuffer</link> *buff, <link linkend="_struct_dyndata">Dyndata</link> *dyd, const char *name, int firstchar)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>变量    </title>
+        <itemizedlist>
+            <listitem><para>union {</para>
+        <itemizedlist>
+            <listitem><para>   <link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> <link linkend="_lparser_8c_1a3584754acc5e91c03d6fc91359eefd78">left</link></para>
+</listitem>
+            <listitem><para>   <link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> <link linkend="_lparser_8c_1a34b07942956eb7acd9d02c5b75177ae6">right</link></para>
+</listitem>
+            <listitem><para>   int <link linkend="_lstrlib_8c_1a7c1d654b7b6114d7a0abc8d351dd1bcd">dummy</link></para>
+</listitem>
+            <listitem><para>   char <link linkend="_lstrlib_8c_1a5831a9b38577f9ef9b30553737b5b7f9">little</link></para>
+</listitem>
+        </itemizedlist>
+</listitem>
+            <listitem><para>} <link linkend="_lparser_8c_1ac6fd7e992c9eb0344ae1d64618ac5d27">priority</link> []</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lparser_8c_1aece9aca90eb75d99df8490bdb813bdd4"/>    <section>
+    <title>check_condition</title>
+<indexterm><primary>check_condition</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>check_condition</secondary></indexterm>
+<para><computeroutput>#define check_condition( ls,  c,  msg)   { if (!(c)) <link linkend="_llex_8h_1a189ff2bb7bd23c89531fdad321fccd02">luaX_syntaxerror</link>(ls, msg); }</computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00122">122</link> 行定义.</para>
+    </section><anchor xml:id="_lparser_8c_1ab61308992bd6c2013519fdebd0d52704"/>    <section>
+    <title>enterlevel</title>
+<indexterm><primary>enterlevel</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>enterlevel</secondary></indexterm>
+<para><computeroutput>#define enterlevel( ls)   <link linkend="_lstate_8h_1a0a0b9a376c81e1247ae41d3cfeb1921c">luaE_enterCcall</link>((ls)-&gt;L)</computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00495">495</link> 行定义.</para>
+    </section><anchor xml:id="_lparser_8c_1a5ea0ac9ed10a85ea4b0db7ca78050824"/>    <section>
+    <title>eqstr</title>
+<indexterm><primary>eqstr</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>eqstr</secondary></indexterm>
+<para><computeroutput>#define eqstr( a,  b)   ((a) == (b))</computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00043">43</link> 行定义.</para>
+    </section><anchor xml:id="_lparser_8c_1a38d6bad3bcde3d124ca880d6a9d82ba6"/>    <section>
+    <title>hasmultret</title>
+<indexterm><primary>hasmultret</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>hasmultret</secondary></indexterm>
+<para><computeroutput>#define hasmultret( k)   ((k) == <link linkend="_lparser_8h_1aecced501a9387ab3e6e50a9834615d4eae61a8c04cfeabd756694cd13774e47b7">VCALL</link> || (k) == <link linkend="_lparser_8h_1aecced501a9387ab3e6e50a9834615d4ea3f5f58de0fa9e69449d4e2362ddbfaa1">VVARARG</link>)</computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00038">38</link> 行定义.</para>
+    </section><anchor xml:id="_lparser_8c_1a147b3ba4d2004b4b4ee7260661ec31e1"/>    <section>
+    <title>leavelevel</title>
+<indexterm><primary>leavelevel</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>leavelevel</secondary></indexterm>
+<para><computeroutput>#define leavelevel( ls)   <link linkend="_lstate_8h_1ab08fafa9debffb694b3a1aec123347da">luaE_exitCcall</link>((ls)-&gt;L)</computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00497">497</link> 行定义.</para>
+    </section><anchor xml:id="_lparser_8c_1a7b083c8164f99ddd60e711ca706869d0"/>    <section>
+    <title>lparser_c</title>
+<indexterm><primary>lparser_c</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>lparser_c</secondary></indexterm>
+<para><computeroutput>#define lparser_c</computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00007">7</link> 行定义.</para>
+    </section><anchor xml:id="_lparser_8c_1abf0b3947b59218777a8e928a10be205b"/>    <section>
+    <title>LUA_CORE</title>
+<indexterm><primary>LUA_CORE</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>LUA_CORE</secondary></indexterm>
+<para><computeroutput>#define LUA_CORE</computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00008">8</link> 行定义.</para>
+    </section><anchor xml:id="_lparser_8c_1a0879a0e632584a9a8bee5ebffab571ca"/>    <section>
+    <title>MAXVARS</title>
+<indexterm><primary>MAXVARS</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>MAXVARS</secondary></indexterm>
+<para><computeroutput>#define MAXVARS   200</computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00035">35</link> 行定义.</para>
+    </section><anchor xml:id="_lparser_8c_1a031fd03dec54eb67a3cfac513b8575bb"/>    <section>
+    <title>new_localvarliteral</title>
+<indexterm><primary>new_localvarliteral</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>new_localvarliteral</secondary></indexterm>
+<para><computeroutput>#define new_localvarliteral( ls,  v)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;<link linkend="_lparser_8c_1a89f5732cbee45d78cfec9dbd1a207bb7">new_localvar</link>(ls,&#32;&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a83f747518666054180f6a7f8da55ac42">luaX_newstring</link>(ls,&#32;<emphasis role="stringliteral">&quot;&quot;</emphasis>&#32;v,&#32;(<emphasis role="keyword">sizeof</emphasis>(v)/<emphasis role="keyword">sizeof</emphasis>(<emphasis role="keywordtype">char</emphasis>))&#32;-&#32;1));
+</programlisting><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00208">208</link> 行定义.</para>
+    </section><anchor xml:id="_lparser_8c_1a521d60e3611f1afe98634adda1a0a050"/>    <section>
+    <title>UNARY_PRIORITY</title>
+<indexterm><primary>UNARY_PRIORITY</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>UNARY_PRIORITY</secondary></indexterm>
+<para><computeroutput>#define UNARY_PRIORITY   12  /* <link linkend="_lparser_8c_1ac6fd7e992c9eb0344ae1d64618ac5d27">priority</link> for unary operators */</computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01243">1243</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>类型定义说明</title>
+<anchor xml:id="_lparser_8c_1a672971a1a6f6fb76c404bac87274225f"/>    <section>
+    <title>BlockCnt</title>
+<indexterm><primary>BlockCnt</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>BlockCnt</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_block_cnt">BlockCnt</link> <link linkend="_struct_block_cnt">BlockCnt</link></computeroutput></para>    </section><anchor xml:id="_lparser_8c_1aac0d82e2c5c45771c53cd25cb8b48972"/>    <section>
+    <title>ConsControl</title>
+<indexterm><primary>ConsControl</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>ConsControl</secondary></indexterm>
+<para><computeroutput>typedef struct <link linkend="_struct_cons_control">ConsControl</link> <link linkend="_struct_cons_control">ConsControl</link></computeroutput></para></section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lparser_8c_1a57dad991ad72ca00978d43967277d9db"/>    <section>
+    <title>addprototype()</title>
+<indexterm><primary>addprototype</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>addprototype</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_proto">Proto</link>* addprototype (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00688">688</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a57dad991ad72ca00978d43967277d9db_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a57dad991ad72ca00978d43967277d9db_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a7dafcad9b819fe82292276b63a632e80"/>    <section>
+    <title>adjust_assign()</title>
+<indexterm><primary>adjust_assign</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>adjust_assign</secondary></indexterm>
+<para><computeroutput>static void adjust_assign (<link linkend="_struct_lex_state">LexState</link> * ls, int nvars, int nexps, <link linkend="_structexpdesc">expdesc</link> * e)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00470">470</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a7dafcad9b819fe82292276b63a632e80_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a7dafcad9b819fe82292276b63a632e80_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a4f84287f74dc67840aae694b6ace6998"/>    <section>
+    <title>adjustlocalvars()</title>
+<indexterm><primary>adjustlocalvars</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>adjustlocalvars</secondary></indexterm>
+<para><computeroutput>static void adjustlocalvars (<link linkend="_struct_lex_state">LexState</link> * ls, int nvars)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00311">311</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a4f84287f74dc67840aae694b6ace6998_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a4f84287f74dc67840aae694b6ace6998_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a355e8b6a68c23cc5a65e40cd276c38b1"/>    <section>
+    <title>allocupvalue()</title>
+<indexterm><primary>allocupvalue</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>allocupvalue</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_upvaldesc">Upvaldesc</link>* allocupvalue (<link linkend="_struct_func_state">FuncState</link> * fs)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00352">352</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a355e8b6a68c23cc5a65e40cd276c38b1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a355e8b6a68c23cc5a65e40cd276c38b1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a235428bed4c6be6cb6d2760cd0fa9d34"/>    <section>
+    <title>block()</title>
+<indexterm><primary>block</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>block</secondary></indexterm>
+<para><computeroutput>static void block (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01295">1295</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a235428bed4c6be6cb6d2760cd0fa9d34_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a235428bed4c6be6cb6d2760cd0fa9d34_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a5be23689d7ea5fd2561c345df03fbf7c"/>    <section>
+    <title>block_follow()</title>
+<indexterm><primary>block_follow</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>block_follow</secondary></indexterm>
+<para><computeroutput>static int block_follow (<link linkend="_struct_lex_state">LexState</link> * ls, int withuntil)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00778">778</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a5be23689d7ea5fd2561c345df03fbf7c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1aa6a712055fa7e1b41488c71be4f55303"/>    <section>
+    <title>body()</title>
+<indexterm><primary>body</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>body</secondary></indexterm>
+<para><computeroutput>static void body (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_structexpdesc">expdesc</link> * e, int ismethod, int line)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00980">980</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_aa6a712055fa7e1b41488c71be4f55303_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_aa6a712055fa7e1b41488c71be4f55303_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1ae0650c2b4b5d311a24bd0ddb7b267db3"/>    <section>
+    <title>breakstat()</title>
+<indexterm><primary>breakstat</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>breakstat</secondary></indexterm>
+<para><computeroutput>static void breakstat (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01428">1428</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ae0650c2b4b5d311a24bd0ddb7b267db3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ae0650c2b4b5d311a24bd0ddb7b267db3_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a2c856a5873c90f45525cf0d9abebbfde"/>    <section>
+    <title>check()</title>
+<indexterm><primary>check</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>check</secondary></indexterm>
+<para><computeroutput>static void check (<link linkend="_struct_lex_state">LexState</link> * ls, int c)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00107">107</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a2c856a5873c90f45525cf0d9abebbfde_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a2c856a5873c90f45525cf0d9abebbfde_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a7d3af7471b2da7a36d18b73683181456"/>    <section>
+    <title>check_conflict()</title>
+<indexterm><primary>check_conflict</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>check_conflict</secondary></indexterm>
+<para><computeroutput>static void check_conflict (<link linkend="_struct_lex_state">LexState</link> * ls, struct <link linkend="_struct_l_h_s__assign">LHS_assign</link> * lh, <link linkend="_structexpdesc">expdesc</link> * v)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01321">1321</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a7d3af7471b2da7a36d18b73683181456_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a7d3af7471b2da7a36d18b73683181456_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1abbe267f2acab7a24f25b89b7782b21a6"/>    <section>
+    <title>check_match()</title>
+<indexterm><primary>check_match</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>check_match</secondary></indexterm>
+<para><computeroutput>static void check_match (<link linkend="_struct_lex_state">LexState</link> * ls, int what, int who, int where)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00130">130</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_abbe267f2acab7a24f25b89b7782b21a6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_abbe267f2acab7a24f25b89b7782b21a6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a68563b28ef658576afc360b4979f3ed6"/>    <section>
+    <title>check_readonly()</title>
+<indexterm><primary>check_readonly</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>check_readonly</secondary></indexterm>
+<para><computeroutput>static void check_readonly (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_structexpdesc">expdesc</link> * e)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00277">277</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a68563b28ef658576afc360b4979f3ed6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a68563b28ef658576afc360b4979f3ed6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1adcc7a63edd0b578c2e7980371ff7f686"/>    <section>
+    <title>checklimit()</title>
+<indexterm><primary>checklimit</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>checklimit</secondary></indexterm>
+<para><computeroutput>static void checklimit (<link linkend="_struct_func_state">FuncState</link> * fs, int v, int l, const char * what)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00087">87</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_adcc7a63edd0b578c2e7980371ff7f686_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_adcc7a63edd0b578c2e7980371ff7f686_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a00410145409eca75b14b1f1c4f553ca0"/>    <section>
+    <title>checknext()</title>
+<indexterm><primary>checknext</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>checknext</secondary></indexterm>
+<para><computeroutput>static void checknext (<link linkend="_struct_lex_state">LexState</link> * ls, int c)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00116">116</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a00410145409eca75b14b1f1c4f553ca0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a00410145409eca75b14b1f1c4f553ca0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1aae46e95438b3cd72afa0838f362d9423"/>    <section>
+    <title>checkrepeated()</title>
+<indexterm><primary>checkrepeated</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>checkrepeated</secondary></indexterm>
+<para><computeroutput>static void checkrepeated (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_struct_t_string">TString</link> * name)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01438">1438</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_aae46e95438b3cd72afa0838f362d9423_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_aae46e95438b3cd72afa0838f362d9423_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a2940067b35656914fe3c7be633096a9b"/>    <section>
+    <title>checktoclose()</title>
+<indexterm><primary>checktoclose</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>checktoclose</secondary></indexterm>
+<para><computeroutput>static void checktoclose (<link linkend="_struct_lex_state">LexState</link> * ls, int level)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01746">1746</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a2940067b35656914fe3c7be633096a9b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a2940067b35656914fe3c7be633096a9b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a46bd6da1ec8052eeaf6fd524199ca72a"/>    <section>
+    <title>close_func()</title>
+<indexterm><primary>close_func</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>close_func</secondary></indexterm>
+<para><computeroutput>static void close_func (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00746">746</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a46bd6da1ec8052eeaf6fd524199ca72a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a46bd6da1ec8052eeaf6fd524199ca72a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1ab2704183a18ae12a124af76b08b2dccf"/>    <section>
+    <title>closelistfield()</title>
+<indexterm><primary>closelistfield</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>closelistfield</secondary></indexterm>
+<para><computeroutput>static void closelistfield (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_struct_cons_control">ConsControl</link> * cc)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00858">858</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ab2704183a18ae12a124af76b08b2dccf_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ab2704183a18ae12a124af76b08b2dccf_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a3f0a5b9e975f44a4e7291445786434d8"/>    <section>
+    <title>codeclosure()</title>
+<indexterm><primary>codeclosure</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>codeclosure</secondary></indexterm>
+<para><computeroutput>static void codeclosure (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_structexpdesc">expdesc</link> * v)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00712">712</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a3f0a5b9e975f44a4e7291445786434d8_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a3f0a5b9e975f44a4e7291445786434d8_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a7da9556e730c9865b3de6c6440640266"/>    <section>
+    <title>codename()</title>
+<indexterm><primary>codename</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>codename</secondary></indexterm>
+<para><computeroutput>static void codename (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_structexpdesc">expdesc</link> * e)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00166">166</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a7da9556e730c9865b3de6c6440640266_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a7da9556e730c9865b3de6c6440640266_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a08fd72f32434a2bab9cd08298085e9f9"/>    <section>
+    <title>codestring()</title>
+<indexterm><primary>codestring</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>codestring</secondary></indexterm>
+<para><computeroutput>static void codestring (<link linkend="_structexpdesc">expdesc</link> * e, <link linkend="_struct_t_string">TString</link> * s)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00159">159</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a08fd72f32434a2bab9cd08298085e9f9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a24002c50a108445d916457eb3c21d5e1"/>    <section>
+    <title>cond()</title>
+<indexterm><primary>cond</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>cond</secondary></indexterm>
+<para><computeroutput>static int cond (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01396">1396</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a24002c50a108445d916457eb3c21d5e1_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a24002c50a108445d916457eb3c21d5e1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1afd4901e9e6b1ba046efc1a5932cd664c"/>    <section>
+    <title>constructor()</title>
+<indexterm><primary>constructor</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>constructor</secondary></indexterm>
+<para><computeroutput>static void constructor (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_structexpdesc">expdesc</link> * t)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00915">915</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_afd4901e9e6b1ba046efc1a5932cd664c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_afd4901e9e6b1ba046efc1a5932cd664c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1abfc0a485f2b04026699cafcdaa1bfb04"/>    <section>
+    <title>createlabel()</title>
+<indexterm><primary>createlabel</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>createlabel</secondary></indexterm>
+<para><computeroutput>static int createlabel (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_struct_t_string">TString</link> * name, int line, int last)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00598">598</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_abfc0a485f2b04026699cafcdaa1bfb04_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_abfc0a485f2b04026699cafcdaa1bfb04_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1aeed63e1438983826777df4cadc063aee"/>    <section>
+    <title>enterblock()</title>
+<indexterm><primary>enterblock</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>enterblock</secondary></indexterm>
+<para><computeroutput>static void enterblock (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_struct_block_cnt">BlockCnt</link> * bl, <link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> isloop)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00632">632</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_aeed63e1438983826777df4cadc063aee_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_aeed63e1438983826777df4cadc063aee_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a285759c10955d85bbf00c0041125e7bc"/>    <section>
+    <title>error_expected()</title>
+<indexterm><primary>error_expected</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>error_expected</secondary></indexterm>
+<para><computeroutput>static <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> error_expected (<link linkend="_struct_lex_state">LexState</link> * ls, int token)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00068">68</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a285759c10955d85bbf00c0041125e7bc_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a285759c10955d85bbf00c0041125e7bc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1ad02c6061a90a3461a24d2eede35cbf1f"/>    <section>
+    <title>errorlimit()</title>
+<indexterm><primary>errorlimit</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>errorlimit</secondary></indexterm>
+<para><computeroutput>static <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> errorlimit (<link linkend="_struct_func_state">FuncState</link> * fs, int limit, const char * what)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00074">74</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ad02c6061a90a3461a24d2eede35cbf1f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ad02c6061a90a3461a24d2eede35cbf1f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1ad7daced5a038385200486346caea6d96"/>    <section>
+    <title>exp1()</title>
+<indexterm><primary>exp1</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>exp1</secondary></indexterm>
+<para><computeroutput>static void exp1 (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01507">1507</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ad7daced5a038385200486346caea6d96_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ad7daced5a038385200486346caea6d96_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a25966bcc2d6cf47dbb9e0251fb26d661"/>    <section>
+    <title>explist()</title>
+<indexterm><primary>explist</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>explist</secondary></indexterm>
+<para><computeroutput>static int explist (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_structexpdesc">expdesc</link> * v)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01002">1002</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a25966bcc2d6cf47dbb9e0251fb26d661_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a25966bcc2d6cf47dbb9e0251fb26d661_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1af2c543df6cbb49247cd0a71956786d92"/>    <section>
+    <title>expr()</title>
+<indexterm><primary>expr</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>expr</secondary></indexterm>
+<para><computeroutput>static void expr (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_structexpdesc">expdesc</link> * v)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01280">1280</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_af2c543df6cbb49247cd0a71956786d92_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_af2c543df6cbb49247cd0a71956786d92_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a2bafac5e65f8e5de6e00d717bf90f091"/>    <section>
+    <title>exprstat()</title>
+<indexterm><primary>exprstat</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>exprstat</secondary></indexterm>
+<para><computeroutput>static void exprstat (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01824">1824</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a2bafac5e65f8e5de6e00d717bf90f091_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a2bafac5e65f8e5de6e00d717bf90f091_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a3a1a4b5a661e480a87ce14027a01f177"/>    <section>
+    <title>field()</title>
+<indexterm><primary>field</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>field</secondary></indexterm>
+<para><computeroutput>static void field (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_struct_cons_control">ConsControl</link> * cc)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00893">893</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a3a1a4b5a661e480a87ce14027a01f177_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a3a1a4b5a661e480a87ce14027a01f177_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a749eb16d6a8c1bb6e94d4c0392e57374"/>    <section>
+    <title>fieldsel()</title>
+<indexterm><primary>fieldsel</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>fieldsel</secondary></indexterm>
+<para><computeroutput>static void fieldsel (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_structexpdesc">expdesc</link> * v)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00801">801</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a749eb16d6a8c1bb6e94d4c0392e57374_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a749eb16d6a8c1bb6e94d4c0392e57374_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a599b5cc6bd2b4abfe73b21b01e09af33"/>    <section>
+    <title>findlabel()</title>
+<indexterm><primary>findlabel</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>findlabel</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_labeldesc">Labeldesc</link>* findlabel (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_struct_t_string">TString</link> * name)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00534">534</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a599b5cc6bd2b4abfe73b21b01e09af33_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a672ee0543c0616f70608b4ab0c99c646"/>    <section>
+    <title>fixforjump()</title>
+<indexterm><primary>fixforjump</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>fixforjump</secondary></indexterm>
+<para><computeroutput>static void fixforjump (<link linkend="_struct_func_state">FuncState</link> * fs, int pc, int dest, int back)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01520">1520</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a672ee0543c0616f70608b4ab0c99c646_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a672ee0543c0616f70608b4ab0c99c646_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a253feeb1a37a9ffb5814070a44893b7f"/>    <section>
+    <title>forbody()</title>
+<indexterm><primary>forbody</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>forbody</secondary></indexterm>
+<para><computeroutput>static void forbody (<link linkend="_struct_lex_state">LexState</link> * ls, int base, int line, int nvars, int isgen)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01534">1534</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a253feeb1a37a9ffb5814070a44893b7f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a253feeb1a37a9ffb5814070a44893b7f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a5f15a71e248c4e1e9c867ccac8a450c2"/>    <section>
+    <title>forlist()</title>
+<indexterm><primary>forlist</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>forlist</secondary></indexterm>
+<para><computeroutput>static void forlist (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_struct_t_string">TString</link> * indexname)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01582">1582</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a5f15a71e248c4e1e9c867ccac8a450c2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a5f15a71e248c4e1e9c867ccac8a450c2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a18532c1a3a900cb8f3399b470c00daf0"/>    <section>
+    <title>fornum()</title>
+<indexterm><primary>fornum</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>fornum</secondary></indexterm>
+<para><computeroutput>static void fornum (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_struct_t_string">TString</link> * varname, int line)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01559">1559</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a18532c1a3a900cb8f3399b470c00daf0_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a18532c1a3a900cb8f3399b470c00daf0_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1af783542828ac360981e0ce0f55abc630"/>    <section>
+    <title>forstat()</title>
+<indexterm><primary>forstat</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>forstat</secondary></indexterm>
+<para><computeroutput>static void forstat (<link linkend="_struct_lex_state">LexState</link> * ls, int line)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01610">1610</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_af783542828ac360981e0ce0f55abc630_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_af783542828ac360981e0ce0f55abc630_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a5050696e535c2da862810fc9910b6afc"/>    <section>
+    <title>funcargs()</title>
+<indexterm><primary>funcargs</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>funcargs</secondary></indexterm>
+<para><computeroutput>static void funcargs (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_structexpdesc">expdesc</link> * f, int line)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01015">1015</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a5050696e535c2da862810fc9910b6afc_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a5050696e535c2da862810fc9910b6afc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a9c06dde377cf16bda138da1cba949c82"/>    <section>
+    <title>funcname()</title>
+<indexterm><primary>funcname</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>funcname</secondary></indexterm>
+<para><computeroutput>static int funcname (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_structexpdesc">expdesc</link> * v)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01798">1798</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a9c06dde377cf16bda138da1cba949c82_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a9c06dde377cf16bda138da1cba949c82_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a7ab22c159a4bdcda2bd652f01229111b"/>    <section>
+    <title>funcstat()</title>
+<indexterm><primary>funcstat</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>funcstat</secondary></indexterm>
+<para><computeroutput>static void funcstat (<link linkend="_struct_lex_state">LexState</link> * ls, int line)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01812">1812</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a7ab22c159a4bdcda2bd652f01229111b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a7ab22c159a4bdcda2bd652f01229111b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a762cacc5df371cedf267a03fa2191385"/>    <section>
+    <title>getbinopr()</title>
+<indexterm><primary>getbinopr</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>getbinopr</secondary></indexterm>
+<para><computeroutput>static <link linkend="_lcode_8h_1ae9a305c1104efedfc54af8d08b942c83">BinOpr</link> getbinopr (int op)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01196">1196</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a762cacc5df371cedf267a03fa2191385_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1aacf507e8cbb1eb7a3b49474c510043a8"/>    <section>
+    <title>getlocalattribute()</title>
+<indexterm><primary>getlocalattribute</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>getlocalattribute</secondary></indexterm>
+<para><computeroutput>static int getlocalattribute (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01729">1729</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_aacf507e8cbb1eb7a3b49474c510043a8_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_aacf507e8cbb1eb7a3b49474c510043a8_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1ae54e8d8f199763735b5175342fbce5ca"/>    <section>
+    <title>getlocalvardesc()</title>
+<indexterm><primary>getlocalvardesc</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>getlocalvardesc</secondary></indexterm>
+<para><computeroutput>static <link linkend="_union_vardesc">Vardesc</link>* getlocalvardesc (<link linkend="_struct_func_state">FuncState</link> * fs, int vidx)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00219">219</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ae54e8d8f199763735b5175342fbce5ca_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1afb550c9d0656dfe2f49f1b87cb91b648"/>    <section>
+    <title>getunopr()</title>
+<indexterm><primary>getunopr</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>getunopr</secondary></indexterm>
+<para><computeroutput>static <link linkend="_lcode_8h_1a36fd1054d39d6fc3373303522a7ef534">UnOpr</link> getunopr (int op)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01185">1185</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_afb550c9d0656dfe2f49f1b87cb91b648_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a55bae7d03576b713ff5460644f102dfd"/>    <section>
+    <title>gotostat()</title>
+<indexterm><primary>gotostat</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>gotostat</secondary></indexterm>
+<para><computeroutput>static void gotostat (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01406">1406</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a55bae7d03576b713ff5460644f102dfd_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a55bae7d03576b713ff5460644f102dfd_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1ae59a0e4b7bd8d539f377ee6f82eac19b"/>    <section>
+    <title>ifstat()</title>
+<indexterm><primary>ifstat</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>ifstat</secondary></indexterm>
+<para><computeroutput>static void ifstat (<link linkend="_struct_lex_state">LexState</link> * ls, int line)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01703">1703</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ae59a0e4b7bd8d539f377ee6f82eac19b_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ae59a0e4b7bd8d539f377ee6f82eac19b_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1aaa0cc4c3d9d11b020ff13b23262b8b17"/>    <section>
+    <title>init_exp()</title>
+<indexterm><primary>init_exp</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>init_exp</secondary></indexterm>
+<para><computeroutput>static void init_exp (<link linkend="_structexpdesc">expdesc</link> * e, <link linkend="_lparser_8h_1aecced501a9387ab3e6e50a9834615d4e">expkind</link> k, int i)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00152">152</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_aaa0cc4c3d9d11b020ff13b23262b8b17_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a234a1dfbb418ebb04cc831ee29dac2b3"/>    <section>
+    <title>init_var()</title>
+<indexterm><primary>init_var</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>init_var</secondary></indexterm>
+<para><computeroutput>static void init_var (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_structexpdesc">expdesc</link> * e, int vidx)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00266">266</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a234a1dfbb418ebb04cc831ee29dac2b3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a234a1dfbb418ebb04cc831ee29dac2b3_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1ac39115fb9e5fd58006bbe36a28eddc7a"/>    <section>
+    <title>issinglejump()</title>
+<indexterm><primary>issinglejump</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>issinglejump</secondary></indexterm>
+<para><computeroutput>static int issinglejump (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_struct_t_string">TString</link> ** label, int * target)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01636">1636</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ac39115fb9e5fd58006bbe36a28eddc7a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ac39115fb9e5fd58006bbe36a28eddc7a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a6095ffe4a3669369b48424a59063fb71"/>    <section>
+    <title>jumpscopeerror()</title>
+<indexterm><primary>jumpscopeerror</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>jumpscopeerror</secondary></indexterm>
+<para><computeroutput>static <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> jumpscopeerror (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_struct_labeldesc">Labeldesc</link> * gt)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00504">504</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a6095ffe4a3669369b48424a59063fb71_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a6095ffe4a3669369b48424a59063fb71_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a20b1ca0b6642f6a79d5cc5abeb5dae63"/>    <section>
+    <title>labelstat()</title>
+<indexterm><primary>labelstat</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>labelstat</secondary></indexterm>
+<para><computeroutput>static void labelstat (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_struct_t_string">TString</link> * name, int line)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01448">1448</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a20b1ca0b6642f6a79d5cc5abeb5dae63_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a20b1ca0b6642f6a79d5cc5abeb5dae63_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1aa4a987d1a5d0a2f3e72a02570322e923"/>    <section>
+    <title>lastlistfield()</title>
+<indexterm><primary>lastlistfield</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>lastlistfield</secondary></indexterm>
+<para><computeroutput>static void lastlistfield (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_struct_cons_control">ConsControl</link> * cc)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00870">870</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_aa4a987d1a5d0a2f3e72a02570322e923_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_aa4a987d1a5d0a2f3e72a02570322e923_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a9f9c2ed0786c3b036f177f2b33f4f79d"/>    <section>
+    <title>leaveblock()</title>
+<indexterm><primary>leaveblock</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>leaveblock</secondary></indexterm>
+<para><computeroutput>static void leaveblock (<link linkend="_struct_func_state">FuncState</link> * fs)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00662">662</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a9f9c2ed0786c3b036f177f2b33f4f79d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a9f9c2ed0786c3b036f177f2b33f4f79d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a4ad1cddd376a59ba97755723bdcce8de"/>    <section>
+    <title>listfield()</title>
+<indexterm><primary>listfield</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>listfield</secondary></indexterm>
+<para><computeroutput>static void listfield (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_struct_cons_control">ConsControl</link> * cc)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00886">886</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a4ad1cddd376a59ba97755723bdcce8de_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a4ad1cddd376a59ba97755723bdcce8de_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1af4e2a81c94d2b795fd0a4c4a2cd9d22f"/>    <section>
+    <title>localdebuginfo()</title>
+<indexterm><primary>localdebuginfo</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>localdebuginfo</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_loc_var">LocVar</link>* localdebuginfo (<link linkend="_struct_func_state">FuncState</link> * fs, int vidx)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00251">251</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_af4e2a81c94d2b795fd0a4c4a2cd9d22f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_af4e2a81c94d2b795fd0a4c4a2cd9d22f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a906778e7e7ae16a38c8c6b38bdc34f13"/>    <section>
+    <title>localfunc()</title>
+<indexterm><primary>localfunc</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>localfunc</secondary></indexterm>
+<para><computeroutput>static void localfunc (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01717">1717</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a906778e7e7ae16a38c8c6b38bdc34f13_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a906778e7e7ae16a38c8c6b38bdc34f13_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1aedb81864a38588cc65a205ff4c07abfa"/>    <section>
+    <title>localstat()</title>
+<indexterm><primary>localstat</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>localstat</secondary></indexterm>
+<para><computeroutput>static void localstat (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01756">1756</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_aedb81864a38588cc65a205ff4c07abfa_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_aedb81864a38588cc65a205ff4c07abfa_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a03d8535460edd67f5c2d495c2a08bdd2"/>    <section>
+    <title>luaY_nvarstack()</title>
+<indexterm><primary>luaY_nvarstack</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>luaY_nvarstack</secondary></indexterm>
+<para><computeroutput>int luaY_nvarstack (<link linkend="_struct_func_state">FuncState</link> * fs)</computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00243">243</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a03d8535460edd67f5c2d495c2a08bdd2_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a03d8535460edd67f5c2d495c2a08bdd2_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1ab1aebed32ae816b2979db5b8dd2d1554"/>    <section>
+    <title>luaY_parser()</title>
+<indexterm><primary>luaY_parser</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>luaY_parser</secondary></indexterm>
+<para><computeroutput><link linkend="_struct_l_closure">LClosure</link>* luaY_parser (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_lzio_8h_1a3a6756c936bdfffa304b1d808ce7dc17">ZIO</link> * z, <link linkend="_struct_mbuffer">Mbuffer</link> * buff, <link linkend="_struct_dyndata">Dyndata</link> * dyd, const char * name, int firstchar)</computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01971">1971</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ab1aebed32ae816b2979db5b8dd2d1554_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ab1aebed32ae816b2979db5b8dd2d1554_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a011959c631cc7cfc75646a0fddc1a149"/>    <section>
+    <title>mainfunc()</title>
+<indexterm><primary>mainfunc</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>mainfunc</secondary></indexterm>
+<para><computeroutput>static void mainfunc (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_struct_func_state">FuncState</link> * fs)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01953">1953</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a011959c631cc7cfc75646a0fddc1a149_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a011959c631cc7cfc75646a0fddc1a149_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1ab92f39b4f46a9844ecab9d585d636bd4"/>    <section>
+    <title>markupval()</title>
+<indexterm><primary>markupval</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>markupval</secondary></indexterm>
+<para><computeroutput>static void markupval (<link linkend="_struct_func_state">FuncState</link> * fs, int level)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00410">410</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ab92f39b4f46a9844ecab9d585d636bd4_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a59499d1fac1f098f62ea922753ff88bb"/>    <section>
+    <title>movegotosout()</title>
+<indexterm><primary>movegotosout</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>movegotosout</secondary></indexterm>
+<para><computeroutput>static void movegotosout (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_struct_block_cnt">BlockCnt</link> * bl)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00618">618</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a59499d1fac1f098f62ea922753ff88bb_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a59499d1fac1f098f62ea922753ff88bb_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a89f5732cbee45d78cfec9dbd1a207bb7"/>    <section>
+    <title>new_localvar()</title>
+<indexterm><primary>new_localvar</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>new_localvar</secondary></indexterm>
+<para><computeroutput>static int new_localvar (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_struct_t_string">TString</link> * name)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00193">193</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a89f5732cbee45d78cfec9dbd1a207bb7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a89f5732cbee45d78cfec9dbd1a207bb7_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1afa4884f1fcf6756c7c9ebadef88a629f"/>    <section>
+    <title>newgotoentry()</title>
+<indexterm><primary>newgotoentry</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>newgotoentry</secondary></indexterm>
+<para><computeroutput>static int newgotoentry (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_struct_t_string">TString</link> * name, int line, int pc)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00565">565</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_afa4884f1fcf6756c7c9ebadef88a629f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_afa4884f1fcf6756c7c9ebadef88a629f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1ac8408d50bc1af7533968d363841bcf27"/>    <section>
+    <title>newlabelentry()</title>
+<indexterm><primary>newlabelentry</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>newlabelentry</secondary></indexterm>
+<para><computeroutput>static int newlabelentry (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_struct_labellist">Labellist</link> * l, <link linkend="_struct_t_string">TString</link> * name, int line, int pc)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00550">550</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ac8408d50bc1af7533968d363841bcf27_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a840fa0de24ef09efda91ce6ebae3876d"/>    <section>
+    <title>newupvalue()</title>
+<indexterm><primary>newupvalue</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>newupvalue</secondary></indexterm>
+<para><computeroutput>static int newupvalue (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_struct_t_string">TString</link> * name, <link linkend="_structexpdesc">expdesc</link> * v)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00364">364</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a840fa0de24ef09efda91ce6ebae3876d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a840fa0de24ef09efda91ce6ebae3876d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1ac89cbbdfd75804eae46bce05f8381915"/>    <section>
+    <title>open_func()</title>
+<indexterm><primary>open_func</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>open_func</secondary></indexterm>
+<para><computeroutput>static void open_func (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_struct_block_cnt">BlockCnt</link> * bl)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00719">719</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ac89cbbdfd75804eae46bce05f8381915_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ac89cbbdfd75804eae46bce05f8381915_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1adc6c3bb5079c197371a6ddcdbc574de6"/>    <section>
+    <title>parlist()</title>
+<indexterm><primary>parlist</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>parlist</secondary></indexterm>
+<para><computeroutput>static void parlist (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00949">949</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_adc6c3bb5079c197371a6ddcdbc574de6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_adc6c3bb5079c197371a6ddcdbc574de6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1abb6d6e594e184f737324863a01201cce"/>    <section>
+    <title>primaryexp()</title>
+<indexterm><primary>primaryexp</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>primaryexp</secondary></indexterm>
+<para><computeroutput>static void primaryexp (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_structexpdesc">expdesc</link> * v)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01070">1070</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_abb6d6e594e184f737324863a01201cce_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_abb6d6e594e184f737324863a01201cce_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a84d7688b0c57f012eaf7f84c0062f29e"/>    <section>
+    <title>recfield()</title>
+<indexterm><primary>recfield</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>recfield</secondary></indexterm>
+<para><computeroutput>static void recfield (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_struct_cons_control">ConsControl</link> * cc)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00837">837</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a84d7688b0c57f012eaf7f84c0062f29e_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a84d7688b0c57f012eaf7f84c0062f29e_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1ae3420853c676cec8df3bf2c102315f51"/>    <section>
+    <title>registerlocalvar()</title>
+<indexterm><primary>registerlocalvar</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>registerlocalvar</secondary></indexterm>
+<para><computeroutput>static int registerlocalvar (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_struct_t_string">TString</link> * varname)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00175">175</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ae3420853c676cec8df3bf2c102315f51_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a12f6d0b70d7dc43b72f45ad2a6293fb7"/>    <section>
+    <title>removevars()</title>
+<indexterm><primary>removevars</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>removevars</secondary></indexterm>
+<para><computeroutput>static void removevars (<link linkend="_struct_func_state">FuncState</link> * fs, int tolevel)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00328">328</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a12f6d0b70d7dc43b72f45ad2a6293fb7_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a12f6d0b70d7dc43b72f45ad2a6293fb7_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a8638807967aa30e7700834f6bd4aaa5d"/>    <section>
+    <title>repeatstat()</title>
+<indexterm><primary>repeatstat</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>repeatstat</secondary></indexterm>
+<para><computeroutput>static void repeatstat (<link linkend="_struct_lex_state">LexState</link> * ls, int line)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01477">1477</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a8638807967aa30e7700834f6bd4aaa5d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a8638807967aa30e7700834f6bd4aaa5d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a4edcfc19b8a94936c58860eded728be4"/>    <section>
+    <title>restassign()</title>
+<indexterm><primary>restassign</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>restassign</secondary></indexterm>
+<para><computeroutput>static void restassign (<link linkend="_struct_lex_state">LexState</link> * ls, struct <link linkend="_struct_l_h_s__assign">LHS_assign</link> * lh, int nvars)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01365">1365</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a4edcfc19b8a94936c58860eded728be4_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a4edcfc19b8a94936c58860eded728be4_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a7998fc603fbe151c85cf0ff9b5517ad6"/>    <section>
+    <title>retstat()</title>
+<indexterm><primary>retstat</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>retstat</secondary></indexterm>
+<para><computeroutput>static void retstat (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01842">1842</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a7998fc603fbe151c85cf0ff9b5517ad6_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a7998fc603fbe151c85cf0ff9b5517ad6_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a4fa16ff6ddba70e699b1b87ca18d30e1"/>    <section>
+    <title>searchupvalue()</title>
+<indexterm><primary>searchupvalue</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>searchupvalue</secondary></indexterm>
+<para><computeroutput>static int searchupvalue (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_struct_t_string">TString</link> * name)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00342">342</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a4fa16ff6ddba70e699b1b87ca18d30e1_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1aa0f0bf6be9c3844c8c9bd05074b53c07"/>    <section>
+    <title>searchvar()</title>
+<indexterm><primary>searchvar</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>searchvar</secondary></indexterm>
+<para><computeroutput>static int searchvar (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_struct_t_string">TString</link> * n, <link linkend="_structexpdesc">expdesc</link> * var)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00390">390</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_aa0f0bf6be9c3844c8c9bd05074b53c07_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_aa0f0bf6be9c3844c8c9bd05074b53c07_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a71bb47764e4103bbd98a4285ab97ca5d"/>    <section>
+    <title>setvararg()</title>
+<indexterm><primary>setvararg</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>setvararg</secondary></indexterm>
+<para><computeroutput>static void setvararg (<link linkend="_struct_func_state">FuncState</link> * fs, int nparams)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00943">943</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a71bb47764e4103bbd98a4285ab97ca5d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a3b0b05af60978b05faf5713968573985"/>    <section>
+    <title>simpleexp()</title>
+<indexterm><primary>simpleexp</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>simpleexp</secondary></indexterm>
+<para><computeroutput>static void simpleexp (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_structexpdesc">expdesc</link> * v)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01130">1130</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a3b0b05af60978b05faf5713968573985_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a3b0b05af60978b05faf5713968573985_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a39a46ec796479bdd22eea51ddef11685"/>    <section>
+    <title>singlevar()</title>
+<indexterm><primary>singlevar</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>singlevar</secondary></indexterm>
+<para><computeroutput>static void singlevar (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_structexpdesc">expdesc</link> * var)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00452">452</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a39a46ec796479bdd22eea51ddef11685_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a39a46ec796479bdd22eea51ddef11685_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a4e2939a86340a3fe70c3238288c4af8a"/>    <section>
+    <title>singlevaraux()</title>
+<indexterm><primary>singlevaraux</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>singlevaraux</secondary></indexterm>
+<para><computeroutput>static void singlevaraux (<link linkend="_struct_func_state">FuncState</link> * fs, <link linkend="_struct_t_string">TString</link> * n, <link linkend="_structexpdesc">expdesc</link> * var, int base)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00424">424</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a4e2939a86340a3fe70c3238288c4af8a_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a4e2939a86340a3fe70c3238288c4af8a_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a73b1624593cc10a15008229b30eeae81"/>    <section>
+    <title>solvegoto()</title>
+<indexterm><primary>solvegoto</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>solvegoto</secondary></indexterm>
+<para><computeroutput>static void solvegoto (<link linkend="_struct_lex_state">LexState</link> * ls, int g, <link linkend="_struct_labeldesc">Labeldesc</link> * label)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00517">517</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a73b1624593cc10a15008229b30eeae81_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a73b1624593cc10a15008229b30eeae81_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1abd72e798cea4c3def7bc6791e5f07a43"/>    <section>
+    <title>solvegotos()</title>
+<indexterm><primary>solvegotos</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>solvegotos</secondary></indexterm>
+<para><computeroutput>static int solvegotos (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_struct_labeldesc">Labeldesc</link> * lb)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00575">575</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_abd72e798cea4c3def7bc6791e5f07a43_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_abd72e798cea4c3def7bc6791e5f07a43_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a7f8a29677082a5ef36452294a527d740"/>    <section>
+    <title>stacklevel()</title>
+<indexterm><primary>stacklevel</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>stacklevel</secondary></indexterm>
+<para><computeroutput>static int stacklevel (<link linkend="_struct_func_state">FuncState</link> * fs, int nvar)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00230">230</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a7f8a29677082a5ef36452294a527d740_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a7f8a29677082a5ef36452294a527d740_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1ac29df3687aea9407dcfec478092fce4c"/>    <section>
+    <title>statement()</title>
+<indexterm><primary>statement</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>statement</secondary></indexterm>
+<para><computeroutput>static void statement (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01874">1874</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ac29df3687aea9407dcfec478092fce4c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ac29df3687aea9407dcfec478092fce4c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1aff3c4f1970c0f3c50f37a8187a2414e3"/>    <section>
+    <title>statlist()</title>
+<indexterm><primary>statlist</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>statlist</secondary></indexterm>
+<para><computeroutput>static void statlist (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00789">789</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_aff3c4f1970c0f3c50f37a8187a2414e3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_aff3c4f1970c0f3c50f37a8187a2414e3_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1ac6a77e92851fefeaf3facfdc47e5e39d"/>    <section>
+    <title>str_checkname()</title>
+<indexterm><primary>str_checkname</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>str_checkname</secondary></indexterm>
+<para><computeroutput>static <link linkend="_struct_t_string">TString</link>* str_checkname (<link linkend="_struct_lex_state">LexState</link> * ls)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00143">143</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ac6a77e92851fefeaf3facfdc47e5e39d_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ac6a77e92851fefeaf3facfdc47e5e39d_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a49946c41497533490f57063b1ca7cb7c"/>    <section>
+    <title>subexpr()</title>
+<indexterm><primary>subexpr</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>subexpr</secondary></indexterm>
+<para><computeroutput>static <link linkend="_lcode_8h_1ae9a305c1104efedfc54af8d08b942c83">BinOpr</link> subexpr (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_structexpdesc">expdesc</link> * v, int limit)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01250">1250</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a49946c41497533490f57063b1ca7cb7c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a49946c41497533490f57063b1ca7cb7c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1adecf4ab651d795c1af76b75998a4dd9c"/>    <section>
+    <title>suffixedexp()</title>
+<indexterm><primary>suffixedexp</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>suffixedexp</secondary></indexterm>
+<para><computeroutput>static void suffixedexp (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_structexpdesc">expdesc</link> * v)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01092">1092</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_adecf4ab651d795c1af76b75998a4dd9c_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_adecf4ab651d795c1af76b75998a4dd9c_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a51dbd956bff1ce06bb45b3e3d9fde83f"/>    <section>
+    <title>test_then_block()</title>
+<indexterm><primary>test_then_block</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>test_then_block</secondary></indexterm>
+<para><computeroutput>static void test_then_block (<link linkend="_struct_lex_state">LexState</link> * ls, int * escapelist)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01661">1661</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a51dbd956bff1ce06bb45b3e3d9fde83f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a51dbd956bff1ce06bb45b3e3d9fde83f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a73a8be4e1269883a7b1f101bc14902e3"/>    <section>
+    <title>testnext()</title>
+<indexterm><primary>testnext</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>testnext</secondary></indexterm>
+<para><computeroutput>static int testnext (<link linkend="_struct_lex_state">LexState</link> * ls, int c)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00095">95</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a73a8be4e1269883a7b1f101bc14902e3_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a73a8be4e1269883a7b1f101bc14902e3_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1a0e6f2c50414357750f14eb41e3d08edc"/>    <section>
+    <title>undefgoto()</title>
+<indexterm><primary>undefgoto</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>undefgoto</secondary></indexterm>
+<para><computeroutput>static <link linkend="_llimits_8h_1a9f743fcc9a5278cb9ee10355f09f7302">l_noret</link> undefgoto (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_struct_labeldesc">Labeldesc</link> * gt)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00648">648</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a0e6f2c50414357750f14eb41e3d08edc_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_a0e6f2c50414357750f14eb41e3d08edc_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1af24623e7aa293515c8293aaf892de531"/>    <section>
+    <title>whilestat()</title>
+<indexterm><primary>whilestat</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>whilestat</secondary></indexterm>
+<para><computeroutput>static void whilestat (<link linkend="_struct_lex_state">LexState</link> * ls, int line)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01458">1458</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_af24623e7aa293515c8293aaf892de531_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_af24623e7aa293515c8293aaf892de531_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lparser_8c_1ac3e6a3b89f1a54a2ff4f3570831faf35"/>    <section>
+    <title>yindex()</title>
+<indexterm><primary>yindex</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>yindex</secondary></indexterm>
+<para><computeroutput>static void yindex (<link linkend="_struct_lex_state">LexState</link> * ls, <link linkend="_structexpdesc">expdesc</link> * v)<computeroutput>[static]</computeroutput></computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l00812">812</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ac3e6a3b89f1a54a2ff4f3570831faf35_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lparser_8c_ac3e6a3b89f1a54a2ff4f3570831faf35_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+<section>
+<title>变量说明</title>
+<anchor xml:id="_lparser_8c_1a3584754acc5e91c03d6fc91359eefd78"/>    <section>
+    <title>left</title>
+<indexterm><primary>left</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>left</secondary></indexterm>
+<para><computeroutput><link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> left</computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01228">1228</link> 行定义.</para>
+    </section><anchor xml:id="_lparser_8c_1ac6fd7e992c9eb0344ae1d64618ac5d27"/>    <section>
+    <title>priority</title>
+<indexterm><primary>priority</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>priority</secondary></indexterm>
+<para><computeroutput>const { ... }  priority[]<computeroutput>[static]</computeroutput></computeroutput></para><emphasis role="strong">初始值:</emphasis><programlisting>=&#32;{&#32;&#32;
+&#32;&#32;&#32;{10,&#32;10},&#32;{10,&#32;10},&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;{11,&#32;11},&#32;{11,&#32;11},&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;{14,&#32;13},&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;{11,&#32;11},&#32;{11,&#32;11},&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;{6,&#32;6},&#32;{4,&#32;4},&#32;{5,&#32;5},&#32;&#32;&#32;
+&#32;&#32;&#32;{7,&#32;7},&#32;{7,&#32;7},&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;{9,&#32;8},&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+&#32;&#32;&#32;{3,&#32;3},&#32;{3,&#32;3},&#32;{3,&#32;3},&#32;&#32;&#32;
+&#32;&#32;&#32;{3,&#32;3},&#32;{3,&#32;3},&#32;{3,&#32;3},&#32;&#32;&#32;
+&#32;&#32;&#32;{2,&#32;2},&#32;{1,&#32;1}&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;
+}
+</programlisting>    </section><anchor xml:id="_lparser_8c_1a34b07942956eb7acd9d02c5b75177ae6"/>    <section>
+    <title>right</title>
+<indexterm><primary>right</primary><secondary>lparser.c</secondary></indexterm>
+<indexterm><primary>lparser.c</primary><secondary>right</secondary></indexterm>
+<para><computeroutput><link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link> right</computeroutput></para><para>
+在文件 <link linkend="_lparser_8c_source">lparser.c</link> 第 <link linkend="_lparser_8c_source_1l01229">1229</link> 行定义.</para>
+</section>
+</section>
+</section>

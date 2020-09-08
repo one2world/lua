@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.20"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Lua_Docmention: D:/gitworkspace/lua/src/ldo.h 源文件</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectlogo"><img alt="Logo" src="luaa.gif"/></td>
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">Lua_Docmention
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.8.20 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+var searchBox = new SearchBox("searchBox", "search",false,'搜索');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(function() {
+  initMenu('',true,false,'search.php','搜索');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */</script>
+<div id="main-nav"></div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li>  </ul>
+</div>
+</div><!-- top -->
+<div class="header">
+  <div class="headertitle">
+<div class="title">ldo.h</div>  </div>
+</div><!--header-->
+<div class="contents">
+<a href="ldo_8h.html">浏览该文件的文档.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">/*</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">** $Id: ldo.h $</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment">** Stack and Call structure of Lua</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment">** See Copyright Notice in lua.h</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="comment">*/</span></div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#ifndef ldo_h</span></div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#define ldo_h</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160; </div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="lobject_8h.html">lobject.h</a>&quot;</span></div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="lstate_8h.html">lstate.h</a>&quot;</span></div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="lzio_8h.html">lzio.h</a>&quot;</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160; </div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="comment">/*</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="comment">** Macro to check stack size and grow stack if needed.  Parameters</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment">** &#39;pre&#39;/&#39;pos&#39; allow the macro to preserve a pointer into the</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="comment">** stack across reallocations, doing the work only when needed.</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="comment">** &#39;condmovestack&#39; is used in heavy tests to force a stack reallocation</span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment">** at every check.</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment">*/</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno"><a class="line" href="ldo_8h.html#acb25d187c7a97397acc30a95b20d80af">   23</a></span>&#160;<span class="preprocessor">#define luaD_checkstackaux(L,n,pre,pos)  \</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor">    if (L-&gt;stack_last - L-&gt;top &lt;= (n)) \</span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">      { pre; luaD_growstack(L, n, 1); pos; } \</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">        else { condmovestack(L,pre,pos); }</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment">/* In general, &#39;pre&#39;/&#39;pos&#39; are empty (nothing to save) */</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="ldo_8h.html#ab1500a6449b9cdf335e3c7ce23aa85d7">   29</a></span>&#160;<span class="preprocessor">#define luaD_checkstack(L,n)    luaD_checkstackaux(L,n,(void)0,(void)0)</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; </div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; </div>
+<div class="line"><a name="l00033"></a><span class="lineno"><a class="line" href="ldo_8h.html#a3534573bbeec89c6dbdb3eae5a54f9b9">   33</a></span>&#160;<span class="preprocessor">#define savestack(L,p)      ((char *)(p) - (char *)L-&gt;stack)</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="ldo_8h.html#a3fbde7f289e6bf661575e9b802da9e78">   34</a></span>&#160;<span class="preprocessor">#define restorestack(L,n)   ((StkId)((char *)L-&gt;stack + (n)))</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; </div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160; </div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment">/* macro to check stack size, preserving &#39;p&#39; */</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="ldo_8h.html#a40f82b578048e3e808fe707fa49f9aa9">   38</a></span>&#160;<span class="preprocessor">#define checkstackp(L,n,p)  \</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor">  luaD_checkstackaux(L, n, \</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor">    ptrdiff_t t__ = savestack(L, p);  </span><span class="comment">/* save &#39;p&#39; */</span><span class="preprocessor"> \</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor">    luaC_checkGC(L),  </span><span class="comment">/* stack grow uses memory */</span><span class="preprocessor"> \</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">    p = restorestack(L, t__))  </span><span class="comment">/* &#39;pos&#39; part: restore &#39;p&#39; */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment">/* macro to check stack size and GC */</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno"><a class="line" href="ldo_8h.html#abbdddc5d9d41c1b75a9a803cd42d7610">   46</a></span>&#160;<span class="preprocessor">#define checkstackGC(L,fsize)  \</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">    luaD_checkstackaux(L, (fsize), (void)0, luaC_checkGC(L))</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160; </div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160; </div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment">/* type of protected functions, to be ran by &#39;runprotected&#39; */</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno"><a class="line" href="ldo_8h.html#a078cb45ebb3f039a69795174f45d204c">   51</a></span>&#160;<span class="keyword">typedef</span> void (*<a class="code" href="ldo_8h.html#a078cb45ebb3f039a69795174f45d204c">Pfunc</a>) (<a class="code" href="structlua___state.html">lua_State</a> *L, <span class="keywordtype">void</span> *ud);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160; </div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">void</span> <a class="code" href="ldo_8h.html#a1cb94c83c7ff13f34638523d7500a0bf">luaD_seterrorobj</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <span class="keywordtype">int</span> errcode, <a class="code" href="union_stack_value.html">StkId</a> oldtop);</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">int</span> <a class="code" href="ldo_8h.html#a5dffa85d966f14d3f3464db580f5b3fa">luaD_protectedparser</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <a class="code" href="struct_zio.html">ZIO</a> *<a class="code" href="struct_s_parser.html#aac4353da38192628b7fa7814e9be2a61">z</a>, <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="struct_s_parser.html#a8f8f80d37794cde9472343e4487ba3eb">name</a>,</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;                                                  <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code" href="struct_s_parser.html#ab62d2d8aca22822634772a595416fd41">mode</a>);</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">void</span> <a class="code" href="ldo_8h.html#a060cfb719bf195b2e3dc8dd643a4ff88">luaD_hook</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <span class="keywordtype">int</span> event, <span class="keywordtype">int</span> line,</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;                                        <span class="keywordtype">int</span> fTransfer, <span class="keywordtype">int</span> nTransfer);</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">void</span> <a class="code" href="ldo_8h.html#a6c91c75f4177f4d5f7d45e934d4a8a02">luaD_hookcall</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <a class="code" href="struct_call_info.html">CallInfo</a> *ci);</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">void</span> <a class="code" href="ldo_8h.html#abbd9301c7c295f311e093efb35fdacd9">luaD_pretailcall</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <a class="code" href="struct_call_info.html">CallInfo</a> *ci, <a class="code" href="union_stack_value.html">StkId</a> func, <span class="keywordtype">int</span> n);</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">void</span> <a class="code" href="ldo_8h.html#a4797364de1dd297aac52f9c10565523f">luaD_call</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <a class="code" href="union_stack_value.html">StkId</a> func, <span class="keywordtype">int</span> nResults);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">void</span> <a class="code" href="ldo_8h.html#a5315637506edcbdd30e9271e75416ae1">luaD_callnoyield</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <a class="code" href="union_stack_value.html">StkId</a> func, <span class="keywordtype">int</span> nResults);</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">void</span> <a class="code" href="ldo_8h.html#a268f7b272a8a41be16ffd601532ad9c7">luaD_tryfuncTM</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <a class="code" href="union_stack_value.html">StkId</a> func);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">int</span> <a class="code" href="ldo_8h.html#ad1087faa52e2bb98c00806ea1ac198a6">luaD_pcall</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <a class="code" href="ldo_8h.html#a078cb45ebb3f039a69795174f45d204c">Pfunc</a> func, <span class="keywordtype">void</span> *u,</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;                                        ptrdiff_t oldtop, ptrdiff_t ef);</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">void</span> <a class="code" href="ldo_8h.html#aad708050f55765598080827d799e60fb">luaD_poscall</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <a class="code" href="struct_call_info.html">CallInfo</a> *ci, <span class="keywordtype">int</span> nres);</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">int</span> <a class="code" href="ldo_8h.html#a5746aab4e55af0e04b32445e4673e7a9">luaD_reallocstack</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <span class="keywordtype">int</span> newsize, <span class="keywordtype">int</span> raiseerror);</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">int</span> <a class="code" href="ldo_8h.html#a65231426ec94e3bca44e117d7198604a">luaD_growstack</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <span class="keywordtype">int</span> n, <span class="keywordtype">int</span> raiseerror);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">void</span> <a class="code" href="ldo_8h.html#a14e1a8d3ba0e5f6d55decb8b48826750">luaD_shrinkstack</a> (<a class="code" href="structlua___state.html">lua_State</a> *L);</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">void</span> <a class="code" href="ldo_8h.html#add74ee2069a98380598ae06b509db9a6">luaD_inctop</a> (<a class="code" href="structlua___state.html">lua_State</a> *L);</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <a class="code" href="llimits_8h.html#a9f743fcc9a5278cb9ee10355f09f7302">l_noret</a> <a class="code" href="ldo_8h.html#a3bfc211173876f40cde6808e408cd305">luaD_throw</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <span class="keywordtype">int</span> errcode);</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<a class="code" href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a> <span class="keywordtype">int</span> <a class="code" href="ldo_8h.html#a73f5a10f0554f95bde20c7b9ace4397a">luaD_rawrunprotected</a> (<a class="code" href="structlua___state.html">lua_State</a> *L, <a class="code" href="ldo_8h.html#a078cb45ebb3f039a69795174f45d204c">Pfunc</a> f, <span class="keywordtype">void</span> *ud);</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160; </div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160; </div>
+</div><!-- fragment --></div><!-- contents -->
+<div class="ttc" id="aldo_8h_html_a060cfb719bf195b2e3dc8dd643a4ff88"><div class="ttname"><a href="ldo_8h.html#a060cfb719bf195b2e3dc8dd643a4ff88">luaD_hook</a></div><div class="ttdeci">LUAI_FUNC void luaD_hook(lua_State *L, int event, int line, int fTransfer, int nTransfer)</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8c_source.html#l00275">ldo.c:275</a></div></div>
+<div class="ttc" id="aluaconf_8h_html_a3f43b35a70c93f2cfde1db42a5a24f1e"><div class="ttname"><a href="luaconf_8h.html#a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</a></div><div class="ttdeci">#define LUAI_FUNC</div><div class="ttdef"><b>Definition:</b> <a href="luaconf_8h_source.html#l00322">luaconf.h:322</a></div></div>
+<div class="ttc" id="allimits_8h_html_a9f743fcc9a5278cb9ee10355f09f7302"><div class="ttname"><a href="llimits_8h.html#a9f743fcc9a5278cb9ee10355f09f7302">l_noret</a></div><div class="ttdeci">#define l_noret</div><div class="ttdef"><b>Definition:</b> <a href="llimits_8h_source.html#l00170">llimits.h:170</a></div></div>
+<div class="ttc" id="alstate_8h_html"><div class="ttname"><a href="lstate_8h.html">lstate.h</a></div></div>
+<div class="ttc" id="aldo_8h_html_a6c91c75f4177f4d5f7d45e934d4a8a02"><div class="ttname"><a href="ldo_8h.html#a6c91c75f4177f4d5f7d45e934d4a8a02">luaD_hookcall</a></div><div class="ttdeci">LUAI_FUNC void luaD_hookcall(lua_State *L, CallInfo *ci)</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8c_source.html#l00314">ldo.c:314</a></div></div>
+<div class="ttc" id="aldo_8h_html_a5315637506edcbdd30e9271e75416ae1"><div class="ttname"><a href="ldo_8h.html#a5315637506edcbdd30e9271e75416ae1">luaD_callnoyield</a></div><div class="ttdeci">LUAI_FUNC void luaD_callnoyield(lua_State *L, StkId func, int nResults)</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8c_source.html#l00522">ldo.c:522</a></div></div>
+<div class="ttc" id="aldo_8h_html_a078cb45ebb3f039a69795174f45d204c"><div class="ttname"><a href="ldo_8h.html#a078cb45ebb3f039a69795174f45d204c">Pfunc</a></div><div class="ttdeci">void(* Pfunc)(lua_State *L, void *ud)</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8h_source.html#l00051">ldo.h:51</a></div></div>
+<div class="ttc" id="astruct_s_parser_html_aac4353da38192628b7fa7814e9be2a61"><div class="ttname"><a href="struct_s_parser.html#aac4353da38192628b7fa7814e9be2a61">SParser::z</a></div><div class="ttdeci">ZIO * z</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8c_source.html#l00769">ldo.c:769</a></div></div>
+<div class="ttc" id="aunion_stack_value_html"><div class="ttname"><a href="union_stack_value.html">StackValue</a></div><div class="ttdef"><b>Definition:</b> <a href="lobject_8h_source.html#l00138">lobject.h:138</a></div></div>
+<div class="ttc" id="aldo_8h_html_a14e1a8d3ba0e5f6d55decb8b48826750"><div class="ttname"><a href="ldo_8h.html#a14e1a8d3ba0e5f6d55decb8b48826750">luaD_shrinkstack</a></div><div class="ttdeci">LUAI_FUNC void luaD_shrinkstack(lua_State *L)</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8c_source.html#l00246">ldo.c:246</a></div></div>
+<div class="ttc" id="aldo_8h_html_ad1087faa52e2bb98c00806ea1ac198a6"><div class="ttname"><a href="ldo_8h.html#ad1087faa52e2bb98c00806ea1ac198a6">luaD_pcall</a></div><div class="ttdeci">LUAI_FUNC int luaD_pcall(lua_State *L, Pfunc func, void *u, ptrdiff_t oldtop, ptrdiff_t ef)</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8c_source.html#l00742">ldo.c:742</a></div></div>
+<div class="ttc" id="aldo_8h_html_a65231426ec94e3bca44e117d7198604a"><div class="ttname"><a href="ldo_8h.html#a65231426ec94e3bca44e117d7198604a">luaD_growstack</a></div><div class="ttdeci">LUAI_FUNC int luaD_growstack(lua_State *L, int n, int raiseerror)</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8c_source.html#l00209">ldo.c:209</a></div></div>
+<div class="ttc" id="aldo_8h_html_a73f5a10f0554f95bde20c7b9ace4397a"><div class="ttname"><a href="ldo_8h.html#a73f5a10f0554f95bde20c7b9ace4397a">luaD_rawrunprotected</a></div><div class="ttdeci">LUAI_FUNC int luaD_rawrunprotected(lua_State *L, Pfunc f, void *ud)</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8c_source.html#l00141">ldo.c:141</a></div></div>
+<div class="ttc" id="astruct_s_parser_html_a8f8f80d37794cde9472343e4487ba3eb"><div class="ttname"><a href="struct_s_parser.html#a8f8f80d37794cde9472343e4487ba3eb">SParser::name</a></div><div class="ttdeci">const char * name</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8c_source.html#l00773">ldo.c:773</a></div></div>
+<div class="ttc" id="aldo_8h_html_abbd9301c7c295f311e093efb35fdacd9"><div class="ttname"><a href="ldo_8h.html#abbd9301c7c295f311e093efb35fdacd9">luaD_pretailcall</a></div><div class="ttdeci">LUAI_FUNC void luaD_pretailcall(lua_State *L, CallInfo *ci, StkId func, int n)</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8c_source.html#l00433">ldo.c:433</a></div></div>
+<div class="ttc" id="astruct_call_info_html"><div class="ttname"><a href="struct_call_info.html">CallInfo</a></div><div class="ttdef"><b>Definition:</b> <a href="lstate_8h_source.html#l00172">lstate.h:172</a></div></div>
+<div class="ttc" id="alobject_8h_html"><div class="ttname"><a href="lobject_8h.html">lobject.h</a></div></div>
+<div class="ttc" id="astructlua___state_html"><div class="ttname"><a href="structlua___state.html">lua_State</a></div><div class="ttdef"><b>Definition:</b> <a href="lstate_8h_source.html#l00284">lstate.h:284</a></div></div>
+<div class="ttc" id="aldo_8h_html_add74ee2069a98380598ae06b509db9a6"><div class="ttname"><a href="ldo_8h.html#add74ee2069a98380598ae06b509db9a6">luaD_inctop</a></div><div class="ttdeci">LUAI_FUNC void luaD_inctop(lua_State *L)</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8c_source.html#l00262">ldo.c:262</a></div></div>
+<div class="ttc" id="astruct_s_parser_html_ab62d2d8aca22822634772a595416fd41"><div class="ttname"><a href="struct_s_parser.html#ab62d2d8aca22822634772a595416fd41">SParser::mode</a></div><div class="ttdeci">const char * mode</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8c_source.html#l00772">ldo.c:772</a></div></div>
+<div class="ttc" id="aldo_8h_html_a268f7b272a8a41be16ffd601532ad9c7"><div class="ttname"><a href="ldo_8h.html#a268f7b272a8a41be16ffd601532ad9c7">luaD_tryfuncTM</a></div><div class="ttdeci">LUAI_FUNC void luaD_tryfuncTM(lua_State *L, StkId func)</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8c_source.html#l00355">ldo.c:355</a></div></div>
+<div class="ttc" id="aldo_8h_html_a1cb94c83c7ff13f34638523d7500a0bf"><div class="ttname"><a href="ldo_8h.html#a1cb94c83c7ff13f34638523d7500a0bf">luaD_seterrorobj</a></div><div class="ttdeci">LUAI_FUNC void luaD_seterrorobj(lua_State *L, int errcode, StkId oldtop)</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8c_source.html#l00091">ldo.c:91</a></div></div>
+<div class="ttc" id="aldo_8h_html_a4797364de1dd297aac52f9c10565523f"><div class="ttname"><a href="ldo_8h.html#a4797364de1dd297aac52f9c10565523f">luaD_call</a></div><div class="ttdeci">LUAI_FUNC void luaD_call(lua_State *L, StkId func, int nResults)</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8c_source.html#l00458">ldo.c:458</a></div></div>
+<div class="ttc" id="aldo_8h_html_a3bfc211173876f40cde6808e408cd305"><div class="ttname"><a href="ldo_8h.html#a3bfc211173876f40cde6808e408cd305">luaD_throw</a></div><div class="ttdeci">LUAI_FUNC l_noret luaD_throw(lua_State *L, int errcode)</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8c_source.html#l00114">ldo.c:114</a></div></div>
+<div class="ttc" id="astruct_zio_html"><div class="ttname"><a href="struct_zio.html">Zio</a></div><div class="ttdef"><b>Definition:</b> <a href="lzio_8h_source.html#l00055">lzio.h:55</a></div></div>
+<div class="ttc" id="alzio_8h_html"><div class="ttname"><a href="lzio_8h.html">lzio.h</a></div></div>
+<div class="ttc" id="aldo_8h_html_a5dffa85d966f14d3f3464db580f5b3fa"><div class="ttname"><a href="ldo_8h.html#a5dffa85d966f14d3f3464db580f5b3fa">luaD_protectedparser</a></div><div class="ttdeci">LUAI_FUNC int luaD_protectedparser(lua_State *L, ZIO *z, const char *name, const char *mode)</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8c_source.html#l00803">ldo.c:803</a></div></div>
+<div class="ttc" id="aldo_8h_html_aad708050f55765598080827d799e60fb"><div class="ttname"><a href="ldo_8h.html#aad708050f55765598080827d799e60fb">luaD_poscall</a></div><div class="ttdeci">LUAI_FUNC void luaD_poscall(lua_State *L, CallInfo *ci, int nres)</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8c_source.html#l00415">ldo.c:415</a></div></div>
+<div class="ttc" id="aldo_8h_html_a5746aab4e55af0e04b32445e4673e7a9"><div class="ttname"><a href="ldo_8h.html#a5746aab4e55af0e04b32445e4673e7a9">luaD_reallocstack</a></div><div class="ttdeci">LUAI_FUNC int luaD_reallocstack(lua_State *L, int newsize, int raiseerror)</div><div class="ttdef"><b>Definition:</b> <a href="ldo_8c_source.html#l00185">ldo.c:185</a></div></div>
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+制作者&#160;<a href="http://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.8.20
+</small></address>
+</body>
+</html>

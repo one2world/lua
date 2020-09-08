@@ -1,0 +1,474 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lstate_8c_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/lstate.c</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;lstate.c&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;Global&#32;State</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+<anchor xml:id="_lstate_8c_source_1l00007"/><link linkend="_lstate_8c_1ab8ab59be0dd5b14c27c052f876de46a0">00007</link> <emphasis role="preprocessor">#define&#32;lstate_c</emphasis>
+<anchor xml:id="_lstate_8c_source_1l00008"/><link linkend="_lstate_8c_1abf0b3947b59218777a8e928a10be205b">00008</link> <emphasis role="preprocessor">#define&#32;LUA_CORE</emphasis>
+00009 
+00010 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lprefix_8h">lprefix.h</link>&quot;</emphasis>
+00011 
+00012 
+00013 <emphasis role="preprocessor">#include&#32;&lt;stddef.h&gt;</emphasis>
+00014 <emphasis role="preprocessor">#include&#32;&lt;string.h&gt;</emphasis>
+00015 
+00016 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lua_8h">lua.h</link>&quot;</emphasis>
+00017 
+00018 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lapi_8h">lapi.h</link>&quot;</emphasis>
+00019 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ldebug_8h">ldebug.h</link>&quot;</emphasis>
+00020 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ldo_8h">ldo.h</link>&quot;</emphasis>
+00021 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lfunc_8h">lfunc.h</link>&quot;</emphasis>
+00022 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lgc_8h">lgc.h</link>&quot;</emphasis>
+00023 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_llex_8h">llex.h</link>&quot;</emphasis>
+00024 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lmem_8h">lmem.h</link>&quot;</emphasis>
+00025 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lstate_8h">lstate.h</link>&quot;</emphasis>
+00026 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lstring_8h">lstring.h</link>&quot;</emphasis>
+00027 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ltable_8h">ltable.h</link>&quot;</emphasis>
+00028 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ltm_8h">ltm.h</link>&quot;</emphasis>
+00029 
+00030 
+00031 
+00032 <emphasis role="comment">/*</emphasis>
+00033 <emphasis role="comment">**&#32;thread&#32;state&#32;+&#32;extra&#32;space</emphasis>
+00034 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstate_8c_source_1l00035"/><link linkend="_struct_l_x">00035</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_l_x">LX</link>&#32;{
+<anchor xml:id="_lstate_8c_source_1l00036"/><link linkend="_struct_l_x_1a9cb075faa76b783fe0fa271c5756ad1a">00036</link> &#32;&#32;<link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link>&#32;<link linkend="_struct_l_x_1a9cb075faa76b783fe0fa271c5756ad1a">extra_</link>[<link linkend="_ltests_8h_1ae25668dff58d6257a4fc5b01c1e5820b">LUA_EXTRASPACE</link>];
+<anchor xml:id="_lstate_8c_source_1l00037"/><link linkend="_struct_l_x_1ac01fb40d18f85418acf3f01335d762ed">00037</link> &#32;&#32;<link linkend="_structlua___state">lua_State</link>&#32;<link linkend="_struct_l_x_1ac01fb40d18f85418acf3f01335d762ed">l</link>;
+<anchor xml:id="_lstate_8c_source_1l00038"/><link linkend="_lstate_8c_1ac58513cb1c781750265c8643a2e037b0">00038</link> }&#32;<link linkend="_lstate_8c_1ac58513cb1c781750265c8643a2e037b0">LX</link>;
+00039 
+00040 
+00041 <emphasis role="comment">/*</emphasis>
+00042 <emphasis role="comment">**&#32;Main&#32;thread&#32;combines&#32;a&#32;thread&#32;state&#32;and&#32;the&#32;global&#32;state</emphasis>
+00043 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstate_8c_source_1l00044"/><link linkend="_struct_l_g">00044</link> <emphasis role="keyword">typedef</emphasis>&#32;<emphasis role="keyword">struct&#32;</emphasis><link linkend="_struct_l_g">LG</link>&#32;{
+<anchor xml:id="_lstate_8c_source_1l00045"/><link linkend="_struct_l_g_1a64effe4e793fe906b6774bba4def8412">00045</link> &#32;&#32;<link linkend="_struct_l_x">LX</link>&#32;<link linkend="_struct_l_g_1a64effe4e793fe906b6774bba4def8412">l</link>;
+<anchor xml:id="_lstate_8c_source_1l00046"/><link linkend="_struct_l_g_1ac8ead23c868ff18a35ed08bd8ffe1dfa">00046</link> &#32;&#32;<link linkend="_structglobal___state">global_State</link>&#32;<link linkend="_struct_l_g_1ac8ead23c868ff18a35ed08bd8ffe1dfa">g</link>;
+<anchor xml:id="_lstate_8c_source_1l00047"/><link linkend="_lstate_8c_1ae603421ab67430c2479b21cf5b46ea83">00047</link> }&#32;<link linkend="_lstate_8c_1ae603421ab67430c2479b21cf5b46ea83">LG</link>;
+00048 
+00049 
+00050 
+<anchor xml:id="_lstate_8c_source_1l00051"/><link linkend="_lstate_8c_1aa1a01ba67b0f3289f5d755bd9d9bb889">00051</link> <emphasis role="preprocessor">#define&#32;fromstate(L)&#32;&#32;&#32;&#32;(cast(LX&#32;*,&#32;cast(lu_byte&#32;*,&#32;(L))&#32;-&#32;offsetof(LX,&#32;l)))</emphasis>
+00052 
+00053 
+00054 <emphasis role="comment">/*</emphasis>
+00055 <emphasis role="comment">**&#32;A&#32;macro&#32;to&#32;create&#32;a&#32;&quot;random&quot;&#32;seed&#32;when&#32;a&#32;state&#32;is&#32;created;</emphasis>
+00056 <emphasis role="comment">**&#32;the&#32;seed&#32;is&#32;used&#32;to&#32;randomize&#32;string&#32;hashes.</emphasis>
+00057 <emphasis role="comment">*/</emphasis>
+00058 <emphasis role="preprocessor">#if&#32;!defined(luai_makeseed)</emphasis>
+00059 
+00060 <emphasis role="preprocessor">#include&#32;&lt;time.h&gt;</emphasis>
+00061 
+00062 <emphasis role="comment">/*</emphasis>
+00063 <emphasis role="comment">**&#32;Compute&#32;an&#32;initial&#32;seed&#32;with&#32;some&#32;level&#32;of&#32;randomness.</emphasis>
+00064 <emphasis role="comment">**&#32;Rely&#32;on&#32;Address&#32;Space&#32;Layout&#32;Randomization&#32;(if&#32;present)&#32;and</emphasis>
+00065 <emphasis role="comment">**&#32;current&#32;time.</emphasis>
+00066 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstate_8c_source_1l00067"/><link linkend="_lstate_8c_1ab61c5946e20eeaeb9925bbd7fbf42e97">00067</link> <emphasis role="preprocessor">#define&#32;addbuff(b,p,e)&#32;\</emphasis>
+00068 <emphasis role="preprocessor">&#32;&#32;{&#32;size_t&#32;t&#32;=&#32;cast_sizet(e);&#32;\</emphasis>
+00069 <emphasis role="preprocessor">&#32;&#32;&#32;&#32;memcpy(b&#32;+&#32;p,&#32;&amp;t,&#32;sizeof(t));&#32;p&#32;+=&#32;sizeof(t);&#32;}</emphasis>
+00070 
+<anchor xml:id="_lstate_8c_source_1l00071"/><link linkend="_lstate_8c_1a2fb9ffd0e5e6ea178123879892e87681">00071</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lstate_8c_1a2fb9ffd0e5e6ea178123879892e87681">luai_makeseed</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00072 &#32;&#32;<emphasis role="keywordtype">char</emphasis>&#32;buff[3&#32;*&#32;<emphasis role="keyword">sizeof</emphasis>(size_t)];
+00073 &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;h&#32;=&#32;<link linkend="_llimits_8h_1a6ce2ddc5b419ed6f302573db3cc03e56">cast_uint</link>(time(NULL));
+00074 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;p&#32;=&#32;0;
+00075 &#32;&#32;<link linkend="_lstate_8c_1ab61c5946e20eeaeb9925bbd7fbf42e97">addbuff</link>(buff,&#32;p,&#32;L);&#32;&#32;<emphasis role="comment">/*&#32;heap&#32;variable&#32;*/</emphasis>
+00076 &#32;&#32;<link linkend="_lstate_8c_1ab61c5946e20eeaeb9925bbd7fbf42e97">addbuff</link>(buff,&#32;p,&#32;&amp;h);&#32;&#32;<emphasis role="comment">/*&#32;local&#32;variable&#32;*/</emphasis>
+00077 &#32;&#32;<link linkend="_lstate_8c_1ab61c5946e20eeaeb9925bbd7fbf42e97">addbuff</link>(buff,&#32;p,&#32;&amp;<link linkend="_lstate_8c_1a59a0d54f62839bcb7dfa8d0d7b4761b4">lua_newstate</link>);&#32;&#32;<emphasis role="comment">/*&#32;public&#32;function&#32;*/</emphasis>
+00078 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(p&#32;==&#32;<emphasis role="keyword">sizeof</emphasis>(buff));
+00079 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lstring_8c_1a67e2b935c3d6fbbc6ecca5f3c9250b09">luaS_hash</link>(buff,&#32;p,&#32;h,&#32;1);
+00080 }
+00081 
+00082 <emphasis role="preprocessor">#endif</emphasis>
+00083 
+00084 
+00085 <emphasis role="comment">/*</emphasis>
+00086 <emphasis role="comment">**&#32;set&#32;GCdebt&#32;to&#32;a&#32;new&#32;value&#32;keeping&#32;the&#32;value&#32;(totalbytes&#32;+&#32;GCdebt)</emphasis>
+00087 <emphasis role="comment">**&#32;invariant&#32;(and&#32;avoiding&#32;underflows&#32;in&#32;&apos;totalbytes&apos;)</emphasis>
+00088 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstate_8c_source_1l00089"/><link linkend="_lstate_8h_1af1b915fc323a9a154d892b1c16b8cc6c">00089</link> <emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstate_8c_1a42e891d6a8e1dc58d9a1487cefd9c236">luaE_setdebt</link>&#32;(<link linkend="_structglobal___state">global_State</link>&#32;*g,&#32;<link linkend="_llimits_8h_1a24fc195087e262c99a4cf0f9b346a684">l_mem</link>&#32;debt)&#32;{
+00090 &#32;&#32;<link linkend="_llimits_8h_1a24fc195087e262c99a4cf0f9b346a684">l_mem</link>&#32;tb&#32;=&#32;<link linkend="_lstate_8h_1a27490dbb57469f3fa83a73d4b7a79df2">gettotalbytes</link>(g);
+00091 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(tb&#32;&gt;&#32;0);
+00092 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(debt&#32;&lt;&#32;tb&#32;-&#32;<link linkend="_llimits_8h_1a99e52005f8b99ce8e36df841b281078e">MAX_LMEM</link>)
+00093 &#32;&#32;&#32;&#32;debt&#32;=&#32;tb&#32;-&#32;<link linkend="_llimits_8h_1a99e52005f8b99ce8e36df841b281078e">MAX_LMEM</link>;&#32;&#32;<emphasis role="comment">/*&#32;will&#32;make&#32;&apos;totalbytes&#32;==&#32;MAX_LMEM&apos;&#32;*/</emphasis>
+00094 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a049807d9a230d6cf7b6f21ee9161bf31">totalbytes</link>&#32;=&#32;tb&#32;-&#32;debt;
+00095 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1ae466d806319d4ba1b672bbff60f369f9">GCdebt</link>&#32;=&#32;debt;
+00096 }
+00097 
+00098 
+<anchor xml:id="_lstate_8c_source_1l00099"/><link linkend="_lua_8h_1a0c1ada857215d34a84a602e10878c7bc">00099</link> <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lstate_8c_1a165fcd8b26ab13267d77c0d4bd06b886">lua_setcstacklimit</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;limit)&#32;{
+00100 &#32;&#32;<link linkend="_structglobal___state">global_State</link>&#32;*g&#32;=&#32;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L);
+00101 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;ccalls;
+00102 &#32;&#32;<link linkend="_lstate_8c_1a1153e60541fafca38e049159a2d56cdd">luaE_freeCI</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;release&#32;unused&#32;CIs&#32;*/</emphasis>
+00103 &#32;&#32;ccalls&#32;=&#32;<link linkend="_lstate_8h_1aa36c58fe1f92b6539e2a9b525a2fdde9">getCcalls</link>(L);
+00104 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(limit&#32;&gt;=&#32;40000)
+00105 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;out&#32;of&#32;bounds&#32;*/</emphasis>
+00106 &#32;&#32;limit&#32;+=&#32;<link linkend="_lstate_8h_1a9bebfd5d51da62e374c701b7273be718">CSTACKERR</link>;
+00107 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(L&#32;!=&#32;g-&gt;&#32;mainthread)
+00108 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;only&#32;main&#32;thread&#32;can&#32;change&#32;the&#32;C&#32;stack&#32;*/</emphasis>
+00109 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ccalls&#32;&lt;=&#32;<link linkend="_lstate_8h_1a9bebfd5d51da62e374c701b7273be718">CSTACKERR</link>)
+00110 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;handling&#32;overflow&#32;*/</emphasis>
+00111 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00112 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;diff&#32;=&#32;limit&#32;-&#32;g-&gt;<link linkend="_structglobal___state_1a049353d9b56145711e392243a1636e79">Cstacklimit</link>;
+00113 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ccalls&#32;+&#32;diff&#32;&lt;=&#32;<link linkend="_lstate_8h_1a9bebfd5d51da62e374c701b7273be718">CSTACKERR</link>)
+00114 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;new&#32;limit&#32;would&#32;cause&#32;an&#32;overflow&#32;*/</emphasis>
+00115 &#32;&#32;&#32;&#32;g-&gt;<link linkend="_structglobal___state_1a049353d9b56145711e392243a1636e79">Cstacklimit</link>&#32;=&#32;limit;&#32;&#32;<emphasis role="comment">/*&#32;set&#32;new&#32;limit&#32;*/</emphasis>
+00116 &#32;&#32;&#32;&#32;L-&gt;<link linkend="_structlua___state_1a5429936a93186096703265975ddd31b3">nCcalls</link>&#32;+=&#32;diff;&#32;&#32;<emphasis role="comment">/*&#32;correct&#32;&apos;nCcalls&apos;&#32;*/</emphasis>
+00117 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;limit&#32;-&#32;diff&#32;-&#32;<link linkend="_lstate_8h_1a9bebfd5d51da62e374c701b7273be718">CSTACKERR</link>;&#32;&#32;<emphasis role="comment">/*&#32;success;&#32;return&#32;previous&#32;limit&#32;*/</emphasis>
+00118 &#32;&#32;}
+00119 }
+00120 
+00121 
+00122 <emphasis role="comment">/*</emphasis>
+00123 <emphasis role="comment">**&#32;Decrement&#32;count&#32;of&#32;&quot;C&#32;calls&quot;&#32;and&#32;check&#32;for&#32;overflows.&#32;In&#32;case&#32;of</emphasis>
+00124 <emphasis role="comment">**&#32;a&#32;stack&#32;overflow,&#32;check&#32;appropriate&#32;error&#32;(&quot;regular&quot;&#32;overflow&#32;or</emphasis>
+00125 <emphasis role="comment">**&#32;overflow&#32;while&#32;handling&#32;stack&#32;overflow).&#32;&#32;If&#32;&apos;nCcalls&apos;&#32;is&#32;smaller</emphasis>
+00126 <emphasis role="comment">**&#32;than&#32;CSTACKERR&#32;but&#32;larger&#32;than&#32;CSTACKMARK,&#32;it&#32;means&#32;it&#32;has&#32;just</emphasis>
+00127 <emphasis role="comment">**&#32;entered&#32;the&#32;&quot;overflow&#32;zone&quot;,&#32;so&#32;the&#32;function&#32;raises&#32;an&#32;overflow</emphasis>
+00128 <emphasis role="comment">**&#32;error.&#32;&#32;If&#32;&apos;nCcalls&apos;&#32;is&#32;smaller&#32;than&#32;CSTACKMARK&#32;(which&#32;means&#32;it&#32;is</emphasis>
+00129 <emphasis role="comment">**&#32;already&#32;handling&#32;an&#32;overflow)&#32;but&#32;larger&#32;than&#32;CSTACKERRMARK,&#32;does</emphasis>
+00130 <emphasis role="comment">**&#32;not&#32;report&#32;an&#32;error&#32;(to&#32;allow&#32;message&#32;handling&#32;to&#32;work).&#32;Otherwise,</emphasis>
+00131 <emphasis role="comment">**&#32;report&#32;a&#32;stack&#32;overflow&#32;while&#32;handling&#32;a&#32;stack&#32;overflow&#32;(probably</emphasis>
+00132 <emphasis role="comment">**&#32;caused&#32;by&#32;a&#32;repeating&#32;error&#32;in&#32;the&#32;message&#32;handling&#32;function).</emphasis>
+00133 <emphasis role="comment">*/</emphasis>
+00134 
+<anchor xml:id="_lstate_8c_source_1l00135"/><link linkend="_lstate_8h_1a0a0b9a376c81e1247ae41d3cfeb1921c">00135</link> <emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstate_8c_1ac5a11717929806e5d2373a23e31ae4cc">luaE_enterCcall</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00136 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;ncalls&#32;=&#32;<link linkend="_lstate_8h_1aa36c58fe1f92b6539e2a9b525a2fdde9">getCcalls</link>(L);
+00137 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a5429936a93186096703265975ddd31b3">nCcalls</link>--;
+00138 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ncalls&#32;&lt;=&#32;<link linkend="_lstate_8h_1a9bebfd5d51da62e374c701b7273be718">CSTACKERR</link>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;possible&#32;overflow?&#32;*/</emphasis>
+00139 &#32;&#32;&#32;&#32;<link linkend="_lstate_8c_1a1153e60541fafca38e049159a2d56cdd">luaE_freeCI</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;release&#32;unused&#32;CIs&#32;*/</emphasis>
+00140 &#32;&#32;&#32;&#32;ncalls&#32;=&#32;<link linkend="_lstate_8h_1aa36c58fe1f92b6539e2a9b525a2fdde9">getCcalls</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;update&#32;call&#32;count&#32;*/</emphasis>
+00141 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ncalls&#32;&lt;=&#32;<link linkend="_lstate_8h_1a9bebfd5d51da62e374c701b7273be718">CSTACKERR</link>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;still&#32;overflow?&#32;*/</emphasis>
+00142 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ncalls&#32;&lt;=&#32;<link linkend="_lstate_8h_1a1ec4c7b60f71b63a0a92031cb3995721">CSTACKERRMARK</link>)&#32;&#32;<emphasis role="comment">/*&#32;below&#32;error-handling&#32;zone?&#32;*/</emphasis>
+00143 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_ldo_8c_1a2b46d9db5b9ca3d5402a0c2ac640a6b0">luaD_throw</link>(L,&#32;<link linkend="_lua_8h_1a295ea44b6036e266b06e5de0f8ff24e0">LUA_ERRERR</link>);&#32;&#32;<emphasis role="comment">/*&#32;error&#32;while&#32;handling&#32;stack&#32;error&#32;*/</emphasis>
+00144 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ncalls&#32;&gt;=&#32;<link linkend="_lstate_8h_1af7aadb49580714742c3c70c9e923e5e7">CSTACKMARK</link>)&#32;{
+00145 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;not&#32;in&#32;error-handling&#32;zone;&#32;raise&#32;the&#32;error&#32;now&#32;*/</emphasis>
+00146 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;L-&gt;<link linkend="_structlua___state_1a5429936a93186096703265975ddd31b3">nCcalls</link>&#32;=&#32;(<link linkend="_lstate_8h_1af7aadb49580714742c3c70c9e923e5e7">CSTACKMARK</link>&#32;-&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;enter&#32;error-handling&#32;zone&#32;*/</emphasis>
+00147 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_ldebug_8c_1a88d38ca5da2e7a1492fc9d5ad70c32c5">luaG_runerror</link>(L,&#32;<emphasis role="stringliteral">&quot;C&#32;stack&#32;overflow&quot;</emphasis>);
+00148 &#32;&#32;&#32;&#32;&#32;&#32;}
+00149 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;else&#32;stack&#32;is&#32;in&#32;the&#32;error-handling&#32;zone;</emphasis>
+00150 <emphasis role="comment">&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;allow&#32;message&#32;handler&#32;to&#32;work&#32;*/</emphasis>
+00151 &#32;&#32;&#32;&#32;}
+00152 &#32;&#32;}
+00153 }
+00154 
+00155 
+<anchor xml:id="_lstate_8c_source_1l00156"/><link linkend="_lstate_8h_1aad92caaae77beaadf1d10954133eb53e">00156</link> <link linkend="_struct_call_info">CallInfo</link>&#32;*<link linkend="_lstate_8c_1ab6b891f64cdb59f08bff023fa0ba8aea">luaE_extendCI</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00157 &#32;&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*ci;
+00158 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(L-&gt;<link linkend="_structlua___state_1a8764223139091552413c85d3fc0bb1eb">ci</link>-&gt;<link linkend="_struct_call_info_1a78db3e2e6cc56856680d3c01ad82f958">next</link>&#32;==&#32;NULL);
+00159 &#32;&#32;<link linkend="_lstate_8c_1ac5a11717929806e5d2373a23e31ae4cc">luaE_enterCcall</link>(L);
+00160 &#32;&#32;ci&#32;=&#32;<link linkend="_lmem_8h_1ae72bd363be924fa9a67be67de0802ad7">luaM_new</link>(L,&#32;<link linkend="_struct_call_info">CallInfo</link>);
+00161 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(L-&gt;<link linkend="_structlua___state_1a8764223139091552413c85d3fc0bb1eb">ci</link>-&gt;<link linkend="_struct_call_info_1a78db3e2e6cc56856680d3c01ad82f958">next</link>&#32;==&#32;NULL);
+00162 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a8764223139091552413c85d3fc0bb1eb">ci</link>-&gt;<link linkend="_struct_call_info_1a78db3e2e6cc56856680d3c01ad82f958">next</link>&#32;=&#32;ci;
+00163 &#32;&#32;ci-&gt;<link linkend="_struct_call_info_1acd0df27f40f3c6f546e29401fecaddb4">previous</link>&#32;=&#32;L-&gt;<link linkend="_structlua___state_1a8764223139091552413c85d3fc0bb1eb">ci</link>;
+00164 &#32;&#32;ci-&gt;<link linkend="_struct_call_info_1a78db3e2e6cc56856680d3c01ad82f958">next</link>&#32;=&#32;NULL;
+00165 &#32;&#32;ci-&gt;<link linkend="_struct_call_info_1af8751782b1a040b075c25cef0acb484a">u</link>.<link linkend="_struct_call_info_1a1abd0b31f495fcbdfaa1bb8ac5546d6d">l</link>.trap&#32;=&#32;0;
+00166 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a34c037820afad85fbce2db21b699f4d5">nci</link>++;
+00167 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;ci;
+00168 }
+00169 
+00170 
+00171 <emphasis role="comment">/*</emphasis>
+00172 <emphasis role="comment">**&#32;free&#32;all&#32;CallInfo&#32;structures&#32;not&#32;in&#32;use&#32;by&#32;a&#32;thread</emphasis>
+00173 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstate_8c_source_1l00174"/><link linkend="_lstate_8h_1afd548baa613a5be59f9724df0b3c179c">00174</link> <emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstate_8c_1a1153e60541fafca38e049159a2d56cdd">luaE_freeCI</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00175 &#32;&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*ci&#32;=&#32;L-&gt;<link linkend="_structlua___state_1a8764223139091552413c85d3fc0bb1eb">ci</link>;
+00176 &#32;&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>&#32;=&#32;ci-&gt;<link linkend="_struct_call_info_1a78db3e2e6cc56856680d3c01ad82f958">next</link>;
+00177 &#32;&#32;ci-&gt;<link linkend="_struct_call_info_1a78db3e2e6cc56856680d3c01ad82f958">next</link>&#32;=&#32;NULL;
+00178 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a5429936a93186096703265975ddd31b3">nCcalls</link>&#32;+=&#32;L-&gt;<link linkend="_structlua___state_1a34c037820afad85fbce2db21b699f4d5">nci</link>;&#32;&#32;<emphasis role="comment">/*&#32;add&#32;removed&#32;elements&#32;back&#32;to&#32;&apos;nCcalls&apos;&#32;*/</emphasis>
+00179 &#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;((ci&#32;=&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>)&#32;!=&#32;NULL)&#32;{
+00180 &#32;&#32;&#32;&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>&#32;=&#32;ci-&gt;<link linkend="_struct_call_info_1a78db3e2e6cc56856680d3c01ad82f958">next</link>;
+00181 &#32;&#32;&#32;&#32;<link linkend="_lmem_8h_1ad927ceb6a17a9e89a00b83dcc4482988">luaM_free</link>(L,&#32;ci);
+00182 &#32;&#32;&#32;&#32;L-&gt;<link linkend="_structlua___state_1a34c037820afad85fbce2db21b699f4d5">nci</link>--;
+00183 &#32;&#32;}
+00184 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a5429936a93186096703265975ddd31b3">nCcalls</link>&#32;-=&#32;L-&gt;<link linkend="_structlua___state_1a34c037820afad85fbce2db21b699f4d5">nci</link>;&#32;&#32;<emphasis role="comment">/*&#32;adjust&#32;result&#32;*/</emphasis>
+00185 }
+00186 
+00187 
+00188 <emphasis role="comment">/*</emphasis>
+00189 <emphasis role="comment">**&#32;free&#32;half&#32;of&#32;the&#32;CallInfo&#32;structures&#32;not&#32;in&#32;use&#32;by&#32;a&#32;thread,</emphasis>
+00190 <emphasis role="comment">**&#32;keeping&#32;the&#32;first&#32;one.</emphasis>
+00191 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstate_8c_source_1l00192"/><link linkend="_lstate_8h_1a5f4d20913889e46b69f0a54b10a9a545">00192</link> <emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstate_8c_1a59bcd5586c176d9e24bcdf9e4d07adbe">luaE_shrinkCI</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00193 &#32;&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*ci&#32;=&#32;L-&gt;<link linkend="_structlua___state_1a8764223139091552413c85d3fc0bb1eb">ci</link>-&gt;<link linkend="_struct_call_info_1a78db3e2e6cc56856680d3c01ad82f958">next</link>;&#32;&#32;<emphasis role="comment">/*&#32;first&#32;free&#32;CallInfo&#32;*/</emphasis>
+00194 &#32;&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>;
+00195 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ci&#32;==&#32;NULL)
+00196 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;extra&#32;elements&#32;*/</emphasis>
+00197 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a5429936a93186096703265975ddd31b3">nCcalls</link>&#32;+=&#32;L-&gt;<link linkend="_structlua___state_1a34c037820afad85fbce2db21b699f4d5">nci</link>;&#32;&#32;<emphasis role="comment">/*&#32;add&#32;removed&#32;elements&#32;back&#32;to&#32;&apos;nCcalls&apos;&#32;*/</emphasis>
+00198 &#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;((<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>&#32;=&#32;ci-&gt;<link linkend="_struct_call_info_1a78db3e2e6cc56856680d3c01ad82f958">next</link>)&#32;!=&#32;NULL)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;two&#32;extra&#32;elements?&#32;*/</emphasis>
+00199 &#32;&#32;&#32;&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*next2&#32;=&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>-&gt;next;&#32;&#32;<emphasis role="comment">/*&#32;next&apos;s&#32;next&#32;*/</emphasis>
+00200 &#32;&#32;&#32;&#32;ci-&gt;<link linkend="_struct_call_info_1a78db3e2e6cc56856680d3c01ad82f958">next</link>&#32;=&#32;next2;&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;next&#32;from&#32;the&#32;list&#32;*/</emphasis>
+00201 &#32;&#32;&#32;&#32;L-&gt;<link linkend="_structlua___state_1a34c037820afad85fbce2db21b699f4d5">nci</link>--;
+00202 &#32;&#32;&#32;&#32;<link linkend="_lmem_8h_1ad927ceb6a17a9e89a00b83dcc4482988">luaM_free</link>(L,&#32;<link linkend="_llex_8c_1a8ab976102fb046f9974c53caaf5a1995">next</link>);&#32;&#32;<emphasis role="comment">/*&#32;free&#32;next&#32;*/</emphasis>
+00203 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(next2&#32;==&#32;NULL)
+00204 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">break</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;more&#32;elements&#32;*/</emphasis>
+00205 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00206 &#32;&#32;&#32;&#32;&#32;&#32;next2-&gt;<link linkend="_struct_call_info_1acd0df27f40f3c6f546e29401fecaddb4">previous</link>&#32;=&#32;ci;
+00207 &#32;&#32;&#32;&#32;&#32;&#32;ci&#32;=&#32;next2;&#32;&#32;<emphasis role="comment">/*&#32;continue&#32;*/</emphasis>
+00208 &#32;&#32;&#32;&#32;}
+00209 &#32;&#32;}
+00210 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a5429936a93186096703265975ddd31b3">nCcalls</link>&#32;-=&#32;L-&gt;<link linkend="_structlua___state_1a34c037820afad85fbce2db21b699f4d5">nci</link>;&#32;&#32;<emphasis role="comment">/*&#32;adjust&#32;result&#32;*/</emphasis>
+00211 }
+00212 
+00213 
+<anchor xml:id="_lstate_8c_source_1l00214"/><link linkend="_lstate_8c_1a55b60427432d47460c6e1eaa9a31953f">00214</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstate_8c_1a55b60427432d47460c6e1eaa9a31953f">stack_init</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L1,&#32;<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00215 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i;&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*ci;
+00216 &#32;&#32;<emphasis role="comment">/*&#32;initialize&#32;stack&#32;array&#32;*/</emphasis>
+00217 &#32;&#32;L1-&gt;<link linkend="_structlua___state_1a8d64aaa9257b553aae2e3e193c80a83f">stack</link>&#32;=&#32;<link linkend="_lmem_8h_1a715cc368a85506c7a104cda58f270f3e">luaM_newvector</link>(L,&#32;<link linkend="_lstate_8h_1a8f869ebbbd09a2c657864e11e3d88453">BASIC_STACK_SIZE</link>,&#32;<link linkend="_union_stack_value">StackValue</link>);
+00218 &#32;&#32;L1-&gt;<link linkend="_structlua___state_1a7fe5de65ffba2cb8917943b5811ae1cf">stacksize</link>&#32;=&#32;<link linkend="_lstate_8h_1a8f869ebbbd09a2c657864e11e3d88453">BASIC_STACK_SIZE</link>;
+00219 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;0;&#32;i&#32;&lt;&#32;<link linkend="_lstate_8h_1a8f869ebbbd09a2c657864e11e3d88453">BASIC_STACK_SIZE</link>;&#32;i++)
+00220 &#32;&#32;&#32;&#32;<link linkend="_lobject_8h_1ad9034def7bbc1965ec3d714d84620b07">setnilvalue</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(L1-&gt;<link linkend="_structlua___state_1a8d64aaa9257b553aae2e3e193c80a83f">stack</link>&#32;+&#32;i));&#32;&#32;<emphasis role="comment">/*&#32;erase&#32;new&#32;stack&#32;*/</emphasis>
+00221 &#32;&#32;L1-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;=&#32;L1-&gt;<link linkend="_structlua___state_1a8d64aaa9257b553aae2e3e193c80a83f">stack</link>;
+00222 &#32;&#32;L1-&gt;<link linkend="_structlua___state_1a21d8865731396f21a8b5bfd449c2354a">stack_last</link>&#32;=&#32;L1-&gt;<link linkend="_structlua___state_1a8d64aaa9257b553aae2e3e193c80a83f">stack</link>&#32;+&#32;L1-&gt;<link linkend="_structlua___state_1a7fe5de65ffba2cb8917943b5811ae1cf">stacksize</link>&#32;-&#32;<link linkend="_lstate_8h_1a9e690b8e4047af306d2dd1f78a9094d7">EXTRA_STACK</link>;
+00223 &#32;&#32;<emphasis role="comment">/*&#32;initialize&#32;first&#32;ci&#32;*/</emphasis>
+00224 &#32;&#32;ci&#32;=&#32;&amp;L1-&gt;<link linkend="_structlua___state_1a4c48e90d3a9e48ab21d0623c1f46174e">base_ci</link>;
+00225 &#32;&#32;ci-&gt;<link linkend="_struct_call_info_1a78db3e2e6cc56856680d3c01ad82f958">next</link>&#32;=&#32;ci-&gt;<link linkend="_struct_call_info_1acd0df27f40f3c6f546e29401fecaddb4">previous</link>&#32;=&#32;NULL;
+00226 &#32;&#32;ci-&gt;<link linkend="_struct_call_info_1a1551d635e86dcf5c62f9bc718512d89b">callstatus</link>&#32;=&#32;<link linkend="_lstate_8h_1a9bd55a931fefd2ddeb3d63b245fc39f1">CIST_C</link>;
+00227 &#32;&#32;ci-&gt;<link linkend="_struct_call_info_1a9d82a8ad04b0dd8837e621047972260a">func</link>&#32;=&#32;L1-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>;
+00228 &#32;&#32;ci-&gt;<link linkend="_struct_call_info_1af8751782b1a040b075c25cef0acb484a">u</link>.<link linkend="_struct_call_info_1aba21e4c76e6138c45d71c23242c0fd31">c</link>.k&#32;=&#32;NULL;
+00229 &#32;&#32;ci-&gt;<link linkend="_struct_call_info_1a2c5cabcdf2f8f5b8e0c72171401e0430">nresults</link>&#32;=&#32;0;
+00230 &#32;&#32;<link linkend="_lobject_8h_1ad9034def7bbc1965ec3d714d84620b07">setnilvalue</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(L1-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>));&#32;&#32;<emphasis role="comment">/*&#32;&apos;function&apos;&#32;entry&#32;for&#32;this&#32;&apos;ci&apos;&#32;*/</emphasis>
+00231 &#32;&#32;L1-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>++;
+00232 &#32;&#32;ci-&gt;<link linkend="_struct_call_info_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;=&#32;L1-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;+&#32;<link linkend="_lua_8h_1ad0180b89de8a4425cb2a1a3e3f793aa5">LUA_MINSTACK</link>;
+00233 &#32;&#32;L1-&gt;<link linkend="_structlua___state_1a8764223139091552413c85d3fc0bb1eb">ci</link>&#32;=&#32;ci;
+00234 }
+00235 
+00236 
+<anchor xml:id="_lstate_8c_source_1l00237"/><link linkend="_lstate_8c_1ac615222739efb52e2c21dbaea5223853">00237</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstate_8c_1ac615222739efb52e2c21dbaea5223853">freestack</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00238 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(L-&gt;<link linkend="_structlua___state_1a8d64aaa9257b553aae2e3e193c80a83f">stack</link>&#32;==&#32;NULL)
+00239 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;stack&#32;not&#32;completely&#32;built&#32;yet&#32;*/</emphasis>
+00240 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a8764223139091552413c85d3fc0bb1eb">ci</link>&#32;=&#32;&amp;L-&gt;<link linkend="_structlua___state_1a4c48e90d3a9e48ab21d0623c1f46174e">base_ci</link>;&#32;&#32;<emphasis role="comment">/*&#32;free&#32;the&#32;entire&#32;&apos;ci&apos;&#32;list&#32;*/</emphasis>
+00241 &#32;&#32;<link linkend="_lstate_8c_1a1153e60541fafca38e049159a2d56cdd">luaE_freeCI</link>(L);
+00242 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(L-&gt;<link linkend="_structlua___state_1a34c037820afad85fbce2db21b699f4d5">nci</link>&#32;==&#32;0);
+00243 &#32;&#32;<link linkend="_lmem_8h_1a574612879aa6814c76b8b57c41e4af5a">luaM_freearray</link>(L,&#32;L-&gt;<link linkend="_structlua___state_1a8d64aaa9257b553aae2e3e193c80a83f">stack</link>,&#32;L-&gt;<link linkend="_structlua___state_1a7fe5de65ffba2cb8917943b5811ae1cf">stacksize</link>);&#32;&#32;<emphasis role="comment">/*&#32;free&#32;stack&#32;array&#32;*/</emphasis>
+00244 }
+00245 
+00246 
+00247 <emphasis role="comment">/*</emphasis>
+00248 <emphasis role="comment">**&#32;Create&#32;registry&#32;table&#32;and&#32;its&#32;predefined&#32;values</emphasis>
+00249 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstate_8c_source_1l00250"/><link linkend="_lstate_8c_1a3f769cc49eb8309417a7cbef2b4d2d8b">00250</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstate_8c_1a3f769cc49eb8309417a7cbef2b4d2d8b">init_registry</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_structglobal___state">global_State</link>&#32;*g)&#32;{
+00251 &#32;&#32;<link linkend="_struct_t_value">TValue</link>&#32;temp;
+00252 &#32;&#32;<emphasis role="comment">/*&#32;create&#32;registry&#32;*/</emphasis>
+00253 &#32;&#32;<link linkend="_struct_table">Table</link>&#32;*registry&#32;=&#32;<link linkend="_ltable_8c_1a6c97fb2d6a020b0a6f852562fef93d97">luaH_new</link>(L);
+00254 &#32;&#32;<link linkend="_lobject_8h_1ab9379699ac579d54410e3542f061bbad">sethvalue</link>(L,&#32;&amp;g-&gt;<link linkend="_structglobal___state_1af2551dd930744b33fb4c2964076101fe">l_registry</link>,&#32;registry);
+00255 &#32;&#32;<link linkend="_ltable_8c_1aad3b771962cc13884bf7b45480e8f4e9">luaH_resize</link>(L,&#32;registry,&#32;<link linkend="_lua_8h_1a559a3977ef268b67c8b84ff44af58130">LUA_RIDX_LAST</link>,&#32;0);
+00256 &#32;&#32;<emphasis role="comment">/*&#32;registry[LUA_RIDX_MAINTHREAD]&#32;=&#32;L&#32;*/</emphasis>
+00257 &#32;&#32;<link linkend="_lobject_8h_1a9c2bad449e8e998bb9d937642923a225">setthvalue</link>(L,&#32;&amp;temp,&#32;L);&#32;&#32;<emphasis role="comment">/*&#32;temp&#32;=&#32;L&#32;*/</emphasis>
+00258 &#32;&#32;<link linkend="_ltable_8c_1a9eefa8191c63f55cffb6b7b58217467c">luaH_setint</link>(L,&#32;registry,&#32;<link linkend="_lua_8h_1aafaecd92640c28ca5bc0169bfcdd2f30">LUA_RIDX_MAINTHREAD</link>,&#32;&amp;temp);
+00259 &#32;&#32;<emphasis role="comment">/*&#32;registry[LUA_RIDX_GLOBALS]&#32;=&#32;table&#32;of&#32;globals&#32;*/</emphasis>
+00260 &#32;&#32;<link linkend="_lobject_8h_1ab9379699ac579d54410e3542f061bbad">sethvalue</link>(L,&#32;&amp;temp,&#32;<link linkend="_ltable_8c_1a6c97fb2d6a020b0a6f852562fef93d97">luaH_new</link>(L));&#32;&#32;<emphasis role="comment">/*&#32;temp&#32;=&#32;new&#32;table&#32;(global&#32;table)&#32;*/</emphasis>
+00261 &#32;&#32;<link linkend="_ltable_8c_1a9eefa8191c63f55cffb6b7b58217467c">luaH_setint</link>(L,&#32;registry,&#32;<link linkend="_lua_8h_1a08ad697e382a0042a439bc9748fa2d8c">LUA_RIDX_GLOBALS</link>,&#32;&amp;temp);
+00262 }
+00263 
+00264 
+00265 <emphasis role="comment">/*</emphasis>
+00266 <emphasis role="comment">**&#32;open&#32;parts&#32;of&#32;the&#32;state&#32;that&#32;may&#32;cause&#32;memory-allocation&#32;errors.</emphasis>
+00267 <emphasis role="comment">**&#32;(&apos;g-&gt;nilvalue&apos;&#32;being&#32;a&#32;nil&#32;value&#32;flags&#32;that&#32;the&#32;state&#32;was&#32;completely</emphasis>
+00268 <emphasis role="comment">**&#32;build.)</emphasis>
+00269 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstate_8c_source_1l00270"/><link linkend="_lstate_8c_1ab65e96a7498fd886f7223b92e91fd830">00270</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstate_8c_1ab65e96a7498fd886f7223b92e91fd830">f_luaopen</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*ud)&#32;{
+00271 &#32;&#32;<link linkend="_structglobal___state">global_State</link>&#32;*g&#32;=&#32;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L);
+00272 &#32;&#32;<link linkend="_llimits_8h_1a86d500a34c624c2cae56bc25a31b12f3">UNUSED</link>(ud);
+00273 &#32;&#32;<link linkend="_lstate_8c_1a55b60427432d47460c6e1eaa9a31953f">stack_init</link>(L,&#32;L);&#32;&#32;<emphasis role="comment">/*&#32;init&#32;stack&#32;*/</emphasis>
+00274 &#32;&#32;<link linkend="_lstate_8c_1a3f769cc49eb8309417a7cbef2b4d2d8b">init_registry</link>(L,&#32;g);
+00275 &#32;&#32;<link linkend="_lstring_8c_1abd0b9071d1e81b7bf749f4a2723bc403">luaS_init</link>(L);
+00276 &#32;&#32;<link linkend="_ltm_8c_1af0ec8a91a71f8e0fdcc4affdc1f57b3d">luaT_init</link>(L);
+00277 &#32;&#32;<link linkend="_llex_8c_1a50834f7eb4b2ac79c8df048988749abe">luaX_init</link>(L);
+00278 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a39557d352dfca7f1553b694d54c0b662">gcrunning</link>&#32;=&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;allow&#32;gc&#32;*/</emphasis>
+00279 &#32;&#32;<link linkend="_lobject_8h_1ad9034def7bbc1965ec3d714d84620b07">setnilvalue</link>(&amp;g-&gt;<link linkend="_structglobal___state_1a5c7c7d05244a09ddf235150da6f8f995">nilvalue</link>);
+00280 &#32;&#32;<link linkend="_llimits_8h_1a05bbfa34e58a82e39cc19701e5359881">luai_userstateopen</link>(L);
+00281 }
+00282 
+00283 
+00284 <emphasis role="comment">/*</emphasis>
+00285 <emphasis role="comment">**&#32;preinitialize&#32;a&#32;thread&#32;with&#32;consistent&#32;values&#32;without&#32;allocating</emphasis>
+00286 <emphasis role="comment">**&#32;any&#32;memory&#32;(to&#32;avoid&#32;errors)</emphasis>
+00287 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstate_8c_source_1l00288"/><link linkend="_lstate_8c_1aeecf2dc60e2cd36a999c2b10485bb7a8">00288</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstate_8c_1aeecf2dc60e2cd36a999c2b10485bb7a8">preinit_thread</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_structglobal___state">global_State</link>&#32;*g)&#32;{
+00289 &#32;&#32;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L)&#32;=&#32;g;
+00290 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a8d64aaa9257b553aae2e3e193c80a83f">stack</link>&#32;=&#32;NULL;
+00291 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a8764223139091552413c85d3fc0bb1eb">ci</link>&#32;=&#32;NULL;
+00292 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a34c037820afad85fbce2db21b699f4d5">nci</link>&#32;=&#32;0;
+00293 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a7fe5de65ffba2cb8917943b5811ae1cf">stacksize</link>&#32;=&#32;0;
+00294 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a3c31ce83747be5e373872d7742afc3d1">twups</link>&#32;=&#32;L;&#32;&#32;<emphasis role="comment">/*&#32;thread&#32;has&#32;no&#32;upvalues&#32;*/</emphasis>
+00295 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a12563a504bbf3fe62aacb90c3b440ac4">errorJmp</link>&#32;=&#32;NULL;
+00296 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a0f562869c88d56ceb0ee15048df46470">hook</link>&#32;=&#32;NULL;
+00297 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a081110fd5f9c1292f56fb2ef36e35c1a">hookmask</link>&#32;=&#32;0;
+00298 &#32;&#32;L-&gt;<link linkend="_structlua___state_1ac18d0304dcc378978714fe1d446fda26">basehookcount</link>&#32;=&#32;0;
+00299 &#32;&#32;L-&gt;<link linkend="_structlua___state_1ae027b098c1d274d696f69fdac344e236">allowhook</link>&#32;=&#32;1;
+00300 &#32;&#32;<link linkend="_ldebug_8h_1ac42e5618900e7522d70474fcfbddab58">resethookcount</link>(L);
+00301 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a762ab4537c3697fa94e74b3c0dffd297">openupval</link>&#32;=&#32;NULL;
+00302 &#32;&#32;L-&gt;<link linkend="_structlua___state_1ab7ebe75445d38e722cbc077aec768b14">status</link>&#32;=&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>;
+00303 &#32;&#32;L-&gt;<link linkend="_structlua___state_1acd673156213ded9f5159d761e9db2bc3">errfunc</link>&#32;=&#32;0;
+00304 &#32;&#32;L-&gt;<link linkend="_structlua___state_1af1ac56c8c869bc5401c5de137f643033">oldpc</link>&#32;=&#32;0;
+00305 }
+00306 
+00307 
+<anchor xml:id="_lstate_8c_source_1l00308"/><link linkend="_lstate_8c_1a4940327dfa3b86df0ef008180bb3fcb3">00308</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstate_8c_1a4940327dfa3b86df0ef008180bb3fcb3">close_state</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00309 &#32;&#32;<link linkend="_structglobal___state">global_State</link>&#32;*g&#32;=&#32;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L);
+00310 &#32;&#32;<link linkend="_lfunc_8c_1ae9fcbf80b5969afd9412b9aed102f94e">luaF_close</link>(L,&#32;L-&gt;<link linkend="_structlua___state_1a8d64aaa9257b553aae2e3e193c80a83f">stack</link>,&#32;<link linkend="_lfunc_8h_1af4ee877475e5e9b0496b1c6b0bd36192">CLOSEPROTECT</link>);&#32;&#32;<emphasis role="comment">/*&#32;close&#32;all&#32;upvalues&#32;*/</emphasis>
+00311 &#32;&#32;<link linkend="_lgc_8c_1abad938b33f011ec1088d1a79508c6ac9">luaC_freeallobjects</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;collect&#32;all&#32;objects&#32;*/</emphasis>
+00312 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lobject_8h_1a39af019fafa202841da3bf7c427bf090">ttisnil</link>(&amp;g-&gt;<link linkend="_structglobal___state_1a5c7c7d05244a09ddf235150da6f8f995">nilvalue</link>))&#32;&#32;<emphasis role="comment">/*&#32;closing&#32;a&#32;fully&#32;built&#32;state?&#32;*/</emphasis>
+00313 &#32;&#32;&#32;&#32;<link linkend="_llimits_8h_1ae269d75893fce50868b37c32214648e5">luai_userstateclose</link>(L);
+00314 &#32;&#32;<link linkend="_lmem_8h_1a574612879aa6814c76b8b57c41e4af5a">luaM_freearray</link>(L,&#32;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L)-&gt;strt.hash,&#32;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L)-&gt;strt.size);
+00315 &#32;&#32;<link linkend="_lstate_8c_1ac615222739efb52e2c21dbaea5223853">freestack</link>(L);
+00316 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(<link linkend="_lstate_8h_1a27490dbb57469f3fa83a73d4b7a79df2">gettotalbytes</link>(g)&#32;==&#32;<emphasis role="keyword">sizeof</emphasis>(<link linkend="_struct_l_g">LG</link>));
+00317 &#32;&#32;(*g-&gt;<link linkend="_structglobal___state_1aded8ba234ad5c0f907e3b70c935e28b6">frealloc</link>)(g-&gt;<link linkend="_structglobal___state_1a6c4e6337ac6cb9aab6e53aa909764129">ud</link>,&#32;<link linkend="_lstate_8c_1aa1a01ba67b0f3289f5d755bd9d9bb889">fromstate</link>(L),&#32;<emphasis role="keyword">sizeof</emphasis>(<link linkend="_lstate_8c_1ae603421ab67430c2479b21cf5b46ea83">LG</link>),&#32;0);&#32;&#32;<emphasis role="comment">/*&#32;free&#32;main&#32;block&#32;*/</emphasis>
+00318 }
+00319 
+00320 
+<anchor xml:id="_lstate_8c_source_1l00321"/><link linkend="_lua_8h_1a6a7867e39b589ae581e2ed837cbc6ea4">00321</link> <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<link linkend="_structlua___state">lua_State</link>&#32;*<link linkend="_lstate_8c_1a86b660d6f2b69734c35ec9fc718e4ca9">lua_newthread</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00322 &#32;&#32;<link linkend="_structglobal___state">global_State</link>&#32;*g;
+00323 &#32;&#32;<link linkend="_structlua___state">lua_State</link>&#32;*L1;
+00324 &#32;&#32;<link linkend="_llimits_8h_1aa68a48b9104aeadf4842c25c12a9b8c9">lua_lock</link>(L);
+00325 &#32;&#32;g&#32;=&#32;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L);
+00326 &#32;&#32;<link linkend="_lgc_8h_1ad013db5004ccc5fbe8a6450caa1f1ad9">luaC_checkGC</link>(L);
+00327 &#32;&#32;<emphasis role="comment">/*&#32;create&#32;new&#32;thread&#32;*/</emphasis>
+00328 &#32;&#32;L1&#32;=&#32;&amp;<link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(<link linkend="_struct_l_x">LX</link>&#32;*,&#32;<link linkend="_lmem_8h_1a0ce640c4b032a327440e3820365d7167">luaM_newobject</link>(L,&#32;<link linkend="_lua_8h_1a028a8d8aae9580c465aabcd0c11334d9">LUA_TTHREAD</link>,&#32;<emphasis role="keyword">sizeof</emphasis>(<link linkend="_struct_l_x">LX</link>)))-&gt;l;
+00329 &#32;&#32;L1-&gt;marked&#32;=&#32;<link linkend="_lgc_8h_1afaa8a52c4097cf3a5eacd88db94092da">luaC_white</link>(g);
+00330 &#32;&#32;L1-&gt;tt&#32;=&#32;<link linkend="_lobject_8h_1ad224258ccc4e8f79f148d54d32ddbd00">LUA_VTHREAD</link>;
+00331 &#32;&#32;<emphasis role="comment">/*&#32;link&#32;it&#32;on&#32;list&#32;&apos;allgc&apos;&#32;*/</emphasis>
+00332 &#32;&#32;L1-&gt;next&#32;=&#32;g-&gt;<link linkend="_structglobal___state_1a3239e7c69845ec6df350dc5b6f1d5291">allgc</link>;
+00333 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a3239e7c69845ec6df350dc5b6f1d5291">allgc</link>&#32;=&#32;<link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(L1);
+00334 &#32;&#32;<emphasis role="comment">/*&#32;anchor&#32;it&#32;on&#32;L&#32;stack&#32;*/</emphasis>
+00335 &#32;&#32;<link linkend="_lobject_8h_1a538e049061af97a32cc2e59ff979c409">setthvalue2s</link>(L,&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>,&#32;L1);
+00336 &#32;&#32;<link linkend="_lapi_8h_1afe4a5994dd3704ec53de77f9fd121915">api_incr_top</link>(L);
+00337 &#32;&#32;<link linkend="_lstate_8c_1aeecf2dc60e2cd36a999c2b10485bb7a8">preinit_thread</link>(L1,&#32;g);
+00338 &#32;&#32;L1-&gt;<link linkend="_structlua___state_1a5429936a93186096703265975ddd31b3">nCcalls</link>&#32;=&#32;<link linkend="_lstate_8h_1aa36c58fe1f92b6539e2a9b525a2fdde9">getCcalls</link>(L);
+00339 &#32;&#32;L1-&gt;<link linkend="_structlua___state_1a081110fd5f9c1292f56fb2ef36e35c1a">hookmask</link>&#32;=&#32;L-&gt;<link linkend="_structlua___state_1a081110fd5f9c1292f56fb2ef36e35c1a">hookmask</link>;
+00340 &#32;&#32;L1-&gt;<link linkend="_structlua___state_1ac18d0304dcc378978714fe1d446fda26">basehookcount</link>&#32;=&#32;L-&gt;<link linkend="_structlua___state_1ac18d0304dcc378978714fe1d446fda26">basehookcount</link>;
+00341 &#32;&#32;L1-&gt;<link linkend="_structlua___state_1a0f562869c88d56ceb0ee15048df46470">hook</link>&#32;=&#32;L-&gt;<link linkend="_structlua___state_1a0f562869c88d56ceb0ee15048df46470">hook</link>;
+00342 &#32;&#32;<link linkend="_ldebug_8h_1ac42e5618900e7522d70474fcfbddab58">resethookcount</link>(L1);
+00343 &#32;&#32;<emphasis role="comment">/*&#32;initialize&#32;L1&#32;extra&#32;space&#32;*/</emphasis>
+00344 &#32;&#32;memcpy(<link linkend="_lua_8h_1ab1c3cbd392803fa526251bea4867dee1">lua_getextraspace</link>(L1),&#32;<link linkend="_lua_8h_1ab1c3cbd392803fa526251bea4867dee1">lua_getextraspace</link>(g-&gt;<link linkend="_structglobal___state_1a90da27c9046a3da7fed43ef75957e379">mainthread</link>),
+00345 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_ltests_8h_1ae25668dff58d6257a4fc5b01c1e5820b">LUA_EXTRASPACE</link>);
+00346 &#32;&#32;<link linkend="_llimits_8h_1a533eae4cf709fa76f3974823354e4067">luai_userstatethread</link>(L,&#32;L1);
+00347 &#32;&#32;<link linkend="_lstate_8c_1a55b60427432d47460c6e1eaa9a31953f">stack_init</link>(L1,&#32;L);&#32;&#32;<emphasis role="comment">/*&#32;init&#32;stack&#32;*/</emphasis>
+00348 &#32;&#32;<link linkend="_llimits_8h_1a1781f2a7d9161848a246d475a9171875">lua_unlock</link>(L);
+00349 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;L1;
+00350 }
+00351 
+00352 
+<anchor xml:id="_lstate_8c_source_1l00353"/><link linkend="_lstate_8h_1a0882226c718293b23af460f7e2faeef0">00353</link> <emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstate_8c_1a8c121cf8444c9c54e934aeb509c4b73a">luaE_freethread</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_structlua___state">lua_State</link>&#32;*L1)&#32;{
+00354 &#32;&#32;<link linkend="_struct_l_x">LX</link>&#32;*l&#32;=&#32;<link linkend="_lstate_8c_1aa1a01ba67b0f3289f5d755bd9d9bb889">fromstate</link>(L1);
+00355 &#32;&#32;<link linkend="_lfunc_8c_1ae9fcbf80b5969afd9412b9aed102f94e">luaF_close</link>(L1,&#32;L1-&gt;<link linkend="_structlua___state_1a8d64aaa9257b553aae2e3e193c80a83f">stack</link>,&#32;<link linkend="_lfunc_8h_1a361b650db587d8b527a90301a7d7a0d8">NOCLOSINGMETH</link>);&#32;&#32;<emphasis role="comment">/*&#32;close&#32;all&#32;upvalues&#32;*/</emphasis>
+00356 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(L1-&gt;<link linkend="_structlua___state_1a762ab4537c3697fa94e74b3c0dffd297">openupval</link>&#32;==&#32;NULL);
+00357 &#32;&#32;<link linkend="_llimits_8h_1a7c5595955dfef0964d1286b3f29e2aad">luai_userstatefree</link>(L,&#32;L1);
+00358 &#32;&#32;<link linkend="_lstate_8c_1ac615222739efb52e2c21dbaea5223853">freestack</link>(L1);
+00359 &#32;&#32;<link linkend="_lmem_8h_1ad927ceb6a17a9e89a00b83dcc4482988">luaM_free</link>(L,&#32;l);
+00360 }
+00361 
+00362 
+<anchor xml:id="_lstate_8c_source_1l00363"/><link linkend="_lua_8h_1ac774e7acb4416363aa205bf4caf06f67">00363</link> <emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lstate_8c_1a0f2e0ad7529d8020c605508c159b90f4">lua_resetthread</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00364 &#32;&#32;<link linkend="_struct_call_info">CallInfo</link>&#32;*ci;
+00365 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;status;
+00366 &#32;&#32;<link linkend="_llimits_8h_1aa68a48b9104aeadf4842c25c12a9b8c9">lua_lock</link>(L);
+00367 &#32;&#32;L-&gt;<link linkend="_structlua___state_1a8764223139091552413c85d3fc0bb1eb">ci</link>&#32;=&#32;ci&#32;=&#32;&amp;L-&gt;<link linkend="_structlua___state_1a4c48e90d3a9e48ab21d0623c1f46174e">base_ci</link>;&#32;&#32;<emphasis role="comment">/*&#32;unwind&#32;CallInfo&#32;list&#32;*/</emphasis>
+00368 &#32;&#32;<link linkend="_lobject_8h_1ad9034def7bbc1965ec3d714d84620b07">setnilvalue</link>(<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(L-&gt;<link linkend="_structlua___state_1a8d64aaa9257b553aae2e3e193c80a83f">stack</link>));&#32;&#32;<emphasis role="comment">/*&#32;&apos;function&apos;&#32;entry&#32;for&#32;basic&#32;&apos;ci&apos;&#32;*/</emphasis>
+00369 &#32;&#32;ci-&gt;<link linkend="_struct_call_info_1a9d82a8ad04b0dd8837e621047972260a">func</link>&#32;=&#32;L-&gt;<link linkend="_structlua___state_1a8d64aaa9257b553aae2e3e193c80a83f">stack</link>;
+00370 &#32;&#32;ci-&gt;<link linkend="_struct_call_info_1a1551d635e86dcf5c62f9bc718512d89b">callstatus</link>&#32;=&#32;<link linkend="_lstate_8h_1a9bd55a931fefd2ddeb3d63b245fc39f1">CIST_C</link>;
+00371 &#32;&#32;status&#32;=&#32;<link linkend="_lfunc_8c_1ae9fcbf80b5969afd9412b9aed102f94e">luaF_close</link>(L,&#32;L-&gt;<link linkend="_structlua___state_1a8d64aaa9257b553aae2e3e193c80a83f">stack</link>,&#32;<link linkend="_lfunc_8h_1af4ee877475e5e9b0496b1c6b0bd36192">CLOSEPROTECT</link>);
+00372 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(status&#32;!=&#32;<link linkend="_lfunc_8h_1af4ee877475e5e9b0496b1c6b0bd36192">CLOSEPROTECT</link>)&#32;&#32;<emphasis role="comment">/*&#32;real&#32;errors?&#32;*/</emphasis>
+00373 &#32;&#32;&#32;&#32;<link linkend="_ldo_8c_1a2a5656cf723dffe2e9b5314260bd8896">luaD_seterrorobj</link>(L,&#32;status,&#32;L-&gt;<link linkend="_structlua___state_1a8d64aaa9257b553aae2e3e193c80a83f">stack</link>&#32;+&#32;1);
+00374 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00375 &#32;&#32;&#32;&#32;status&#32;=&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>;
+00376 &#32;&#32;&#32;&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;=&#32;L-&gt;<link linkend="_structlua___state_1a8d64aaa9257b553aae2e3e193c80a83f">stack</link>&#32;+&#32;1;
+00377 &#32;&#32;}
+00378 &#32;&#32;ci-&gt;<link linkend="_struct_call_info_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;=&#32;L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;+&#32;<link linkend="_lua_8h_1ad0180b89de8a4425cb2a1a3e3f793aa5">LUA_MINSTACK</link>;
+00379 &#32;&#32;L-&gt;<link linkend="_structlua___state_1ab7ebe75445d38e722cbc077aec768b14">status</link>&#32;=&#32;status;
+00380 &#32;&#32;<link linkend="_llimits_8h_1a1781f2a7d9161848a246d475a9171875">lua_unlock</link>(L);
+00381 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;status;
+00382 }
+00383 
+00384 
+<anchor xml:id="_lstate_8c_source_1l00385"/><link linkend="_lua_8h_1af722e4ac7fc0eba5920f59f0162c1b97">00385</link> <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<link linkend="_structlua___state">lua_State</link>&#32;*<link linkend="_lstate_8c_1a59a0d54f62839bcb7dfa8d0d7b4761b4">lua_newstate</link>&#32;(<link linkend="_lua_8h_1a2fee348bffcc82b15c626b27f66a748b">lua_Alloc</link>&#32;f,&#32;<emphasis role="keywordtype">void</emphasis>&#32;*ud)&#32;{
+00386 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i;
+00387 &#32;&#32;<link linkend="_structlua___state">lua_State</link>&#32;*L;
+00388 &#32;&#32;<link linkend="_structglobal___state">global_State</link>&#32;*g;
+00389 &#32;&#32;<link linkend="_struct_l_g">LG</link>&#32;*l&#32;=&#32;<link linkend="_llimits_8h_1af17d62ec9e237a7644de6b9b34a48a34">cast</link>(<link linkend="_struct_l_g">LG</link>&#32;*,&#32;(*f)(ud,&#32;NULL,&#32;<link linkend="_lua_8h_1a028a8d8aae9580c465aabcd0c11334d9">LUA_TTHREAD</link>,&#32;<emphasis role="keyword">sizeof</emphasis>(<link linkend="_struct_l_g">LG</link>)));
+00390 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(l&#32;==&#32;NULL)&#32;<emphasis role="keywordflow">return</emphasis>&#32;NULL;
+00391 &#32;&#32;L&#32;=&#32;&amp;l-&gt;<link linkend="_struct_l_g_1a64effe4e793fe906b6774bba4def8412">l</link>.<link linkend="_struct_l_x_1ac01fb40d18f85418acf3f01335d762ed">l</link>;
+00392 &#32;&#32;g&#32;=&#32;&amp;l-&gt;<link linkend="_struct_l_g_1ac8ead23c868ff18a35ed08bd8ffe1dfa">g</link>;
+00393 &#32;&#32;L-&gt;tt&#32;=&#32;<link linkend="_lobject_8h_1ad224258ccc4e8f79f148d54d32ddbd00">LUA_VTHREAD</link>;
+00394 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1aba5efd49f9d630bd5e036fcd063ae6b5">currentwhite</link>&#32;=&#32;<link linkend="_lgc_8h_1af25866c39979dd1f72110cbd3a1a427d">bitmask</link>(<link linkend="_lgc_8h_1a4b3ebb4bccaf9a33e772a2f4515519e6">WHITE0BIT</link>);
+00395 &#32;&#32;L-&gt;marked&#32;=&#32;<link linkend="_lgc_8h_1afaa8a52c4097cf3a5eacd88db94092da">luaC_white</link>(g);
+00396 &#32;&#32;<link linkend="_lstate_8c_1aeecf2dc60e2cd36a999c2b10485bb7a8">preinit_thread</link>(L,&#32;g);
+00397 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a3239e7c69845ec6df350dc5b6f1d5291">allgc</link>&#32;=&#32;<link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;by&#32;now,&#32;only&#32;object&#32;is&#32;the&#32;main&#32;thread&#32;*/</emphasis>
+00398 &#32;&#32;L-&gt;next&#32;=&#32;NULL;
+00399 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a049353d9b56145711e392243a1636e79">Cstacklimit</link>&#32;=&#32;L-&gt;<link linkend="_structlua___state_1a5429936a93186096703265975ddd31b3">nCcalls</link>&#32;=&#32;<link linkend="_ltests_8h_1aad7d9b351cde290eb12c180d03ec71e4">LUAI_MAXCSTACK</link>&#32;+&#32;<link linkend="_lstate_8h_1a9bebfd5d51da62e374c701b7273be718">CSTACKERR</link>;
+00400 &#32;&#32;<link linkend="_lstate_8h_1aeb39a01d2065f4d8df78714df6aa7a34">incnny</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;main&#32;thread&#32;is&#32;always&#32;non&#32;yieldable&#32;*/</emphasis>
+00401 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1aded8ba234ad5c0f907e3b70c935e28b6">frealloc</link>&#32;=&#32;f;
+00402 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a6c4e6337ac6cb9aab6e53aa909764129">ud</link>&#32;=&#32;ud;
+00403 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a35d7323cec7e019c28fbba29479fb836">warnf</link>&#32;=&#32;NULL;
+00404 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a82cd4cc59efef89497f6bb1d4d0f6ef2">ud_warn</link>&#32;=&#32;NULL;
+00405 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a90da27c9046a3da7fed43ef75957e379">mainthread</link>&#32;=&#32;L;
+00406 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1ae21f357c223957d36046a0d71cc6aed7">seed</link>&#32;=&#32;<link linkend="_lstate_8c_1a2fb9ffd0e5e6ea178123879892e87681">luai_makeseed</link>(L);
+00407 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a39557d352dfca7f1553b694d54c0b662">gcrunning</link>&#32;=&#32;0;&#32;&#32;<emphasis role="comment">/*&#32;no&#32;GC&#32;while&#32;building&#32;state&#32;*/</emphasis>
+00408 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a8a49c5693b4e171bf57b33e32c254f52">strt</link>.<link linkend="_structstringtable_1a439227feff9d7f55384e8780cfc2eb82">size</link>&#32;=&#32;g-&gt;<link linkend="_structglobal___state_1a8a49c5693b4e171bf57b33e32c254f52">strt</link>.<link linkend="_structstringtable_1aa69d4be70d4410a0e505187f4b56e824">nuse</link>&#32;=&#32;0;
+00409 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a8a49c5693b4e171bf57b33e32c254f52">strt</link>.<link linkend="_structstringtable_1a48ff5e24ec6d93bbb1ec0eba2c581147">hash</link>&#32;=&#32;NULL;
+00410 &#32;&#32;<link linkend="_lobject_8h_1ad9034def7bbc1965ec3d714d84620b07">setnilvalue</link>(&amp;g-&gt;<link linkend="_structglobal___state_1af2551dd930744b33fb4c2964076101fe">l_registry</link>);
+00411 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1aed6250c309105db7c44a82350310b2c3">panic</link>&#32;=&#32;NULL;
+00412 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1aec22885c483e649f2d65368c3507cd9a">gcstate</link>&#32;=&#32;<link linkend="_lgc_8h_1ab546d91106ec5cfdba254de13e5b5c5f">GCSpause</link>;
+00413 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a603b7a85bbaf95ecc2ac48bf08ffe0e6">gckind</link>&#32;=&#32;<link linkend="_lstate_8h_1a52c54e51ee8ad2218ac72b745afc2f7d">KGC_INC</link>;
+00414 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1ae6cc757dac1c965fb147c2886d48e1fa">gcemergency</link>&#32;=&#32;0;
+00415 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a7c1118954ba5fdca801f48c9242c1a23">finobj</link>&#32;=&#32;g-&gt;<link linkend="_structglobal___state_1a26a1a773fdf19f6aa0be08d5b8395c26">tobefnz</link>&#32;=&#32;g-&gt;<link linkend="_structglobal___state_1aaae4d624f0c53c83a285c2dc30a26eb5">fixedgc</link>&#32;=&#32;NULL;
+00416 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a531fb511fec0766c7a35ab1a0c3450cb">firstold1</link>&#32;=&#32;g-&gt;<link linkend="_structglobal___state_1a1162d3f249bfeebcf52bd0f70e0cc200">survival</link>&#32;=&#32;g-&gt;<link linkend="_structglobal___state_1a70eec2b8218810b4e2d880f1b9c0eedc">old1</link>&#32;=&#32;g-&gt;<link linkend="_structglobal___state_1abc84a52466de1f5c97cb7b16c88dbe95">reallyold</link>&#32;=&#32;NULL;
+00417 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a81edc846b7bf03a2c636df88e04d9688">finobjsur</link>&#32;=&#32;g-&gt;<link linkend="_structglobal___state_1a497482949c2da7caedb86741c6364395">finobjold1</link>&#32;=&#32;g-&gt;<link linkend="_structglobal___state_1a55ebc92b222c1b8367c3e0e8a36f4bd6">finobjrold</link>&#32;=&#32;NULL;
+00418 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a6955215dfc015c08152e21f5f225e84a">sweepgc</link>&#32;=&#32;NULL;
+00419 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a212d17a5d31cf9cd949ba66f16d63139">gray</link>&#32;=&#32;g-&gt;<link linkend="_structglobal___state_1af6b3198325143bc0a9a529e9b14ff29a">grayagain</link>&#32;=&#32;NULL;
+00420 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a26d09b5385bf38c15ca56a9e44b5ef6d">weak</link>&#32;=&#32;g-&gt;<link linkend="_structglobal___state_1aac8b3202114d8c99a73328fff0c3c79c">ephemeron</link>&#32;=&#32;g-&gt;<link linkend="_structglobal___state_1a97f9bda9b7e1f18bb0c68608e6609c89">allweak</link>&#32;=&#32;NULL;
+00421 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a3c31ce83747be5e373872d7742afc3d1">twups</link>&#32;=&#32;NULL;
+00422 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a049807d9a230d6cf7b6f21ee9161bf31">totalbytes</link>&#32;=&#32;<emphasis role="keyword">sizeof</emphasis>(<link linkend="_lstate_8c_1ae603421ab67430c2479b21cf5b46ea83">LG</link>);
+00423 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1ae466d806319d4ba1b672bbff60f369f9">GCdebt</link>&#32;=&#32;0;
+00424 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a8c26163424397bcdf9f7d639ff008d0f">lastatomic</link>&#32;=&#32;0;
+00425 &#32;&#32;<link linkend="_lobject_8h_1af9dd109ba186841ab26efb2d62baf4f6">setivalue</link>(&amp;g-&gt;<link linkend="_structglobal___state_1a5c7c7d05244a09ddf235150da6f8f995">nilvalue</link>,&#32;0);&#32;&#32;<emphasis role="comment">/*&#32;to&#32;signal&#32;that&#32;state&#32;is&#32;not&#32;yet&#32;built&#32;*/</emphasis>
+00426 &#32;&#32;<link linkend="_lgc_8h_1a757077227d006e517adfaa82c2d30e72">setgcparam</link>(g-&gt;<link linkend="_structglobal___state_1af8555bb94d52c1ab47ba9f877ae40494">gcpause</link>,&#32;<link linkend="_lgc_8h_1a961a6871328af0c7bb50169633e15fd9">LUAI_GCPAUSE</link>);
+00427 &#32;&#32;<link linkend="_lgc_8h_1a757077227d006e517adfaa82c2d30e72">setgcparam</link>(g-&gt;<link linkend="_structglobal___state_1aaf11518fe18dec6b3e2e4d8a9a95f428">gcstepmul</link>,&#32;<link linkend="_lgc_8h_1adccc1cf9bf213c770940796d73635444">LUAI_GCMUL</link>);
+00428 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a20818519922dad51df664111576a73b8">gcstepsize</link>&#32;=&#32;<link linkend="_lgc_8h_1a5289131664af0f4b111556cb5b4bfe9c">LUAI_GCSTEPSIZE</link>;
+00429 &#32;&#32;<link linkend="_lgc_8h_1a757077227d006e517adfaa82c2d30e72">setgcparam</link>(g-&gt;<link linkend="_structglobal___state_1af742f5e67f1ead7df0044b4903a65771">genmajormul</link>,&#32;<link linkend="_lgc_8h_1a6adb6d8358e1ed9e94c88f810c8dd44e">LUAI_GENMAJORMUL</link>);
+00430 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a8c94405dfaa56f002f0df59c53598658">genminormul</link>&#32;=&#32;<link linkend="_lgc_8h_1a1660119f32a7ea875ce967d1ef8deadc">LUAI_GENMINORMUL</link>;
+00431 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i=0;&#32;i&#32;&lt;&#32;<link linkend="_lua_8h_1abf59b4e3180540d3ee3b10da19d02ee7">LUA_NUMTAGS</link>;&#32;i++)&#32;g-&gt;<link linkend="_structglobal___state_1a28ca6aa5035b863170e13cc0b76e99ee">mt</link>[i]&#32;=&#32;NULL;
+00432 &#32;&#32;if&#32;(<link linkend="_ldo_8c_1ab0872b1738a995ecbf1cdc8a9bc0fdf6">luaD_rawrunprotected</link>(L,&#32;<link linkend="_lstate_8c_1ab65e96a7498fd886f7223b92e91fd830">f_luaopen</link>,&#32;NULL)&#32;!=&#32;<link linkend="_lua_8h_1ab969ff78cb1b63efa2bba3bdfa6fff5c">LUA_OK</link>)&#32;{
+00433 &#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;memory&#32;allocation&#32;error:&#32;free&#32;partial&#32;state&#32;*/</emphasis>
+00434 &#32;&#32;&#32;&#32;<link linkend="_lstate_8c_1a4940327dfa3b86df0ef008180bb3fcb3">close_state</link>(L);
+00435 &#32;&#32;&#32;&#32;L&#32;=&#32;NULL;
+00436 &#32;&#32;}
+00437 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;L;
+00438 }
+00439 
+00440 
+<anchor xml:id="_lstate_8c_source_1l00441"/><link linkend="_lua_8h_1afe030a97e84f24dfab3afb598faa2fff">00441</link> <link linkend="_luaconf_8h_1af88575eb79fdd88b1cce4533ab5cbe69">LUA_API</link>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstate_8c_1a5d903983f1497b2fc58fba9df09e354d">lua_close</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00442 &#32;&#32;<link linkend="_llimits_8h_1aa68a48b9104aeadf4842c25c12a9b8c9">lua_lock</link>(L);
+00443 &#32;&#32;L&#32;=&#32;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L)-&gt;mainthread;&#32;&#32;<emphasis role="comment">/*&#32;only&#32;the&#32;main&#32;thread&#32;can&#32;be&#32;closed&#32;*/</emphasis>
+00444 &#32;&#32;<link linkend="_lstate_8c_1a4940327dfa3b86df0ef008180bb3fcb3">close_state</link>(L);
+00445 }
+00446 
+00447 
+<anchor xml:id="_lstate_8c_source_1l00448"/><link linkend="_lstate_8h_1a42e5b1838bc6dc0e4545059556df0842">00448</link> <emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstate_8c_1a7055cc5e36512e37c811a7d5c6fa0be6">luaE_warning</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg,&#32;<emphasis role="keywordtype">int</emphasis>&#32;tocont)&#32;{
+00449 &#32;&#32;<link linkend="_lua_8h_1a01be53d7e053b2703a9a0ee91aff4974">lua_WarnFunction</link>&#32;wf&#32;=&#32;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L)-&gt;warnf;
+00450 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(wf&#32;!=&#32;NULL)
+00451 &#32;&#32;&#32;&#32;wf(<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L)-&gt;ud_warn,&#32;msg,&#32;tocont);
+00452 }
+00453 
+00454 
+00455 <emphasis role="comment">/*</emphasis>
+00456 <emphasis role="comment">**&#32;Generate&#32;a&#32;warning&#32;from&#32;an&#32;error&#32;message</emphasis>
+00457 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstate_8c_source_1l00458"/><link linkend="_lstate_8h_1a19ac557deb44046d082cf5d052831bbb">00458</link> <emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstate_8c_1a242ebb018d637c41f24b84a2bbc78f34">luaE_warnerror</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*where)&#32;{
+00459 &#32;&#32;<link linkend="_struct_t_value">TValue</link>&#32;*errobj&#32;=&#32;<link linkend="_lobject_8h_1a8c21cbb67def90b23342840cd08a5cfd">s2v</link>(L-&gt;<link linkend="_structlua___state_1afeb5dbe379fc406b35fe5f8a5fcfc5d7">top</link>&#32;-&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;error&#32;object&#32;*/</emphasis>
+00460 &#32;&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*msg&#32;=&#32;(<link linkend="_lobject_8h_1a9bdf057a0de8da2ffae3ac35662dd255">ttisstring</link>(errobj))
+00461 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;?&#32;<link linkend="_lobject_8h_1ac2c9eedf3ff2c3042445b3b534f161e1">svalue</link>(errobj)
+00462 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;:&#32;<emphasis role="stringliteral">&quot;error&#32;object&#32;is&#32;not&#32;a&#32;string&quot;</emphasis>;
+00463 &#32;&#32;<emphasis role="comment">/*&#32;produce&#32;warning&#32;&quot;error&#32;in&#32;%s&#32;(%s)&quot;&#32;(where,&#32;msg)&#32;*/</emphasis>
+00464 &#32;&#32;<link linkend="_lstate_8c_1a7055cc5e36512e37c811a7d5c6fa0be6">luaE_warning</link>(L,&#32;<emphasis role="stringliteral">&quot;error&#32;in&#32;&quot;</emphasis>,&#32;1);
+00465 &#32;&#32;<link linkend="_lstate_8c_1a7055cc5e36512e37c811a7d5c6fa0be6">luaE_warning</link>(L,&#32;where,&#32;1);
+00466 &#32;&#32;<link linkend="_lstate_8c_1a7055cc5e36512e37c811a7d5c6fa0be6">luaE_warning</link>(L,&#32;<emphasis role="stringliteral">&quot;&#32;(&quot;</emphasis>,&#32;1);
+00467 &#32;&#32;<link linkend="_lstate_8c_1a7055cc5e36512e37c811a7d5c6fa0be6">luaE_warning</link>(L,&#32;msg,&#32;1);
+00468 &#32;&#32;<link linkend="_lstate_8c_1a7055cc5e36512e37c811a7d5c6fa0be6">luaE_warning</link>(L,&#32;<emphasis role="stringliteral">&quot;)&quot;</emphasis>,&#32;0);
+00469 }
+00470 
+</programlisting></section>

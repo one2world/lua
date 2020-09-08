@@ -1,0 +1,751 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lgc_8h" xml:lang="zh">
+<title>D:/gitworkspace/lua/lgc.h 文件参考</title>
+<indexterm><primary>D:/gitworkspace/lua/lgc.h</primary></indexterm>
+<programlisting>#include &quot;lobject.h&quot;
+#include &quot;lstate.h&quot;
+</programlisting>lgc.h 的引用(Include)关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8h__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+此图展示该文件直接或间接的被哪些文件引用了:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8h__dep__incl.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+<simplesect>
+    <title>宏定义    </title>
+        <itemizedlist>
+            <listitem><para>#define <link linkend="_lgc_8h_1a2ed301793747f3a2d0a7fc7d64d482fd">GCSpropagate</link>   0</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a7d4a80ad5991cca9822822f63deef987">GCSenteratomic</link>   1</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a7c7806ab609fa3c19ed9c2b688e10730">GCSatomic</link>   2</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1aac9b5b472434aa8d38a89b46b6b29196">GCSswpallgc</link>   3</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a9d28766c63918e69c9ea3853a3e6c4c0">GCSswpfinobj</link>   4</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a152f379e712cbc7f0bfa2c6a3e15166d">GCSswptobefnz</link>   5</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a4e40597ebd731cafa743cd9a8e0db709">GCSswpend</link>   6</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a84094ff0ba3d8c7d4f84984e74f7705a">GCScallfin</link>   7</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1ab546d91106ec5cfdba254de13e5b5c5f">GCSpause</link>   8</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a860db734bc919435aba75c30e4fe261b">issweepphase</link>(g)   	(<link linkend="_lgc_8h_1aac9b5b472434aa8d38a89b46b6b29196">GCSswpallgc</link> &lt;= (g)-&gt;gcstate &amp;&amp; (g)-&gt;gcstate &lt;= <link linkend="_lgc_8h_1a4e40597ebd731cafa743cd9a8e0db709">GCSswpend</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a40b40242e96f45f8d04dcf4feb1475ae">keepinvariant</link>(g)   ((g)-&gt;gcstate &lt;= <link linkend="_lgc_8h_1a7c7806ab609fa3c19ed9c2b688e10730">GCSatomic</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a486033531260010debe876a076dd2a41">resetbits</link>(x,  m)   ((x) &amp;= <link linkend="_llimits_8h_1a596f5b6e992f53a5a4e5732083448dd4">cast_byte</link>(~(m)))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1ada181faae5c9af4ed7392057c5dcbbae">setbits</link>(x,  m)   ((x) |= (m))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a7612bc83b764b507e12e08417a053854">testbits</link>(x,  m)   ((x) &amp; (m))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1af25866c39979dd1f72110cbd3a1a427d">bitmask</link>(b)   (1&lt;&lt;(b))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a39293d5e5fbd7bb9a24556b3e2f15d43">bit2mask</link>(b1,  b2)   (<link linkend="_lgc_8h_1af25866c39979dd1f72110cbd3a1a427d">bitmask</link>(b1) | <link linkend="_lgc_8h_1af25866c39979dd1f72110cbd3a1a427d">bitmask</link>(b2))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1aad559b25ee580ea2894c540dc817e41f">l_setbit</link>(x,  b)   <link linkend="_lgc_8h_1ada181faae5c9af4ed7392057c5dcbbae">setbits</link>(x, <link linkend="_lgc_8h_1af25866c39979dd1f72110cbd3a1a427d">bitmask</link>(b))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1aca0beb244185329a1b8f0e695ef47748">resetbit</link>(x,  b)   <link linkend="_lgc_8h_1a486033531260010debe876a076dd2a41">resetbits</link>(x, <link linkend="_lgc_8h_1af25866c39979dd1f72110cbd3a1a427d">bitmask</link>(b))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a25c19ff3161e2a2395ba69fdef49915f">testbit</link>(x,  b)   <link linkend="_lgc_8h_1a7612bc83b764b507e12e08417a053854">testbits</link>(x, <link linkend="_lgc_8h_1af25866c39979dd1f72110cbd3a1a427d">bitmask</link>(b))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a4b3ebb4bccaf9a33e772a2f4515519e6">WHITE0BIT</link>   3  /* object is white (type 0) */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a7de7885f3d09155a2c530154ec045d72">WHITE1BIT</link>   4  /* object is white (type 1) */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1acd17af3c46cb360dc67cad2b33b6a26f">BLACKBIT</link>   5  /* object is black */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a92211ad01420ac616819ba8f61ca7365">FINALIZEDBIT</link>   6  /* object has been marked for finalization */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1ab85d4eae1efa2e1a40d2f41bdbbda226">TESTBIT</link>   7</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a0acb34c1b3d1234f11ee9fdc34df3f71">WHITEBITS</link>   <link linkend="_lgc_8h_1a39293d5e5fbd7bb9a24556b3e2f15d43">bit2mask</link>(<link linkend="_lgc_8h_1a4b3ebb4bccaf9a33e772a2f4515519e6">WHITE0BIT</link>, <link linkend="_lgc_8h_1a7de7885f3d09155a2c530154ec045d72">WHITE1BIT</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a4c0ce78d476460d2e54914301f4a4bf7">iswhite</link>(x)   <link linkend="_lgc_8h_1a7612bc83b764b507e12e08417a053854">testbits</link>((x)-&gt;marked, <link linkend="_lgc_8h_1a0acb34c1b3d1234f11ee9fdc34df3f71">WHITEBITS</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1ac1e4847ad9a91e4cea36520dc9078365">isblack</link>(x)   <link linkend="_lgc_8h_1a25c19ff3161e2a2395ba69fdef49915f">testbit</link>((x)-&gt;marked, <link linkend="_lgc_8h_1acd17af3c46cb360dc67cad2b33b6a26f">BLACKBIT</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1ad417e22072630b33cf74a3055b27d8d7">isgray</link>(x)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a6d17f226d57a796f7741f457400cf8bd">tofinalize</link>(x)   <link linkend="_lgc_8h_1a25c19ff3161e2a2395ba69fdef49915f">testbit</link>((x)-&gt;marked, <link linkend="_lgc_8h_1a92211ad01420ac616819ba8f61ca7365">FINALIZEDBIT</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a486df16493498577d4081a8c231154f0">otherwhite</link>(g)   ((g)-&gt;currentwhite ^ <link linkend="_lgc_8h_1a0acb34c1b3d1234f11ee9fdc34df3f71">WHITEBITS</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a0540e865b6cd21e83104cf427c968c86">isdeadm</link>(ow,  m)   ((m) &amp; (ow))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1acc409eb45f598d23d8388fc9e96189ea">isdead</link>(g,  v)   <link linkend="_lgc_8h_1a0540e865b6cd21e83104cf427c968c86">isdeadm</link>(<link linkend="_lgc_8h_1a486df16493498577d4081a8c231154f0">otherwhite</link>(g), (v)-&gt;marked)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a28e94f77147fd242f514b98a1b251486">changewhite</link>(x)   ((x)-&gt;marked ^= <link linkend="_lgc_8h_1a0acb34c1b3d1234f11ee9fdc34df3f71">WHITEBITS</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a990de0d171d8b5425a5515d0bff78789">nw2black</link>(x)   	<link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(!<link linkend="_lgc_8h_1a4c0ce78d476460d2e54914301f4a4bf7">iswhite</link>(x), <link linkend="_lgc_8h_1aad559b25ee580ea2894c540dc817e41f">l_setbit</link>((x)-&gt;marked, <link linkend="_lgc_8h_1acd17af3c46cb360dc67cad2b33b6a26f">BLACKBIT</link>))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1afaa8a52c4097cf3a5eacd88db94092da">luaC_white</link>(g)   <link linkend="_llimits_8h_1a596f5b6e992f53a5a4e5732083448dd4">cast_byte</link>((g)-&gt;currentwhite &amp; <link linkend="_lgc_8h_1a0acb34c1b3d1234f11ee9fdc34df3f71">WHITEBITS</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a611544eedb63012098eab46a011fe618">G_NEW</link>   0	/* created in current cycle */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1aa8c9510ab591432a3b80e90519156116">G_SURVIVAL</link>   1	/* created in previous cycle */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a19ac124332eabcbdcb744e14923700b9">G_OLD0</link>   2	/* marked old by frw. barrier in this cycle */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a266a8ec4a8dbacf8d7b99dca3adcac90">G_OLD1</link>   3	/* first full cycle as old */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a96372e9b92aa939f300e0477ba112716">G_OLD</link>   4	/* really old object (not to be visited) */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1ae2c1796f4fb3359730723ce0acd2d162">G_TOUCHED1</link>   5	/* old object touched this cycle */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1ac2b8a2255c79c9f43f88d1625767e1bf">G_TOUCHED2</link>   6	/* old object touched in previous cycle */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a3b446e7d0b31628385b7a1f444192e9a">AGEBITS</link>   7  /* all age bits (111) */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1ae68465c1574c4b45a05a6548ad934235">getage</link>(o)   ((o)-&gt;marked &amp; <link linkend="_lgc_8h_1a3b446e7d0b31628385b7a1f444192e9a">AGEBITS</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a42f07cc5f8f0a9d97989f7769f00c3f2">setage</link>(o,  a)   ((o)-&gt;marked = <link linkend="_llimits_8h_1a596f5b6e992f53a5a4e5732083448dd4">cast_byte</link>(((o)-&gt;marked &amp; (~<link linkend="_lgc_8h_1a3b446e7d0b31628385b7a1f444192e9a">AGEBITS</link>)) | a))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a24d47e523ecf2d6e475a34913ce06b05">isold</link>(o)   (<link linkend="_lgc_8h_1ae68465c1574c4b45a05a6548ad934235">getage</link>(o) &gt; <link linkend="_lgc_8h_1aa8c9510ab591432a3b80e90519156116">G_SURVIVAL</link>)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a61d44df5c26bb4efcf4e19b500933bbb">changeage</link>(o,  f,  t)   	<link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lgc_8h_1ae68465c1574c4b45a05a6548ad934235">getage</link>(o) == (f), (o)-&gt;marked ^= ((f)^(t)))</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a6adb6d8358e1ed9e94c88f810c8dd44e">LUAI_GENMAJORMUL</link>   100</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a1660119f32a7ea875ce967d1ef8deadc">LUAI_GENMINORMUL</link>   20</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a961a6871328af0c7bb50169633e15fd9">LUAI_GCPAUSE</link>   200</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a1991625e57703760cf5236bc02cd8858">getgcparam</link>(p)   ((p) * 4)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a757077227d006e517adfaa82c2d30e72">setgcparam</link>(p,  v)   ((p) = (v) / 4)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1adccc1cf9bf213c770940796d73635444">LUAI_GCMUL</link>   100</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a5289131664af0f4b111556cb5b4bfe9c">LUAI_GCSTEPSIZE</link>   13      /* 8 <link linkend="_lvm_8c_1a11423b97da0e060b24d31d7e71534844">KB</link> */</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a634f3aa786242e81eb2d29da7cdacf4a">isdecGCmodegen</link>(g)   (g-&gt;gckind == <link linkend="_lstate_8h_1aa2765fe939333ebc895ba9cedbaa30a0">KGC_GEN</link> || g-&gt;lastatomic != 0)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a52f302b0dac5467152f322c8fe1c1a3e">luaC_condGC</link>(L,  pre,  pos)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1ad013db5004ccc5fbe8a6450caa1f1ad9">luaC_checkGC</link>(L)   <link linkend="_lgc_8h_1a52f302b0dac5467152f322c8fe1c1a3e">luaC_condGC</link>(L,(void)0,(void)0)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a21660a316c42bc1aad10f115e2261bca">luaC_barrier</link>(L,  p,  v)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a60903f232a1c51d22de556ea4c144f3a">luaC_barrierback</link>(L,  p,  v)</para>
+</listitem>
+            <listitem><para>#define <link linkend="_lgc_8h_1a90ac4f3c7085a418025edcc7215e8983">luaC_objbarrier</link>(L,  p,  o)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<simplesect>
+    <title>函数    </title>
+        <itemizedlist>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lgc_8h_1a242d4a66c025c294ec2c1ec4fe75e804">luaC_fix</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_g_c_object">GCObject</link> *o)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lgc_8h_1a9aa52a500c9cc2076edb1707e6d8a045">luaC_freeallobjects</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lgc_8h_1a6c71cc4b9e503c0e96c0c4ffcff93900">luaC_step</link> (<link linkend="_structlua___state">lua_State</link> *L)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lgc_8h_1a1da32357417ce5766ed5e3ada033c32f">luaC_runtilstate</link> (<link linkend="_structlua___state">lua_State</link> *L, int statesmask)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lgc_8h_1aa0b753c3ed80e1eed0379ec58592c404">luaC_fullgc</link> (<link linkend="_structlua___state">lua_State</link> *L, int isemergency)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> <link linkend="_struct_g_c_object">GCObject</link> * <link linkend="_lgc_8h_1a08e480a0ddf25233346594d9bbd719e9">luaC_newobj</link> (<link linkend="_structlua___state">lua_State</link> *L, int tt, size_t sz)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lgc_8h_1ac5106ee2a18cde8bc3bd92e5891ad8e5">luaC_barrier_</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_g_c_object">GCObject</link> *o, <link linkend="_struct_g_c_object">GCObject</link> *v)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lgc_8h_1a65d1fcc6e437592a5a893406cce7d8e3">luaC_barrierback_</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_g_c_object">GCObject</link> *o)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lgc_8h_1a15870c09448216ce5c4e1ff63d39e0a9">luaC_checkfinalizer</link> (<link linkend="_structlua___state">lua_State</link> *L, <link linkend="_struct_g_c_object">GCObject</link> *o, <link linkend="_struct_table">Table</link> *mt)</para>
+</listitem>
+            <listitem><para><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void <link linkend="_lgc_8h_1a45671ff26d738167ce8e421cc233fc59">luaC_changemode</link> (<link linkend="_structlua___state">lua_State</link> *L, int newmode)</para>
+</listitem>
+        </itemizedlist>
+</simplesect>
+<section>
+<title>宏定义说明</title>
+<anchor xml:id="_lgc_8h_1a3b446e7d0b31628385b7a1f444192e9a"/>    <section>
+    <title>AGEBITS</title>
+<indexterm><primary>AGEBITS</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>AGEBITS</secondary></indexterm>
+<para><computeroutput>#define AGEBITS   7  /* all age bits (111) */</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00114">114</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a39293d5e5fbd7bb9a24556b3e2f15d43"/>    <section>
+    <title>bit2mask</title>
+<indexterm><primary>bit2mask</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>bit2mask</secondary></indexterm>
+<para><computeroutput>#define bit2mask( b1,  b2)   (<link linkend="_lgc_8h_1af25866c39979dd1f72110cbd3a1a427d">bitmask</link>(b1) | <link linkend="_lgc_8h_1af25866c39979dd1f72110cbd3a1a427d">bitmask</link>(b2))</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00064">64</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1af25866c39979dd1f72110cbd3a1a427d"/>    <section>
+    <title>bitmask</title>
+<indexterm><primary>bitmask</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>bitmask</secondary></indexterm>
+<para><computeroutput>#define bitmask( b)   (1&lt;&lt;(b))</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00063">63</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1acd17af3c46cb360dc67cad2b33b6a26f"/>    <section>
+    <title>BLACKBIT</title>
+<indexterm><primary>BLACKBIT</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>BLACKBIT</secondary></indexterm>
+<para><computeroutput>#define BLACKBIT   5  /* object is black */</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00077">77</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a61d44df5c26bb4efcf4e19b500933bbb"/>    <section>
+    <title>changeage</title>
+<indexterm><primary>changeage</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>changeage</secondary></indexterm>
+<para><computeroutput>#define changeage( o,  f,  t)   	<link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(<link linkend="_lgc_8h_1ae68465c1574c4b45a05a6548ad934235">getage</link>(o) == (f), (o)-&gt;marked ^= ((f)^(t)))</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00120">120</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a28e94f77147fd242f514b98a1b251486"/>    <section>
+    <title>changewhite</title>
+<indexterm><primary>changewhite</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>changewhite</secondary></indexterm>
+<para><computeroutput>#define changewhite( x)   ((x)-&gt;marked ^= <link linkend="_lgc_8h_1a0acb34c1b3d1234f11ee9fdc34df3f71">WHITEBITS</link>)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00098">98</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a92211ad01420ac616819ba8f61ca7365"/>    <section>
+    <title>FINALIZEDBIT</title>
+<indexterm><primary>FINALIZEDBIT</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>FINALIZEDBIT</secondary></indexterm>
+<para><computeroutput>#define FINALIZEDBIT   6  /* object has been marked for finalization */</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00078">78</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a611544eedb63012098eab46a011fe618"/>    <section>
+    <title>G_NEW</title>
+<indexterm><primary>G_NEW</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>G_NEW</secondary></indexterm>
+<para><computeroutput>#define G_NEW   0	/* created in current cycle */</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00106">106</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a96372e9b92aa939f300e0477ba112716"/>    <section>
+    <title>G_OLD</title>
+<indexterm><primary>G_OLD</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>G_OLD</secondary></indexterm>
+<para><computeroutput>#define G_OLD   4	/* really old object (not to be visited) */</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00110">110</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a19ac124332eabcbdcb744e14923700b9"/>    <section>
+    <title>G_OLD0</title>
+<indexterm><primary>G_OLD0</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>G_OLD0</secondary></indexterm>
+<para><computeroutput>#define G_OLD0   2	/* marked old by frw. barrier in this cycle */</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00108">108</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a266a8ec4a8dbacf8d7b99dca3adcac90"/>    <section>
+    <title>G_OLD1</title>
+<indexterm><primary>G_OLD1</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>G_OLD1</secondary></indexterm>
+<para><computeroutput>#define G_OLD1   3	/* first full cycle as old */</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00109">109</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1aa8c9510ab591432a3b80e90519156116"/>    <section>
+    <title>G_SURVIVAL</title>
+<indexterm><primary>G_SURVIVAL</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>G_SURVIVAL</secondary></indexterm>
+<para><computeroutput>#define G_SURVIVAL   1	/* created in previous cycle */</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00107">107</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1ae2c1796f4fb3359730723ce0acd2d162"/>    <section>
+    <title>G_TOUCHED1</title>
+<indexterm><primary>G_TOUCHED1</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>G_TOUCHED1</secondary></indexterm>
+<para><computeroutput>#define G_TOUCHED1   5	/* old object touched this cycle */</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00111">111</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1ac2b8a2255c79c9f43f88d1625767e1bf"/>    <section>
+    <title>G_TOUCHED2</title>
+<indexterm><primary>G_TOUCHED2</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>G_TOUCHED2</secondary></indexterm>
+<para><computeroutput>#define G_TOUCHED2   6	/* old object touched in previous cycle */</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00112">112</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a7c7806ab609fa3c19ed9c2b688e10730"/>    <section>
+    <title>GCSatomic</title>
+<indexterm><primary>GCSatomic</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>GCSatomic</secondary></indexterm>
+<para><computeroutput>#define GCSatomic   2</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00033">33</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a84094ff0ba3d8c7d4f84984e74f7705a"/>    <section>
+    <title>GCScallfin</title>
+<indexterm><primary>GCScallfin</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>GCScallfin</secondary></indexterm>
+<para><computeroutput>#define GCScallfin   7</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00038">38</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a7d4a80ad5991cca9822822f63deef987"/>    <section>
+    <title>GCSenteratomic</title>
+<indexterm><primary>GCSenteratomic</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>GCSenteratomic</secondary></indexterm>
+<para><computeroutput>#define GCSenteratomic   1</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00032">32</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1ab546d91106ec5cfdba254de13e5b5c5f"/>    <section>
+    <title>GCSpause</title>
+<indexterm><primary>GCSpause</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>GCSpause</secondary></indexterm>
+<para><computeroutput>#define GCSpause   8</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00039">39</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a2ed301793747f3a2d0a7fc7d64d482fd"/>    <section>
+    <title>GCSpropagate</title>
+<indexterm><primary>GCSpropagate</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>GCSpropagate</secondary></indexterm>
+<para><computeroutput>#define GCSpropagate   0</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00031">31</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1aac9b5b472434aa8d38a89b46b6b29196"/>    <section>
+    <title>GCSswpallgc</title>
+<indexterm><primary>GCSswpallgc</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>GCSswpallgc</secondary></indexterm>
+<para><computeroutput>#define GCSswpallgc   3</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00034">34</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a4e40597ebd731cafa743cd9a8e0db709"/>    <section>
+    <title>GCSswpend</title>
+<indexterm><primary>GCSswpend</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>GCSswpend</secondary></indexterm>
+<para><computeroutput>#define GCSswpend   6</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00037">37</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a9d28766c63918e69c9ea3853a3e6c4c0"/>    <section>
+    <title>GCSswpfinobj</title>
+<indexterm><primary>GCSswpfinobj</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>GCSswpfinobj</secondary></indexterm>
+<para><computeroutput>#define GCSswpfinobj   4</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00035">35</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a152f379e712cbc7f0bfa2c6a3e15166d"/>    <section>
+    <title>GCSswptobefnz</title>
+<indexterm><primary>GCSswptobefnz</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>GCSswptobefnz</secondary></indexterm>
+<para><computeroutput>#define GCSswptobefnz   5</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00036">36</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1ae68465c1574c4b45a05a6548ad934235"/>    <section>
+    <title>getage</title>
+<indexterm><primary>getage</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>getage</secondary></indexterm>
+<para><computeroutput>#define getage( o)   ((o)-&gt;marked &amp; <link linkend="_lgc_8h_1a3b446e7d0b31628385b7a1f444192e9a">AGEBITS</link>)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00116">116</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a1991625e57703760cf5236bc02cd8858"/>    <section>
+    <title>getgcparam</title>
+<indexterm><primary>getgcparam</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>getgcparam</secondary></indexterm>
+<para><computeroutput>#define getgcparam( p)   ((p) * 4)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00135">135</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1ac1e4847ad9a91e4cea36520dc9078365"/>    <section>
+    <title>isblack</title>
+<indexterm><primary>isblack</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>isblack</secondary></indexterm>
+<para><computeroutput>#define isblack( x)   <link linkend="_lgc_8h_1a25c19ff3161e2a2395ba69fdef49915f">testbit</link>((x)-&gt;marked, <link linkend="_lgc_8h_1acd17af3c46cb360dc67cad2b33b6a26f">BLACKBIT</link>)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00088">88</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1acc409eb45f598d23d8388fc9e96189ea"/>    <section>
+    <title>isdead</title>
+<indexterm><primary>isdead</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>isdead</secondary></indexterm>
+<para><computeroutput>#define isdead( g,  v)   <link linkend="_lgc_8h_1a0540e865b6cd21e83104cf427c968c86">isdeadm</link>(<link linkend="_lgc_8h_1a486df16493498577d4081a8c231154f0">otherwhite</link>(g), (v)-&gt;marked)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00096">96</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a0540e865b6cd21e83104cf427c968c86"/>    <section>
+    <title>isdeadm</title>
+<indexterm><primary>isdeadm</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>isdeadm</secondary></indexterm>
+<para><computeroutput>#define isdeadm( ow,  m)   ((m) &amp; (ow))</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00095">95</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a634f3aa786242e81eb2d29da7cdacf4a"/>    <section>
+    <title>isdecGCmodegen</title>
+<indexterm><primary>isdecGCmodegen</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>isdecGCmodegen</secondary></indexterm>
+<para><computeroutput>#define isdecGCmodegen( g)   (g-&gt;gckind == <link linkend="_lstate_8h_1aa2765fe939333ebc895ba9cedbaa30a0">KGC_GEN</link> || g-&gt;lastatomic != 0)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00149">149</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1ad417e22072630b33cf74a3055b27d8d7"/>    <section>
+    <title>isgray</title>
+<indexterm><primary>isgray</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>isgray</secondary></indexterm>
+<para><computeroutput>#define isgray( x)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;neither&#32;white&#32;nor&#32;black&#32;*/</emphasis>&#32;&#32;\
+&#32;&#32;&#32;&#32;(!<link linkend="_lgc_8h_1a7612bc83b764b507e12e08417a053854">testbits</link>((x)-&gt;marked,&#32;<link linkend="_lgc_8h_1a0acb34c1b3d1234f11ee9fdc34df3f71">WHITEBITS</link>&#32;|&#32;<link linkend="_lgc_8h_1af25866c39979dd1f72110cbd3a1a427d">bitmask</link>(<link linkend="_lgc_8h_1acd17af3c46cb360dc67cad2b33b6a26f">BLACKBIT</link>)))
+</programlisting><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00089">89</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a24d47e523ecf2d6e475a34913ce06b05"/>    <section>
+    <title>isold</title>
+<indexterm><primary>isold</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>isold</secondary></indexterm>
+<para><computeroutput>#define isold( o)   (<link linkend="_lgc_8h_1ae68465c1574c4b45a05a6548ad934235">getage</link>(o) &gt; <link linkend="_lgc_8h_1aa8c9510ab591432a3b80e90519156116">G_SURVIVAL</link>)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00118">118</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a860db734bc919435aba75c30e4fe261b"/>    <section>
+    <title>issweepphase</title>
+<indexterm><primary>issweepphase</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>issweepphase</secondary></indexterm>
+<para><computeroutput>#define issweepphase( g)   	(<link linkend="_lgc_8h_1aac9b5b472434aa8d38a89b46b6b29196">GCSswpallgc</link> &lt;= (g)-&gt;gcstate &amp;&amp; (g)-&gt;gcstate &lt;= <link linkend="_lgc_8h_1a4e40597ebd731cafa743cd9a8e0db709">GCSswpend</link>)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00042">42</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a4c0ce78d476460d2e54914301f4a4bf7"/>    <section>
+    <title>iswhite</title>
+<indexterm><primary>iswhite</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>iswhite</secondary></indexterm>
+<para><computeroutput>#define iswhite( x)   <link linkend="_lgc_8h_1a7612bc83b764b507e12e08417a053854">testbits</link>((x)-&gt;marked, <link linkend="_lgc_8h_1a0acb34c1b3d1234f11ee9fdc34df3f71">WHITEBITS</link>)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00087">87</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a40b40242e96f45f8d04dcf4feb1475ae"/>    <section>
+    <title>keepinvariant</title>
+<indexterm><primary>keepinvariant</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>keepinvariant</secondary></indexterm>
+<para><computeroutput>#define keepinvariant( g)   ((g)-&gt;gcstate &lt;= <link linkend="_lgc_8h_1a7c7806ab609fa3c19ed9c2b688e10730">GCSatomic</link>)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00054">54</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1aad559b25ee580ea2894c540dc817e41f"/>    <section>
+    <title>l_setbit</title>
+<indexterm><primary>l_setbit</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>l_setbit</secondary></indexterm>
+<para><computeroutput>#define l_setbit( x,  b)   <link linkend="_lgc_8h_1ada181faae5c9af4ed7392057c5dcbbae">setbits</link>(x, <link linkend="_lgc_8h_1af25866c39979dd1f72110cbd3a1a427d">bitmask</link>(b))</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00065">65</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a21660a316c42bc1aad10f115e2261bca"/>    <section>
+    <title>luaC_barrier</title>
+<indexterm><primary>luaC_barrier</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>luaC_barrier</secondary></indexterm>
+<para><computeroutput>#define luaC_barrier( L,  p,  v)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;(&#32;&#32;\
+&#32;&#32;&#32;&#32;(<link linkend="_lobject_8h_1aaabdb414706e6a904461e39967557185">iscollectable</link>(v)&#32;&amp;&amp;&#32;<link linkend="_lgc_8h_1ac1e4847ad9a91e4cea36520dc9078365">isblack</link>(p)&#32;&amp;&amp;&#32;<link linkend="_lgc_8h_1a4c0ce78d476460d2e54914301f4a4bf7">iswhite</link>(<link linkend="_lobject_8h_1a05cdf6070135f10ad37e1048a730b634">gcvalue</link>(v)))&#32;?&#32;&#32;\
+&#32;&#32;&#32;&#32;<link linkend="_lgc_8h_1ac5106ee2a18cde8bc3bd92e5891ad8e5">luaC_barrier_</link>(L,<link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(p),<link linkend="_lobject_8h_1a05cdf6070135f10ad37e1048a730b634">gcvalue</link>(v))&#32;:&#32;<link linkend="_llimits_8h_1a52a5166d7dc0590b63a9331cfc0f4564">cast_void</link>(0))
+</programlisting><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00165">165</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a60903f232a1c51d22de556ea4c144f3a"/>    <section>
+    <title>luaC_barrierback</title>
+<indexterm><primary>luaC_barrierback</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>luaC_barrierback</secondary></indexterm>
+<para><computeroutput>#define luaC_barrierback( L,  p,  v)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;(&#32;&#32;\
+&#32;&#32;&#32;&#32;(<link linkend="_lobject_8h_1aaabdb414706e6a904461e39967557185">iscollectable</link>(v)&#32;&amp;&amp;&#32;<link linkend="_lgc_8h_1ac1e4847ad9a91e4cea36520dc9078365">isblack</link>(p)&#32;&amp;&amp;&#32;<link linkend="_lgc_8h_1a4c0ce78d476460d2e54914301f4a4bf7">iswhite</link>(<link linkend="_lobject_8h_1a05cdf6070135f10ad37e1048a730b634">gcvalue</link>(v)))&#32;?&#32;\
+&#32;&#32;&#32;&#32;<link linkend="_lgc_8h_1a65d1fcc6e437592a5a893406cce7d8e3">luaC_barrierback_</link>(L,p)&#32;:&#32;<link linkend="_llimits_8h_1a52a5166d7dc0590b63a9331cfc0f4564">cast_void</link>(0))
+</programlisting><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00169">169</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1ad013db5004ccc5fbe8a6450caa1f1ad9"/>    <section>
+    <title>luaC_checkGC</title>
+<indexterm><primary>luaC_checkGC</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>luaC_checkGC</secondary></indexterm>
+<para><computeroutput>#define luaC_checkGC( L)   <link linkend="_lgc_8h_1a52f302b0dac5467152f322c8fe1c1a3e">luaC_condGC</link>(L,(void)0,(void)0)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00162">162</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a52f302b0dac5467152f322c8fe1c1a3e"/>    <section>
+    <title>luaC_condGC</title>
+<indexterm><primary>luaC_condGC</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>luaC_condGC</secondary></indexterm>
+<para><computeroutput>#define luaC_condGC( L,  pre,  pos)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;{&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L)-&gt;GCdebt&#32;&gt;&#32;0)&#32;{&#32;pre;&#32;<link linkend="_lgc_8h_1a6c71cc4b9e503c0e96c0c4ffcff93900">luaC_step</link>(L);&#32;pos;};&#32;\
+&#32;&#32;&#32;&#32;&#32;&#32;condchangemem(L,pre,pos);&#32;}
+</programlisting><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00157">157</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a90ac4f3c7085a418025edcc7215e8983"/>    <section>
+    <title>luaC_objbarrier</title>
+<indexterm><primary>luaC_objbarrier</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>luaC_objbarrier</secondary></indexterm>
+<para><computeroutput>#define luaC_objbarrier( L,  p,  o)</computeroutput></para><emphasis role="strong">值:</emphasis><programlisting>&#32;&#32;&#32;&#32;(&#32;&#32;\
+&#32;&#32;&#32;&#32;(<link linkend="_lgc_8h_1ac1e4847ad9a91e4cea36520dc9078365">isblack</link>(p)&#32;&amp;&amp;&#32;<link linkend="_lgc_8h_1a4c0ce78d476460d2e54914301f4a4bf7">iswhite</link>(o))&#32;?&#32;\
+&#32;&#32;&#32;&#32;<link linkend="_lgc_8h_1ac5106ee2a18cde8bc3bd92e5891ad8e5">luaC_barrier_</link>(L,<link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(p),<link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(o))&#32;:&#32;<link linkend="_llimits_8h_1a52a5166d7dc0590b63a9331cfc0f4564">cast_void</link>(0))
+</programlisting><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00173">173</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1afaa8a52c4097cf3a5eacd88db94092da"/>    <section>
+    <title>luaC_white</title>
+<indexterm><primary>luaC_white</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>luaC_white</secondary></indexterm>
+<para><computeroutput>#define luaC_white( g)   <link linkend="_llimits_8h_1a596f5b6e992f53a5a4e5732083448dd4">cast_byte</link>((g)-&gt;currentwhite &amp; <link linkend="_lgc_8h_1a0acb34c1b3d1234f11ee9fdc34df3f71">WHITEBITS</link>)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00102">102</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1adccc1cf9bf213c770940796d73635444"/>    <section>
+    <title>LUAI_GCMUL</title>
+<indexterm><primary>LUAI_GCMUL</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>LUAI_GCMUL</secondary></indexterm>
+<para><computeroutput>#define LUAI_GCMUL   100</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00138">138</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a961a6871328af0c7bb50169633e15fd9"/>    <section>
+    <title>LUAI_GCPAUSE</title>
+<indexterm><primary>LUAI_GCPAUSE</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>LUAI_GCPAUSE</secondary></indexterm>
+<para><computeroutput>#define LUAI_GCPAUSE   200</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00129">129</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a5289131664af0f4b111556cb5b4bfe9c"/>    <section>
+    <title>LUAI_GCSTEPSIZE</title>
+<indexterm><primary>LUAI_GCSTEPSIZE</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>LUAI_GCSTEPSIZE</secondary></indexterm>
+<para><computeroutput>#define LUAI_GCSTEPSIZE   13      /* 8 <link linkend="_lvm_8c_1a11423b97da0e060b24d31d7e71534844">KB</link> */</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00141">141</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a6adb6d8358e1ed9e94c88f810c8dd44e"/>    <section>
+    <title>LUAI_GENMAJORMUL</title>
+<indexterm><primary>LUAI_GENMAJORMUL</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>LUAI_GENMAJORMUL</secondary></indexterm>
+<para><computeroutput>#define LUAI_GENMAJORMUL   100</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00125">125</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a1660119f32a7ea875ce967d1ef8deadc"/>    <section>
+    <title>LUAI_GENMINORMUL</title>
+<indexterm><primary>LUAI_GENMINORMUL</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>LUAI_GENMINORMUL</secondary></indexterm>
+<para><computeroutput>#define LUAI_GENMINORMUL   20</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00126">126</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a990de0d171d8b5425a5515d0bff78789"/>    <section>
+    <title>nw2black</title>
+<indexterm><primary>nw2black</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>nw2black</secondary></indexterm>
+<para><computeroutput>#define nw2black( x)   	<link linkend="_llimits_8h_1afac1404af62451f8653440ecb6e773fc">check_exp</link>(!<link linkend="_lgc_8h_1a4c0ce78d476460d2e54914301f4a4bf7">iswhite</link>(x), <link linkend="_lgc_8h_1aad559b25ee580ea2894c540dc817e41f">l_setbit</link>((x)-&gt;marked, <link linkend="_lgc_8h_1acd17af3c46cb360dc67cad2b33b6a26f">BLACKBIT</link>))</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00099">99</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a486df16493498577d4081a8c231154f0"/>    <section>
+    <title>otherwhite</title>
+<indexterm><primary>otherwhite</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>otherwhite</secondary></indexterm>
+<para><computeroutput>#define otherwhite( g)   ((g)-&gt;currentwhite ^ <link linkend="_lgc_8h_1a0acb34c1b3d1234f11ee9fdc34df3f71">WHITEBITS</link>)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00094">94</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1aca0beb244185329a1b8f0e695ef47748"/>    <section>
+    <title>resetbit</title>
+<indexterm><primary>resetbit</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>resetbit</secondary></indexterm>
+<para><computeroutput>#define resetbit( x,  b)   <link linkend="_lgc_8h_1a486033531260010debe876a076dd2a41">resetbits</link>(x, <link linkend="_lgc_8h_1af25866c39979dd1f72110cbd3a1a427d">bitmask</link>(b))</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00066">66</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a486033531260010debe876a076dd2a41"/>    <section>
+    <title>resetbits</title>
+<indexterm><primary>resetbits</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>resetbits</secondary></indexterm>
+<para><computeroutput>#define resetbits( x,  m)   ((x) &amp;= <link linkend="_llimits_8h_1a596f5b6e992f53a5a4e5732083448dd4">cast_byte</link>(~(m)))</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00060">60</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a42f07cc5f8f0a9d97989f7769f00c3f2"/>    <section>
+    <title>setage</title>
+<indexterm><primary>setage</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>setage</secondary></indexterm>
+<para><computeroutput>#define setage( o,  a)   ((o)-&gt;marked = <link linkend="_llimits_8h_1a596f5b6e992f53a5a4e5732083448dd4">cast_byte</link>(((o)-&gt;marked &amp; (~<link linkend="_lgc_8h_1a3b446e7d0b31628385b7a1f444192e9a">AGEBITS</link>)) | a))</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00117">117</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1ada181faae5c9af4ed7392057c5dcbbae"/>    <section>
+    <title>setbits</title>
+<indexterm><primary>setbits</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>setbits</secondary></indexterm>
+<para><computeroutput>#define setbits( x,  m)   ((x) |= (m))</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00061">61</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a757077227d006e517adfaa82c2d30e72"/>    <section>
+    <title>setgcparam</title>
+<indexterm><primary>setgcparam</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>setgcparam</secondary></indexterm>
+<para><computeroutput>#define setgcparam( p,  v)   ((p) = (v) / 4)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00136">136</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a25c19ff3161e2a2395ba69fdef49915f"/>    <section>
+    <title>testbit</title>
+<indexterm><primary>testbit</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>testbit</secondary></indexterm>
+<para><computeroutput>#define testbit( x,  b)   <link linkend="_lgc_8h_1a7612bc83b764b507e12e08417a053854">testbits</link>(x, <link linkend="_lgc_8h_1af25866c39979dd1f72110cbd3a1a427d">bitmask</link>(b))</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00067">67</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1ab85d4eae1efa2e1a40d2f41bdbbda226"/>    <section>
+    <title>TESTBIT</title>
+<indexterm><primary>TESTBIT</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>TESTBIT</secondary></indexterm>
+<para><computeroutput>#define TESTBIT   7</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00080">80</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a7612bc83b764b507e12e08417a053854"/>    <section>
+    <title>testbits</title>
+<indexterm><primary>testbits</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>testbits</secondary></indexterm>
+<para><computeroutput>#define testbits( x,  m)   ((x) &amp; (m))</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00062">62</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a6d17f226d57a796f7741f457400cf8bd"/>    <section>
+    <title>tofinalize</title>
+<indexterm><primary>tofinalize</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>tofinalize</secondary></indexterm>
+<para><computeroutput>#define tofinalize( x)   <link linkend="_lgc_8h_1a25c19ff3161e2a2395ba69fdef49915f">testbit</link>((x)-&gt;marked, <link linkend="_lgc_8h_1a92211ad01420ac616819ba8f61ca7365">FINALIZEDBIT</link>)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00092">92</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a4b3ebb4bccaf9a33e772a2f4515519e6"/>    <section>
+    <title>WHITE0BIT</title>
+<indexterm><primary>WHITE0BIT</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>WHITE0BIT</secondary></indexterm>
+<para><computeroutput>#define WHITE0BIT   3  /* object is white (type 0) */</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00075">75</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a7de7885f3d09155a2c530154ec045d72"/>    <section>
+    <title>WHITE1BIT</title>
+<indexterm><primary>WHITE1BIT</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>WHITE1BIT</secondary></indexterm>
+<para><computeroutput>#define WHITE1BIT   4  /* object is white (type 1) */</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00076">76</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a0acb34c1b3d1234f11ee9fdc34df3f71"/>    <section>
+    <title>WHITEBITS</title>
+<indexterm><primary>WHITEBITS</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>WHITEBITS</secondary></indexterm>
+<para><computeroutput>#define WHITEBITS   <link linkend="_lgc_8h_1a39293d5e5fbd7bb9a24556b3e2f15d43">bit2mask</link>(<link linkend="_lgc_8h_1a4b3ebb4bccaf9a33e772a2f4515519e6">WHITE0BIT</link>, <link linkend="_lgc_8h_1a7de7885f3d09155a2c530154ec045d72">WHITE1BIT</link>)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8h_source">lgc.h</link> 第 <link linkend="_lgc_8h_source_1l00084">84</link> 行定义.</para>
+</section>
+</section>
+<section>
+<title>函数说明</title>
+<anchor xml:id="_lgc_8h_1ac5106ee2a18cde8bc3bd92e5891ad8e5"/>    <section>
+    <title>luaC_barrier_()</title>
+<indexterm><primary>luaC_barrier_</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>luaC_barrier_</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaC_barrier_ (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_g_c_object">GCObject</link> * o, <link linkend="_struct_g_c_object">GCObject</link> * v)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00209">209</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8h_ac5106ee2a18cde8bc3bd92e5891ad8e5_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8h_1a65d1fcc6e437592a5a893406cce7d8e3"/>    <section>
+    <title>luaC_barrierback_()</title>
+<indexterm><primary>luaC_barrierback_</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>luaC_barrierback_</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaC_barrierback_ (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_g_c_object">GCObject</link> * o)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00231">231</link> 行定义.</para>
+    </section><anchor xml:id="_lgc_8h_1a45671ff26d738167ce8e421cc233fc59"/>    <section>
+    <title>luaC_changemode()</title>
+<indexterm><primary>luaC_changemode</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>luaC_changemode</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaC_changemode (<link linkend="_structlua___state">lua_State</link> * L, int newmode)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01317">1317</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8h_a45671ff26d738167ce8e421cc233fc59_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8h_a45671ff26d738167ce8e421cc233fc59_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8h_1a15870c09448216ce5c4e1ff63d39e0a9"/>    <section>
+    <title>luaC_checkfinalizer()</title>
+<indexterm><primary>luaC_checkfinalizer</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>luaC_checkfinalizer</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaC_checkfinalizer (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_g_c_object">GCObject</link> * o, <link linkend="_struct_table">Table</link> * mt)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01005">1005</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8h_a15870c09448216ce5c4e1ff63d39e0a9_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8h_a15870c09448216ce5c4e1ff63d39e0a9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8h_1a242d4a66c025c294ec2c1ec4fe75e804"/>    <section>
+    <title>luaC_fix()</title>
+<indexterm><primary>luaC_fix</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>luaC_fix</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaC_fix (<link linkend="_structlua___state">lua_State</link> * L, <link linkend="_struct_g_c_object">GCObject</link> * o)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00244">244</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8h_a242d4a66c025c294ec2c1ec4fe75e804_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8h_1a9aa52a500c9cc2076edb1707e6d8a045"/>    <section>
+    <title>luaC_freeallobjects()</title>
+<indexterm><primary>luaC_freeallobjects</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>luaC_freeallobjects</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaC_freeallobjects (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01497">1497</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8h_a9aa52a500c9cc2076edb1707e6d8a045_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8h_a9aa52a500c9cc2076edb1707e6d8a045_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8h_1aa0b753c3ed80e1eed0379ec58592c404"/>    <section>
+    <title>luaC_fullgc()</title>
+<indexterm><primary>luaC_fullgc</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>luaC_fullgc</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaC_fullgc (<link linkend="_structlua___state">lua_State</link> * L, int isemergency)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01697">1697</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8h_aa0b753c3ed80e1eed0379ec58592c404_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8h_aa0b753c3ed80e1eed0379ec58592c404_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8h_1a08e480a0ddf25233346594d9bbd719e9"/>    <section>
+    <title>luaC_newobj()</title>
+<indexterm><primary>luaC_newobj</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>luaC_newobj</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> <link linkend="_struct_g_c_object">GCObject</link>* luaC_newobj (<link linkend="_structlua___state">lua_State</link> * L, int tt, size_t sz)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l00259">259</link> 行定义.</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8h_a08e480a0ddf25233346594d9bbd719e9_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8h_1a1da32357417ce5766ed5e3ada033c32f"/>    <section>
+    <title>luaC_runtilstate()</title>
+<indexterm><primary>luaC_runtilstate</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>luaC_runtilstate</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaC_runtilstate (<link linkend="_structlua___state">lua_State</link> * L, int statesmask)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01625">1625</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8h_a1da32357417ce5766ed5e3ada033c32f_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8h_a1da32357417ce5766ed5e3ada033c32f_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+    </section><anchor xml:id="_lgc_8h_1a6c71cc4b9e503c0e96c0c4ffcff93900"/>    <section>
+    <title>luaC_step()</title>
+<indexterm><primary>luaC_step</primary><secondary>lgc.h</secondary></indexterm>
+<indexterm><primary>lgc.h</primary><secondary>luaC_step</secondary></indexterm>
+<para><computeroutput><link linkend="_onelua_8c_1a3f43b35a70c93f2cfde1db42a5a24f1e">LUAI_FUNC</link> void luaC_step (<link linkend="_structlua___state">lua_State</link> * L)</computeroutput></para><para>
+在文件 <link linkend="_lgc_8c_source">lgc.c</link> 第 <link linkend="_lgc_8c_source_1l01660">1660</link> 行定义.</para>
+函数调用图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8h_a6c71cc4b9e503c0e96c0c4ffcff93900_cgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+这是这个函数的调用关系图:<para>
+    <informalfigure>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="0" fileref="lgc_8h_a6c71cc4b9e503c0e96c0c4ffcff93900_icgraph.png"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </informalfigure>
+</para>
+</section>
+</section>
+</section>

@@ -1,0 +1,467 @@
+\hypertarget{loslib_8c}{}\doxysection{D\+:/gitworkspace/lua/src/loslib.c 文件参考}
+\label{loslib_8c}\index{D:/gitworkspace/lua/src/loslib.c@{D:/gitworkspace/lua/src/loslib.c}}
+{\ttfamily \#include \char`\"{}lprefix.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$errno.\+h$>$}\newline
+{\ttfamily \#include $<$locale.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$time.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}lua.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lauxlib.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}lualib.\+h\char`\"{}}\newline
+\doxysubsection*{宏定义}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{loslib_8c_a3ec58cf7ef7bd5214b2688f74dcefb73}{loslib\+\_\+c}}
+\item 
+\#define \mbox{\hyperlink{loslib_8c_a884b19ad6094d6238c4072a8064aeb12}{L\+U\+A\+\_\+\+L\+IB}}
+\item 
+\#define \mbox{\hyperlink{loslib_8c_ab0982d89a6abf79e4249c2daa582522c}{L\+\_\+\+S\+T\+R\+F\+T\+I\+M\+E\+C89}}~\char`\"{}a\+Ab\+Bcd\+H\+Ijm\+Mp\+S\+Uw\+Wx\+Xy\+YZ\%\char`\"{}
+\item 
+\#define \mbox{\hyperlink{loslib_8c_a5f204f2c170011c7fd83337315b12e47}{L\+\_\+\+S\+T\+R\+F\+T\+I\+M\+E\+C99}}
+\item 
+\#define \mbox{\hyperlink{loslib_8c_a8c61c03437bf447fe9b7dc054acd2217}{L\+\_\+\+S\+T\+R\+F\+T\+I\+M\+E\+W\+IN}}
+\item 
+\#define \mbox{\hyperlink{loslib_8c_ab7df836620acf65cb1f91c2e45ed1e31}{L\+U\+A\+\_\+\+S\+T\+R\+F\+T\+I\+M\+E\+O\+P\+T\+I\+O\+NS}}~\mbox{\hyperlink{loslib_8c_a5f204f2c170011c7fd83337315b12e47}{L\+\_\+\+S\+T\+R\+F\+T\+I\+M\+E\+C99}}
+\item 
+\#define \mbox{\hyperlink{loslib_8c_a7d2cb05e3c27f9dfa513dcb325e1b140}{l\+\_\+timet}}~\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}
+\item 
+\#define \mbox{\hyperlink{loslib_8c_ac63906583780389e3d016c9034a5fe9e}{l\+\_\+pushtime}}(L,  t)~\mbox{\hyperlink{lua_8h_aea46fa9bf358947f5c0a1bf266b26154}{lua\+\_\+pushinteger}}(L,(\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}})(t))
+\item 
+\#define \mbox{\hyperlink{loslib_8c_a2c49dbe9467c4507fe4cd12be63eb93f}{l\+\_\+gettime}}(L,  arg)~\mbox{\hyperlink{lauxlib_8h_a4fab48acb62fbf5344ff26e482afaab2}{lua\+L\+\_\+checkinteger}}(L, arg)
+\item 
+\#define \mbox{\hyperlink{loslib_8c_a9192df83917f8155b1cfdbebf4c5eb8e}{l\+\_\+gmtime}}(t,  r)~((void)(r)-\/$>$tm\+\_\+sec, gmtime(t))
+\item 
+\#define \mbox{\hyperlink{loslib_8c_a733d73698128700785bb69ebed050054}{l\+\_\+localtime}}(t,  r)~((void)(r)-\/$>$tm\+\_\+sec, localtime(t))
+\item 
+\#define \mbox{\hyperlink{loslib_8c_a10daafc0532e819b74f297666fcc2d5f}{L\+U\+A\+\_\+\+T\+M\+P\+N\+A\+M\+B\+U\+F\+S\+I\+ZE}}~L\+\_\+tmpnam
+\item 
+\#define \mbox{\hyperlink{loslib_8c_aff3a671e45c29852d5964e9cfa7b2319}{lua\+\_\+tmpnam}}(b,  e)~\{ e = (tmpnam(b) == N\+U\+LL); \}
+\item 
+\#define \mbox{\hyperlink{loslib_8c_a0c2f8d354bc43a99aaff9ba46dcf5258}{S\+I\+Z\+E\+T\+I\+M\+E\+F\+MT}}~250
+\end{DoxyCompactItemize}
+\doxysubsection*{函数}
+\begin{DoxyCompactItemize}
+\item 
+static int \mbox{\hyperlink{loslib_8c_a2da7b72413e7abbb84043eeb7988ba36}{os\+\_\+execute}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{loslib_8c_aff1386a6722ad488ced309e2fcdebe13}{os\+\_\+remove}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{loslib_8c_a9e0e5e5a06a8a1aa797e15034070b405}{os\+\_\+rename}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{loslib_8c_a89a90062784a8adc223ff4cbe576321d}{os\+\_\+tmpname}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{loslib_8c_a32640cd81f9679e9539fa18a4083a4ec}{os\+\_\+getenv}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{loslib_8c_ac8ac40c239a4c86ee937b34663bffe80}{os\+\_\+clock}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static void \mbox{\hyperlink{loslib_8c_aa9bc89c1972a22cc25fb7bce8584f89a}{setfield}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$key, int value, int delta)
+\item 
+static void \mbox{\hyperlink{loslib_8c_a66ff5b88f96a4df4a360cf6928636860}{setboolfield}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$key, int value)
+\item 
+static void \mbox{\hyperlink{loslib_8c_ae4eca277a29a763a64ef611692c4b894}{setallfields}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, struct tm $\ast$stm)
+\item 
+static int \mbox{\hyperlink{loslib_8c_a5dbd1fc25ad13c0f325d09f811bb6172}{getboolfield}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$key)
+\item 
+static int \mbox{\hyperlink{loslib_8c_aa0a7f676dc564dbc1a3c16c917b933c9}{getfield}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$key, int d, int delta)
+\item 
+static const char $\ast$ \mbox{\hyperlink{loslib_8c_aaa168f0d57d7a806d86b6b8b20eb51c7}{checkoption}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, const char $\ast$conv, ptrdiff\+\_\+t convlen, char $\ast$buff)
+\item 
+static time\+\_\+t \mbox{\hyperlink{loslib_8c_afa432e42a4acd4aa3a30eb02b3beab70}{l\+\_\+checktime}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L, int arg)
+\item 
+static int \mbox{\hyperlink{loslib_8c_a6520f2562b500aee87a6a475995adefb}{os\+\_\+date}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{loslib_8c_ae32288bc9696b48450146e11c241f943}{os\+\_\+time}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{loslib_8c_ab2027c89bfc0320114b3cce3d77a01ed}{os\+\_\+difftime}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{loslib_8c_a148e76ec4bfa32f07c0bd8c802960113}{os\+\_\+setlocale}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+static int \mbox{\hyperlink{loslib_8c_a905e81425fe3d6d0b363c10162a2a37b}{os\+\_\+exit}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\item 
+\mbox{\hyperlink{luaconf_8h_a8e877216dd2f0cf9a68255b494f82f50}{L\+U\+A\+M\+O\+D\+\_\+\+A\+PI}} int \mbox{\hyperlink{loslib_8c_a03d1c1c58e52032aee542b65a2b1c3ca}{luaopen\+\_\+os}} (\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$L)
+\end{DoxyCompactItemize}
+\doxysubsection*{变量}
+\begin{DoxyCompactItemize}
+\item 
+static const \mbox{\hyperlink{structlua_l___reg}{lua\+L\+\_\+\+Reg}} \mbox{\hyperlink{loslib_8c_a6860192a4da9966ab5be22f3cfa624a2}{syslib}} \mbox{[}$\,$\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{宏定义说明}
+\mbox{\Hypertarget{loslib_8c_a2c49dbe9467c4507fe4cd12be63eb93f}\label{loslib_8c_a2c49dbe9467c4507fe4cd12be63eb93f}} 
+\index{loslib.c@{loslib.c}!l\_gettime@{l\_gettime}}
+\index{l\_gettime@{l\_gettime}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{l\_gettime}{l\_gettime}}
+{\footnotesize\ttfamily \#define l\+\_\+gettime(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{arg }\end{DoxyParamCaption})~\mbox{\hyperlink{lauxlib_8h_a4fab48acb62fbf5344ff26e482afaab2}{lua\+L\+\_\+checkinteger}}(L, arg)}
+
+
+
+在文件 loslib.\+c 第 69 行定义.
+
+\mbox{\Hypertarget{loslib_8c_a9192df83917f8155b1cfdbebf4c5eb8e}\label{loslib_8c_a9192df83917f8155b1cfdbebf4c5eb8e}} 
+\index{loslib.c@{loslib.c}!l\_gmtime@{l\_gmtime}}
+\index{l\_gmtime@{l\_gmtime}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{l\_gmtime}{l\_gmtime}}
+{\footnotesize\ttfamily \#define l\+\_\+gmtime(\begin{DoxyParamCaption}\item[{}]{t,  }\item[{}]{r }\end{DoxyParamCaption})~((void)(r)-\/$>$tm\+\_\+sec, gmtime(t))}
+
+
+
+在文件 loslib.\+c 第 94 行定义.
+
+\mbox{\Hypertarget{loslib_8c_a733d73698128700785bb69ebed050054}\label{loslib_8c_a733d73698128700785bb69ebed050054}} 
+\index{loslib.c@{loslib.c}!l\_localtime@{l\_localtime}}
+\index{l\_localtime@{l\_localtime}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{l\_localtime}{l\_localtime}}
+{\footnotesize\ttfamily \#define l\+\_\+localtime(\begin{DoxyParamCaption}\item[{}]{t,  }\item[{}]{r }\end{DoxyParamCaption})~((void)(r)-\/$>$tm\+\_\+sec, localtime(t))}
+
+
+
+在文件 loslib.\+c 第 95 行定义.
+
+\mbox{\Hypertarget{loslib_8c_ac63906583780389e3d016c9034a5fe9e}\label{loslib_8c_ac63906583780389e3d016c9034a5fe9e}} 
+\index{loslib.c@{loslib.c}!l\_pushtime@{l\_pushtime}}
+\index{l\_pushtime@{l\_pushtime}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{l\_pushtime}{l\_pushtime}}
+{\footnotesize\ttfamily \#define l\+\_\+pushtime(\begin{DoxyParamCaption}\item[{}]{L,  }\item[{}]{t }\end{DoxyParamCaption})~\mbox{\hyperlink{lua_8h_aea46fa9bf358947f5c0a1bf266b26154}{lua\+\_\+pushinteger}}(L,(\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}})(t))}
+
+
+
+在文件 loslib.\+c 第 68 行定义.
+
+\mbox{\Hypertarget{loslib_8c_ab0982d89a6abf79e4249c2daa582522c}\label{loslib_8c_ab0982d89a6abf79e4249c2daa582522c}} 
+\index{loslib.c@{loslib.c}!L\_STRFTIMEC89@{L\_STRFTIMEC89}}
+\index{L\_STRFTIMEC89@{L\_STRFTIMEC89}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{L\_STRFTIMEC89}{L\_STRFTIMEC89}}
+{\footnotesize\ttfamily \#define L\+\_\+\+S\+T\+R\+F\+T\+I\+M\+E\+C89~\char`\"{}a\+Ab\+Bcd\+H\+Ijm\+Mp\+S\+Uw\+Wx\+Xy\+YZ\%\char`\"{}}
+
+
+
+在文件 loslib.\+c 第 34 行定义.
+
+\mbox{\Hypertarget{loslib_8c_a5f204f2c170011c7fd83337315b12e47}\label{loslib_8c_a5f204f2c170011c7fd83337315b12e47}} 
+\index{loslib.c@{loslib.c}!L\_STRFTIMEC99@{L\_STRFTIMEC99}}
+\index{L\_STRFTIMEC99@{L\_STRFTIMEC99}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{L\_STRFTIMEC99}{L\_STRFTIMEC99}}
+{\footnotesize\ttfamily \#define L\+\_\+\+S\+T\+R\+F\+T\+I\+M\+E\+C99}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{    \textcolor{stringliteral}{"{}aAbBcCdDeFgGhHIjmMnprRStTuUVwWxXyYzZ\%"{}} \(\backslash\)}
+\DoxyCodeLine{    \textcolor{stringliteral}{"{}||"{}} \textcolor{stringliteral}{"{}EcECExEXEyEY"{}} \textcolor{stringliteral}{"{}OdOeOHOIOmOMOSOuOUOVOwOWOy"{}}  \textcolor{comment}{/* two-\/char options */}}
+
+\end{DoxyCode}
+
+
+在文件 loslib.\+c 第 37 行定义.
+
+\mbox{\Hypertarget{loslib_8c_a8c61c03437bf447fe9b7dc054acd2217}\label{loslib_8c_a8c61c03437bf447fe9b7dc054acd2217}} 
+\index{loslib.c@{loslib.c}!L\_STRFTIMEWIN@{L\_STRFTIMEWIN}}
+\index{L\_STRFTIMEWIN@{L\_STRFTIMEWIN}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{L\_STRFTIMEWIN}{L\_STRFTIMEWIN}}
+{\footnotesize\ttfamily \#define L\+\_\+\+S\+T\+R\+F\+T\+I\+M\+E\+W\+IN}
+
+{\bfseries 值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{    \textcolor{stringliteral}{"{}aAbBcdHIjmMpSUwWxXyYzZ\%"{}} \(\backslash\)}
+\DoxyCodeLine{    \textcolor{stringliteral}{"{}||"{}} \textcolor{stringliteral}{"{}\#c\#x\#d\#H\#I\#j\#m\#M\#S\#U\#w\#W\#y\#Y"{}}  \textcolor{comment}{/* two-\/char options */}}
+
+\end{DoxyCode}
+
+
+在文件 loslib.\+c 第 41 行定义.
+
+\mbox{\Hypertarget{loslib_8c_a7d2cb05e3c27f9dfa513dcb325e1b140}\label{loslib_8c_a7d2cb05e3c27f9dfa513dcb325e1b140}} 
+\index{loslib.c@{loslib.c}!l\_timet@{l\_timet}}
+\index{l\_timet@{l\_timet}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{l\_timet}{l\_timet}}
+{\footnotesize\ttfamily \#define l\+\_\+timet~\mbox{\hyperlink{lua_8h_a362144baa0cfb14dc38fd21438053d73}{lua\+\_\+\+Integer}}}
+
+
+
+在文件 loslib.\+c 第 67 行定义.
+
+\mbox{\Hypertarget{loslib_8c_a3ec58cf7ef7bd5214b2688f74dcefb73}\label{loslib_8c_a3ec58cf7ef7bd5214b2688f74dcefb73}} 
+\index{loslib.c@{loslib.c}!loslib\_c@{loslib\_c}}
+\index{loslib\_c@{loslib\_c}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{loslib\_c}{loslib\_c}}
+{\footnotesize\ttfamily \#define loslib\+\_\+c}
+
+
+
+在文件 loslib.\+c 第 7 行定义.
+
+\mbox{\Hypertarget{loslib_8c_a884b19ad6094d6238c4072a8064aeb12}\label{loslib_8c_a884b19ad6094d6238c4072a8064aeb12}} 
+\index{loslib.c@{loslib.c}!LUA\_LIB@{LUA\_LIB}}
+\index{LUA\_LIB@{LUA\_LIB}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{LUA\_LIB}{LUA\_LIB}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+L\+IB}
+
+
+
+在文件 loslib.\+c 第 8 行定义.
+
+\mbox{\Hypertarget{loslib_8c_ab7df836620acf65cb1f91c2e45ed1e31}\label{loslib_8c_ab7df836620acf65cb1f91c2e45ed1e31}} 
+\index{loslib.c@{loslib.c}!LUA\_STRFTIMEOPTIONS@{LUA\_STRFTIMEOPTIONS}}
+\index{LUA\_STRFTIMEOPTIONS@{LUA\_STRFTIMEOPTIONS}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{LUA\_STRFTIMEOPTIONS}{LUA\_STRFTIMEOPTIONS}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+S\+T\+R\+F\+T\+I\+M\+E\+O\+P\+T\+I\+O\+NS~\mbox{\hyperlink{loslib_8c_a5f204f2c170011c7fd83337315b12e47}{L\+\_\+\+S\+T\+R\+F\+T\+I\+M\+E\+C99}}}
+
+
+
+在文件 loslib.\+c 第 49 行定义.
+
+\mbox{\Hypertarget{loslib_8c_aff3a671e45c29852d5964e9cfa7b2319}\label{loslib_8c_aff3a671e45c29852d5964e9cfa7b2319}} 
+\index{loslib.c@{loslib.c}!lua\_tmpnam@{lua\_tmpnam}}
+\index{lua\_tmpnam@{lua\_tmpnam}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{lua\_tmpnam}{lua\_tmpnam}}
+{\footnotesize\ttfamily \#define lua\+\_\+tmpnam(\begin{DoxyParamCaption}\item[{}]{b,  }\item[{}]{e }\end{DoxyParamCaption})~\{ e = (tmpnam(b) == N\+U\+LL); \}}
+
+
+
+在文件 loslib.\+c 第 133 行定义.
+
+\mbox{\Hypertarget{loslib_8c_a10daafc0532e819b74f297666fcc2d5f}\label{loslib_8c_a10daafc0532e819b74f297666fcc2d5f}} 
+\index{loslib.c@{loslib.c}!LUA\_TMPNAMBUFSIZE@{LUA\_TMPNAMBUFSIZE}}
+\index{LUA\_TMPNAMBUFSIZE@{LUA\_TMPNAMBUFSIZE}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{LUA\_TMPNAMBUFSIZE}{LUA\_TMPNAMBUFSIZE}}
+{\footnotesize\ttfamily \#define L\+U\+A\+\_\+\+T\+M\+P\+N\+A\+M\+B\+U\+F\+S\+I\+ZE~L\+\_\+tmpnam}
+
+
+
+在文件 loslib.\+c 第 132 行定义.
+
+\mbox{\Hypertarget{loslib_8c_a0c2f8d354bc43a99aaff9ba46dcf5258}\label{loslib_8c_a0c2f8d354bc43a99aaff9ba46dcf5258}} 
+\index{loslib.c@{loslib.c}!SIZETIMEFMT@{SIZETIMEFMT}}
+\index{SIZETIMEFMT@{SIZETIMEFMT}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{SIZETIMEFMT}{SIZETIMEFMT}}
+{\footnotesize\ttfamily \#define S\+I\+Z\+E\+T\+I\+M\+E\+F\+MT~250}
+
+
+
+在文件 loslib.\+c 第 301 行定义.
+
+
+
+\doxysubsection{函数说明}
+\mbox{\Hypertarget{loslib_8c_aaa168f0d57d7a806d86b6b8b20eb51c7}\label{loslib_8c_aaa168f0d57d7a806d86b6b8b20eb51c7}} 
+\index{loslib.c@{loslib.c}!checkoption@{checkoption}}
+\index{checkoption@{checkoption}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{checkoption()}{checkoption()}}
+{\footnotesize\ttfamily static const char$\ast$ checkoption (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{conv,  }\item[{ptrdiff\+\_\+t}]{convlen,  }\item[{char $\ast$}]{buff }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 loslib.\+c 第 274 行定义.
+
+\mbox{\Hypertarget{loslib_8c_a5dbd1fc25ad13c0f325d09f811bb6172}\label{loslib_8c_a5dbd1fc25ad13c0f325d09f811bb6172}} 
+\index{loslib.c@{loslib.c}!getboolfield@{getboolfield}}
+\index{getboolfield@{getboolfield}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{getboolfield()}{getboolfield()}}
+{\footnotesize\ttfamily static int getboolfield (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{key }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 loslib.\+c 第 243 行定义.
+
+\mbox{\Hypertarget{loslib_8c_aa0a7f676dc564dbc1a3c16c917b933c9}\label{loslib_8c_aa0a7f676dc564dbc1a3c16c917b933c9}} 
+\index{loslib.c@{loslib.c}!getfield@{getfield}}
+\index{getfield@{getfield}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{getfield()}{getfield()}}
+{\footnotesize\ttfamily static int getfield (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{key,  }\item[{int}]{d,  }\item[{int}]{delta }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 loslib.\+c 第 251 行定义.
+
+\mbox{\Hypertarget{loslib_8c_afa432e42a4acd4aa3a30eb02b3beab70}\label{loslib_8c_afa432e42a4acd4aa3a30eb02b3beab70}} 
+\index{loslib.c@{loslib.c}!l\_checktime@{l\_checktime}}
+\index{l\_checktime@{l\_checktime}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{l\_checktime()}{l\_checktime()}}
+{\footnotesize\ttfamily static time\+\_\+t l\+\_\+checktime (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{int}]{arg }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 loslib.\+c 第 293 行定义.
+
+\mbox{\Hypertarget{loslib_8c_a03d1c1c58e52032aee542b65a2b1c3ca}\label{loslib_8c_a03d1c1c58e52032aee542b65a2b1c3ca}} 
+\index{loslib.c@{loslib.c}!luaopen\_os@{luaopen\_os}}
+\index{luaopen\_os@{luaopen\_os}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{luaopen\_os()}{luaopen\_os()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{luaconf_8h_a8e877216dd2f0cf9a68255b494f82f50}{L\+U\+A\+M\+O\+D\+\_\+\+A\+PI}} int luaopen\+\_\+os (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})}
+
+
+
+在文件 loslib.\+c 第 426 行定义.
+
+\mbox{\Hypertarget{loslib_8c_ac8ac40c239a4c86ee937b34663bffe80}\label{loslib_8c_ac8ac40c239a4c86ee937b34663bffe80}} 
+\index{loslib.c@{loslib.c}!os\_clock@{os\_clock}}
+\index{os\_clock@{os\_clock}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{os\_clock()}{os\_clock()}}
+{\footnotesize\ttfamily static int os\+\_\+clock (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 loslib.\+c 第 186 行定义.
+
+\mbox{\Hypertarget{loslib_8c_a6520f2562b500aee87a6a475995adefb}\label{loslib_8c_a6520f2562b500aee87a6a475995adefb}} 
+\index{loslib.c@{loslib.c}!os\_date@{os\_date}}
+\index{os\_date@{os\_date}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{os\_date()}{os\_date()}}
+{\footnotesize\ttfamily static int os\+\_\+date (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 loslib.\+c 第 304 行定义.
+
+\mbox{\Hypertarget{loslib_8c_ab2027c89bfc0320114b3cce3d77a01ed}\label{loslib_8c_ab2027c89bfc0320114b3cce3d77a01ed}} 
+\index{loslib.c@{loslib.c}!os\_difftime@{os\_difftime}}
+\index{os\_difftime@{os\_difftime}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{os\_difftime()}{os\_difftime()}}
+{\footnotesize\ttfamily static int os\+\_\+difftime (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 loslib.\+c 第 372 行定义.
+
+\mbox{\Hypertarget{loslib_8c_a2da7b72413e7abbb84043eeb7988ba36}\label{loslib_8c_a2da7b72413e7abbb84043eeb7988ba36}} 
+\index{loslib.c@{loslib.c}!os\_execute@{os\_execute}}
+\index{os\_execute@{os\_execute}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{os\_execute()}{os\_execute()}}
+{\footnotesize\ttfamily static int os\+\_\+execute (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 loslib.\+c 第 142 行定义.
+
+\mbox{\Hypertarget{loslib_8c_a905e81425fe3d6d0b363c10162a2a37b}\label{loslib_8c_a905e81425fe3d6d0b363c10162a2a37b}} 
+\index{loslib.c@{loslib.c}!os\_exit@{os\_exit}}
+\index{os\_exit@{os\_exit}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{os\_exit()}{os\_exit()}}
+{\footnotesize\ttfamily static int os\+\_\+exit (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 loslib.\+c 第 394 行定义.
+
+\mbox{\Hypertarget{loslib_8c_a32640cd81f9679e9539fa18a4083a4ec}\label{loslib_8c_a32640cd81f9679e9539fa18a4083a4ec}} 
+\index{loslib.c@{loslib.c}!os\_getenv@{os\_getenv}}
+\index{os\_getenv@{os\_getenv}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{os\_getenv()}{os\_getenv()}}
+{\footnotesize\ttfamily static int os\+\_\+getenv (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 loslib.\+c 第 180 行定义.
+
+\mbox{\Hypertarget{loslib_8c_aff1386a6722ad488ced309e2fcdebe13}\label{loslib_8c_aff1386a6722ad488ced309e2fcdebe13}} 
+\index{loslib.c@{loslib.c}!os\_remove@{os\_remove}}
+\index{os\_remove@{os\_remove}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{os\_remove()}{os\_remove()}}
+{\footnotesize\ttfamily static int os\+\_\+remove (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 loslib.\+c 第 156 行定义.
+
+\mbox{\Hypertarget{loslib_8c_a9e0e5e5a06a8a1aa797e15034070b405}\label{loslib_8c_a9e0e5e5a06a8a1aa797e15034070b405}} 
+\index{loslib.c@{loslib.c}!os\_rename@{os\_rename}}
+\index{os\_rename@{os\_rename}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{os\_rename()}{os\_rename()}}
+{\footnotesize\ttfamily static int os\+\_\+rename (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 loslib.\+c 第 162 行定义.
+
+\mbox{\Hypertarget{loslib_8c_a148e76ec4bfa32f07c0bd8c802960113}\label{loslib_8c_a148e76ec4bfa32f07c0bd8c802960113}} 
+\index{loslib.c@{loslib.c}!os\_setlocale@{os\_setlocale}}
+\index{os\_setlocale@{os\_setlocale}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{os\_setlocale()}{os\_setlocale()}}
+{\footnotesize\ttfamily static int os\+\_\+setlocale (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 loslib.\+c 第 382 行定义.
+
+\mbox{\Hypertarget{loslib_8c_ae32288bc9696b48450146e11c241f943}\label{loslib_8c_ae32288bc9696b48450146e11c241f943}} 
+\index{loslib.c@{loslib.c}!os\_time@{os\_time}}
+\index{os\_time@{os\_time}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{os\_time()}{os\_time()}}
+{\footnotesize\ttfamily static int os\+\_\+time (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 loslib.\+c 第 346 行定义.
+
+\mbox{\Hypertarget{loslib_8c_a89a90062784a8adc223ff4cbe576321d}\label{loslib_8c_a89a90062784a8adc223ff4cbe576321d}} 
+\index{loslib.c@{loslib.c}!os\_tmpname@{os\_tmpname}}
+\index{os\_tmpname@{os\_tmpname}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{os\_tmpname()}{os\_tmpname()}}
+{\footnotesize\ttfamily static int os\+\_\+tmpname (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 loslib.\+c 第 169 行定义.
+
+\mbox{\Hypertarget{loslib_8c_ae4eca277a29a763a64ef611692c4b894}\label{loslib_8c_ae4eca277a29a763a64ef611692c4b894}} 
+\index{loslib.c@{loslib.c}!setallfields@{setallfields}}
+\index{setallfields@{setallfields}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{setallfields()}{setallfields()}}
+{\footnotesize\ttfamily static void setallfields (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{struct tm $\ast$}]{stm }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 loslib.\+c 第 230 行定义.
+
+\mbox{\Hypertarget{loslib_8c_a66ff5b88f96a4df4a360cf6928636860}\label{loslib_8c_a66ff5b88f96a4df4a360cf6928636860}} 
+\index{loslib.c@{loslib.c}!setboolfield@{setboolfield}}
+\index{setboolfield@{setboolfield}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{setboolfield()}{setboolfield()}}
+{\footnotesize\ttfamily static void setboolfield (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{key,  }\item[{int}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 loslib.\+c 第 219 行定义.
+
+\mbox{\Hypertarget{loslib_8c_aa9bc89c1972a22cc25fb7bce8584f89a}\label{loslib_8c_aa9bc89c1972a22cc25fb7bce8584f89a}} 
+\index{loslib.c@{loslib.c}!setfield@{setfield}}
+\index{setfield@{setfield}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{setfield()}{setfield()}}
+{\footnotesize\ttfamily static void setfield (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structlua___state}{lua\+\_\+\+State}} $\ast$}]{L,  }\item[{const char $\ast$}]{key,  }\item[{int}]{value,  }\item[{int}]{delta }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+在文件 loslib.\+c 第 209 行定义.
+
+
+
+\doxysubsection{变量说明}
+\mbox{\Hypertarget{loslib_8c_a6860192a4da9966ab5be22f3cfa624a2}\label{loslib_8c_a6860192a4da9966ab5be22f3cfa624a2}} 
+\index{loslib.c@{loslib.c}!syslib@{syslib}}
+\index{syslib@{syslib}!loslib.c@{loslib.c}}
+\doxysubsubsection{\texorpdfstring{syslib}{syslib}}
+{\footnotesize\ttfamily const \mbox{\hyperlink{structlua_l___reg}{lua\+L\+\_\+\+Reg}} syslib\mbox{[}$\,$\mbox{]}\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries 初始值\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{= \{}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}clock"{}},     \mbox{\hyperlink{loslib_8c_ac8ac40c239a4c86ee937b34663bffe80}{os\_clock}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}date"{}},      \mbox{\hyperlink{loslib_8c_a6520f2562b500aee87a6a475995adefb}{os\_date}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}difftime"{}},  \mbox{\hyperlink{loslib_8c_ab2027c89bfc0320114b3cce3d77a01ed}{os\_difftime}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}execute"{}},   \mbox{\hyperlink{loslib_8c_a2da7b72413e7abbb84043eeb7988ba36}{os\_execute}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}exit"{}},      \mbox{\hyperlink{loslib_8c_a905e81425fe3d6d0b363c10162a2a37b}{os\_exit}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}getenv"{}},    \mbox{\hyperlink{loslib_8c_a32640cd81f9679e9539fa18a4083a4ec}{os\_getenv}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}remove"{}},    \mbox{\hyperlink{loslib_8c_aff1386a6722ad488ced309e2fcdebe13}{os\_remove}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}rename"{}},    \mbox{\hyperlink{loslib_8c_a9e0e5e5a06a8a1aa797e15034070b405}{os\_rename}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}setlocale"{}}, \mbox{\hyperlink{loslib_8c_a148e76ec4bfa32f07c0bd8c802960113}{os\_setlocale}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}time"{}},      \mbox{\hyperlink{loslib_8c_ae32288bc9696b48450146e11c241f943}{os\_time}}\},}
+\DoxyCodeLine{  \{\textcolor{stringliteral}{"{}tmpname"{}},   \mbox{\hyperlink{loslib_8c_a89a90062784a8adc223ff4cbe576321d}{os\_tmpname}}\},}
+\DoxyCodeLine{  \{NULL, NULL\}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+在文件 loslib.\+c 第 407 行定义.
+

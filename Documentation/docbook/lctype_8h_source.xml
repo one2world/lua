@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lctype_8h_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/lctype.h</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;lctype.h&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;&apos;ctype&apos;&#32;functions&#32;for&#32;Lua</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+00007 <emphasis role="preprocessor">#ifndef&#32;lctype_h</emphasis>
+00008 <emphasis role="preprocessor">#define&#32;lctype_h</emphasis>
+00009 
+00010 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lua_8h">lua.h</link>&quot;</emphasis>
+00011 
+00012 
+00013 <emphasis role="comment">/*</emphasis>
+00014 <emphasis role="comment">**&#32;WARNING:&#32;the&#32;functions&#32;defined&#32;here&#32;do&#32;not&#32;necessarily&#32;correspond</emphasis>
+00015 <emphasis role="comment">**&#32;to&#32;the&#32;similar&#32;functions&#32;in&#32;the&#32;standard&#32;C&#32;ctype.h.&#32;They&#32;are</emphasis>
+00016 <emphasis role="comment">**&#32;optimized&#32;for&#32;the&#32;specific&#32;needs&#32;of&#32;Lua</emphasis>
+00017 <emphasis role="comment">*/</emphasis>
+00018 
+00019 <emphasis role="preprocessor">#if&#32;!defined(LUA_USE_CTYPE)</emphasis>
+00020 
+00021 <emphasis role="preprocessor">#if&#32;&apos;A&apos;&#32;==&#32;65&#32;&amp;&amp;&#32;&apos;0&apos;&#32;==&#32;48</emphasis>
+00022 <emphasis role="comment">/*&#32;ASCII&#32;case:&#32;can&#32;use&#32;its&#32;own&#32;tables;&#32;faster&#32;and&#32;fixed&#32;*/</emphasis>
+<anchor xml:id="_lctype_8h_source_1l00023"/><link linkend="_lctype_8h_1a7d15b705d59378d3c5ab7a722473bf8d">00023</link> <emphasis role="preprocessor">#define&#32;LUA_USE_CTYPE&#32;&#32;&#32;0</emphasis>
+00024 <emphasis role="preprocessor">#else</emphasis>
+00025 <emphasis role="comment">/*&#32;must&#32;use&#32;standard&#32;C&#32;ctype&#32;*/</emphasis>
+00026 <emphasis role="preprocessor">#define&#32;LUA_USE_CTYPE&#32;&#32;&#32;1</emphasis>
+00027 <emphasis role="preprocessor">#endif</emphasis>
+00028 
+00029 <emphasis role="preprocessor">#endif</emphasis>
+00030 
+00031 
+00032 <emphasis role="preprocessor">#if&#32;!LUA_USE_CTYPE&#32;&#32;</emphasis><emphasis role="comment">/*&#32;{&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00033 
+00034 <emphasis role="preprocessor">#include&#32;&lt;limits.h&gt;</emphasis>
+00035 
+00036 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_llimits_8h">llimits.h</link>&quot;</emphasis>
+00037 
+00038 
+<anchor xml:id="_lctype_8h_source_1l00039"/><link linkend="_lctype_8h_1a091fbd82b59441d4a091c0312c0a0e35">00039</link> <emphasis role="preprocessor">#define&#32;ALPHABIT&#32;&#32;&#32;&#32;0</emphasis>
+<anchor xml:id="_lctype_8h_source_1l00040"/><link linkend="_lctype_8h_1a089c6406273b00564db9bd9d43945a25">00040</link> <emphasis role="preprocessor">#define&#32;DIGITBIT&#32;&#32;&#32;&#32;1</emphasis>
+<anchor xml:id="_lctype_8h_source_1l00041"/><link linkend="_lctype_8h_1a708b2cd4d3f7f7126e5f795097ab1592">00041</link> <emphasis role="preprocessor">#define&#32;PRINTBIT&#32;&#32;&#32;&#32;2</emphasis>
+<anchor xml:id="_lctype_8h_source_1l00042"/><link linkend="_lctype_8h_1a6fe589191c9eb50677a9dcdcbc47891e">00042</link> <emphasis role="preprocessor">#define&#32;SPACEBIT&#32;&#32;&#32;&#32;3</emphasis>
+<anchor xml:id="_lctype_8h_source_1l00043"/><link linkend="_lctype_8h_1a326c899e67809dd5626560011d3dd09c">00043</link> <emphasis role="preprocessor">#define&#32;XDIGITBIT&#32;&#32;&#32;4</emphasis>
+00044 
+00045 
+<anchor xml:id="_lctype_8h_source_1l00046"/><link linkend="_lctype_8h_1a7d3df71e2854f50a0da793b08732e197">00046</link> <emphasis role="preprocessor">#define&#32;MASK(B)&#32;&#32;&#32;&#32;&#32;(1&#32;&lt;&lt;&#32;(B))</emphasis>
+00047 
+00048 
+00049 <emphasis role="comment">/*</emphasis>
+00050 <emphasis role="comment">**&#32;add&#32;1&#32;to&#32;char&#32;to&#32;allow&#32;index&#32;-1&#32;(EOZ)</emphasis>
+00051 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lctype_8h_source_1l00052"/><link linkend="_lctype_8h_1ac933a1d6fac0b2e206836c4b8089482d">00052</link> <emphasis role="preprocessor">#define&#32;testprop(c,p)&#32;&#32;&#32;(luai_ctype_[(c)+1]&#32;&amp;&#32;(p))</emphasis>
+00053 
+00054 <emphasis role="comment">/*</emphasis>
+00055 <emphasis role="comment">**&#32;&apos;lalpha&apos;&#32;(Lua&#32;alphabetic)&#32;and&#32;&apos;lalnum&apos;&#32;(Lua&#32;alphanumeric)&#32;both&#32;include&#32;&apos;_&apos;</emphasis>
+00056 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lctype_8h_source_1l00057"/><link linkend="_lctype_8h_1a7132e9f6daf30b344b74f51d64eadf7d">00057</link> <emphasis role="preprocessor">#define&#32;lislalpha(c)&#32;&#32;&#32;&#32;testprop(c,&#32;MASK(ALPHABIT))</emphasis>
+<anchor xml:id="_lctype_8h_source_1l00058"/><link linkend="_lctype_8h_1a9c0dc6a934853b8ab5e7d65a3ca8abcd">00058</link> <emphasis role="preprocessor">#define&#32;lislalnum(c)&#32;&#32;&#32;&#32;testprop(c,&#32;(MASK(ALPHABIT)&#32;|&#32;MASK(DIGITBIT)))</emphasis>
+<anchor xml:id="_lctype_8h_source_1l00059"/><link linkend="_lctype_8h_1aee1d27a5eac398ec2c9c8b80281041e6">00059</link> <emphasis role="preprocessor">#define&#32;lisdigit(c)&#32;testprop(c,&#32;MASK(DIGITBIT))</emphasis>
+<anchor xml:id="_lctype_8h_source_1l00060"/><link linkend="_lctype_8h_1a768801f115261ae5ad51fdf6e54904e2">00060</link> <emphasis role="preprocessor">#define&#32;lisspace(c)&#32;testprop(c,&#32;MASK(SPACEBIT))</emphasis>
+<anchor xml:id="_lctype_8h_source_1l00061"/><link linkend="_lctype_8h_1a68562616d451f440d5c8e4e3d345c573">00061</link> <emphasis role="preprocessor">#define&#32;lisprint(c)&#32;testprop(c,&#32;MASK(PRINTBIT))</emphasis>
+<anchor xml:id="_lctype_8h_source_1l00062"/><link linkend="_lctype_8h_1a72e55b66d80325fb20cbc098d3448996">00062</link> <emphasis role="preprocessor">#define&#32;lisxdigit(c)&#32;&#32;&#32;&#32;testprop(c,&#32;MASK(XDIGITBIT))</emphasis>
+00063 
+00064 <emphasis role="comment">/*</emphasis>
+00065 <emphasis role="comment">**&#32;this&#32;&apos;ltolower&apos;&#32;only&#32;works&#32;for&#32;alphabetic&#32;characters</emphasis>
+00066 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lctype_8h_source_1l00067"/><link linkend="_lctype_8h_1a951ea98d03894d36dd2efed11ec9d973">00067</link> <emphasis role="preprocessor">#define&#32;ltolower(c)&#32;((c)&#32;|&#32;(&apos;A&apos;&#32;^&#32;&apos;a&apos;))</emphasis>
+00068 
+00069 
+00070 <emphasis role="comment">/*&#32;two&#32;more&#32;entries&#32;for&#32;0&#32;and&#32;-1&#32;(EOZ)&#32;*/</emphasis>
+00071 <link linkend="_luaconf_8h_1a3f2cdf96bb04b9d2a9a318a126f99182">LUAI_DDEC</link>(<emphasis role="keyword">const</emphasis>&#32;<link linkend="_llimits_8h_1ae1fe9ac10d9803bd1d7bdf30b18bad68">lu_byte</link>&#32;<link linkend="_lctype_8c_1a0fb53cca0a77a27211713000fc8f66b2">luai_ctype_</link>[UCHAR_MAX&#32;+&#32;2];)
+00072 
+00073 
+00074 #<emphasis role="keywordflow">else</emphasis>&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;}{&#32;*/</emphasis>
+00075 
+00076 <emphasis role="comment">/*</emphasis>
+00077 <emphasis role="comment">**&#32;use&#32;standard&#32;C&#32;ctypes</emphasis>
+00078 <emphasis role="comment">*/</emphasis>
+00079 
+00080 #include&#32;&lt;ctype.h&gt;
+00081 
+00082 
+00083 #define&#32;<link linkend="_lctype_8h_1a7132e9f6daf30b344b74f51d64eadf7d">lislalpha</link>(c)&#32;&#32;&#32;&#32;(isalpha(c)&#32;||&#32;(c)&#32;==&#32;<emphasis role="charliteral">&apos;_&apos;</emphasis>)
+00084 <emphasis role="preprocessor">#define&#32;lislalnum(c)&#32;&#32;&#32;&#32;(isalnum(c)&#32;||&#32;(c)&#32;==&#32;&apos;_&apos;)</emphasis>
+00085 <emphasis role="preprocessor">#define&#32;lisdigit(c)&#32;(isdigit(c))</emphasis>
+00086 <emphasis role="preprocessor">#define&#32;lisspace(c)&#32;(isspace(c))</emphasis>
+00087 <emphasis role="preprocessor">#define&#32;lisprint(c)&#32;(isprint(c))</emphasis>
+00088 <emphasis role="preprocessor">#define&#32;lisxdigit(c)&#32;&#32;&#32;&#32;(isxdigit(c))</emphasis>
+00089 
+00090 <emphasis role="preprocessor">#define&#32;ltolower(c)&#32;(tolower(c))</emphasis>
+00091 
+00092 <emphasis role="preprocessor">#endif&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;</emphasis><emphasis role="comment">/*&#32;}&#32;*/</emphasis><emphasis role="preprocessor"></emphasis>
+00093 
+00094 <emphasis role="preprocessor">#endif</emphasis>
+00095 
+</programlisting></section>

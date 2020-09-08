@@ -1,0 +1,255 @@
+.TH "D:/gitworkspace/lua/ltests.h" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/ltests.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+
+.SS "结构体"
+
+.in +1c
+.ti -1c
+.RI "struct \fBMemcontrol\fP"
+.br
+.ti -1c
+.RI "struct \fBL_EXTRA\fP"
+.br
+.in -1c
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBLUA_COMPAT_MATHLIB\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_COMPAT_LT_LE\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_DEBUG\fP"
+.br
+.ti -1c
+.RI "#define \fBLUAI_ASSERT\fP"
+.br
+.ti -1c
+.RI "#define \fBLUAI_MAXCSTACK\fP   400"
+.br
+.ti -1c
+.RI "#define \fBUNUSED\fP(x)   (x=0, (void)(x))"
+.br
+.ti -1c
+.RI "#define \fBl_sprintf\fP(s,  sz,  f,  i)   (memset(s,0xAB,sz), snprintf(s,sz,f,i))"
+.br
+.ti -1c
+.RI "#define \fBLUA_USE_JUMPTABLE\fP   0"
+.br
+.ti -1c
+.RI "#define \fBLUA_RAND32\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_EXTRASPACE\fP   sizeof(struct \fBL_EXTRA\fP)"
+.br
+.ti -1c
+.RI "#define \fBgetlock\fP(l)   \fBcast\fP(struct \fBL_EXTRA\fP*, \fBlua_getextraspace\fP(l))"
+.br
+.ti -1c
+.RI "#define \fBluai_userstateopen\fP(l)   	(\fBgetlock\fP(l)\->lock = 0, \fBgetlock\fP(l)\->plock = &(\fBgetlock\fP(l)\->lock))"
+.br
+.ti -1c
+.RI "#define \fBluai_userstateclose\fP(l)     \fBlua_assert\fP(\fBgetlock\fP(l)\->lock == 1 && \fBgetlock\fP(l)\->plock == &(\fBgetlock\fP(l)\->lock))"
+.br
+.ti -1c
+.RI "#define \fBluai_userstatethread\fP(l,  l1)     \fBlua_assert\fP(\fBgetlock\fP(l1)\->plock == \fBgetlock\fP(l)\->plock)"
+.br
+.ti -1c
+.RI "#define \fBluai_userstatefree\fP(l,  l1)     \fBlua_assert\fP(\fBgetlock\fP(l)\->plock == \fBgetlock\fP(l1)\->plock)"
+.br
+.ti -1c
+.RI "#define \fBlua_lock\fP(l)   \fBlua_assert\fP((*\fBgetlock\fP(l)\->plock)++ == 0)"
+.br
+.ti -1c
+.RI "#define \fBlua_unlock\fP(l)   \fBlua_assert\fP(\-\-(*\fBgetlock\fP(l)\->plock) == 0)"
+.br
+.ti -1c
+.RI "#define \fBLUAL_BUFFERSIZE\fP   23"
+.br
+.ti -1c
+.RI "#define \fBMINSTRTABSIZE\fP   2"
+.br
+.ti -1c
+.RI "#define \fBMAXIWTHABS\fP   3"
+.br
+.ti -1c
+.RI "#define \fBSTRCACHE_N\fP   23"
+.br
+.ti -1c
+.RI "#define \fBSTRCACHE_M\fP   5"
+.br
+.ti -1c
+.RI "#define \fBLUAI_USER_ALIGNMENT_T\fP   union { char b[sizeof(void*) * 8]; }"
+.br
+.ti -1c
+.RI "#define \fBLUAI_MAXSTACK\fP   50000"
+.br
+.in -1c
+.SS "类型定义"
+
+.in +1c
+.ti -1c
+.RI "typedef struct \fBMemcontrol\fP \fBMemcontrol\fP"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "\fBLUAI_FUNC\fP int \fBlua_checkmemory\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBlua_printobj\fP (\fBlua_State\fP *L, struct \fBGCObject\fP *o)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBluaB_opentests\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void * \fBdebug_realloc\fP (void *ud, void *\fBblock\fP, size_t osize, size_t nsize)"
+.br
+.in -1c
+.SS "变量"
+
+.in +1c
+.ti -1c
+.RI "\fBLUA_API\fP \fBMemcontrol\fP \fBl_memcontrol\fP"
+.br
+.ti -1c
+.RI "void * \fBl_Trick\fP"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define getlock(l)   \fBcast\fP(struct \fBL_EXTRA\fP*, \fBlua_getextraspace\fP(l))"
+
+.PP
+在文件 ltests\&.h 第 90 行定义\&.
+.SS "#define l_sprintf(s, sz, f, i)   (memset(s,0xAB,sz), snprintf(s,sz,f,i))"
+
+.PP
+在文件 ltests\&.h 第 38 行定义\&.
+.SS "#define LUA_COMPAT_LT_LE"
+
+.PP
+在文件 ltests\&.h 第 16 行定义\&.
+.SS "#define LUA_COMPAT_MATHLIB"
+
+.PP
+在文件 ltests\&.h 第 15 行定义\&.
+.SS "#define LUA_DEBUG"
+
+.PP
+在文件 ltests\&.h 第 19 行定义\&.
+.SS "#define LUA_EXTRASPACE   sizeof(struct \fBL_EXTRA\fP)"
+
+.PP
+在文件 ltests\&.h 第 89 行定义\&.
+.SS "#define lua_lock(l)   \fBlua_assert\fP((*\fBgetlock\fP(l)\->plock)++ == 0)"
+
+.PP
+在文件 ltests\&.h 第 99 行定义\&.
+.SS "#define LUA_RAND32"
+
+.PP
+在文件 ltests\&.h 第 49 行定义\&.
+.SS "#define lua_unlock(l)   \fBlua_assert\fP(\-\-(*\fBgetlock\fP(l)\->plock) == 0)"
+
+.PP
+在文件 ltests\&.h 第 100 行定义\&.
+.SS "#define LUA_USE_JUMPTABLE   0"
+
+.PP
+在文件 ltests\&.h 第 45 行定义\&.
+.SS "#define LUAI_ASSERT"
+
+.PP
+在文件 ltests\&.h 第 23 行定义\&.
+.SS "#define LUAI_MAXCSTACK   400"
+
+.PP
+在文件 ltests\&.h 第 29 行定义\&.
+.SS "#define LUAI_MAXSTACK   50000"
+
+.PP
+在文件 ltests\&.h 第 135 行定义\&.
+.SS "#define LUAI_USER_ALIGNMENT_T   union { char b[sizeof(void*) * 8]; }"
+
+.PP
+在文件 ltests\&.h 第 130 行定义\&.
+.SS "#define luai_userstateclose(l)     \fBlua_assert\fP(\fBgetlock\fP(l)\->lock == 1 && \fBgetlock\fP(l)\->plock == &(\fBgetlock\fP(l)\->lock))"
+
+.PP
+在文件 ltests\&.h 第 93 行定义\&.
+.SS "#define luai_userstatefree(l, l1)     \fBlua_assert\fP(\fBgetlock\fP(l)\->plock == \fBgetlock\fP(l1)\->plock)"
+
+.PP
+在文件 ltests\&.h 第 97 行定义\&.
+.SS "#define luai_userstateopen(l)   	(\fBgetlock\fP(l)\->lock = 0, \fBgetlock\fP(l)\->plock = &(\fBgetlock\fP(l)\->lock))"
+
+.PP
+在文件 ltests\&.h 第 91 行定义\&.
+.SS "#define luai_userstatethread(l, l1)     \fBlua_assert\fP(\fBgetlock\fP(l1)\->plock == \fBgetlock\fP(l)\->plock)"
+
+.PP
+在文件 ltests\&.h 第 95 行定义\&.
+.SS "#define LUAL_BUFFERSIZE   23"
+
+.PP
+在文件 ltests\&.h 第 122 行定义\&.
+.SS "#define MAXIWTHABS   3"
+
+.PP
+在文件 ltests\&.h 第 124 行定义\&.
+.SS "#define MINSTRTABSIZE   2"
+
+.PP
+在文件 ltests\&.h 第 123 行定义\&.
+.SS "#define STRCACHE_M   5"
+
+.PP
+在文件 ltests\&.h 第 127 行定义\&.
+.SS "#define STRCACHE_N   23"
+
+.PP
+在文件 ltests\&.h 第 126 行定义\&.
+.SS "#define UNUSED(x)   (x=0, (void)(x))"
+
+.PP
+在文件 ltests\&.h 第 32 行定义\&.
+.SH "类型定义说明"
+.PP 
+.SS "typedef struct \fBMemcontrol\fP \fBMemcontrol\fP"
+
+.SH "函数说明"
+.PP 
+.SS "\fBLUA_API\fP void* debug_realloc (void * ud, void * block, size_t osize, size_t nsize)"
+
+.SS "\fBLUAI_FUNC\fP int lua_checkmemory (\fBlua_State\fP * L)"
+
+.SS "\fBLUAI_FUNC\fP void lua_printobj (\fBlua_State\fP * L, struct \fBGCObject\fP * o)"
+
+.SS "\fBLUA_API\fP int luaB_opentests (\fBlua_State\fP * L)"
+
+.SH "变量说明"
+.PP 
+.SS "\fBLUA_API\fP \fBMemcontrol\fP l_memcontrol"
+
+.PP
+在文件 ltests\&.h 第 63 行定义\&.
+.SS "void* l_Trick\fC [extern]\fP"
+
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

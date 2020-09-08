@@ -1,0 +1,196 @@
+.TH "D:/gitworkspace/lua/src/ltm.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/ltm.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'ldebug\&.h'\fP
+.br
+\fC#include 'ldo\&.h'\fP
+.br
+\fC#include 'lgc\&.h'\fP
+.br
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'lstate\&.h'\fP
+.br
+\fC#include 'lstring\&.h'\fP
+.br
+\fC#include 'ltable\&.h'\fP
+.br
+\fC#include 'ltm\&.h'\fP
+.br
+\fC#include 'lvm\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBltm_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_CORE\fP"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "void \fBluaT_init\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "const \fBTValue\fP * \fBluaT_gettm\fP (\fBTable\fP *events, \fBTMS\fP event, \fBTString\fP *ename)"
+.br
+.ti -1c
+.RI "const \fBTValue\fP * \fBluaT_gettmbyobj\fP (\fBlua_State\fP *L, const \fBTValue\fP *o, \fBTMS\fP event)"
+.br
+.ti -1c
+.RI "const char * \fBluaT_objtypename\fP (\fBlua_State\fP *L, const \fBTValue\fP *o)"
+.br
+.ti -1c
+.RI "void \fBluaT_callTM\fP (\fBlua_State\fP *L, const \fBTValue\fP *f, const \fBTValue\fP *p1, const \fBTValue\fP *p2, const \fBTValue\fP *p3)"
+.br
+.ti -1c
+.RI "void \fBluaT_callTMres\fP (\fBlua_State\fP *L, const \fBTValue\fP *f, const \fBTValue\fP *p1, const \fBTValue\fP *p2, \fBStkId\fP res)"
+.br
+.ti -1c
+.RI "static int \fBcallbinTM\fP (\fBlua_State\fP *L, const \fBTValue\fP *p1, const \fBTValue\fP *p2, \fBStkId\fP res, \fBTMS\fP event)"
+.br
+.ti -1c
+.RI "void \fBluaT_trybinTM\fP (\fBlua_State\fP *L, const \fBTValue\fP *p1, const \fBTValue\fP *p2, \fBStkId\fP res, \fBTMS\fP event)"
+.br
+.ti -1c
+.RI "void \fBluaT_tryconcatTM\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "void \fBluaT_trybinassocTM\fP (\fBlua_State\fP *L, const \fBTValue\fP *p1, const \fBTValue\fP *p2, int flip, \fBStkId\fP res, \fBTMS\fP event)"
+.br
+.ti -1c
+.RI "void \fBluaT_trybiniTM\fP (\fBlua_State\fP *L, const \fBTValue\fP *p1, \fBlua_Integer\fP i2, int flip, \fBStkId\fP res, \fBTMS\fP event)"
+.br
+.ti -1c
+.RI "int \fBluaT_callorderTM\fP (\fBlua_State\fP *L, const \fBTValue\fP *p1, const \fBTValue\fP *p2, \fBTMS\fP event)"
+.br
+.ti -1c
+.RI "int \fBluaT_callorderiTM\fP (\fBlua_State\fP *L, const \fBTValue\fP *p1, int v2, int flip, int isfloat, \fBTMS\fP event)"
+.br
+.ti -1c
+.RI "void \fBluaT_adjustvarargs\fP (\fBlua_State\fP *L, int nfixparams, \fBCallInfo\fP *ci, const \fBProto\fP *p)"
+.br
+.ti -1c
+.RI "void \fBluaT_getvarargs\fP (\fBlua_State\fP *L, \fBCallInfo\fP *ci, \fBStkId\fP where, int wanted)"
+.br
+.in -1c
+.SS "变量"
+
+.in +1c
+.ti -1c
+.RI "static const char \fBudatatypename\fP [] = 'userdata'"
+.br
+.ti -1c
+.RI "\fBLUAI_DDEF\fP const char *const \fBluaT_typenames_\fP [\fBLUA_TOTALTYPES\fP]"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define ltm_c"
+
+.PP
+在文件 ltm\&.c 第 7 行定义\&.
+.SS "#define LUA_CORE"
+
+.PP
+在文件 ltm\&.c 第 8 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static int callbinTM (\fBlua_State\fP * L, const \fBTValue\fP * p1, const \fBTValue\fP * p2, \fBStkId\fP res, \fBTMS\fP event)\fC [static]\fP"
+
+.PP
+在文件 ltm\&.c 第 137 行定义\&.
+.SS "void luaT_adjustvarargs (\fBlua_State\fP * L, int nfixparams, \fBCallInfo\fP * ci, const \fBProto\fP * p)"
+
+.PP
+在文件 ltm\&.c 第 237 行定义\&.
+.SS "int luaT_callorderiTM (\fBlua_State\fP * L, const \fBTValue\fP * p1, int v2, int flip, int isfloat, \fBTMS\fP event)"
+
+.PP
+在文件 ltm\&.c 第 220 行定义\&.
+.SS "int luaT_callorderTM (\fBlua_State\fP * L, const \fBTValue\fP * p1, const \fBTValue\fP * p2, \fBTMS\fP event)"
+
+.PP
+在文件 ltm\&.c 第 200 行定义\&.
+.SS "void luaT_callTM (\fBlua_State\fP * L, const \fBTValue\fP * f, const \fBTValue\fP * p1, const \fBTValue\fP * p2, const \fBTValue\fP * p3)"
+
+.PP
+在文件 ltm\&.c 第 103 行定义\&.
+.SS "void luaT_callTMres (\fBlua_State\fP * L, const \fBTValue\fP * f, const \fBTValue\fP * p1, const \fBTValue\fP * p2, \fBStkId\fP res)"
+
+.PP
+在文件 ltm\&.c 第 119 行定义\&.
+.SS "const \fBTValue\fP* luaT_gettm (\fBTable\fP * events, \fBTMS\fP event, \fBTString\fP * ename)"
+
+.PP
+在文件 ltm\&.c 第 60 行定义\&.
+.SS "const \fBTValue\fP* luaT_gettmbyobj (\fBlua_State\fP * L, const \fBTValue\fP * o, \fBTMS\fP event)"
+
+.PP
+在文件 ltm\&.c 第 71 行定义\&.
+.SS "void luaT_getvarargs (\fBlua_State\fP * L, \fBCallInfo\fP * ci, \fBStkId\fP where, int wanted)"
+
+.PP
+在文件 ltm\&.c 第 257 行定义\&.
+.SS "void luaT_init (\fBlua_State\fP * L)"
+
+.PP
+在文件 ltm\&.c 第 38 行定义\&.
+.SS "const char* luaT_objtypename (\fBlua_State\fP * L, const \fBTValue\fP * o)"
+
+.PP
+在文件 ltm\&.c 第 91 行定义\&.
+.SS "void luaT_trybinassocTM (\fBlua_State\fP * L, const \fBTValue\fP * p1, const \fBTValue\fP * p2, int flip, \fBStkId\fP res, \fBTMS\fP event)"
+
+.PP
+在文件 ltm\&.c 第 174 行定义\&.
+.SS "void luaT_trybiniTM (\fBlua_State\fP * L, const \fBTValue\fP * p1, \fBlua_Integer\fP i2, int flip, \fBStkId\fP res, \fBTMS\fP event)"
+
+.PP
+在文件 ltm\&.c 第 183 行定义\&.
+.SS "void luaT_trybinTM (\fBlua_State\fP * L, const \fBTValue\fP * p1, const \fBTValue\fP * p2, \fBStkId\fP res, \fBTMS\fP event)"
+
+.PP
+在文件 ltm\&.c 第 148 行定义\&.
+.SS "void luaT_tryconcatTM (\fBlua_State\fP * L)"
+
+.PP
+在文件 ltm\&.c 第 167 行定义\&.
+.SH "变量说明"
+.PP 
+.SS "\fBLUAI_DDEF\fP const char* const luaT_typenames_[\fBLUA_TOTALTYPES\fP]"
+\fB初始值:\fP
+.PP
+.nf
+= {
+  "no value",
+  "nil", "boolean", udatatypename, "number",
+  "string", "table", "function", udatatypename, "thread",
+  "upvalue", "proto" 
+}
+.fi
+.PP
+在文件 ltm\&.c 第 30 行定义\&.
+.SS "const char udatatypename[] = 'userdata'\fC [static]\fP"
+
+.PP
+在文件 ltm\&.c 第 28 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

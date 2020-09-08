@@ -1,0 +1,289 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="_lstring_8c_source" xml:lang="zh">
+<title>D:/gitworkspace/lua/lstring.c</title>
+<programlisting>00001 <emphasis role="comment">/*</emphasis>
+00002 <emphasis role="comment">**&#32;$Id:&#32;lstring.c&#32;$</emphasis>
+00003 <emphasis role="comment">**&#32;String&#32;table&#32;(keeps&#32;all&#32;strings&#32;handled&#32;by&#32;Lua)</emphasis>
+00004 <emphasis role="comment">**&#32;See&#32;Copyright&#32;Notice&#32;in&#32;lua.h</emphasis>
+00005 <emphasis role="comment">*/</emphasis>
+00006 
+<anchor xml:id="_lstring_8c_source_1l00007"/><link linkend="_lstring_8c_1a8d6ed28dd5a5754c79aff7a4d92fd4ae">00007</link> <emphasis role="preprocessor">#define&#32;lstring_c</emphasis>
+<anchor xml:id="_lstring_8c_source_1l00008"/><link linkend="_lstring_8c_1abf0b3947b59218777a8e928a10be205b">00008</link> <emphasis role="preprocessor">#define&#32;LUA_CORE</emphasis>
+00009 
+00010 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lprefix_8h">lprefix.h</link>&quot;</emphasis>
+00011 
+00012 
+00013 <emphasis role="preprocessor">#include&#32;&lt;string.h&gt;</emphasis>
+00014 
+00015 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lua_8h">lua.h</link>&quot;</emphasis>
+00016 
+00017 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ldebug_8h">ldebug.h</link>&quot;</emphasis>
+00018 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_ldo_8h">ldo.h</link>&quot;</emphasis>
+00019 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lmem_8h">lmem.h</link>&quot;</emphasis>
+00020 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lobject_8h">lobject.h</link>&quot;</emphasis>
+00021 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lstate_8h">lstate.h</link>&quot;</emphasis>
+00022 <emphasis role="preprocessor">#include&#32;&quot;<link linkend="_lstring_8h">lstring.h</link>&quot;</emphasis>
+00023 
+00024 
+00025 <emphasis role="comment">/*</emphasis>
+00026 <emphasis role="comment">**&#32;Lua&#32;will&#32;use&#32;at&#32;most&#32;~(2^LUAI_HASHLIMIT)&#32;bytes&#32;from&#32;a&#32;long&#32;string&#32;to</emphasis>
+00027 <emphasis role="comment">**&#32;compute&#32;its&#32;hash</emphasis>
+00028 <emphasis role="comment">*/</emphasis>
+00029 <emphasis role="preprocessor">#if&#32;!defined(LUAI_HASHLIMIT)</emphasis>
+<anchor xml:id="_lstring_8c_source_1l00030"/><link linkend="_lstring_8c_1ad9972df7ae330f9c0002a25353d7cde0">00030</link> <emphasis role="preprocessor">#define&#32;LUAI_HASHLIMIT&#32;&#32;&#32;&#32;&#32;&#32;5</emphasis>
+00031 <emphasis role="preprocessor">#endif</emphasis>
+00032 
+00033 
+00034 
+00035 <emphasis role="comment">/*</emphasis>
+00036 <emphasis role="comment">**&#32;Maximum&#32;size&#32;for&#32;string&#32;table.</emphasis>
+00037 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstring_8c_source_1l00038"/><link linkend="_lstring_8c_1aaf71787d460136689a789343d00f8acb">00038</link> <emphasis role="preprocessor">#define&#32;MAXSTRTB&#32;&#32;&#32;&#32;cast_int(luaM_limitN(MAX_INT,&#32;TString*))</emphasis>
+00039 
+00040 
+00041 <emphasis role="comment">/*</emphasis>
+00042 <emphasis role="comment">**&#32;equality&#32;for&#32;long&#32;strings</emphasis>
+00043 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstring_8c_source_1l00044"/><link linkend="_lstring_8h_1a11b7f1ae66d3102d667159acefc3d643">00044</link> <emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lstring_8c_1a99b8eea92097f11885050ff629ff0f83">luaS_eqlngstr</link>&#32;(<link linkend="_struct_t_string">TString</link>&#32;*a,&#32;<link linkend="_struct_t_string">TString</link>&#32;*b)&#32;{
+00045 &#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;len&#32;=&#32;a-&gt;<link linkend="_struct_t_string_1ad158031cadb43a2c445df5d30265b6be">u</link>.<link linkend="_struct_t_string_1a29dec58d03c18f3c9daa73678cc0d655">lnglen</link>;
+00046 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(a-&gt;tt&#32;==&#32;<link linkend="_lobject_8h_1a6869fcb0a0178b6d70d431eae1683199">LUA_VLNGSTR</link>&#32;&amp;&amp;&#32;b-&gt;tt&#32;==&#32;<link linkend="_lobject_8h_1a6869fcb0a0178b6d70d431eae1683199">LUA_VLNGSTR</link>);
+00047 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;(a&#32;==&#32;b)&#32;||&#32;&#32;<emphasis role="comment">/*&#32;same&#32;instance&#32;or...&#32;*/</emphasis>
+00048 &#32;&#32;&#32;&#32;((len&#32;==&#32;b-&gt;<link linkend="_struct_t_string_1ad158031cadb43a2c445df5d30265b6be">u</link>.<link linkend="_struct_t_string_1a29dec58d03c18f3c9daa73678cc0d655">lnglen</link>)&#32;&amp;&amp;&#32;&#32;<emphasis role="comment">/*&#32;equal&#32;length&#32;and&#32;...&#32;*/</emphasis>
+00049 &#32;&#32;&#32;&#32;&#32;(memcmp(<link linkend="_lobject_8h_1acb05d3ab238923581a9c629b8e11a6ac">getstr</link>(a),&#32;<link linkend="_lobject_8h_1acb05d3ab238923581a9c629b8e11a6ac">getstr</link>(b),&#32;len)&#32;==&#32;0));&#32;&#32;<emphasis role="comment">/*&#32;equal&#32;contents&#32;*/</emphasis>
+00050 }
+00051 
+00052 
+<anchor xml:id="_lstring_8c_source_1l00053"/><link linkend="_lstring_8h_1a37602b681f80916f4740da5f1368e65f">00053</link> <emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lstring_8c_1a67e2b935c3d6fbbc6ecca5f3c9250b09">luaS_hash</link>&#32;(<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*str,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;l,&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;seed,
+00054 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;step)&#32;{
+00055 &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;h&#32;=&#32;seed&#32;^&#32;<link linkend="_llimits_8h_1a6ce2ddc5b419ed6f302573db3cc03e56">cast_uint</link>(l);
+00056 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(;&#32;l&#32;&gt;=&#32;step;&#32;l&#32;-=&#32;step)
+00057 &#32;&#32;&#32;&#32;h&#32;^=&#32;((h&lt;&lt;5)&#32;+&#32;(h&gt;&gt;2)&#32;+&#32;<link linkend="_llimits_8h_1a596f5b6e992f53a5a4e5732083448dd4">cast_byte</link>(str[l&#32;-&#32;1]));
+00058 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;h;
+00059 }
+00060 
+00061 
+<anchor xml:id="_lstring_8c_source_1l00062"/><link linkend="_lstring_8h_1aaa383bdce27b05699fb1bc432220abbf">00062</link> <emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;<link linkend="_lstring_8c_1ac51f4a1e06f41eeeb4690a3581016217">luaS_hashlongstr</link>&#32;(<link linkend="_struct_t_string">TString</link>&#32;*ts)&#32;{
+00063 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(ts-&gt;tt&#32;==&#32;<link linkend="_lobject_8h_1a6869fcb0a0178b6d70d431eae1683199">LUA_VLNGSTR</link>);
+00064 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(ts-&gt;<link linkend="_struct_t_string_1af8a633c0d3c4543d3731e518dd658347">extra</link>&#32;==&#32;0)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;no&#32;hash?&#32;*/</emphasis>
+00065 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;len&#32;=&#32;ts-&gt;<link linkend="_struct_t_string_1ad158031cadb43a2c445df5d30265b6be">u</link>.<link linkend="_struct_t_string_1a29dec58d03c18f3c9daa73678cc0d655">lnglen</link>;
+00066 &#32;&#32;&#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;step&#32;=&#32;(len&#32;&gt;&gt;&#32;<link linkend="_lstring_8c_1ad9972df7ae330f9c0002a25353d7cde0">LUAI_HASHLIMIT</link>)&#32;+&#32;1;
+00067 &#32;&#32;&#32;&#32;ts-&gt;<link linkend="_struct_t_string_1a09f9a9ce240560b1d191b42ed56af642">hash</link>&#32;=&#32;<link linkend="_lstring_8c_1a67e2b935c3d6fbbc6ecca5f3c9250b09">luaS_hash</link>(<link linkend="_lobject_8h_1acb05d3ab238923581a9c629b8e11a6ac">getstr</link>(ts),&#32;len,&#32;ts-&gt;<link linkend="_struct_t_string_1a09f9a9ce240560b1d191b42ed56af642">hash</link>,&#32;step);
+00068 &#32;&#32;&#32;&#32;ts-&gt;<link linkend="_struct_t_string_1af8a633c0d3c4543d3731e518dd658347">extra</link>&#32;=&#32;1;&#32;&#32;<emphasis role="comment">/*&#32;now&#32;it&#32;has&#32;its&#32;hash&#32;*/</emphasis>
+00069 &#32;&#32;}
+00070 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;ts-&gt;<link linkend="_struct_t_string_1a09f9a9ce240560b1d191b42ed56af642">hash</link>;
+00071 }
+00072 
+00073 
+<anchor xml:id="_lstring_8c_source_1l00074"/><link linkend="_lstring_8c_1ac41b2b64cecf29c5efc29a7423e697a6">00074</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstring_8c_1ac41b2b64cecf29c5efc29a7423e697a6">tablerehash</link>&#32;(<link linkend="_struct_t_string">TString</link>&#32;**vect,&#32;<emphasis role="keywordtype">int</emphasis>&#32;osize,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nsize)&#32;{
+00075 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i;
+00076 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;osize;&#32;i&#32;&lt;&#32;nsize;&#32;i++)&#32;&#32;<emphasis role="comment">/*&#32;clear&#32;new&#32;elements&#32;*/</emphasis>
+00077 &#32;&#32;&#32;&#32;vect[i]&#32;=&#32;NULL;
+00078 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;0;&#32;i&#32;&lt;&#32;osize;&#32;i++)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;rehash&#32;old&#32;part&#32;of&#32;the&#32;array&#32;*/</emphasis>
+00079 &#32;&#32;&#32;&#32;<link linkend="_struct_t_string">TString</link>&#32;*p&#32;=&#32;vect[i];
+00080 &#32;&#32;&#32;&#32;vect[i]&#32;=&#32;NULL;
+00081 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;(p)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;for&#32;each&#32;string&#32;in&#32;the&#32;list&#32;*/</emphasis>
+00082 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_struct_t_string">TString</link>&#32;*hnext&#32;=&#32;p-&gt;<link linkend="_struct_t_string_1ad158031cadb43a2c445df5d30265b6be">u</link>.<link linkend="_struct_t_string_1a2b0bb3e32a92d173a152e096434d3768">hnext</link>;&#32;&#32;<emphasis role="comment">/*&#32;save&#32;next&#32;*/</emphasis>
+00083 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;h&#32;=&#32;<link linkend="_lobject_8h_1a528d710ddad324002e3cb47992740b6a">lmod</link>(p-&gt;<link linkend="_struct_t_string_1a09f9a9ce240560b1d191b42ed56af642">hash</link>,&#32;nsize);&#32;&#32;<emphasis role="comment">/*&#32;new&#32;position&#32;*/</emphasis>
+00084 &#32;&#32;&#32;&#32;&#32;&#32;p-&gt;<link linkend="_struct_t_string_1ad158031cadb43a2c445df5d30265b6be">u</link>.<link linkend="_struct_t_string_1a2b0bb3e32a92d173a152e096434d3768">hnext</link>&#32;=&#32;vect[h];&#32;&#32;<emphasis role="comment">/*&#32;chain&#32;it&#32;into&#32;array&#32;*/</emphasis>
+00085 &#32;&#32;&#32;&#32;&#32;&#32;vect[h]&#32;=&#32;p;
+00086 &#32;&#32;&#32;&#32;&#32;&#32;p&#32;=&#32;hnext;
+00087 &#32;&#32;&#32;&#32;}
+00088 &#32;&#32;}
+00089 }
+00090 
+00091 
+00092 <emphasis role="comment">/*</emphasis>
+00093 <emphasis role="comment">**&#32;Resize&#32;the&#32;string&#32;table.&#32;If&#32;allocation&#32;fails,&#32;keep&#32;the&#32;current&#32;size.</emphasis>
+00094 <emphasis role="comment">**&#32;(This&#32;can&#32;degrade&#32;performance,&#32;but&#32;any&#32;non-zero&#32;size&#32;should&#32;work</emphasis>
+00095 <emphasis role="comment">**&#32;correctly.)</emphasis>
+00096 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstring_8c_source_1l00097"/><link linkend="_lstring_8h_1a44d549eb0ace165927a896f37330e2cd">00097</link> <emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstring_8c_1ad47f5961683a728dd3f6d80040d1dd92">luaS_resize</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nsize)&#32;{
+00098 &#32;&#32;<link linkend="_structstringtable">stringtable</link>&#32;*tb&#32;=&#32;&amp;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L)-&gt;strt;
+00099 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;osize&#32;=&#32;tb-&gt;<link linkend="_structstringtable_1a439227feff9d7f55384e8780cfc2eb82">size</link>;
+00100 &#32;&#32;<link linkend="_struct_t_string">TString</link>&#32;**newvect;
+00101 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(nsize&#32;&lt;&#32;osize)&#32;&#32;<emphasis role="comment">/*&#32;shrinking&#32;table?&#32;*/</emphasis>
+00102 &#32;&#32;&#32;&#32;<link linkend="_lstring_8c_1ac41b2b64cecf29c5efc29a7423e697a6">tablerehash</link>(tb-&gt;<link linkend="_structstringtable_1a48ff5e24ec6d93bbb1ec0eba2c581147">hash</link>,&#32;osize,&#32;nsize);&#32;&#32;<emphasis role="comment">/*&#32;depopulate&#32;shrinking&#32;part&#32;*/</emphasis>
+00103 &#32;&#32;newvect&#32;=&#32;<link linkend="_lmem_8h_1ab1174e625ed7a62e5f8ba33a7e1c1917">luaM_reallocvector</link>(L,&#32;tb-&gt;<link linkend="_structstringtable_1a48ff5e24ec6d93bbb1ec0eba2c581147">hash</link>,&#32;osize,&#32;nsize,&#32;<link linkend="_struct_t_string">TString</link>*);
+00104 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llimits_8h_1ac6c45889010c1bd68631771b64f18101">unlikely</link>(newvect&#32;==&#32;NULL))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;reallocation&#32;failed?&#32;*/</emphasis>
+00105 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(nsize&#32;&lt;&#32;osize)&#32;&#32;<emphasis role="comment">/*&#32;was&#32;it&#32;shrinking&#32;table?&#32;*/</emphasis>
+00106 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lstring_8c_1ac41b2b64cecf29c5efc29a7423e697a6">tablerehash</link>(tb-&gt;<link linkend="_structstringtable_1a48ff5e24ec6d93bbb1ec0eba2c581147">hash</link>,&#32;nsize,&#32;osize);&#32;&#32;<emphasis role="comment">/*&#32;restore&#32;to&#32;original&#32;size&#32;*/</emphasis>
+00107 &#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;leave&#32;table&#32;as&#32;it&#32;was&#32;*/</emphasis>
+00108 &#32;&#32;}
+00109 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{&#32;&#32;<emphasis role="comment">/*&#32;allocation&#32;succeeded&#32;*/</emphasis>
+00110 &#32;&#32;&#32;&#32;tb-&gt;<link linkend="_structstringtable_1a48ff5e24ec6d93bbb1ec0eba2c581147">hash</link>&#32;=&#32;newvect;
+00111 &#32;&#32;&#32;&#32;tb-&gt;<link linkend="_structstringtable_1a439227feff9d7f55384e8780cfc2eb82">size</link>&#32;=&#32;nsize;
+00112 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(nsize&#32;&gt;&#32;osize)
+00113 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lstring_8c_1ac41b2b64cecf29c5efc29a7423e697a6">tablerehash</link>(newvect,&#32;osize,&#32;nsize);&#32;&#32;<emphasis role="comment">/*&#32;rehash&#32;for&#32;new&#32;size&#32;*/</emphasis>
+00114 &#32;&#32;}
+00115 }
+00116 
+00117 
+00118 <emphasis role="comment">/*</emphasis>
+00119 <emphasis role="comment">**&#32;Clear&#32;API&#32;string&#32;cache.&#32;(Entries&#32;cannot&#32;be&#32;empty,&#32;so&#32;fill&#32;them&#32;with</emphasis>
+00120 <emphasis role="comment">**&#32;a&#32;non-collectable&#32;string.)</emphasis>
+00121 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstring_8c_source_1l00122"/><link linkend="_lstring_8h_1adf6ce45154f1aabbdec670cef4d9a955">00122</link> <emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstring_8c_1a10917db68b530e7756e2e1fc6ed4d172">luaS_clearcache</link>&#32;(<link linkend="_structglobal___state">global_State</link>&#32;*g)&#32;{
+00123 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i,&#32;j;
+00124 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;0;&#32;i&#32;&lt;&#32;<link linkend="_llimits_8h_1aa8382779dd8eeb2dea3deb97dec0ed1c">STRCACHE_N</link>;&#32;i++)
+00125 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(j&#32;=&#32;0;&#32;j&#32;&lt;&#32;<link linkend="_llimits_8h_1a3e028bcc45ab536a37bb6860caf3d2ca">STRCACHE_M</link>;&#32;j++)&#32;{
+00126 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lgc_8h_1a4c0ce78d476460d2e54914301f4a4bf7">iswhite</link>(g-&gt;<link linkend="_structglobal___state_1a80b32cd93b78d5c809ce2f11088075b3">strcache</link>[i][j]))&#32;&#32;<emphasis role="comment">/*&#32;will&#32;entry&#32;be&#32;collected?&#32;*/</emphasis>
+00127 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;g-&gt;<link linkend="_structglobal___state_1a80b32cd93b78d5c809ce2f11088075b3">strcache</link>[i][j]&#32;=&#32;g-&gt;<link linkend="_structglobal___state_1a2b61133bba35942ee5c333aac4dd6869">memerrmsg</link>;&#32;&#32;<emphasis role="comment">/*&#32;replace&#32;it&#32;with&#32;something&#32;fixed&#32;*/</emphasis>
+00128 &#32;&#32;&#32;&#32;}
+00129 }
+00130 
+00131 
+00132 <emphasis role="comment">/*</emphasis>
+00133 <emphasis role="comment">**&#32;Initialize&#32;the&#32;string&#32;table&#32;and&#32;the&#32;string&#32;cache</emphasis>
+00134 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstring_8c_source_1l00135"/><link linkend="_lstring_8h_1a83805363ffda500e327df43007dc0208">00135</link> <emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstring_8c_1abd0b9071d1e81b7bf749f4a2723bc403">luaS_init</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L)&#32;{
+00136 &#32;&#32;<link linkend="_structglobal___state">global_State</link>&#32;*g&#32;=&#32;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L);
+00137 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i,&#32;j;
+00138 &#32;&#32;<link linkend="_structstringtable">stringtable</link>&#32;*tb&#32;=&#32;&amp;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L)-&gt;strt;
+00139 &#32;&#32;tb-&gt;<link linkend="_structstringtable_1a48ff5e24ec6d93bbb1ec0eba2c581147">hash</link>&#32;=&#32;<link linkend="_lmem_8h_1a715cc368a85506c7a104cda58f270f3e">luaM_newvector</link>(L,&#32;<link linkend="_llimits_8h_1a91604f8876fd042d7b1cdbade17927e6">MINSTRTABSIZE</link>,&#32;<link linkend="_struct_t_string">TString</link>*);
+00140 &#32;&#32;<link linkend="_lstring_8c_1ac41b2b64cecf29c5efc29a7423e697a6">tablerehash</link>(tb-&gt;<link linkend="_structstringtable_1a48ff5e24ec6d93bbb1ec0eba2c581147">hash</link>,&#32;0,&#32;<link linkend="_llimits_8h_1a91604f8876fd042d7b1cdbade17927e6">MINSTRTABSIZE</link>);&#32;&#32;<emphasis role="comment">/*&#32;clear&#32;array&#32;*/</emphasis>
+00141 &#32;&#32;tb-&gt;<link linkend="_structstringtable_1a439227feff9d7f55384e8780cfc2eb82">size</link>&#32;=&#32;<link linkend="_llimits_8h_1a91604f8876fd042d7b1cdbade17927e6">MINSTRTABSIZE</link>;
+00142 &#32;&#32;<emphasis role="comment">/*&#32;pre-create&#32;memory-error&#32;message&#32;*/</emphasis>
+00143 &#32;&#32;g-&gt;<link linkend="_structglobal___state_1a2b61133bba35942ee5c333aac4dd6869">memerrmsg</link>&#32;=&#32;<link linkend="_lstring_8h_1a1cd2754b136ed096325a76c6d16a82f5">luaS_newliteral</link>(L,&#32;<link linkend="_lstring_8h_1a36d62c6c0c5a33c2f29cf26ff9137cbf">MEMERRMSG</link>);
+00144 &#32;&#32;<link linkend="_lgc_8c_1a77a9b70a49730bb007a8a9492687d0eb">luaC_fix</link>(L,&#32;<link linkend="_lstate_8h_1a254ca29aba03e47440082d4591a9734e">obj2gco</link>(g-&gt;<link linkend="_structglobal___state_1a2b61133bba35942ee5c333aac4dd6869">memerrmsg</link>));&#32;&#32;<emphasis role="comment">/*&#32;it&#32;should&#32;never&#32;be&#32;collected&#32;*/</emphasis>
+00145 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;0;&#32;i&#32;&lt;&#32;<link linkend="_llimits_8h_1aa8382779dd8eeb2dea3deb97dec0ed1c">STRCACHE_N</link>;&#32;i++)&#32;&#32;<emphasis role="comment">/*&#32;fill&#32;cache&#32;with&#32;valid&#32;strings&#32;*/</emphasis>
+00146 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(j&#32;=&#32;0;&#32;j&#32;&lt;&#32;<link linkend="_llimits_8h_1a3e028bcc45ab536a37bb6860caf3d2ca">STRCACHE_M</link>;&#32;j++)
+00147 &#32;&#32;&#32;&#32;&#32;&#32;g-&gt;<link linkend="_structglobal___state_1a80b32cd93b78d5c809ce2f11088075b3">strcache</link>[i][j]&#32;=&#32;g-&gt;<link linkend="_structglobal___state_1a2b61133bba35942ee5c333aac4dd6869">memerrmsg</link>;
+00148 }
+00149 
+00150 
+00151 
+00152 <emphasis role="comment">/*</emphasis>
+00153 <emphasis role="comment">**&#32;creates&#32;a&#32;new&#32;string&#32;object</emphasis>
+00154 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstring_8c_source_1l00155"/><link linkend="_lstring_8c_1a85a1a917ef263701e47c36e68011d917">00155</link> <emphasis role="keyword">static</emphasis>&#32;<link linkend="_struct_t_string">TString</link>&#32;*<link linkend="_lstring_8c_1a85a1a917ef263701e47c36e68011d917">createstrobj</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;l,&#32;<emphasis role="keywordtype">int</emphasis>&#32;tag,&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;h)&#32;{
+00156 &#32;&#32;<link linkend="_struct_t_string">TString</link>&#32;*ts;
+00157 &#32;&#32;<link linkend="_struct_g_c_object">GCObject</link>&#32;*o;
+00158 &#32;&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;totalsize;&#32;&#32;<emphasis role="comment">/*&#32;total&#32;size&#32;of&#32;TString&#32;object&#32;*/</emphasis>
+00159 &#32;&#32;totalsize&#32;=&#32;<link linkend="_lstring_8h_1a160d701eba216310b09be7447f47794d">sizelstring</link>(l);
+00160 &#32;&#32;o&#32;=&#32;<link linkend="_lgc_8c_1abfc8404c5fbd2a1770202fa0b087d451">luaC_newobj</link>(L,&#32;tag,&#32;totalsize);
+00161 &#32;&#32;ts&#32;=&#32;<link linkend="_lstate_8h_1af6c16f3aa27ad97ea1bcaa31e05e0b06">gco2ts</link>(o);
+00162 &#32;&#32;ts-&gt;<link linkend="_struct_t_string_1a09f9a9ce240560b1d191b42ed56af642">hash</link>&#32;=&#32;h;
+00163 &#32;&#32;ts-&gt;<link linkend="_struct_t_string_1af8a633c0d3c4543d3731e518dd658347">extra</link>&#32;=&#32;0;
+00164 &#32;&#32;<link linkend="_lobject_8h_1acb05d3ab238923581a9c629b8e11a6ac">getstr</link>(ts)[l]&#32;=&#32;<emphasis role="charliteral">&apos;\0&apos;</emphasis>;&#32;&#32;<emphasis role="comment">/*&#32;ending&#32;0&#32;*/</emphasis>
+00165 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;ts;
+00166 }
+00167 
+00168 
+<anchor xml:id="_lstring_8c_source_1l00169"/><link linkend="_lstring_8h_1ab2f7b029336ac9813aa287a840e2453f">00169</link> <link linkend="_struct_t_string">TString</link>&#32;*<link linkend="_lstring_8c_1a8790c7d6e706f935dd6e9eefd068921c">luaS_createlngstrobj</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;l)&#32;{
+00170 &#32;&#32;<link linkend="_struct_t_string">TString</link>&#32;*ts&#32;=&#32;<link linkend="_lstring_8c_1a85a1a917ef263701e47c36e68011d917">createstrobj</link>(L,&#32;l,&#32;<link linkend="_lobject_8h_1a6869fcb0a0178b6d70d431eae1683199">LUA_VLNGSTR</link>,&#32;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L)-&gt;seed);
+00171 &#32;&#32;ts-&gt;<link linkend="_struct_t_string_1ad158031cadb43a2c445df5d30265b6be">u</link>.<link linkend="_struct_t_string_1a29dec58d03c18f3c9daa73678cc0d655">lnglen</link>&#32;=&#32;l;
+00172 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;ts;
+00173 }
+00174 
+00175 
+<anchor xml:id="_lstring_8c_source_1l00176"/><link linkend="_lstring_8h_1a187dea46b6f3964a1eb7446627ef3fdc">00176</link> <emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstring_8c_1a7cac97a1c8f2564c7f0669119dd776fe">luaS_remove</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_struct_t_string">TString</link>&#32;*ts)&#32;{
+00177 &#32;&#32;<link linkend="_structstringtable">stringtable</link>&#32;*tb&#32;=&#32;&amp;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L)-&gt;strt;
+00178 &#32;&#32;<link linkend="_struct_t_string">TString</link>&#32;**p&#32;=&#32;&amp;tb-&gt;<link linkend="_structstringtable_1a48ff5e24ec6d93bbb1ec0eba2c581147">hash</link>[<link linkend="_lobject_8h_1a528d710ddad324002e3cb47992740b6a">lmod</link>(ts-&gt;<link linkend="_struct_t_string_1a09f9a9ce240560b1d191b42ed56af642">hash</link>,&#32;tb-&gt;<link linkend="_structstringtable_1a439227feff9d7f55384e8780cfc2eb82">size</link>)];
+00179 &#32;&#32;<emphasis role="keywordflow">while</emphasis>&#32;(*p&#32;!=&#32;ts)&#32;&#32;<emphasis role="comment">/*&#32;find&#32;previous&#32;element&#32;*/</emphasis>
+00180 &#32;&#32;&#32;&#32;p&#32;=&#32;&amp;(*p)-&gt;<link linkend="_struct_t_string_1ad158031cadb43a2c445df5d30265b6be">u</link>.<link linkend="_struct_t_string_1a2b0bb3e32a92d173a152e096434d3768">hnext</link>;
+00181 &#32;&#32;*p&#32;=&#32;(*p)-&gt;<link linkend="_struct_t_string_1ad158031cadb43a2c445df5d30265b6be">u</link>.<link linkend="_struct_t_string_1a2b0bb3e32a92d173a152e096434d3768">hnext</link>;&#32;&#32;<emphasis role="comment">/*&#32;remove&#32;element&#32;from&#32;its&#32;list&#32;*/</emphasis>
+00182 &#32;&#32;tb-&gt;<link linkend="_structstringtable_1aa69d4be70d4410a0e505187f4b56e824">nuse</link>--;
+00183 }
+00184 
+00185 
+<anchor xml:id="_lstring_8c_source_1l00186"/><link linkend="_lstring_8c_1af8b89b01dc2db9f0d3024067ffdb931a">00186</link> <emphasis role="keyword">static</emphasis>&#32;<emphasis role="keywordtype">void</emphasis>&#32;<link linkend="_lstring_8c_1af8b89b01dc2db9f0d3024067ffdb931a">growstrtab</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<link linkend="_structstringtable">stringtable</link>&#32;*tb)&#32;{
+00187 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llimits_8h_1ac6c45889010c1bd68631771b64f18101">unlikely</link>(tb-&gt;<link linkend="_structstringtable_1aa69d4be70d4410a0e505187f4b56e824">nuse</link>&#32;==&#32;<link linkend="_llimits_8h_1aaa1ac5caef84256eaeb39594e58e096f">MAX_INT</link>))&#32;{&#32;&#32;<emphasis role="comment">/*&#32;too&#32;many&#32;strings?&#32;*/</emphasis>
+00188 &#32;&#32;&#32;&#32;<link linkend="_lgc_8c_1ac48130e5263ad8be09a9c51dae6125b9">luaC_fullgc</link>(L,&#32;1);&#32;&#32;<emphasis role="comment">/*&#32;try&#32;to&#32;free&#32;some...&#32;*/</emphasis>
+00189 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(tb-&gt;<link linkend="_structstringtable_1aa69d4be70d4410a0e505187f4b56e824">nuse</link>&#32;==&#32;<link linkend="_llimits_8h_1aaa1ac5caef84256eaeb39594e58e096f">MAX_INT</link>)&#32;&#32;<emphasis role="comment">/*&#32;still&#32;too&#32;many?&#32;*/</emphasis>
+00190 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lmem_8h_1ae11aaaf07d13b2f0c3a671b01d7e3822">luaM_error</link>(L);&#32;&#32;<emphasis role="comment">/*&#32;cannot&#32;even&#32;create&#32;a&#32;message...&#32;*/</emphasis>
+00191 &#32;&#32;}
+00192 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(tb-&gt;<link linkend="_structstringtable_1a439227feff9d7f55384e8780cfc2eb82">size</link>&#32;&lt;=&#32;<link linkend="_lstring_8c_1aaf71787d460136689a789343d00f8acb">MAXSTRTB</link>&#32;/&#32;2)&#32;&#32;<emphasis role="comment">/*&#32;can&#32;grow&#32;string&#32;table?&#32;*/</emphasis>
+00193 &#32;&#32;&#32;&#32;<link linkend="_lstring_8c_1ad47f5961683a728dd3f6d80040d1dd92">luaS_resize</link>(L,&#32;tb-&gt;<link linkend="_structstringtable_1a439227feff9d7f55384e8780cfc2eb82">size</link>&#32;*&#32;2);
+00194 }
+00195 
+00196 
+00197 <emphasis role="comment">/*</emphasis>
+00198 <emphasis role="comment">**&#32;Checks&#32;whether&#32;short&#32;string&#32;exists&#32;and&#32;reuses&#32;it&#32;or&#32;creates&#32;a&#32;new&#32;one.</emphasis>
+00199 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstring_8c_source_1l00200"/><link linkend="_lstring_8c_1a9b2c32c59a280de24f20df1c7f0433a1">00200</link> <emphasis role="keyword">static</emphasis>&#32;<link linkend="_struct_t_string">TString</link>&#32;*<link linkend="_lstring_8c_1a9b2c32c59a280de24f20df1c7f0433a1">internshrstr</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*str,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;l)&#32;{
+00201 &#32;&#32;<link linkend="_struct_t_string">TString</link>&#32;*ts;
+00202 &#32;&#32;<link linkend="_structglobal___state">global_State</link>&#32;*g&#32;=&#32;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L);
+00203 &#32;&#32;<link linkend="_structstringtable">stringtable</link>&#32;*tb&#32;=&#32;&amp;g-&gt;<link linkend="_structglobal___state_1a8a49c5693b4e171bf57b33e32c254f52">strt</link>;
+00204 &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;h&#32;=&#32;<link linkend="_lstring_8c_1a67e2b935c3d6fbbc6ecca5f3c9250b09">luaS_hash</link>(str,&#32;l,&#32;g-&gt;<link linkend="_structglobal___state_1ae21f357c223957d36046a0d71cc6aed7">seed</link>,&#32;1);
+00205 &#32;&#32;<link linkend="_struct_t_string">TString</link>&#32;**list&#32;=&#32;&amp;tb-&gt;<link linkend="_structstringtable_1a48ff5e24ec6d93bbb1ec0eba2c581147">hash</link>[<link linkend="_lobject_8h_1a528d710ddad324002e3cb47992740b6a">lmod</link>(h,&#32;tb-&gt;<link linkend="_structstringtable_1a439227feff9d7f55384e8780cfc2eb82">size</link>)];
+00206 &#32;&#32;<link linkend="_llimits_8h_1a5978f5fda715bd80e845df1e16ad7780">lua_assert</link>(str&#32;!=&#32;NULL);&#32;&#32;<emphasis role="comment">/*&#32;otherwise&#32;&apos;memcmp&apos;/&apos;memcpy&apos;&#32;are&#32;undefined&#32;*/</emphasis>
+00207 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(ts&#32;=&#32;*list;&#32;ts&#32;!=&#32;NULL;&#32;ts&#32;=&#32;ts-&gt;<link linkend="_struct_t_string_1ad158031cadb43a2c445df5d30265b6be">u</link>.<link linkend="_struct_t_string_1a2b0bb3e32a92d173a152e096434d3768">hnext</link>)&#32;{
+00208 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(l&#32;==&#32;ts-&gt;<link linkend="_struct_t_string_1affd886aed87c9931c49728d4a51bb5ff">shrlen</link>&#32;&amp;&amp;&#32;(memcmp(str,&#32;<link linkend="_lobject_8h_1acb05d3ab238923581a9c629b8e11a6ac">getstr</link>(ts),&#32;l&#32;*&#32;<emphasis role="keyword">sizeof</emphasis>(<emphasis role="keywordtype">char</emphasis>))&#32;==&#32;0))&#32;{
+00209 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="comment">/*&#32;found!&#32;*/</emphasis>
+00210 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_lgc_8h_1acc409eb45f598d23d8388fc9e96189ea">isdead</link>(g,&#32;ts))&#32;&#32;<emphasis role="comment">/*&#32;dead&#32;(but&#32;not&#32;collected&#32;yet)?&#32;*/</emphasis>
+00211 &#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lgc_8h_1a28e94f77147fd242f514b98a1b251486">changewhite</link>(ts);&#32;&#32;<emphasis role="comment">/*&#32;resurrect&#32;it&#32;*/</emphasis>
+00212 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;ts;
+00213 &#32;&#32;&#32;&#32;}
+00214 &#32;&#32;}
+00215 &#32;&#32;<emphasis role="comment">/*&#32;else&#32;must&#32;create&#32;a&#32;new&#32;string&#32;*/</emphasis>
+00216 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(tb-&gt;<link linkend="_structstringtable_1aa69d4be70d4410a0e505187f4b56e824">nuse</link>&#32;&gt;=&#32;tb-&gt;<link linkend="_structstringtable_1a439227feff9d7f55384e8780cfc2eb82">size</link>)&#32;{&#32;&#32;<emphasis role="comment">/*&#32;need&#32;to&#32;grow&#32;string&#32;table?&#32;*/</emphasis>
+00217 &#32;&#32;&#32;&#32;<link linkend="_lstring_8c_1af8b89b01dc2db9f0d3024067ffdb931a">growstrtab</link>(L,&#32;tb);
+00218 &#32;&#32;&#32;&#32;list&#32;=&#32;&amp;tb-&gt;<link linkend="_structstringtable_1a48ff5e24ec6d93bbb1ec0eba2c581147">hash</link>[<link linkend="_lobject_8h_1a528d710ddad324002e3cb47992740b6a">lmod</link>(h,&#32;tb-&gt;<link linkend="_structstringtable_1a439227feff9d7f55384e8780cfc2eb82">size</link>)];&#32;&#32;<emphasis role="comment">/*&#32;rehash&#32;with&#32;new&#32;size&#32;*/</emphasis>
+00219 &#32;&#32;}
+00220 &#32;&#32;ts&#32;=&#32;<link linkend="_lstring_8c_1a85a1a917ef263701e47c36e68011d917">createstrobj</link>(L,&#32;l,&#32;<link linkend="_lobject_8h_1a794410ffd7267ef873eb05ac695b1ba6">LUA_VSHRSTR</link>,&#32;h);
+00221 &#32;&#32;memcpy(<link linkend="_lobject_8h_1acb05d3ab238923581a9c629b8e11a6ac">getstr</link>(ts),&#32;str,&#32;l&#32;*&#32;<emphasis role="keyword">sizeof</emphasis>(<emphasis role="keywordtype">char</emphasis>));
+00222 &#32;&#32;ts-&gt;<link linkend="_struct_t_string_1affd886aed87c9931c49728d4a51bb5ff">shrlen</link>&#32;=&#32;<link linkend="_llimits_8h_1a596f5b6e992f53a5a4e5732083448dd4">cast_byte</link>(l);
+00223 &#32;&#32;ts-&gt;<link linkend="_struct_t_string_1ad158031cadb43a2c445df5d30265b6be">u</link>.<link linkend="_struct_t_string_1a2b0bb3e32a92d173a152e096434d3768">hnext</link>&#32;=&#32;*list;
+00224 &#32;&#32;*list&#32;=&#32;ts;
+00225 &#32;&#32;tb-&gt;<link linkend="_structstringtable_1aa69d4be70d4410a0e505187f4b56e824">nuse</link>++;
+00226 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;ts;
+00227 }
+00228 
+00229 
+00230 <emphasis role="comment">/*</emphasis>
+00231 <emphasis role="comment">**&#32;new&#32;string&#32;(with&#32;explicit&#32;length)</emphasis>
+00232 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstring_8c_source_1l00233"/><link linkend="_lstring_8h_1a248e72694b9116b07b2e7f4a9a3a5331">00233</link> <link linkend="_struct_t_string">TString</link>&#32;*<link linkend="_lstring_8c_1ab41fb084ce3ea5e2779f6659ccc2484d">luaS_newlstr</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*str,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;l)&#32;{
+00234 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(l&#32;&lt;=&#32;<link linkend="_llimits_8h_1a54fe4797308d6b24bf84fa0129a155bd">LUAI_MAXSHORTLEN</link>)&#32;&#32;<emphasis role="comment">/*&#32;short&#32;string?&#32;*/</emphasis>
+00235 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_lstring_8c_1a9b2c32c59a280de24f20df1c7f0433a1">internshrstr</link>(L,&#32;str,&#32;l);
+00236 &#32;&#32;<emphasis role="keywordflow">else</emphasis>&#32;{
+00237 &#32;&#32;&#32;&#32;<link linkend="_struct_t_string">TString</link>&#32;*ts;
+00238 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llimits_8h_1ac6c45889010c1bd68631771b64f18101">unlikely</link>(l&#32;&gt;=&#32;(<link linkend="_llimits_8h_1a0592dba56693fad79136250c11e5a7fe">MAX_SIZE</link>&#32;-&#32;<emphasis role="keyword">sizeof</emphasis>(<link linkend="_struct_t_string">TString</link>))/<emphasis role="keyword">sizeof</emphasis>(<emphasis role="keywordtype">char</emphasis>)))
+00239 &#32;&#32;&#32;&#32;&#32;&#32;<link linkend="_lmem_8c_1a8fc7df43dd830ccbe7581fd53f65bdbe">luaM_toobig</link>(L);
+00240 &#32;&#32;&#32;&#32;ts&#32;=&#32;<link linkend="_lstring_8c_1a8790c7d6e706f935dd6e9eefd068921c">luaS_createlngstrobj</link>(L,&#32;l);
+00241 &#32;&#32;&#32;&#32;memcpy(<link linkend="_lobject_8h_1acb05d3ab238923581a9c629b8e11a6ac">getstr</link>(ts),&#32;str,&#32;l&#32;*&#32;<emphasis role="keyword">sizeof</emphasis>(<emphasis role="keywordtype">char</emphasis>));
+00242 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;ts;
+00243 &#32;&#32;}
+00244 }
+00245 
+00246 
+00247 <emphasis role="comment">/*</emphasis>
+00248 <emphasis role="comment">**&#32;Create&#32;or&#32;reuse&#32;a&#32;zero-terminated&#32;string,&#32;first&#32;checking&#32;in&#32;the</emphasis>
+00249 <emphasis role="comment">**&#32;cache&#32;(using&#32;the&#32;string&#32;address&#32;as&#32;a&#32;key).&#32;The&#32;cache&#32;can&#32;contain</emphasis>
+00250 <emphasis role="comment">**&#32;only&#32;zero-terminated&#32;strings,&#32;so&#32;it&#32;is&#32;safe&#32;to&#32;use&#32;&apos;strcmp&apos;&#32;to</emphasis>
+00251 <emphasis role="comment">**&#32;check&#32;hits.</emphasis>
+00252 <emphasis role="comment">*/</emphasis>
+<anchor xml:id="_lstring_8c_source_1l00253"/><link linkend="_lstring_8h_1a6929da8cfde3e74a0d51a6467909ef9d">00253</link> <link linkend="_struct_t_string">TString</link>&#32;*<link linkend="_lstring_8c_1a6d47e53be6b8e58202bb927752f4824b">luaS_new</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keyword">const</emphasis>&#32;<emphasis role="keywordtype">char</emphasis>&#32;*str)&#32;{
+00254 &#32;&#32;<emphasis role="keywordtype">unsigned</emphasis>&#32;<emphasis role="keywordtype">int</emphasis>&#32;i&#32;=&#32;<link linkend="_llimits_8h_1ad861f24ac9e8c32f78455aab3d2e7b51">point2uint</link>(str)&#32;%&#32;<link linkend="_llimits_8h_1aa8382779dd8eeb2dea3deb97dec0ed1c">STRCACHE_N</link>;&#32;&#32;<emphasis role="comment">/*&#32;hash&#32;*/</emphasis>
+00255 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;j;
+00256 &#32;&#32;<link linkend="_struct_t_string">TString</link>&#32;**p&#32;=&#32;<link linkend="_lstate_8h_1a103db2de6edf3420c6c6c9a282562406">G</link>(L)-&gt;strcache[i];
+00257 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(j&#32;=&#32;0;&#32;j&#32;&lt;&#32;<link linkend="_llimits_8h_1a3e028bcc45ab536a37bb6860caf3d2ca">STRCACHE_M</link>;&#32;j++)&#32;{
+00258 &#32;&#32;&#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(strcmp(str,&#32;<link linkend="_lobject_8h_1acb05d3ab238923581a9c629b8e11a6ac">getstr</link>(p[j]))&#32;==&#32;0)&#32;&#32;<emphasis role="comment">/*&#32;hit?&#32;*/</emphasis>
+00259 &#32;&#32;&#32;&#32;&#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;p[j];&#32;&#32;<emphasis role="comment">/*&#32;that&#32;is&#32;it&#32;*/</emphasis>
+00260 &#32;&#32;}
+00261 &#32;&#32;<emphasis role="comment">/*&#32;normal&#32;route&#32;*/</emphasis>
+00262 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(j&#32;=&#32;<link linkend="_llimits_8h_1a3e028bcc45ab536a37bb6860caf3d2ca">STRCACHE_M</link>&#32;-&#32;1;&#32;j&#32;&gt;&#32;0;&#32;j--)
+00263 &#32;&#32;&#32;&#32;p[j]&#32;=&#32;p[j&#32;-&#32;1];&#32;&#32;<emphasis role="comment">/*&#32;move&#32;out&#32;last&#32;element&#32;*/</emphasis>
+00264 &#32;&#32;<emphasis role="comment">/*&#32;new&#32;element&#32;is&#32;first&#32;in&#32;the&#32;list&#32;*/</emphasis>
+00265 &#32;&#32;p[0]&#32;=&#32;<link linkend="_lstring_8c_1ab41fb084ce3ea5e2779f6659ccc2484d">luaS_newlstr</link>(L,&#32;str,&#32;strlen(str));
+00266 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;p[0];
+00267 }
+00268 
+00269 
+<anchor xml:id="_lstring_8c_source_1l00270"/><link linkend="_lstring_8h_1ad3da18d682039022687b2e3a7f5225f5">00270</link> <link linkend="_struct_udata">Udata</link>&#32;*<link linkend="_lstring_8c_1af1d43cf7a422ae988e1b28ee670fa5f4">luaS_newudata</link>&#32;(<link linkend="_structlua___state">lua_State</link>&#32;*L,&#32;<emphasis role="keywordtype">size_t</emphasis>&#32;s,&#32;<emphasis role="keywordtype">int</emphasis>&#32;nuvalue)&#32;{
+00271 &#32;&#32;<link linkend="_struct_udata">Udata</link>&#32;*<link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">u</link>;
+00272 &#32;&#32;<emphasis role="keywordtype">int</emphasis>&#32;i;
+00273 &#32;&#32;<link linkend="_struct_g_c_object">GCObject</link>&#32;*o;
+00274 &#32;&#32;<emphasis role="keywordflow">if</emphasis>&#32;(<link linkend="_llimits_8h_1ac6c45889010c1bd68631771b64f18101">unlikely</link>(s&#32;&gt;&#32;<link linkend="_llimits_8h_1a0592dba56693fad79136250c11e5a7fe">MAX_SIZE</link>&#32;-&#32;<link linkend="_lobject_8h_1aef06056b207ac5efd6fb0b0a2b3165d5">udatamemoffset</link>(nuvalue)))
+00275 &#32;&#32;&#32;&#32;<link linkend="_lmem_8c_1a8fc7df43dd830ccbe7581fd53f65bdbe">luaM_toobig</link>(L);
+00276 &#32;&#32;o&#32;=&#32;<link linkend="_lgc_8c_1abfc8404c5fbd2a1770202fa0b087d451">luaC_newobj</link>(L,&#32;<link linkend="_lobject_8h_1af45b44d4031e7e869195dd97759d2ca3">LUA_VUSERDATA</link>,&#32;<link linkend="_lobject_8h_1a762595cf399516b83e0f5580a9a3a7b9">sizeudata</link>(nuvalue,&#32;s));
+00277 &#32;&#32;<link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">u</link>&#32;=&#32;<link linkend="_lstate_8h_1a55e9a228ad0d3a82ee9cfc353002fd8a">gco2u</link>(o);
+00278 &#32;&#32;<link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">u</link>-&gt;len&#32;=&#32;s;
+00279 &#32;&#32;<link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">u</link>-&gt;nuvalue&#32;=&#32;nuvalue;
+00280 &#32;&#32;<link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">u</link>-&gt;metatable&#32;=&#32;NULL;
+00281 &#32;&#32;<emphasis role="keywordflow">for</emphasis>&#32;(i&#32;=&#32;0;&#32;i&#32;&lt;&#32;nuvalue;&#32;i++)
+00282 &#32;&#32;&#32;&#32;<link linkend="_lobject_8h_1ad9034def7bbc1965ec3d714d84620b07">setnilvalue</link>(&amp;<link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">u</link>-&gt;uv[i].uv);
+00283 &#32;&#32;<emphasis role="keywordflow">return</emphasis>&#32;<link linkend="_struct_up_val_1ae88bb25a10ec80f8fa19750a76390923">u</link>;
+00284 }
+00285 
+</programlisting></section>

@@ -1,0 +1,777 @@
+.TH "D:/gitworkspace/lua/src/lapi.c" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lapi.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lprefix\&.h'\fP
+.br
+\fC#include <limits\&.h>\fP
+.br
+\fC#include <stdarg\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include 'lua\&.h'\fP
+.br
+\fC#include 'lapi\&.h'\fP
+.br
+\fC#include 'ldebug\&.h'\fP
+.br
+\fC#include 'ldo\&.h'\fP
+.br
+\fC#include 'lfunc\&.h'\fP
+.br
+\fC#include 'lgc\&.h'\fP
+.br
+\fC#include 'lmem\&.h'\fP
+.br
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'lstate\&.h'\fP
+.br
+\fC#include 'lstring\&.h'\fP
+.br
+\fC#include 'ltable\&.h'\fP
+.br
+\fC#include 'ltm\&.h'\fP
+.br
+\fC#include 'lundump\&.h'\fP
+.br
+\fC#include 'lvm\&.h'\fP
+.br
+
+.SS "结构体"
+
+.in +1c
+.ti -1c
+.RI "struct \fBCallS\fP"
+.br
+.in -1c
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBlapi_c\fP"
+.br
+.ti -1c
+.RI "#define \fBLUA_CORE\fP"
+.br
+.ti -1c
+.RI "#define \fBisvalid\fP(L,  o)   (!\fBttisnil\fP(o) || o != &\fBG\fP(L)\->nilvalue)"
+.br
+.ti -1c
+.RI "#define \fBispseudo\fP(i)   ((i) <= \fBLUA_REGISTRYINDEX\fP)"
+.br
+.ti -1c
+.RI "#define \fBisupvalue\fP(i)   ((i) < \fBLUA_REGISTRYINDEX\fP)"
+.br
+.ti -1c
+.RI "#define \fBcheckresults\fP(L,  na,  nr)"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "static \fBTValue\fP * \fBindex2value\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "static \fBStkId\fP \fBindex2stack\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_checkstack\fP (\fBlua_State\fP *L, int n)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_xmove\fP (\fBlua_State\fP *from, \fBlua_State\fP *to, int n)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP \fBlua_CFunction\fP \fBlua_atpanic\fP (\fBlua_State\fP *L, \fBlua_CFunction\fP panicf)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP \fBlua_Number\fP \fBlua_version\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_absindex\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_gettop\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_settop\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "static void \fBreverse\fP (\fBlua_State\fP *L, \fBStkId\fP from, \fBStkId\fP to)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_rotate\fP (\fBlua_State\fP *L, int idx, int n)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_copy\fP (\fBlua_State\fP *L, int fromidx, int toidx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_pushvalue\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_type\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP const char * \fBlua_typename\fP (\fBlua_State\fP *L, int t)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_iscfunction\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_isinteger\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_isnumber\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_isstring\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_isuserdata\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_rawequal\fP (\fBlua_State\fP *L, int index1, int index2)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_arith\fP (\fBlua_State\fP *L, int op)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_compare\fP (\fBlua_State\fP *L, int index1, int index2, int op)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP size_t \fBlua_stringtonumber\fP (\fBlua_State\fP *L, const char *s)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP \fBlua_Number\fP \fBlua_tonumberx\fP (\fBlua_State\fP *L, int idx, int *pisnum)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP \fBlua_Integer\fP \fBlua_tointegerx\fP (\fBlua_State\fP *L, int idx, int *pisnum)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_toboolean\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP const char * \fBlua_tolstring\fP (\fBlua_State\fP *L, int idx, size_t *len)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP \fBlua_Unsigned\fP \fBlua_rawlen\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP \fBlua_CFunction\fP \fBlua_tocfunction\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "static void * \fBtouserdata\fP (const \fBTValue\fP *o)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void * \fBlua_touserdata\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP \fBlua_State\fP * \fBlua_tothread\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP const void * \fBlua_topointer\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_pushnil\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_pushnumber\fP (\fBlua_State\fP *L, \fBlua_Number\fP n)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_pushinteger\fP (\fBlua_State\fP *L, \fBlua_Integer\fP n)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP const char * \fBlua_pushlstring\fP (\fBlua_State\fP *L, const char *s, size_t len)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP const char * \fBlua_pushstring\fP (\fBlua_State\fP *L, const char *s)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP const char * \fBlua_pushvfstring\fP (\fBlua_State\fP *L, const char *fmt, va_list argp)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP const char * \fBlua_pushfstring\fP (\fBlua_State\fP *L, const char *fmt,\&.\&.\&.)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_pushcclosure\fP (\fBlua_State\fP *L, \fBlua_CFunction\fP fn, int n)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_pushboolean\fP (\fBlua_State\fP *L, int b)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_pushlightuserdata\fP (\fBlua_State\fP *L, void *p)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_pushthread\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "static int \fBauxgetstr\fP (\fBlua_State\fP *L, const \fBTValue\fP *t, const char *k)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_getglobal\fP (\fBlua_State\fP *L, const char *name)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_gettable\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_getfield\fP (\fBlua_State\fP *L, int idx, const char *k)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_geti\fP (\fBlua_State\fP *L, int idx, \fBlua_Integer\fP n)"
+.br
+.ti -1c
+.RI "static int \fBfinishrawget\fP (\fBlua_State\fP *L, const \fBTValue\fP *val)"
+.br
+.ti -1c
+.RI "static \fBTable\fP * \fBgettable\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_rawget\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_rawgeti\fP (\fBlua_State\fP *L, int idx, \fBlua_Integer\fP n)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_rawgetp\fP (\fBlua_State\fP *L, int idx, const void *p)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_createtable\fP (\fBlua_State\fP *L, int narray, int nrec)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_getmetatable\fP (\fBlua_State\fP *L, int objindex)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_getiuservalue\fP (\fBlua_State\fP *L, int idx, int n)"
+.br
+.ti -1c
+.RI "static void \fBauxsetstr\fP (\fBlua_State\fP *L, const \fBTValue\fP *t, const char *k)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_setglobal\fP (\fBlua_State\fP *L, const char *name)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_settable\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_setfield\fP (\fBlua_State\fP *L, int idx, const char *k)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_seti\fP (\fBlua_State\fP *L, int idx, \fBlua_Integer\fP n)"
+.br
+.ti -1c
+.RI "static void \fBaux_rawset\fP (\fBlua_State\fP *L, int idx, \fBTValue\fP *key, int n)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_rawset\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_rawsetp\fP (\fBlua_State\fP *L, int idx, const void *p)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_rawseti\fP (\fBlua_State\fP *L, int idx, \fBlua_Integer\fP n)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_setmetatable\fP (\fBlua_State\fP *L, int objindex)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_setiuservalue\fP (\fBlua_State\fP *L, int idx, int n)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_callk\fP (\fBlua_State\fP *L, int nargs, int nresults, \fBlua_KContext\fP ctx, \fBlua_KFunction\fP k)"
+.br
+.ti -1c
+.RI "static void \fBf_call\fP (\fBlua_State\fP *L, void *ud)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_pcallk\fP (\fBlua_State\fP *L, int nargs, int nresults, int errfunc, \fBlua_KContext\fP ctx, \fBlua_KFunction\fP k)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_load\fP (\fBlua_State\fP *L, \fBlua_Reader\fP \fBreader\fP, void *data, const char *chunkname, const char *mode)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_dump\fP (\fBlua_State\fP *L, \fBlua_Writer\fP \fBwriter\fP, void *data, int strip)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_status\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_gc\fP (\fBlua_State\fP *L, int what,\&.\&.\&.)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_error\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP int \fBlua_next\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_toclose\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_concat\fP (\fBlua_State\fP *L, int n)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_len\fP (\fBlua_State\fP *L, int idx)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP \fBlua_Alloc\fP \fBlua_getallocf\fP (\fBlua_State\fP *L, void **ud)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_setallocf\fP (\fBlua_State\fP *L, \fBlua_Alloc\fP f, void *ud)"
+.br
+.ti -1c
+.RI "void \fBlua_setwarnf\fP (\fBlua_State\fP *L, \fBlua_WarnFunction\fP f, void *ud)"
+.br
+.ti -1c
+.RI "void \fBlua_warning\fP (\fBlua_State\fP *L, const char *msg, int tocont)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void * \fBlua_newuserdatauv\fP (\fBlua_State\fP *L, size_t size, int nuvalue)"
+.br
+.ti -1c
+.RI "static const char * \fBaux_upvalue\fP (\fBTValue\fP *fi, int n, \fBTValue\fP **val, \fBGCObject\fP **owner)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP const char * \fBlua_getupvalue\fP (\fBlua_State\fP *L, int funcindex, int n)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP const char * \fBlua_setupvalue\fP (\fBlua_State\fP *L, int funcindex, int n)"
+.br
+.ti -1c
+.RI "static \fBUpVal\fP ** \fBgetupvalref\fP (\fBlua_State\fP *L, int fidx, int n, \fBLClosure\fP **pf)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void * \fBlua_upvalueid\fP (\fBlua_State\fP *L, int fidx, int n)"
+.br
+.ti -1c
+.RI "\fBLUA_API\fP void \fBlua_upvaluejoin\fP (\fBlua_State\fP *L, int fidx1, int n1, int fidx2, int n2)"
+.br
+.in -1c
+.SS "变量"
+
+.in +1c
+.ti -1c
+.RI "const char \fBlua_ident\fP []"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define checkresults(L, na, nr)"
+\fB值:\fP
+.PP
+.nf
+     api_check(L, (nr) == LUA_MULTRET || (L->ci->top - L->top >= (nr) - (na)), \
+    "results from function overflow current stack size")
+.fi
+.PP
+在文件 lapi\&.c 第 958 行定义\&.
+.SS "#define ispseudo(i)   ((i) <= \fBLUA_REGISTRYINDEX\fP)"
+
+.PP
+在文件 lapi\&.c 第 50 行定义\&.
+.SS "#define isupvalue(i)   ((i) < \fBLUA_REGISTRYINDEX\fP)"
+
+.PP
+在文件 lapi\&.c 第 53 行定义\&.
+.SS "#define isvalid(L, o)   (!\fBttisnil\fP(o) || o != &\fBG\fP(L)\->nilvalue)"
+
+.PP
+在文件 lapi\&.c 第 46 行定义\&.
+.SS "#define lapi_c"
+
+.PP
+在文件 lapi\&.c 第 7 行定义\&.
+.SS "#define LUA_CORE"
+
+.PP
+在文件 lapi\&.c 第 8 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "static void aux_rawset (\fBlua_State\fP * L, int idx, \fBTValue\fP * key, int n)\fC [static]\fP"
+
+.PP
+在文件 lapi\&.c 第 854 行定义\&.
+.SS "static const char* aux_upvalue (\fBTValue\fP * fi, int n, \fBTValue\fP ** val, \fBGCObject\fP ** owner)\fC [static]\fP"
+
+.PP
+在文件 lapi\&.c 第 1312 行定义\&.
+.SS "static int auxgetstr (\fBlua_State\fP * L, const \fBTValue\fP * t, const char * k)\fC [static]\fP"
+
+.PP
+在文件 lapi\&.c 第 609 行定义\&.
+.SS "static void auxsetstr (\fBlua_State\fP * L, const \fBTValue\fP * t, const char * k)\fC [static]\fP"
+
+.PP
+在文件 lapi\&.c 第 788 行定义\&.
+.SS "static void f_call (\fBlua_State\fP * L, void * ud)\fC [static]\fP"
+
+.PP
+在文件 lapi\&.c 第 995 行定义\&.
+.SS "static int finishrawget (\fBlua_State\fP * L, const \fBTValue\fP * val)\fC [static]\fP"
+
+.PP
+在文件 lapi\&.c 第 673 行定义\&.
+.SS "static \fBTable\fP* gettable (\fBlua_State\fP * L, int idx)\fC [static]\fP"
+
+.PP
+在文件 lapi\&.c 第 684 行定义\&.
+.SS "static \fBUpVal\fP** getupvalref (\fBlua_State\fP * L, int fidx, int n, \fBLClosure\fP ** pf)\fC [static]\fP"
+
+.PP
+在文件 lapi\&.c 第 1372 行定义\&.
+.SS "static \fBStkId\fP index2stack (\fBlua_State\fP * L, int idx)\fC [static]\fP"
+
+.PP
+在文件 lapi\&.c 第 83 行定义\&.
+.SS "static \fBTValue\fP* index2value (\fBlua_State\fP * L, int idx)\fC [static]\fP"
+
+.PP
+在文件 lapi\&.c 第 56 行定义\&.
+.SS "\fBLUA_API\fP int lua_absindex (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 160 行定义\&.
+.SS "\fBLUA_API\fP void lua_arith (\fBlua_State\fP * L, int op)"
+
+.PP
+在文件 lapi\&.c 第 308 行定义\&.
+.SS "\fBLUA_API\fP \fBlua_CFunction\fP lua_atpanic (\fBlua_State\fP * L, \fBlua_CFunction\fP panicf)"
+
+.PP
+在文件 lapi\&.c 第 135 行定义\&.
+.SS "\fBLUA_API\fP void lua_callk (\fBlua_State\fP * L, int nargs, int nresults, \fBlua_KContext\fP ctx, \fBlua_KFunction\fP k)"
+
+.PP
+在文件 lapi\&.c 第 963 行定义\&.
+.SS "\fBLUA_API\fP int lua_checkstack (\fBlua_State\fP * L, int n)"
+
+.PP
+在文件 lapi\&.c 第 98 行定义\&.
+.SS "\fBLUA_API\fP int lua_compare (\fBlua_State\fP * L, int index1, int index2, int op)"
+
+.PP
+在文件 lapi\&.c 第 324 行定义\&.
+.SS "\fBLUA_API\fP void lua_concat (\fBlua_State\fP * L, int n)"
+
+.PP
+在文件 lapi\&.c 第 1238 行定义\&.
+.SS "\fBLUA_API\fP void lua_copy (\fBlua_State\fP * L, int fromidx, int toidx)"
+
+.PP
+在文件 lapi\&.c 第 228 行定义\&.
+.SS "\fBLUA_API\fP void lua_createtable (\fBlua_State\fP * L, int narray, int nrec)"
+
+.PP
+在文件 lapi\&.c 第 721 行定义\&.
+.SS "\fBLUA_API\fP int lua_dump (\fBlua_State\fP * L, \fBlua_Writer\fP writer, void * data, int strip)"
+
+.PP
+在文件 lapi\&.c 第 1070 行定义\&.
+.SS "\fBLUA_API\fP int lua_error (\fBlua_State\fP * L)"
+
+.PP
+在文件 lapi\&.c 第 1196 行定义\&.
+.SS "\fBLUA_API\fP int lua_gc (\fBlua_State\fP * L, int what,  \&.\&.\&.)"
+
+.PP
+在文件 lapi\&.c 第 1093 行定义\&.
+.SS "\fBLUA_API\fP \fBlua_Alloc\fP lua_getallocf (\fBlua_State\fP * L, void ** ud)"
+
+.PP
+在文件 lapi\&.c 第 1264 行定义\&.
+.SS "\fBLUA_API\fP int lua_getfield (\fBlua_State\fP * L, int idx, const char * k)"
+
+.PP
+在文件 lapi\&.c 第 648 行定义\&.
+.SS "\fBLUA_API\fP int lua_getglobal (\fBlua_State\fP * L, const char * name)"
+
+.PP
+在文件 lapi\&.c 第 626 行定义\&.
+.SS "\fBLUA_API\fP int lua_geti (\fBlua_State\fP * L, int idx, \fBlua_Integer\fP n)"
+
+.PP
+在文件 lapi\&.c 第 654 行定义\&.
+.SS "\fBLUA_API\fP int lua_getiuservalue (\fBlua_State\fP * L, int idx, int n)"
+
+.PP
+在文件 lapi\&.c 第 761 行定义\&.
+.SS "\fBLUA_API\fP int lua_getmetatable (\fBlua_State\fP * L, int objindex)"
+
+.PP
+在文件 lapi\&.c 第 734 行定义\&.
+.SS "\fBLUA_API\fP int lua_gettable (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 633 行定义\&.
+.SS "\fBLUA_API\fP int lua_gettop (\fBlua_State\fP * L)"
+
+.PP
+在文件 lapi\&.c 第 167 行定义\&.
+.SS "\fBLUA_API\fP const char* lua_getupvalue (\fBlua_State\fP * L, int funcindex, int n)"
+
+.PP
+在文件 lapi\&.c 第 1339 行定义\&.
+.SS "\fBLUA_API\fP int lua_iscfunction (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 270 行定义\&.
+.SS "\fBLUA_API\fP int lua_isinteger (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 276 行定义\&.
+.SS "\fBLUA_API\fP int lua_isnumber (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 282 行定义\&.
+.SS "\fBLUA_API\fP int lua_isstring (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 289 行定义\&.
+.SS "\fBLUA_API\fP int lua_isuserdata (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 295 行定义\&.
+.SS "\fBLUA_API\fP void lua_len (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 1254 行定义\&.
+.SS "\fBLUA_API\fP int lua_load (\fBlua_State\fP * L, \fBlua_Reader\fP reader, void * data, const char * chunkname, const char * mode)"
+
+.PP
+在文件 lapi\&.c 第 1046 行定义\&.
+.SS "\fBLUA_API\fP void* lua_newuserdatauv (\fBlua_State\fP * L, size_t size, int nuvalue)"
+
+.PP
+在文件 lapi\&.c 第 1298 行定义\&.
+.SS "\fBLUA_API\fP int lua_next (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 1205 行定义\&.
+.SS "\fBLUA_API\fP int lua_pcallk (\fBlua_State\fP * L, int nargs, int nresults, int errfunc, \fBlua_KContext\fP ctx, \fBlua_KFunction\fP k)"
+
+.PP
+在文件 lapi\&.c 第 1002 行定义\&.
+.SS "\fBLUA_API\fP void lua_pushboolean (\fBlua_State\fP * L, int b)"
+
+.PP
+在文件 lapi\&.c 第 575 行定义\&.
+.SS "\fBLUA_API\fP void lua_pushcclosure (\fBlua_State\fP * L, \fBlua_CFunction\fP fn, int n)"
+
+.PP
+在文件 lapi\&.c 第 550 行定义\&.
+.SS "\fBLUA_API\fP const char* lua_pushfstring (\fBlua_State\fP * L, const char * fmt,  \&.\&.\&.)"
+
+.PP
+在文件 lapi\&.c 第 537 行定义\&.
+.SS "\fBLUA_API\fP void lua_pushinteger (\fBlua_State\fP * L, \fBlua_Integer\fP n)"
+
+.PP
+在文件 lapi\&.c 第 484 行定义\&.
+.SS "\fBLUA_API\fP void lua_pushlightuserdata (\fBlua_State\fP * L, void * p)"
+
+.PP
+在文件 lapi\&.c 第 586 行定义\&.
+.SS "\fBLUA_API\fP const char* lua_pushlstring (\fBlua_State\fP * L, const char * s, size_t len)"
+
+.PP
+在文件 lapi\&.c 第 497 行定义\&.
+.SS "\fBLUA_API\fP void lua_pushnil (\fBlua_State\fP * L)"
+
+.PP
+在文件 lapi\&.c 第 468 行定义\&.
+.SS "\fBLUA_API\fP void lua_pushnumber (\fBlua_State\fP * L, \fBlua_Number\fP n)"
+
+.PP
+在文件 lapi\&.c 第 476 行定义\&.
+.SS "\fBLUA_API\fP const char* lua_pushstring (\fBlua_State\fP * L, const char * s)"
+
+.PP
+在文件 lapi\&.c 第 509 行定义\&.
+.SS "\fBLUA_API\fP int lua_pushthread (\fBlua_State\fP * L)"
+
+.PP
+在文件 lapi\&.c 第 594 行定义\&.
+.SS "\fBLUA_API\fP void lua_pushvalue (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 243 行定义\&.
+.SS "\fBLUA_API\fP const char* lua_pushvfstring (\fBlua_State\fP * L, const char * fmt, va_list argp)"
+
+.PP
+在文件 lapi\&.c 第 526 行定义\&.
+.SS "\fBLUA_API\fP int lua_rawequal (\fBlua_State\fP * L, int index1, int index2)"
+
+.PP
+在文件 lapi\&.c 第 301 行定义\&.
+.SS "\fBLUA_API\fP int lua_rawget (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 691 行定义\&.
+.SS "\fBLUA_API\fP int lua_rawgeti (\fBlua_State\fP * L, int idx, \fBlua_Integer\fP n)"
+
+.PP
+在文件 lapi\&.c 第 703 行定义\&.
+.SS "\fBLUA_API\fP int lua_rawgetp (\fBlua_State\fP * L, int idx, const void * p)"
+
+.PP
+在文件 lapi\&.c 第 711 行定义\&.
+.SS "\fBLUA_API\fP \fBlua_Unsigned\fP lua_rawlen (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 397 行定义\&.
+.SS "\fBLUA_API\fP void lua_rawset (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 869 行定义\&.
+.SS "\fBLUA_API\fP void lua_rawseti (\fBlua_State\fP * L, int idx, \fBlua_Integer\fP n)"
+
+.PP
+在文件 lapi\&.c 第 881 行定义\&.
+.SS "\fBLUA_API\fP void lua_rawsetp (\fBlua_State\fP * L, int idx, const void * p)"
+
+.PP
+在文件 lapi\&.c 第 874 行定义\&.
+.SS "\fBLUA_API\fP void lua_rotate (\fBlua_State\fP * L, int idx, int n)"
+
+.PP
+在文件 lapi\&.c 第 214 行定义\&.
+.SS "\fBLUA_API\fP void lua_setallocf (\fBlua_State\fP * L, \fBlua_Alloc\fP f, void * ud)"
+
+.PP
+在文件 lapi\&.c 第 1274 行定义\&.
+.SS "\fBLUA_API\fP void lua_setfield (\fBlua_State\fP * L, int idx, const char * k)"
+
+.PP
+在文件 lapi\&.c 第 829 行定义\&.
+.SS "\fBLUA_API\fP void lua_setglobal (\fBlua_State\fP * L, const char * name)"
+
+.PP
+在文件 lapi\&.c 第 806 行定义\&.
+.SS "\fBLUA_API\fP void lua_seti (\fBlua_State\fP * L, int idx, \fBlua_Integer\fP n)"
+
+.PP
+在文件 lapi\&.c 第 835 行定义\&.
+.SS "\fBLUA_API\fP int lua_setiuservalue (\fBlua_State\fP * L, int idx, int n)"
+
+.PP
+在文件 lapi\&.c 第 933 行定义\&.
+.SS "\fBLUA_API\fP int lua_setmetatable (\fBlua_State\fP * L, int objindex)"
+
+.PP
+在文件 lapi\&.c 第 893 行定义\&.
+.SS "\fBLUA_API\fP void lua_settable (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 813 行定义\&.
+.SS "\fBLUA_API\fP void lua_settop (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 172 行定义\&.
+.SS "\fBLUA_API\fP const char* lua_setupvalue (\fBlua_State\fP * L, int funcindex, int n)"
+
+.PP
+在文件 lapi\&.c 第 1353 行定义\&.
+.SS "void lua_setwarnf (\fBlua_State\fP * L, \fBlua_WarnFunction\fP f, void * ud)"
+
+.PP
+在文件 lapi\&.c 第 1282 行定义\&.
+.SS "\fBLUA_API\fP int lua_status (\fBlua_State\fP * L)"
+
+.PP
+在文件 lapi\&.c 第 1085 行定义\&.
+.SS "\fBLUA_API\fP size_t lua_stringtonumber (\fBlua_State\fP * L, const char * s)"
+
+.PP
+在文件 lapi\&.c 第 344 行定义\&.
+.SS "\fBLUA_API\fP int lua_toboolean (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 372 行定义\&.
+.SS "\fBLUA_API\fP \fBlua_CFunction\fP lua_tocfunction (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 409 行定义\&.
+.SS "\fBLUA_API\fP void lua_toclose (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 1222 行定义\&.
+.SS "\fBLUA_API\fP \fBlua_Integer\fP lua_tointegerx (\fBlua_State\fP * L, int idx, int * pisnum)"
+
+.PP
+在文件 lapi\&.c 第 362 行定义\&.
+.SS "\fBLUA_API\fP const char* lua_tolstring (\fBlua_State\fP * L, int idx, size_t * len)"
+
+.PP
+在文件 lapi\&.c 第 378 行定义\&.
+.SS "\fBLUA_API\fP \fBlua_Number\fP lua_tonumberx (\fBlua_State\fP * L, int idx, int * pisnum)"
+
+.PP
+在文件 lapi\&.c 第 352 行定义\&.
+.SS "\fBLUA_API\fP const void* lua_topointer (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 446 行定义\&.
+.SS "\fBLUA_API\fP \fBlua_State\fP* lua_tothread (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 433 行定义\&.
+.SS "\fBLUA_API\fP void* lua_touserdata (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 427 行定义\&.
+.SS "\fBLUA_API\fP int lua_type (\fBlua_State\fP * L, int idx)"
+
+.PP
+在文件 lapi\&.c 第 257 行定义\&.
+.SS "\fBLUA_API\fP const char* lua_typename (\fBlua_State\fP * L, int t)"
+
+.PP
+在文件 lapi\&.c 第 263 行定义\&.
+.SS "\fBLUA_API\fP void* lua_upvalueid (\fBlua_State\fP * L, int fidx, int n)"
+
+.PP
+在文件 lapi\&.c 第 1383 行定义\&.
+.SS "\fBLUA_API\fP void lua_upvaluejoin (\fBlua_State\fP * L, int fidx1, int n1, int fidx2, int n2)"
+
+.PP
+在文件 lapi\&.c 第 1402 行定义\&.
+.SS "\fBLUA_API\fP \fBlua_Number\fP lua_version (\fBlua_State\fP * L)"
+
+.PP
+在文件 lapi\&.c 第 145 行定义\&.
+.SS "void lua_warning (\fBlua_State\fP * L, const char * msg, int tocont)"
+
+.PP
+在文件 lapi\&.c 第 1290 行定义\&.
+.SS "\fBLUA_API\fP void lua_xmove (\fBlua_State\fP * from, \fBlua_State\fP * to, int n)"
+
+.PP
+在文件 lapi\&.c 第 119 行定义\&.
+.SS "static void reverse (\fBlua_State\fP * L, \fBStkId\fP from, \fBStkId\fP to)\fC [static]\fP"
+
+.PP
+在文件 lapi\&.c 第 200 行定义\&.
+.SS "static void* touserdata (const \fBTValue\fP * o)\fC [static]\fP"
+
+.PP
+在文件 lapi\&.c 第 418 行定义\&.
+.SH "变量说明"
+.PP 
+.SS "const char lua_ident[]"
+\fB初始值:\fP
+.PP
+.nf
+=
+  "$LuaVersion: " LUA_COPYRIGHT " $"
+  "$LuaAuthors: " LUA_AUTHORS " $"
+.fi
+.PP
+在文件 lapi\&.c 第 35 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.

@@ -1,0 +1,539 @@
+.TH "D:/gitworkspace/lua/src/lgc.h" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+D:/gitworkspace/lua/src/lgc.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'lobject\&.h'\fP
+.br
+\fC#include 'lstate\&.h'\fP
+.br
+
+.SS "宏定义"
+
+.in +1c
+.ti -1c
+.RI "#define \fBGCSpropagate\fP   0"
+.br
+.ti -1c
+.RI "#define \fBGCSenteratomic\fP   1"
+.br
+.ti -1c
+.RI "#define \fBGCSatomic\fP   2"
+.br
+.ti -1c
+.RI "#define \fBGCSswpallgc\fP   3"
+.br
+.ti -1c
+.RI "#define \fBGCSswpfinobj\fP   4"
+.br
+.ti -1c
+.RI "#define \fBGCSswptobefnz\fP   5"
+.br
+.ti -1c
+.RI "#define \fBGCSswpend\fP   6"
+.br
+.ti -1c
+.RI "#define \fBGCScallfin\fP   7"
+.br
+.ti -1c
+.RI "#define \fBGCSpause\fP   8"
+.br
+.ti -1c
+.RI "#define \fBissweepphase\fP(g)   	(\fBGCSswpallgc\fP <= (g)\->gcstate && (g)\->gcstate <= \fBGCSswpend\fP)"
+.br
+.ti -1c
+.RI "#define \fBkeepinvariant\fP(g)   ((g)\->gcstate <= \fBGCSatomic\fP)"
+.br
+.ti -1c
+.RI "#define \fBresetbits\fP(x,  m)   ((x) &= \fBcast_byte\fP(~(m)))"
+.br
+.ti -1c
+.RI "#define \fBsetbits\fP(x,  m)   ((x) |= (m))"
+.br
+.ti -1c
+.RI "#define \fBtestbits\fP(x,  m)   ((x) & (m))"
+.br
+.ti -1c
+.RI "#define \fBbitmask\fP(b)   (1<<(b))"
+.br
+.ti -1c
+.RI "#define \fBbit2mask\fP(b1,  b2)   (\fBbitmask\fP(b1) | \fBbitmask\fP(b2))"
+.br
+.ti -1c
+.RI "#define \fBl_setbit\fP(x,  b)   \fBsetbits\fP(x, \fBbitmask\fP(b))"
+.br
+.ti -1c
+.RI "#define \fBresetbit\fP(x,  b)   \fBresetbits\fP(x, \fBbitmask\fP(b))"
+.br
+.ti -1c
+.RI "#define \fBtestbit\fP(x,  b)   \fBtestbits\fP(x, \fBbitmask\fP(b))"
+.br
+.ti -1c
+.RI "#define \fBWHITE0BIT\fP   3  /* object is white (type 0) */"
+.br
+.ti -1c
+.RI "#define \fBWHITE1BIT\fP   4  /* object is white (type 1) */"
+.br
+.ti -1c
+.RI "#define \fBBLACKBIT\fP   5  /* object is black */"
+.br
+.ti -1c
+.RI "#define \fBFINALIZEDBIT\fP   6  /* object has been marked for finalization */"
+.br
+.ti -1c
+.RI "#define \fBWHITEBITS\fP   \fBbit2mask\fP(\fBWHITE0BIT\fP, \fBWHITE1BIT\fP)"
+.br
+.ti -1c
+.RI "#define \fBiswhite\fP(x)   \fBtestbits\fP((x)\->marked, \fBWHITEBITS\fP)"
+.br
+.ti -1c
+.RI "#define \fBisblack\fP(x)   \fBtestbit\fP((x)\->marked, \fBBLACKBIT\fP)"
+.br
+.ti -1c
+.RI "#define \fBisgray\fP(x)"
+.br
+.ti -1c
+.RI "#define \fBtofinalize\fP(x)   \fBtestbit\fP((x)\->marked, \fBFINALIZEDBIT\fP)"
+.br
+.ti -1c
+.RI "#define \fBotherwhite\fP(g)   ((g)\->currentwhite ^ \fBWHITEBITS\fP)"
+.br
+.ti -1c
+.RI "#define \fBisdeadm\fP(ow,  m)   ((m) & (ow))"
+.br
+.ti -1c
+.RI "#define \fBisdead\fP(g,  v)   \fBisdeadm\fP(\fBotherwhite\fP(g), (v)\->marked)"
+.br
+.ti -1c
+.RI "#define \fBchangewhite\fP(x)   ((x)\->marked ^= \fBWHITEBITS\fP)"
+.br
+.ti -1c
+.RI "#define \fBgray2black\fP(x)   \fBl_setbit\fP((x)\->marked, \fBBLACKBIT\fP)"
+.br
+.ti -1c
+.RI "#define \fBluaC_white\fP(g)   \fBcast_byte\fP((g)\->currentwhite & \fBWHITEBITS\fP)"
+.br
+.ti -1c
+.RI "#define \fBG_NEW\fP   0	/* created in current cycle */"
+.br
+.ti -1c
+.RI "#define \fBG_SURVIVAL\fP   1	/* created in previous cycle */"
+.br
+.ti -1c
+.RI "#define \fBG_OLD0\fP   2	/* marked old by frw\&. barrier in this cycle */"
+.br
+.ti -1c
+.RI "#define \fBG_OLD1\fP   3	/* first full cycle as old */"
+.br
+.ti -1c
+.RI "#define \fBG_OLD\fP   4	/* really old object (not to be visited) */"
+.br
+.ti -1c
+.RI "#define \fBG_TOUCHED1\fP   5	/* old object touched this cycle */"
+.br
+.ti -1c
+.RI "#define \fBG_TOUCHED2\fP   6	/* old object touched in previous cycle */"
+.br
+.ti -1c
+.RI "#define \fBAGEBITS\fP   7  /* all age bits (111) */"
+.br
+.ti -1c
+.RI "#define \fBgetage\fP(o)   ((o)\->marked & \fBAGEBITS\fP)"
+.br
+.ti -1c
+.RI "#define \fBsetage\fP(o,  a)   ((o)\->marked = \fBcast_byte\fP(((o)\->marked & (~\fBAGEBITS\fP)) | a))"
+.br
+.ti -1c
+.RI "#define \fBisold\fP(o)   (\fBgetage\fP(o) > \fBG_SURVIVAL\fP)"
+.br
+.ti -1c
+.RI "#define \fBchangeage\fP(o,  f,  t)   	\fBcheck_exp\fP(\fBgetage\fP(o) == (f), (o)\->marked ^= ((f)^(t)))"
+.br
+.ti -1c
+.RI "#define \fBLUAI_GENMAJORMUL\fP   100"
+.br
+.ti -1c
+.RI "#define \fBLUAI_GENMINORMUL\fP   20"
+.br
+.ti -1c
+.RI "#define \fBLUAI_GCPAUSE\fP   200"
+.br
+.ti -1c
+.RI "#define \fBgetgcparam\fP(p)   ((p) * 4)"
+.br
+.ti -1c
+.RI "#define \fBsetgcparam\fP(p,  v)   ((p) = (v) / 4)"
+.br
+.ti -1c
+.RI "#define \fBLUAI_GCMUL\fP   100"
+.br
+.ti -1c
+.RI "#define \fBLUAI_GCSTEPSIZE\fP   13      /* 8 \fBKB\fP */"
+.br
+.ti -1c
+.RI "#define \fBisdecGCmodegen\fP(g)   (g\->gckind == \fBKGC_GEN\fP || g\->lastatomic != 0)"
+.br
+.ti -1c
+.RI "#define \fBluaC_condGC\fP(L,  pre,  pos)"
+.br
+.ti -1c
+.RI "#define \fBluaC_checkGC\fP(L)   \fBluaC_condGC\fP(L,(void)0,(void)0)"
+.br
+.ti -1c
+.RI "#define \fBluaC_barrier\fP(L,  p,  v)"
+.br
+.ti -1c
+.RI "#define \fBluaC_barrierback\fP(L,  p,  v)"
+.br
+.ti -1c
+.RI "#define \fBluaC_objbarrier\fP(L,  p,  o)"
+.br
+.in -1c
+.SS "函数"
+
+.in +1c
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaC_fix\fP (\fBlua_State\fP *L, \fBGCObject\fP *o)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaC_freeallobjects\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaC_step\fP (\fBlua_State\fP *L)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaC_runtilstate\fP (\fBlua_State\fP *L, int statesmask)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaC_fullgc\fP (\fBlua_State\fP *L, int isemergency)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP \fBGCObject\fP * \fBluaC_newobj\fP (\fBlua_State\fP *L, int tt, size_t sz)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaC_barrier_\fP (\fBlua_State\fP *L, \fBGCObject\fP *o, \fBGCObject\fP *v)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaC_barrierback_\fP (\fBlua_State\fP *L, \fBGCObject\fP *o)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaC_checkfinalizer\fP (\fBlua_State\fP *L, \fBGCObject\fP *o, \fBTable\fP *mt)"
+.br
+.ti -1c
+.RI "\fBLUAI_FUNC\fP void \fBluaC_changemode\fP (\fBlua_State\fP *L, int newmode)"
+.br
+.in -1c
+.SH "宏定义说明"
+.PP 
+.SS "#define AGEBITS   7  /* all age bits (111) */"
+
+.PP
+在文件 lgc\&.h 第 111 行定义\&.
+.SS "#define bit2mask(b1, b2)   (\fBbitmask\fP(b1) | \fBbitmask\fP(b2))"
+
+.PP
+在文件 lgc\&.h 第 64 行定义\&.
+.SS "#define bitmask(b)   (1<<(b))"
+
+.PP
+在文件 lgc\&.h 第 63 行定义\&.
+.SS "#define BLACKBIT   5  /* object is black */"
+
+.PP
+在文件 lgc\&.h 第 77 行定义\&.
+.SS "#define changeage(o, f, t)   	\fBcheck_exp\fP(\fBgetage\fP(o) == (f), (o)\->marked ^= ((f)^(t)))"
+
+.PP
+在文件 lgc\&.h 第 117 行定义\&.
+.SS "#define changewhite(x)   ((x)\->marked ^= \fBWHITEBITS\fP)"
+
+.PP
+在文件 lgc\&.h 第 96 行定义\&.
+.SS "#define FINALIZEDBIT   6  /* object has been marked for finalization */"
+
+.PP
+在文件 lgc\&.h 第 78 行定义\&.
+.SS "#define G_NEW   0	/* created in current cycle */"
+
+.PP
+在文件 lgc\&.h 第 103 行定义\&.
+.SS "#define G_OLD   4	/* really old object (not to be visited) */"
+
+.PP
+在文件 lgc\&.h 第 107 行定义\&.
+.SS "#define G_OLD0   2	/* marked old by frw\&. barrier in this cycle */"
+
+.PP
+在文件 lgc\&.h 第 105 行定义\&.
+.SS "#define G_OLD1   3	/* first full cycle as old */"
+
+.PP
+在文件 lgc\&.h 第 106 行定义\&.
+.SS "#define G_SURVIVAL   1	/* created in previous cycle */"
+
+.PP
+在文件 lgc\&.h 第 104 行定义\&.
+.SS "#define G_TOUCHED1   5	/* old object touched this cycle */"
+
+.PP
+在文件 lgc\&.h 第 108 行定义\&.
+.SS "#define G_TOUCHED2   6	/* old object touched in previous cycle */"
+
+.PP
+在文件 lgc\&.h 第 109 行定义\&.
+.SS "#define GCSatomic   2"
+
+.PP
+在文件 lgc\&.h 第 33 行定义\&.
+.SS "#define GCScallfin   7"
+
+.PP
+在文件 lgc\&.h 第 38 行定义\&.
+.SS "#define GCSenteratomic   1"
+
+.PP
+在文件 lgc\&.h 第 32 行定义\&.
+.SS "#define GCSpause   8"
+
+.PP
+在文件 lgc\&.h 第 39 行定义\&.
+.SS "#define GCSpropagate   0"
+
+.PP
+在文件 lgc\&.h 第 31 行定义\&.
+.SS "#define GCSswpallgc   3"
+
+.PP
+在文件 lgc\&.h 第 34 行定义\&.
+.SS "#define GCSswpend   6"
+
+.PP
+在文件 lgc\&.h 第 37 行定义\&.
+.SS "#define GCSswpfinobj   4"
+
+.PP
+在文件 lgc\&.h 第 35 行定义\&.
+.SS "#define GCSswptobefnz   5"
+
+.PP
+在文件 lgc\&.h 第 36 行定义\&.
+.SS "#define getage(o)   ((o)\->marked & \fBAGEBITS\fP)"
+
+.PP
+在文件 lgc\&.h 第 113 行定义\&.
+.SS "#define getgcparam(p)   ((p) * 4)"
+
+.PP
+在文件 lgc\&.h 第 132 行定义\&.
+.SS "#define gray2black(x)   \fBl_setbit\fP((x)\->marked, \fBBLACKBIT\fP)"
+
+.PP
+在文件 lgc\&.h 第 97 行定义\&.
+.SS "#define isblack(x)   \fBtestbit\fP((x)\->marked, \fBBLACKBIT\fP)"
+
+.PP
+在文件 lgc\&.h 第 86 行定义\&.
+.SS "#define isdead(g, v)   \fBisdeadm\fP(\fBotherwhite\fP(g), (v)\->marked)"
+
+.PP
+在文件 lgc\&.h 第 94 行定义\&.
+.SS "#define isdeadm(ow, m)   ((m) & (ow))"
+
+.PP
+在文件 lgc\&.h 第 93 行定义\&.
+.SS "#define isdecGCmodegen(g)   (g\->gckind == \fBKGC_GEN\fP || g\->lastatomic != 0)"
+
+.PP
+在文件 lgc\&.h 第 146 行定义\&.
+.SS "#define isgray(x)"
+\fB值:\fP
+.PP
+.nf
+    /* neither white nor black */  \
+    (!testbits((x)->marked, WHITEBITS | bitmask(BLACKBIT)))
+.fi
+.PP
+在文件 lgc\&.h 第 87 行定义\&.
+.SS "#define isold(o)   (\fBgetage\fP(o) > \fBG_SURVIVAL\fP)"
+
+.PP
+在文件 lgc\&.h 第 115 行定义\&.
+.SS "#define issweepphase(g)   	(\fBGCSswpallgc\fP <= (g)\->gcstate && (g)\->gcstate <= \fBGCSswpend\fP)"
+
+.PP
+在文件 lgc\&.h 第 42 行定义\&.
+.SS "#define iswhite(x)   \fBtestbits\fP((x)\->marked, \fBWHITEBITS\fP)"
+
+.PP
+在文件 lgc\&.h 第 85 行定义\&.
+.SS "#define keepinvariant(g)   ((g)\->gcstate <= \fBGCSatomic\fP)"
+
+.PP
+在文件 lgc\&.h 第 54 行定义\&.
+.SS "#define l_setbit(x, b)   \fBsetbits\fP(x, \fBbitmask\fP(b))"
+
+.PP
+在文件 lgc\&.h 第 65 行定义\&.
+.SS "#define luaC_barrier(L, p, v)"
+\fB值:\fP
+.PP
+.nf
+   (  \
+    (iscollectable(v) && isblack(p) && iswhite(gcvalue(v))) ?  \
+    luaC_barrier_(L,obj2gco(p),gcvalue(v)) : cast_void(0))
+.fi
+.PP
+在文件 lgc\&.h 第 162 行定义\&.
+.SS "#define luaC_barrierback(L, p, v)"
+\fB值:\fP
+.PP
+.nf
+    (  \
+    (iscollectable(v) && isblack(p) && iswhite(gcvalue(v))) ? \
+    luaC_barrierback_(L,p) : cast_void(0))
+.fi
+.PP
+在文件 lgc\&.h 第 166 行定义\&.
+.SS "#define luaC_checkGC(L)   \fBluaC_condGC\fP(L,(void)0,(void)0)"
+
+.PP
+在文件 lgc\&.h 第 159 行定义\&.
+.SS "#define luaC_condGC(L, pre, pos)"
+\fB值:\fP
+.PP
+.nf
+ { if (G(L)->GCdebt > 0) { pre; luaC_step(L); pos;}; \
+      condchangemem(L,pre,pos); }
+.fi
+.PP
+在文件 lgc\&.h 第 154 行定义\&.
+.SS "#define luaC_objbarrier(L, p, o)"
+\fB值:\fP
+.PP
+.nf
+ (  \
+    (isblack(p) && iswhite(o)) ? \
+    luaC_barrier_(L,obj2gco(p),obj2gco(o)) : cast_void(0))
+.fi
+.PP
+在文件 lgc\&.h 第 170 行定义\&.
+.SS "#define luaC_white(g)   \fBcast_byte\fP((g)\->currentwhite & \fBWHITEBITS\fP)"
+
+.PP
+在文件 lgc\&.h 第 99 行定义\&.
+.SS "#define LUAI_GCMUL   100"
+
+.PP
+在文件 lgc\&.h 第 135 行定义\&.
+.SS "#define LUAI_GCPAUSE   200"
+
+.PP
+在文件 lgc\&.h 第 126 行定义\&.
+.SS "#define LUAI_GCSTEPSIZE   13      /* 8 \fBKB\fP */"
+
+.PP
+在文件 lgc\&.h 第 138 行定义\&.
+.SS "#define LUAI_GENMAJORMUL   100"
+
+.PP
+在文件 lgc\&.h 第 122 行定义\&.
+.SS "#define LUAI_GENMINORMUL   20"
+
+.PP
+在文件 lgc\&.h 第 123 行定义\&.
+.SS "#define otherwhite(g)   ((g)\->currentwhite ^ \fBWHITEBITS\fP)"
+
+.PP
+在文件 lgc\&.h 第 92 行定义\&.
+.SS "#define resetbit(x, b)   \fBresetbits\fP(x, \fBbitmask\fP(b))"
+
+.PP
+在文件 lgc\&.h 第 66 行定义\&.
+.SS "#define resetbits(x, m)   ((x) &= \fBcast_byte\fP(~(m)))"
+
+.PP
+在文件 lgc\&.h 第 60 行定义\&.
+.SS "#define setage(o, a)   ((o)\->marked = \fBcast_byte\fP(((o)\->marked & (~\fBAGEBITS\fP)) | a))"
+
+.PP
+在文件 lgc\&.h 第 114 行定义\&.
+.SS "#define setbits(x, m)   ((x) |= (m))"
+
+.PP
+在文件 lgc\&.h 第 61 行定义\&.
+.SS "#define setgcparam(p, v)   ((p) = (v) / 4)"
+
+.PP
+在文件 lgc\&.h 第 133 行定义\&.
+.SS "#define testbit(x, b)   \fBtestbits\fP(x, \fBbitmask\fP(b))"
+
+.PP
+在文件 lgc\&.h 第 67 行定义\&.
+.SS "#define testbits(x, m)   ((x) & (m))"
+
+.PP
+在文件 lgc\&.h 第 62 行定义\&.
+.SS "#define tofinalize(x)   \fBtestbit\fP((x)\->marked, \fBFINALIZEDBIT\fP)"
+
+.PP
+在文件 lgc\&.h 第 90 行定义\&.
+.SS "#define WHITE0BIT   3  /* object is white (type 0) */"
+
+.PP
+在文件 lgc\&.h 第 75 行定义\&.
+.SS "#define WHITE1BIT   4  /* object is white (type 1) */"
+
+.PP
+在文件 lgc\&.h 第 76 行定义\&.
+.SS "#define WHITEBITS   \fBbit2mask\fP(\fBWHITE0BIT\fP, \fBWHITE1BIT\fP)"
+
+.PP
+在文件 lgc\&.h 第 82 行定义\&.
+.SH "函数说明"
+.PP 
+.SS "\fBLUAI_FUNC\fP void luaC_barrier_ (\fBlua_State\fP * L, \fBGCObject\fP * o, \fBGCObject\fP * v)"
+
+.PP
+在文件 lgc\&.c 第 193 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaC_barrierback_ (\fBlua_State\fP * L, \fBGCObject\fP * o)"
+
+.PP
+在文件 lgc\&.c 第 214 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaC_changemode (\fBlua_State\fP * L, int newmode)"
+
+.PP
+在文件 lgc\&.c 第 1223 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaC_checkfinalizer (\fBlua_State\fP * L, \fBGCObject\fP * o, \fBTable\fP * mt)"
+
+.PP
+在文件 lgc\&.c 第 927 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaC_fix (\fBlua_State\fP * L, \fBGCObject\fP * o)"
+
+.PP
+在文件 lgc\&.c 第 225 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaC_freeallobjects (\fBlua_State\fP * L)"
+
+.PP
+在文件 lgc\&.c 第 1403 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaC_fullgc (\fBlua_State\fP * L, int isemergency)"
+
+.PP
+在文件 lgc\&.c 第 1603 行定义\&.
+.SS "\fBLUAI_FUNC\fP \fBGCObject\fP* luaC_newobj (\fBlua_State\fP * L, int tt, size_t sz)"
+
+.PP
+在文件 lgc\&.c 第 240 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaC_runtilstate (\fBlua_State\fP * L, int statesmask)"
+
+.PP
+在文件 lgc\&.c 第 1531 行定义\&.
+.SS "\fBLUAI_FUNC\fP void luaC_step (\fBlua_State\fP * L)"
+
+.PP
+在文件 lgc\&.c 第 1566 行定义\&.
+.SH "作者"
+.PP 
+由 Doyxgen 通过分析 Lua_Docmention 的 源代码自动生成\&.
