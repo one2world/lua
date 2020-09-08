@@ -993,7 +993,12 @@ static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
     return realloc(ptr, nsize);
 }
 
-
+/** 异常时被调用
+*@param[in] lua_State*类型,使用的luaState
+*@note  获取top处的错误信息,并调用 lua_writestringerror打印stderr
+如果没有错误信息,则打印 "error object is not a string"
+@see lua_writestringerror
+*/
 static int panic (lua_State *L) {
   const char *msg = lua_tostring(L, -1);
   if (msg == NULL) msg = "error object is not a string";
@@ -1031,7 +1036,14 @@ static void warnf (void *ud, const char *message, int tocont) {
   }
 }
 
-
+/** luaL_newstate 
+@detail 导出的newState函数
+@retrun lua_State结构对象
+@note 
+- 创建lua_State对象
+- 设置panic函数,异常调用函数
+- 设置warnf函数,warn调用函数
+*/
 LUALIB_API lua_State *luaL_newstate (void) {
   lua_State *L = lua_newstate(l_alloc, NULL);
   if (L) {

@@ -511,7 +511,43 @@ static const luaL_Reg base_funcs[] = {
   {NULL, NULL}
 };
 
+/** 加载基础库方法
+*@detail 被调用于luaL_openlibs,
+*@param[in] luaState
+*@return 1
+- 创建全局table
+- 设置基础库方法为table成员
+- 设置此table 为全局 _G 的值
+- 设置 _VERSION 为LUA_VERSION lua5.4
+* <table>
+* <tr><th>lua方法 <th>c方法 </tr>
+* <tr><td>assert  <td>luaB_assert</tr>
+* <tr><td>collectgarbage  <td>luaB_collectgarbage</tr>
+* <tr><td>dofile  <td>luaB_dofile</tr>
+* <tr><td>error <td>luaB_error</tr>
+* <tr><td>getmetatable  <td>luaB_getmetatable</tr>
+* <tr><td>ipairs  <td>luaB_ipairs</tr>
+* <tr><td>loadfile  <td>luaB_loadfile</tr>
+* <tr><td>load  <td>luaB_load</tr>
+* <tr><td>next  <td>luaB_next</tr>
+* <tr><td>pairs <td>luaB_pairs</tr>
+* <tr><td>pcall <td>luaB_pcall</tr>
+* <tr><td>print <td>luaB_print</tr>
+* <tr><td>warn  <td>luaB_warn</tr>
+* <tr><td>rawequal  <td>luaB_rawequal</tr>
+* <tr><td>rawlen  <td>luaB_rawlen</tr>
+* <tr><td>rawget  <td>luaB_rawget</tr>
+* <tr><td>rawset  <td>luaB_rawset</tr>
+* <tr><td>select  <td>luaB_select</tr>
+* <tr><td>setmetatable  <td>luaB_setmetatable</tr>
+* <tr><td>tonumber  <td>luaB_tonumber</tr>
+* <tr><td>tostring  <td>luaB_tostring</tr>
+* <tr><td>type  <td>luaB_type</tr>
+* <tr><td>xpcall  <td>luaB_xpcall</tr>
+* </table>
 
+- 
+*/
 LUAMOD_API int luaopen_base (lua_State *L) {
   /* open lib into global table */
   lua_pushglobaltable(L);

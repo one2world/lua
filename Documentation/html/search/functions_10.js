@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['quotefloat_3681',['quotefloat',['../lstrlib_8c.html#a443e80174fa539c37a640e5e6f65212c',1,'lstrlib.c']]]
+  ['quotefloat_3684',['quotefloat',['../lstrlib_8c.html#a443e80174fa539c37a640e5e6f65212c',1,'lstrlib.c']]]
 ];

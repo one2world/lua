@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['zgetc_5413',['zgetc',['../lzio_8h.html#aecca8ea1e6dc0c97b458f77c0e3491de',1,'lzio.h']]]
+  ['zgetc_5416',['zgetc',['../lzio_8h.html#aecca8ea1e6dc0c97b458f77c0e3491de',1,'lzio.h']]]
 ];

@@ -1,8 +1,8 @@
-.TH "D:/gitworkspace/lua/src/lua.h" 3 "2020年 九月 8日 星期二" "Lua_Docmention" \" -*- nroff -*-
+.TH "C:/Users/longyg/Documents/gitprojects/lua/src/lua.h" 3 "2020年 九月 9日 星期三" "Version 1.0" "Lua_Docmention" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-D:/gitworkspace/lua/src/lua.h
+C:/Users/longyg/Documents/gitprojects/lua/src/lua.h
 .SH SYNOPSIS
 .br
 .PP
@@ -1140,7 +1140,7 @@ D:/gitworkspace/lua/src/lua.h
 .SS "\fBLUA_API\fP void() lua_close (\fBlua_State\fP * L)"
 
 .PP
-在文件 lstate\&.c 第 438 行定义\&.
+在文件 lstate\&.c 第 449 行定义\&.
 .SS "\fBLUA_API\fP int() lua_compare (\fBlua_State\fP * L, int idx1, int idx2, int op)"
 
 .PP
@@ -1262,9 +1262,40 @@ D:/gitworkspace/lua/src/lua.h
 .PP
 在文件 lapi\&.c 第 1046 行定义\&.
 .SS "\fBLUA_API\fP \fBlua_State\fP*() lua_newstate (\fBlua_Alloc\fP f, void * ud)"
+lua_newstate, @detail 创建一个lua_State结构对象, 
+.PP
+\fB参数\fP
+.RS 4
+\fIf\fP lua_Alloc类型,内存申请&释放方法 
+.br
+\fIud\fP void*类型，内存申请&释放方法 
+.RE
+.PP
+\fB注解\fP
+.RS 4
+被引用于 luaL_newstate 'lua_newstate(l_alloc, NULL)', 
+.RE
+.PP
+\fB返回值\fP
+.RS 4
+\fIlua_State结构对象\fP 
+.br
+\fINULL\fP 创建LG内存失败,或者或者调用 f_luaopen 调用异常报错 
+.RE
+.PP
+\fB待办事项\fP
+.RS 4
+涉及GC的部分先TODO 
+.RE
+.PP
+\fB警告\fP
+.RS 4
+c代码的try catch,使用 setjmp/longjump, 可是 lua的LUAI_TRY, 没看到赋值status 却使用status判断执行成功失败？？ 
+.RE
+.PP
 
 .PP
-在文件 lstate\&.c 第 383 行定义\&.
+在文件 lstate\&.c 第 394 行定义\&.
 .SS "\fBLUA_API\fP \fBlua_State\fP*() lua_newthread (\fBlua_State\fP * L)"
 
 .PP

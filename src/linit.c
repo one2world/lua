@@ -53,7 +53,24 @@ static const luaL_Reg loadedlibs[] = {
   {NULL, NULL}
 };
 
-
+/** 加载lua库方法
+*@detail  导出的openlibs函数
+*@param[in] luaState
+除了base TODO
+* <table>
+* <tr><th>lua方法 <th>加载库方法 </tr>
+* <tr><td>_G  <td>luaopen_base</tr>
+* <tr><td>package  <td>luaopen_package</tr>
+* <tr><td>coroutine  <td>luaopen_coroutine</tr>
+* <tr><td>table <td>luaopen_table</tr>
+* <tr><td>io  <td>luaopen_io</tr>
+* <tr><td>os  <td>luaopen_os</tr>
+* <tr><td>string <td>luaopen_string</tr>
+* <tr><td>math  <td>luaopen_math</tr>
+* <tr><td>utf8  <td>luaopen_utf8</tr>
+* <tr><td>debug  <td>luaopen_debug</tr>
+* </table>
+*/
 LUALIB_API void luaL_openlibs (lua_State *L) {
   const luaL_Reg *lib;
   /* "require" functions from 'loadedlibs' and set results to global table */

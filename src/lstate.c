@@ -380,59 +380,64 @@ int lua_resetthread (lua_State *L) {
 }
 
 
-/** lua_newstate
+/** lua_newstate,
+@detail 创建一个lua_State结构对象,
+@param[in]	f	lua_Alloc类型,内存申请&释放方法
+@param[in]	ud	void*类型，内存申请&释放方法
 @note 被引用于 luaL_newstate 'lua_newstate(l_alloc, NULL)',
-@retval lua_State
-@retval NULL，(申请LG内存失败、
-@todo gc
+@retval lua_State结构对象
+@retval NULL	创建LG内存失败,或者或者调用 f_luaopen 调用异常报错
+@todo 涉及GC的部分先TODO
+@warning	c代码的try catch,使用 setjmp/longjump,
+可是 lua的LUAI_TRY, 没看到赋值status 却使用status判断执行成功失败？？
 */
 LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
-  int i;                                                            ///< 最后的for循环变量
-  lua_State *L;                                                     ///< 返回值变量
-  global_State *g;                                                  ///< global_state
-  LG *l = cast(LG *, (*f)(ud, NULL, LUA_TTHREAD, sizeof(LG)));      ///< { LX l; global_State g;}, 创建没有销毁，分别使用 l和g。
+  int i;                                                            // 最后的for循环变量
+  lua_State *L;                                                     // 返回值变量
+  global_State *g;                                                  // global_state
+  LG *l = cast(LG *, (*f)(ud, NULL, LUA_TTHREAD, sizeof(LG)));      // { LX l; global_State g;}, 创建没有销毁，分别使用 l和g。
   if (l == NULL) return NULL;
   L = &l->l.l;
   g = &l->g;
-  L->tt = LUA_VTHREAD;                                              ///< lua所有对象包含CommonHeader，含有tt类型值，这里lua_State 类型为LUA_VTHREAD
-  g->currentwhite = bitmask(WHITE0BIT);                             ///< g的垃圾回收标志,WHITE0BIT = 3，bitmask(x)= 1<< x, 0b1000
+  L->tt = LUA_VTHREAD;                                              // lua所有对象包含CommonHeader，含有tt类型值，这里lua_State 类型为LUA_VTHREAD
+  g->currentwhite = bitmask(WHITE0BIT);                             // g的垃圾回收标志,WHITE0BIT = 3，bitmask(x)= 1<< x, 0b1000
   L->marked = luaC_white(g);
-  preinit_thread(L, g);                                             ///< 重置lua_State变量,并 L->l_G = g
-  g->allgc = obj2gco(L);                                            ///< 转换得到gc头赋值给allgc(所有gc object’list)  /* by now, only object is the main thread */
+  preinit_thread(L, g);                                             // 重置lua_State变量,并 L->l_G = g
+  g->allgc = obj2gco(L);                                            // 转换得到gc头赋值给allgc(所有gc object’list)  /* by now, only object is the main thread */
   L->next = NULL;
-  g->Cstacklimit = L->nCcalls = LUAI_MAXCSTACK + CSTACKERR;         ///< 2080
-  g->frealloc = f;                                                  ///< 设置 alloc_free 函数，设计的思路根据字节数判断销毁/申请。
-  g->ud = ud;                                                       ///< TODO
-  g->warnf = NULL;                                                  ///< warn 函数,
-  g->ud_warn = NULL;                                                ///< TODO
-  g->mainthread = L;                                                ///< mainthread
-  g->seed = luai_makeseed(L);                                       ///< L、time、lua_newState函数组成的字符数组 的hash 值，作为seed。
-  g->gcrunning = 0;                                                 ///< TODO /* no GC while building state */  
-  g->strt.size = g->strt.nuse = 0;                                  ///< 重置string hash table
+  g->Cstacklimit = L->nCcalls = LUAI_MAXCSTACK + CSTACKERR;         // 2080
+  g->frealloc = f;                                                  // 设置 alloc_free 函数，设计的思路根据字节数判断销毁/申请。
+  g->ud = ud;                                                       // TODO
+  g->warnf = NULL;                                                  // warn 函数,
+  g->ud_warn = NULL;                                                // TODO
+  g->mainthread = L;                                                // mainthread
+  g->seed = luai_makeseed(L);                                       // L、time、lua_newState函数组成的字符数组 的hash 值，作为seed。
+  g->gcrunning = 0;                                                 // TODO /* no GC while building state */  
+  g->strt.size = g->strt.nuse = 0;                                  // 重置string hash table
   g->strt.hash = NULL;
-  setnilvalue(&g->l_registry);                                      ///< l_registry 类型设置为nil
-  g->panic = NULL;                                                  ///<  TODO
-  g->gcstate = GCSpause;                                            ///< gc state = pause 8
-  g->gckind = KGC_INC;                                              ///< TODO gckind
-  g->gcemergency = 0;                                               ///< 紧急gc，true/false
-  g->finobj = g->tobefnz = g->fixedgc = NULL;                       ///< finalizer gc obj root, TODO
-  g->survival = g->old = g->reallyold = NULL;                       ///<  
+  setnilvalue(&g->l_registry);                                      // l_registry 类型设置为nil
+  g->panic = NULL;                                                  //  TODO
+  g->gcstate = GCSpause;                                            // gc state = pause 8
+  g->gckind = KGC_INC;                                              // TODO gckind
+  g->gcemergency = 0;                                               // 紧急gc，true/false
+  g->finobj = g->tobefnz = g->fixedgc = NULL;                       // finalizer gc obj root, TODO
+  g->survival = g->old = g->reallyold = NULL;                       //  
   g->finobjsur = g->finobjold = g->finobjrold = NULL;
   g->sweepgc = NULL;
   g->gray = g->grayagain = NULL;
   g->weak = g->ephemeron = g->allweak = NULL;
-  g->twups = NULL;                                                  ///< list of threads with open upvalues
-  g->totalbytes = sizeof(LG);                                       ///< lg size
-  g->GCdebt = 0;                                                    ///< alloc bytes
-  g->lastatomic = 0;                                                ///<  see function 'genstep' in file 'lgc.c'
+  g->twups = NULL;                                                  // list of threads with open upvalues
+  g->totalbytes = sizeof(LG);                                       // lg size
+  g->GCdebt = 0;                                                    // alloc bytes
+  g->lastatomic = 0;                                                //  see function 'genstep' in file 'lgc.c'
   setivalue(&g->nilvalue, 0);  /* to signal that state is not yet built */
   setgcparam(g->gcpause, LUAI_GCPAUSE);
   setgcparam(g->gcstepmul, LUAI_GCMUL);
   g->gcstepsize = LUAI_GCSTEPSIZE;
   setgcparam(g->genmajormul, LUAI_GENMAJORMUL);
   g->genminormul = LUAI_GENMINORMUL;
-  for (i=0; i < LUA_NUMTAGS; i++) g->mt[i] = NULL;                  ///< metatable for basic type.
-  if (luaD_rawrunprotected(L, f_luaopen, NULL) != LUA_OK) {         ///< 使用longjum
+  for (i=0; i < LUA_NUMTAGS; i++) g->mt[i] = NULL;                  // metatable for basic type.
+  if (luaD_rawrunprotected(L, f_luaopen, NULL) != LUA_OK) {         // 使用longjum
     /* memory allocation error: free partial state */
     close_state(L);
     L = NULL;
